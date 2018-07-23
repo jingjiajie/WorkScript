@@ -1,0 +1,232 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Generated">
+      <UniqueIdentifier>{af6842cb-e3bd-4c02-b3b2-3624069e10f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataStructures">
+      <UniqueIdentifier>{290aa4fa-2316-4e89-8a37-a8d8bf1d7ad8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataStructures\Context">
+      <UniqueIdentifier>{44a78df9-527f-46f6-9167-419c1a024f3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataStructures\Context\Headers">
+      <UniqueIdentifier>{3c6b7111-43e6-47e2-a707-ea2f39feaa9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataStructures\Context\Sources">
+      <UniqueIdentifier>{26d88c26-7747-491c-8aae-c8053f834e0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataStructures\Expressions">
+      <UniqueIdentifier>{d9631a69-ff7e-4ff9-94ba-2192f41591d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataStructures\Expressions\Headers">
+      <UniqueIdentifier>{b881fdd9-1629-437b-8f70-9a3a8fa3dd61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataStructures\Expressions\Sources">
+      <UniqueIdentifier>{4637c28a-a4ab-410d-857e-cfc51fcb7c10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataStructures\Exceptions">
+      <UniqueIdentifier>{311c739c-1a0c-45fa-991c-cf796f66aa84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataStructures\Exceptions\Headers">
+      <UniqueIdentifier>{de9cdb51-47c5-4a75-8188-93a6b1ea17d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataStructures\Exceptions\Sources">
+      <UniqueIdentifier>{17608f06-93a1-40c1-befb-2d1504149714}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Runner">
+      <UniqueIdentifier>{a1260af9-bb26-4725-a207-e8b5bdc96136}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Runner\Headers">
+      <UniqueIdentifier>{c9b6ab29-c0c0-43a8-b030-c083b16edff9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Runner\Sources">
+      <UniqueIdentifier>{810d3da8-5f19-46fb-8416-c5e033f840e0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Context.h">
+      <Filter>DataStructures\Context\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Expression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="WorkScriptException.h">
+      <Filter>DataStructures\Exceptions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="UnimplementedException.h">
+      <Filter>DataStructures\Exceptions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="RelationExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="IdentifierExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ExpressionBind.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Generated\WorkScriptBaseVisitor.h">
+      <Filter>Generated</Filter>
+    </ClInclude>
+    <ClInclude Include="Generated\WorkScriptLexer.h">
+      <Filter>Generated</Filter>
+    </ClInclude>
+    <ClInclude Include="Generated\WorkScriptParser.h">
+      <Filter>Generated</Filter>
+    </ClInclude>
+    <ClInclude Include="Generated\WorkScriptVisitor.h">
+      <Filter>Generated</Filter>
+    </ClInclude>
+    <ClInclude Include="WorkScriptVisitorImpl.h">
+      <Filter>Runner\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ExpressionWrapper.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="VariableExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ParentheseExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeMemberExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MemberEvaluateExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="AccessDeniedException.h">
+      <Filter>DataStructures\Exceptions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GetTypeExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ThisExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PrintExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ExecuteCppCodeExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="StringExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="NumberExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemContext.h">
+      <Filter>DataStructures\Context\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PlusExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MinusExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiTermExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PolynomialExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Context.cpp">
+      <Filter>DataStructures\Context\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Expression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="WorkScriptException.cpp">
+      <Filter>DataStructures\Exceptions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="WorkScript.cpp" />
+    <ClCompile Include="UnimplementedException.cpp">
+      <Filter>DataStructures\Exceptions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="RelationExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="IdentifierExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ExpressionBind.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Generated\WorkScriptBaseVisitor.cpp">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="Generated\WorkScriptLexer.cpp">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="Generated\WorkScriptParser.cpp">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="Generated\WorkScriptVisitor.cpp">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="WorkScriptVisitorImpl.cpp">
+      <Filter>Runner\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ExpressionWrapper.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="VariableExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ParentheseExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeMemberExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MemberEvaluateExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="AccessDeniedException.cpp">
+      <Filter>DataStructures\Exceptions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="GetTypeExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ThisExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PrintExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ExecuteCppCodeExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="StringExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="NumberExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemContext.cpp">
+      <Filter>DataStructures\Context\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PlusExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MinusExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiTermExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PolynomialExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
