@@ -96,7 +96,7 @@ std::shared_ptr<const NumberExpression> PlusExpression::numberPlusNumber(const s
 std::shared_ptr<const StringExpression> PlusExpression::exprPlusExpr(const std::shared_ptr<const Expression>&left, const std::shared_ptr<const Expression>&right) const
 {
 	SPCEXPRESSION toStringExpr(new MultiTermExpression(this->context, { SPCEXPRESSION(new IdentifierExpression(this->context, "toString")), SPCEXPRESSION(new ParentheseExpression(this->context, nullptr)) }));
-	SPCEXPRESSION leftToStringEvaluate(new MemberEvaluateExpression(this->context, leftExpression, toStringExpr));
+	SPCEXPRESSION leftToStringEvaluate(new MemberEvaluateExpression(this->context, left, toStringExpr));
 	SPCEXPRESSION rightToStringEvaluate(new MemberEvaluateExpression(this->context, right, toStringExpr));
 	auto leftEvaluatedStringExpr = dynamic_pointer_cast<const StringExpression>(leftToStringEvaluate->evaluate(ExpressionBind()));
 	auto rightEvaluatedStringExpr = dynamic_pointer_cast<const StringExpression>(rightToStringEvaluate->evaluate(ExpressionBind()));

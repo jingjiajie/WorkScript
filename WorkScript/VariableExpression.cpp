@@ -15,6 +15,7 @@ VariableExpression::~VariableExpression()
 const std::shared_ptr<const Expression> VariableExpression::evaluate(const ExpressionBind &expressionBind) const
 {
 	auto mappedExpr = expressionBind.getMappedExpression(this->shared_from_this());
+	if (mappedExpr == nullptr) return this->shared_from_this();
 	auto matchResult = this->matchFirstUpInContextAndEvaluate(mappedExpr);
 	if (matchResult == nullptr) {
 		return mappedExpr;
@@ -35,10 +36,12 @@ bool VariableExpression::match(const std::shared_ptr<const Expression>& matchExp
 	if (IdentifierExpression::match(matchExpression, outExpressionBind)) {
 		return true;
 	}
-	//否则尝试绑定值或表达式
+	//否则尝试绑定值或表达式，但不绑定变量！
+	//因为普通求值表达式不会产生变量，变量一定是之前关系表达式右部匹配失败剩余的变量
+	//若匹配变量，则会造成不可预知的逻辑错误
 	auto matchType = matchExpression->getType();
-	auto valueExpressionType = this->context->findType(TYPENAME_POLYNOMIAL_EXPRESSION,false);
-	if (matchType->isSubTypeOf(valueExpressionType)) {
+	auto variableExpressionType = this->getType();
+	if (!matchType->equals(variableExpressionType)) {
 		outExpressionBind->addExpressionMap(this->shared_from_this(), matchExpression);
 		return true;
 	}
