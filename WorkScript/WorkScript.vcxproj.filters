@@ -135,6 +135,12 @@
     <ClInclude Include="PolynomialExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="MultiplyExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DivideExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Context.cpp">
@@ -226,6 +232,12 @@
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="PolynomialExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiplyExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="DivideExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
   </ItemGroup>

@@ -11,8 +11,9 @@ relationExpression:
 	polynomialExpression EQUALS polynomialExpression;
 
 polynomialExpression:
-	termExpression												# TermExpressionInPolynomial
-	| polynomialExpression (PLUS | MINUS) polynomialExpression	# PlusMinusExpression;
+	termExpression													# TermExpressionInPolynomial
+	| polynomialExpression (MULTIPLY | DIVIDE) polynomialExpression	# MultiplyDivideExpression
+	| polynomialExpression (PLUS | MINUS) polynomialExpression		# PlusMinusExpression;
 
 termExpression:
 	NUMBER													# NumberExpression
@@ -36,6 +37,8 @@ RIGHT_BRACE: '}';
 EQUALS: '=';
 PLUS: '+';
 MINUS: '-';
+MULTIPLY: '*';
+DIVIDE: '/';
 GREATER_THAN: '>';
 GREATER_THAN_EQUAL: '>=';
 LESS_THAN: '<';

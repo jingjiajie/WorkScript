@@ -25,6 +25,8 @@ public:
 
     virtual antlrcpp::Any visitRelationExpression(WorkScriptParser::RelationExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitTermExpressionInPolynomial(WorkScriptParser::TermExpressionInPolynomialContext *context) = 0;
 
     virtual antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *context) = 0;

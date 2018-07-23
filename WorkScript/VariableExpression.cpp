@@ -37,7 +37,7 @@ bool VariableExpression::match(const std::shared_ptr<const Expression>& matchExp
 	}
 	//否则尝试绑定值或表达式
 	auto matchType = matchExpression->getType();
-	auto valueExpressionType = this->context->findType(TYPENAME_VALUE_EXPRESSION,false);
+	auto valueExpressionType = this->context->findType(TYPENAME_POLYNOMIAL_EXPRESSION,false);
 	if (matchType->isSubTypeOf(valueExpressionType)) {
 		outExpressionBind->addExpressionMap(this->shared_from_this(), matchExpression);
 		return true;

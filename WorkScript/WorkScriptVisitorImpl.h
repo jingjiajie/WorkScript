@@ -18,6 +18,7 @@ public:
 	antlrcpp::Any visitExpression(WorkScriptParser::ExpressionContext*) override;
 	antlrcpp::Any visitMemberEvaluateExpression(WorkScriptParser::MemberEvaluateExpressionContext*) override;
 	antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext*) override;
+	antlrcpp::Any visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext*) override;
 	WorkScriptVisitorImpl(Context*);
 	virtual ~WorkScriptVisitorImpl();
 private:

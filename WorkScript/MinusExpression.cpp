@@ -68,7 +68,7 @@ bool MinusExpression::equals(const std::shared_ptr<const Expression> &target) co
 
 const std::shared_ptr<const TypeExpression> MinusExpression::getType() const
 {
-	return this->context->findType(TYPENAME_PLUS_EXPRESSION, false);
+	return this->context->findType(TYPENAME_MINUS_EXPRESSION, false);
 }
 
 const std::shared_ptr<const Expression> MinusExpression::getLeftExpression() const

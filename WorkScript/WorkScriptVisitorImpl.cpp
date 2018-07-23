@@ -15,6 +15,8 @@
 #include "PlusExpression.h"
 #include "MinusExpression.h"
 #include "MemberEvaluateExpression.h"
+#include "MultiplyExpression.h"
+#include "DivideExpression.h"
 
 using namespace std;
 
@@ -142,7 +144,20 @@ antlrcpp::Any WorkScriptVisitorImpl::visitPlusMinusExpression(WorkScriptParser::
 	else { //MINUS
 		return ExpressionWrapper(make_shared<const MinusExpression>(this->context, leftExpression, rightExpression));
 	}
+}
 
+antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext *ctx)
+{
+	const ExpressionWrapper &leftExpressionWrapper = ctx->polynomialExpression()[0]->accept(this);
+	auto leftExpression = leftExpressionWrapper.getExpression();
+	const ExpressionWrapper &rightExpressionWrapper = ctx->polynomialExpression()[1]->accept(this);
+	auto rightExpression = rightExpressionWrapper.getExpression();
+	if (ctx->MULTIPLY()) {
+		return ExpressionWrapper(make_shared<const MultiplyExpression>(this->context, leftExpression, rightExpression));
+	}
+	else { //MINUS
+		return ExpressionWrapper(make_shared<const DivideExpression>(this->context, leftExpression, rightExpression));
+	}
 }
 
 WorkScriptVisitorImpl::WorkScriptVisitorImpl(Context *lpContext)

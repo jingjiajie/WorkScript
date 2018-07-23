@@ -303,6 +303,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AccessDeniedException.h" />
+    <ClInclude Include="DivideExpression.h" />
     <ClInclude Include="ExecuteCppCodeExpression.h" />
     <ClInclude Include="ExpressionWrapper.h" />
     <ClInclude Include="Generated\WorkScriptBaseVisitor.h" />
@@ -313,6 +314,7 @@
     <ClInclude Include="IdentifierExpression.h" />
     <ClInclude Include="MemberEvaluateExpression.h" />
     <ClInclude Include="MinusExpression.h" />
+    <ClInclude Include="MultiplyExpression.h" />
     <ClInclude Include="MultiTermExpression.h" />
     <ClInclude Include="NumberExpression.h" />
     <ClInclude Include="ParentheseExpression.h" />
@@ -335,6 +337,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccessDeniedException.cpp" />
+    <ClCompile Include="DivideExpression.cpp" />
     <ClCompile Include="ExecuteCppCodeExpression.cpp" />
     <ClCompile Include="ExpressionBind.cpp" />
     <ClCompile Include="ExpressionWrapper.cpp" />
@@ -346,6 +349,7 @@
     <ClCompile Include="IdentifierExpression.cpp" />
     <ClCompile Include="MemberEvaluateExpression.cpp" />
     <ClCompile Include="MinusExpression.cpp" />
+    <ClCompile Include="MultiplyExpression.cpp" />
     <ClCompile Include="MultiTermExpression.cpp" />
     <ClCompile Include="NumberExpression.cpp" />
     <ClCompile Include="ParentheseExpression.cpp" />

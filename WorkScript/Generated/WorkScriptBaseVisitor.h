@@ -27,6 +27,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitTermExpressionInPolynomial(WorkScriptParser::TermExpressionInPolynomialContext *ctx) override {
     return visitChildren(ctx);
   }

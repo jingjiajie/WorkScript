@@ -14,8 +14,8 @@ public:
   enum {
     IDENTIFIER = 1, NUMBER = 2, STRING = 3, POINT = 4, NEWLINE = 5, LEFT_PARENTHESE = 6, 
     RIGHT_PARENTHESE = 7, LEFT_BRACE = 8, RIGHT_BRACE = 9, EQUALS = 10, 
-    PLUS = 11, MINUS = 12, GREATER_THAN = 13, GREATER_THAN_EQUAL = 14, LESS_THAN = 15, 
-    LESS_THAN_EQUAL = 16, WS = 17
+    PLUS = 11, MINUS = 12, MULTIPLY = 13, DIVIDE = 14, GREATER_THAN = 15, 
+    GREATER_THAN_EQUAL = 16, LESS_THAN = 17, LESS_THAN_EQUAL = 18, WS = 19
   };
 
   enum {
@@ -97,6 +97,17 @@ public:
    
   };
 
+  class  MultiplyDivideExpressionContext : public PolynomialExpressionContext {
+  public:
+    MultiplyDivideExpressionContext(PolynomialExpressionContext *ctx);
+
+    std::vector<PolynomialExpressionContext *> polynomialExpression();
+    PolynomialExpressionContext* polynomialExpression(size_t i);
+    antlr4::tree::TerminalNode *MULTIPLY();
+    antlr4::tree::TerminalNode *DIVIDE();
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  TermExpressionInPolynomialContext : public PolynomialExpressionContext {
   public:
     TermExpressionInPolynomialContext(PolynomialExpressionContext *ctx);
@@ -155,8 +166,8 @@ public:
     ParentheseExpressionContext(TermExpressionContext *ctx);
 
     antlr4::tree::TerminalNode *LEFT_PARENTHESE();
-    antlr4::tree::TerminalNode *RIGHT_PARENTHESE();
     PolynomialExpressionContext *polynomialExpression();
+    antlr4::tree::TerminalNode *RIGHT_PARENTHESE();
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
