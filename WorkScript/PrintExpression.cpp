@@ -36,8 +36,10 @@ const std::shared_ptr<const Expression> PrintExpression::evaluate(const Expressi
 	shared_ptr<const MemberEvaluateExpression> objToStringEvaluateExpression(new MemberEvaluateExpression(this->context, mappedExpression, toStringFunctionExpression));
 	auto result = (shared_ptr<const StringExpression>&)objToStringEvaluateExpression->evaluate(expressionBind);
 	cout << result->getValue();
-	shared_ptr<const PrintExpression> newMe(new PrintExpression(this->context,mappedExpression));
-	return newMe;
+	/*shared_ptr<const PrintExpression> newMe(new PrintExpression(this->context,mappedExpression));
+	return newMe;*/
+	SPCEXPRESSION voidExpression(new ParentheseExpression(this->context,nullptr));
+	return voidExpression;
 }
 
 bool PrintExpression::match(const std::shared_ptr<const Expression>& matchExpression, ExpressionBind * outExpressionBind) const

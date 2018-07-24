@@ -54,18 +54,24 @@ bool ParentheseExpression::match(const std::shared_ptr<const Expression>& matchE
 
 bool ParentheseExpression::equals(const std::shared_ptr<const Expression>& targetExpression) const
 {
-	//要求类型完全匹配，并且子表达式全部相等
+	//拆括号匹配，若子表达式不为空，则要求子表达式类型完全匹配，并且子表达式全部相等。
+	//否则空括号等于空括号
 	auto targetType = targetExpression->getType();
-	if (!targetType->isSubTypeOf(this->context->findType(TYPENAME_PARENTHESE_EXPRESSION, false))) {
-		return false;
+	if (this->subExpression == nullptr) {
+		if (!targetType->equals(this->context->findType(TYPENAME_PARENTHESE_EXPRESSION, false))) {
+			return false;
+		}
+		auto targetParentheseExpression = (const std::shared_ptr<const ParentheseExpression>&) targetExpression;
+		return targetParentheseExpression->subExpression == nullptr;
 	}
-	auto targetParentheseExpression = (const std::shared_ptr<const ParentheseExpression>&) targetExpression;
-	if (this->subExpression == nullptr && targetParentheseExpression->subExpression == nullptr) {
-		return true;
-	}
-	else {
-		if (this->subExpression == nullptr || targetParentheseExpression->subExpression == nullptr) return false;
-		return this->subExpression->equals(targetParentheseExpression->subExpression);
+	else { //子表达式不为空的情况
+		if (targetType->equals(this->context->findType(TYPENAME_PARENTHESE_EXPRESSION, false))) {
+			auto targetParentheseExpression = (const std::shared_ptr<const ParentheseExpression>&) targetExpression;
+			return targetParentheseExpression->subExpression->equals(this->subExpression);
+		}
+		else {
+			return this->subExpression->equals(targetExpression);
+		}
 	}
 }
 

@@ -45,7 +45,7 @@ const std::shared_ptr<const Expression> MultiTermExpression::evaluate(const Expr
 bool MultiTermExpression::match(const std::shared_ptr<const Expression>& targetExpression, ExpressionBind * outExpressionBind) const
 {
 	if (!targetExpression->getType()->equals(this->getType()))return false;
-	auto targetMultiValueExpression = (const std::shared_ptr<const MultiTermExpression> &)targetExpression;
+ 	auto targetMultiValueExpression = (const std::shared_ptr<const MultiTermExpression> &)targetExpression;
 	//如果目标的子表达式个数小于自己的子表达式个数，则匹配失败
 	if (targetMultiValueExpression->subExpressions.size() < this->subExpressions.size()) {
 		return false;
