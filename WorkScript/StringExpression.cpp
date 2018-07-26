@@ -27,7 +27,8 @@ StringExpression::~StringExpression()
 
 const std::shared_ptr<const Expression> StringExpression::evaluate(const ExpressionBind &) const
 {
-	return this->shared_from_this();
+	auto matchResult = this->matchFirstUpInContextAndEvaluate(this->shared_from_this());
+	return matchResult == nullptr ? this->shared_from_this() : matchResult;
 }
 
 bool StringExpression::match(const std::shared_ptr<const Expression>& matchExpression, ExpressionBind * outExpressionBind) const

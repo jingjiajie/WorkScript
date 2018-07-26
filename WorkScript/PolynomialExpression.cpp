@@ -13,6 +13,11 @@ PolynomialExpression::PolynomialExpression(Context * const & context, const std:
 	this->setSubExpressions(subExpressions);
 }
 
+PolynomialExpression::PolynomialExpression(Context * const & context)
+	:ValueExpression(context)
+{
+}
+
 PolynomialExpression::~PolynomialExpression()
 {
 }
@@ -27,13 +32,19 @@ void PolynomialExpression::setSubExpressions(const std::vector<std::shared_ptr<c
 	this->subExpressions = subExpressions;
 }
 
+std::shared_ptr<PolynomialExpression> PolynomialExpression::newInstance() const
+{
+	return make_shared<PolynomialExpression>(this->context);
+}
+
 const std::shared_ptr<const Expression> PolynomialExpression::evaluate(const ExpressionBind &expressionBind) const
 {
 	vector<shared_ptr<const Expression>> subExpressionEvaluateResults;
 	for (size_t i = 0; i < this->subExpressions.size(); i++) {
 		subExpressionEvaluateResults.push_back(this->subExpressions[i]->evaluate(expressionBind));
 	}
-	auto newMe = make_shared<const PolynomialExpression>(this->context, subExpressionEvaluateResults);
+	auto newMe = this->newInstance();
+	newMe->setSubExpressions(subExpressionEvaluateResults);
 	auto matchResult = this->matchFirstUpInContextAndEvaluate(newMe);
 	if (matchResult != nullptr) {
 		return matchResult;
@@ -59,7 +70,7 @@ bool PolynomialExpression::match(const std::shared_ptr<const Expression>& target
 		}
 		return true;
 	}
-	else { //如果目标表达式的子表达式个数大于自己的子表达式个数，且自己的最后一个子表达式是变量，则最后变量匹配目标剩余所有子表达式
+	else if(this->allowLastVariableMatchRests){ //目标表达式的子表达式个数大于自己的子表达式个数，并且开启了最后一项变量匹配所有剩余表达式，并且且自己的最后一个子表达式是变量，则最后变量匹配目标剩余所有子表达式
 		size_t mySubExprCount = this->subExpressions.size();
 		size_t targetSubExprCount = targetPolynomialExpression->subExpressions.size();
 		auto myLastExpr = this->subExpressions[mySubExprCount - 1];
@@ -80,7 +91,7 @@ bool PolynomialExpression::match(const std::shared_ptr<const Expression>& target
 		}
 		return true;
 	}
-	return true;
+	return false;
 }
 
 bool PolynomialExpression::equals(const std::shared_ptr<const Expression> &targetExpression) const

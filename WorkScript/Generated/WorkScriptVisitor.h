@@ -27,23 +27,25 @@ public:
 
     virtual antlrcpp::Any visitPolynomialExpression(WorkScriptParser::PolynomialExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitFunctionPolynomialExpression(WorkScriptParser::FunctionPolynomialExpressionContext *context) = 0;
-
     virtual antlrcpp::Any visitMemberEvaluateExpression(WorkScriptParser::MemberEvaluateExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitEvaluatedFunctionExpression(WorkScriptParser::EvaluatedFunctionExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitNumberExpression(WorkScriptParser::NumberExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitIndependentParentheseExpression(WorkScriptParser::IndependentParentheseExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitCompareExpression(WorkScriptParser::CompareExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitDirectFunctionExpression(WorkScriptParser::DirectFunctionExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitIdentifierExpression(WorkScriptParser::IdentifierExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *context) = 0;
 
 
 };

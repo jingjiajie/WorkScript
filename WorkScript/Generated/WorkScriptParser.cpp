@@ -78,12 +78,12 @@ WorkScriptParser::ProgramContext* WorkScriptParser::program() {
     exitRule();
   });
   try {
-    setState(20);
+    setState(18);
     _errHandler->sync(this);
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 2, _ctx)) {
     case 1: {
       enterOuterAlt(_localctx, 1);
-      setState(16);
+      setState(14);
       _errHandler->sync(this);
       _la = _input->LA(1);
       while ((((_la & ~ 0x3fULL) == 0) &&
@@ -92,20 +92,20 @@ WorkScriptParser::ProgramContext* WorkScriptParser::program() {
         | (1ULL << WorkScriptParser::STRING)
         | (1ULL << WorkScriptParser::NEWLINE)
         | (1ULL << WorkScriptParser::LEFT_PARENTHESE))) != 0)) {
-        setState(14);
+        setState(12);
         _errHandler->sync(this);
         switch (_input->LA(1)) {
           case WorkScriptParser::IDENTIFIER:
           case WorkScriptParser::NUMBER:
           case WorkScriptParser::STRING:
           case WorkScriptParser::LEFT_PARENTHESE: {
-            setState(12);
+            setState(10);
             expression();
             break;
           }
 
           case WorkScriptParser::NEWLINE: {
-            setState(13);
+            setState(11);
             match(WorkScriptParser::NEWLINE);
             break;
           }
@@ -113,7 +113,7 @@ WorkScriptParser::ProgramContext* WorkScriptParser::program() {
         default:
           throw NoViableAltException(this);
         }
-        setState(18);
+        setState(16);
         _errHandler->sync(this);
         _la = _input->LA(1);
       }
@@ -122,7 +122,7 @@ WorkScriptParser::ProgramContext* WorkScriptParser::program() {
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(19);
+      setState(17);
       match(WorkScriptParser::EOF);
       break;
     }
@@ -183,23 +183,23 @@ WorkScriptParser::ExpressionContext* WorkScriptParser::expression() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(24);
+    setState(22);
     _errHandler->sync(this);
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 3, _ctx)) {
     case 1: {
-      setState(22);
+      setState(20);
       polynomialExpression();
       break;
     }
 
     case 2: {
-      setState(23);
+      setState(21);
       relationExpression();
       break;
     }
 
     }
-    setState(26);
+    setState(24);
     _la = _input->LA(1);
     if (!(_la == WorkScriptParser::EOF
 
@@ -260,11 +260,11 @@ WorkScriptParser::RelationExpressionContext* WorkScriptParser::relationExpressio
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(28);
+    setState(26);
     polynomialExpression();
-    setState(29);
+    setState(27);
     match(WorkScriptParser::EQUALS);
-    setState(30);
+    setState(28);
     polynomialExpression();
    
   }
@@ -313,13 +313,13 @@ WorkScriptParser::PolynomialExpressionContext* WorkScriptParser::polynomialExpre
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(33); 
+    setState(31); 
     _errHandler->sync(this);
     _la = _input->LA(1);
     do {
-      setState(32);
+      setState(30);
       termExpression(0);
-      setState(35); 
+      setState(33); 
       _errHandler->sync(this);
       _la = _input->LA(1);
     } while ((((_la & ~ 0x3fULL) == 0) &&
@@ -353,24 +353,6 @@ void WorkScriptParser::TermExpressionContext::copyFrom(TermExpressionContext *ct
   ParserRuleContext::copyFrom(ctx);
 }
 
-//----------------- FunctionPolynomialExpressionContext ------------------------------------------------------------------
-
-WorkScriptParser::TermExpressionContext* WorkScriptParser::FunctionPolynomialExpressionContext::termExpression() {
-  return getRuleContext<WorkScriptParser::TermExpressionContext>(0);
-}
-
-WorkScriptParser::ParentheseExpressionContext* WorkScriptParser::FunctionPolynomialExpressionContext::parentheseExpression() {
-  return getRuleContext<WorkScriptParser::ParentheseExpressionContext>(0);
-}
-
-WorkScriptParser::FunctionPolynomialExpressionContext::FunctionPolynomialExpressionContext(TermExpressionContext *ctx) { copyFrom(ctx); }
-
-antlrcpp::Any WorkScriptParser::FunctionPolynomialExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
-  if (auto parserVisitor = dynamic_cast<WorkScriptVisitor*>(visitor))
-    return parserVisitor->visitFunctionPolynomialExpression(this);
-  else
-    return visitor->visitChildren(this);
-}
 //----------------- MemberEvaluateExpressionContext ------------------------------------------------------------------
 
 std::vector<WorkScriptParser::TermExpressionContext *> WorkScriptParser::MemberEvaluateExpressionContext::termExpression() {
@@ -433,6 +415,40 @@ antlrcpp::Any WorkScriptParser::StringExpressionContext::accept(tree::ParseTreeV
   else
     return visitor->visitChildren(this);
 }
+//----------------- EvaluatedFunctionExpressionContext ------------------------------------------------------------------
+
+std::vector<tree::TerminalNode *> WorkScriptParser::EvaluatedFunctionExpressionContext::LEFT_PARENTHESE() {
+  return getTokens(WorkScriptParser::LEFT_PARENTHESE);
+}
+
+tree::TerminalNode* WorkScriptParser::EvaluatedFunctionExpressionContext::LEFT_PARENTHESE(size_t i) {
+  return getToken(WorkScriptParser::LEFT_PARENTHESE, i);
+}
+
+std::vector<tree::TerminalNode *> WorkScriptParser::EvaluatedFunctionExpressionContext::RIGHT_PARENTHESE() {
+  return getTokens(WorkScriptParser::RIGHT_PARENTHESE);
+}
+
+tree::TerminalNode* WorkScriptParser::EvaluatedFunctionExpressionContext::RIGHT_PARENTHESE(size_t i) {
+  return getToken(WorkScriptParser::RIGHT_PARENTHESE, i);
+}
+
+std::vector<WorkScriptParser::PolynomialExpressionContext *> WorkScriptParser::EvaluatedFunctionExpressionContext::polynomialExpression() {
+  return getRuleContexts<WorkScriptParser::PolynomialExpressionContext>();
+}
+
+WorkScriptParser::PolynomialExpressionContext* WorkScriptParser::EvaluatedFunctionExpressionContext::polynomialExpression(size_t i) {
+  return getRuleContext<WorkScriptParser::PolynomialExpressionContext>(i);
+}
+
+WorkScriptParser::EvaluatedFunctionExpressionContext::EvaluatedFunctionExpressionContext(TermExpressionContext *ctx) { copyFrom(ctx); }
+
+antlrcpp::Any WorkScriptParser::EvaluatedFunctionExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<WorkScriptVisitor*>(visitor))
+    return parserVisitor->visitEvaluatedFunctionExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
 //----------------- NumberExpressionContext ------------------------------------------------------------------
 
 tree::TerminalNode* WorkScriptParser::NumberExpressionContext::NUMBER() {
@@ -449,8 +465,16 @@ antlrcpp::Any WorkScriptParser::NumberExpressionContext::accept(tree::ParseTreeV
 }
 //----------------- IndependentParentheseExpressionContext ------------------------------------------------------------------
 
-WorkScriptParser::ParentheseExpressionContext* WorkScriptParser::IndependentParentheseExpressionContext::parentheseExpression() {
-  return getRuleContext<WorkScriptParser::ParentheseExpressionContext>(0);
+tree::TerminalNode* WorkScriptParser::IndependentParentheseExpressionContext::LEFT_PARENTHESE() {
+  return getToken(WorkScriptParser::LEFT_PARENTHESE, 0);
+}
+
+tree::TerminalNode* WorkScriptParser::IndependentParentheseExpressionContext::RIGHT_PARENTHESE() {
+  return getToken(WorkScriptParser::RIGHT_PARENTHESE, 0);
+}
+
+WorkScriptParser::PolynomialExpressionContext* WorkScriptParser::IndependentParentheseExpressionContext::polynomialExpression() {
+  return getRuleContext<WorkScriptParser::PolynomialExpressionContext>(0);
 }
 
 WorkScriptParser::IndependentParentheseExpressionContext::IndependentParentheseExpressionContext(TermExpressionContext *ctx) { copyFrom(ctx); }
@@ -458,6 +482,78 @@ WorkScriptParser::IndependentParentheseExpressionContext::IndependentParentheseE
 antlrcpp::Any WorkScriptParser::IndependentParentheseExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<WorkScriptVisitor*>(visitor))
     return parserVisitor->visitIndependentParentheseExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- CompareExpressionContext ------------------------------------------------------------------
+
+std::vector<WorkScriptParser::TermExpressionContext *> WorkScriptParser::CompareExpressionContext::termExpression() {
+  return getRuleContexts<WorkScriptParser::TermExpressionContext>();
+}
+
+WorkScriptParser::TermExpressionContext* WorkScriptParser::CompareExpressionContext::termExpression(size_t i) {
+  return getRuleContext<WorkScriptParser::TermExpressionContext>(i);
+}
+
+tree::TerminalNode* WorkScriptParser::CompareExpressionContext::GREATER_THAN() {
+  return getToken(WorkScriptParser::GREATER_THAN, 0);
+}
+
+tree::TerminalNode* WorkScriptParser::CompareExpressionContext::GREATER_THAN_EQUAL() {
+  return getToken(WorkScriptParser::GREATER_THAN_EQUAL, 0);
+}
+
+tree::TerminalNode* WorkScriptParser::CompareExpressionContext::LESS_THAN() {
+  return getToken(WorkScriptParser::LESS_THAN, 0);
+}
+
+tree::TerminalNode* WorkScriptParser::CompareExpressionContext::LESS_THAN_EQUAL() {
+  return getToken(WorkScriptParser::LESS_THAN_EQUAL, 0);
+}
+
+WorkScriptParser::CompareExpressionContext::CompareExpressionContext(TermExpressionContext *ctx) { copyFrom(ctx); }
+
+antlrcpp::Any WorkScriptParser::CompareExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<WorkScriptVisitor*>(visitor))
+    return parserVisitor->visitCompareExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- DirectFunctionExpressionContext ------------------------------------------------------------------
+
+WorkScriptParser::TermExpressionContext* WorkScriptParser::DirectFunctionExpressionContext::termExpression() {
+  return getRuleContext<WorkScriptParser::TermExpressionContext>(0);
+}
+
+std::vector<tree::TerminalNode *> WorkScriptParser::DirectFunctionExpressionContext::LEFT_PARENTHESE() {
+  return getTokens(WorkScriptParser::LEFT_PARENTHESE);
+}
+
+tree::TerminalNode* WorkScriptParser::DirectFunctionExpressionContext::LEFT_PARENTHESE(size_t i) {
+  return getToken(WorkScriptParser::LEFT_PARENTHESE, i);
+}
+
+std::vector<tree::TerminalNode *> WorkScriptParser::DirectFunctionExpressionContext::RIGHT_PARENTHESE() {
+  return getTokens(WorkScriptParser::RIGHT_PARENTHESE);
+}
+
+tree::TerminalNode* WorkScriptParser::DirectFunctionExpressionContext::RIGHT_PARENTHESE(size_t i) {
+  return getToken(WorkScriptParser::RIGHT_PARENTHESE, i);
+}
+
+std::vector<WorkScriptParser::PolynomialExpressionContext *> WorkScriptParser::DirectFunctionExpressionContext::polynomialExpression() {
+  return getRuleContexts<WorkScriptParser::PolynomialExpressionContext>();
+}
+
+WorkScriptParser::PolynomialExpressionContext* WorkScriptParser::DirectFunctionExpressionContext::polynomialExpression(size_t i) {
+  return getRuleContext<WorkScriptParser::PolynomialExpressionContext>(i);
+}
+
+WorkScriptParser::DirectFunctionExpressionContext::DirectFunctionExpressionContext(TermExpressionContext *ctx) { copyFrom(ctx); }
+
+antlrcpp::Any WorkScriptParser::DirectFunctionExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<WorkScriptVisitor*>(visitor))
+    return parserVisitor->visitDirectFunctionExpression(this);
   else
     return visitor->visitChildren(this);
 }
@@ -522,72 +618,139 @@ WorkScriptParser::TermExpressionContext* WorkScriptParser::termExpression(int pr
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(42);
+    setState(58);
     _errHandler->sync(this);
-    switch (_input->LA(1)) {
-      case WorkScriptParser::NUMBER: {
-        _localctx = _tracker.createInstance<NumberExpressionContext>(_localctx);
-        _ctx = _localctx;
-        previousContext = _localctx;
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 9, _ctx)) {
+    case 1: {
+      _localctx = _tracker.createInstance<NumberExpressionContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
 
-        setState(38);
-        match(WorkScriptParser::NUMBER);
-        break;
-      }
+      setState(36);
+      match(WorkScriptParser::NUMBER);
+      break;
+    }
 
-      case WorkScriptParser::STRING: {
-        _localctx = _tracker.createInstance<StringExpressionContext>(_localctx);
-        _ctx = _localctx;
-        previousContext = _localctx;
-        setState(39);
-        match(WorkScriptParser::STRING);
-        break;
-      }
+    case 2: {
+      _localctx = _tracker.createInstance<StringExpressionContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(37);
+      match(WorkScriptParser::STRING);
+      break;
+    }
 
-      case WorkScriptParser::IDENTIFIER: {
-        _localctx = _tracker.createInstance<IdentifierExpressionContext>(_localctx);
-        _ctx = _localctx;
-        previousContext = _localctx;
+    case 3: {
+      _localctx = _tracker.createInstance<IdentifierExpressionContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(38);
+      match(WorkScriptParser::IDENTIFIER);
+      break;
+    }
+
+    case 4: {
+      _localctx = _tracker.createInstance<EvaluatedFunctionExpressionContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(39);
+      match(WorkScriptParser::LEFT_PARENTHESE);
+      setState(41);
+      _errHandler->sync(this);
+
+      _la = _input->LA(1);
+      if ((((_la & ~ 0x3fULL) == 0) &&
+        ((1ULL << _la) & ((1ULL << WorkScriptParser::IDENTIFIER)
+        | (1ULL << WorkScriptParser::NUMBER)
+        | (1ULL << WorkScriptParser::STRING)
+        | (1ULL << WorkScriptParser::LEFT_PARENTHESE))) != 0)) {
         setState(40);
-        match(WorkScriptParser::IDENTIFIER);
-        break;
+        polynomialExpression();
       }
+      setState(43);
+      match(WorkScriptParser::RIGHT_PARENTHESE);
+      setState(49); 
+      _errHandler->sync(this);
+      alt = 1;
+      do {
+        switch (alt) {
+          case 1: {
+                setState(44);
+                match(WorkScriptParser::LEFT_PARENTHESE);
+                setState(46);
+                _errHandler->sync(this);
 
-      case WorkScriptParser::LEFT_PARENTHESE: {
-        _localctx = _tracker.createInstance<IndependentParentheseExpressionContext>(_localctx);
-        _ctx = _localctx;
-        previousContext = _localctx;
-        setState(41);
-        parentheseExpression();
-        break;
+                _la = _input->LA(1);
+                if ((((_la & ~ 0x3fULL) == 0) &&
+                  ((1ULL << _la) & ((1ULL << WorkScriptParser::IDENTIFIER)
+                  | (1ULL << WorkScriptParser::NUMBER)
+                  | (1ULL << WorkScriptParser::STRING)
+                  | (1ULL << WorkScriptParser::LEFT_PARENTHESE))) != 0)) {
+                  setState(45);
+                  polynomialExpression();
+                }
+                setState(48);
+                match(WorkScriptParser::RIGHT_PARENTHESE);
+                break;
+              }
+
+        default:
+          throw NoViableAltException(this);
+        }
+        setState(51); 
+        _errHandler->sync(this);
+        alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 7, _ctx);
+      } while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER);
+      break;
+    }
+
+    case 5: {
+      _localctx = _tracker.createInstance<IndependentParentheseExpressionContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(53);
+      match(WorkScriptParser::LEFT_PARENTHESE);
+      setState(55);
+      _errHandler->sync(this);
+
+      _la = _input->LA(1);
+      if ((((_la & ~ 0x3fULL) == 0) &&
+        ((1ULL << _la) & ((1ULL << WorkScriptParser::IDENTIFIER)
+        | (1ULL << WorkScriptParser::NUMBER)
+        | (1ULL << WorkScriptParser::STRING)
+        | (1ULL << WorkScriptParser::LEFT_PARENTHESE))) != 0)) {
+        setState(54);
+        polynomialExpression();
       }
+      setState(57);
+      match(WorkScriptParser::RIGHT_PARENTHESE);
+      break;
+    }
 
-    default:
-      throw NoViableAltException(this);
     }
     _ctx->stop = _input->LT(-1);
-    setState(57);
+    setState(84);
     _errHandler->sync(this);
-    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 7, _ctx);
+    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 13, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
         if (!_parseListeners.empty())
           triggerExitRuleEvent();
         previousContext = _localctx;
-        setState(55);
+        setState(82);
         _errHandler->sync(this);
-        switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 6, _ctx)) {
+        switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 12, _ctx)) {
         case 1: {
           auto newContext = _tracker.createInstance<MemberEvaluateExpressionContext>(_tracker.createInstance<TermExpressionContext>(parentContext, parentState));
           _localctx = newContext;
           pushNewRecursionContext(newContext, startState, RuleTermExpression);
-          setState(44);
+          setState(60);
 
-          if (!(precpred(_ctx, 3))) throw FailedPredicateException(this, "precpred(_ctx, 3)");
-          setState(45);
+          if (!(precpred(_ctx, 4))) throw FailedPredicateException(this, "precpred(_ctx, 4)");
+          setState(61);
           match(WorkScriptParser::POINT);
-          setState(46);
-          termExpression(4);
+          setState(62);
+          termExpression(5);
           break;
         }
 
@@ -595,10 +758,10 @@ WorkScriptParser::TermExpressionContext* WorkScriptParser::termExpression(int pr
           auto newContext = _tracker.createInstance<MultiplyDivideExpressionContext>(_tracker.createInstance<TermExpressionContext>(parentContext, parentState));
           _localctx = newContext;
           pushNewRecursionContext(newContext, startState, RuleTermExpression);
-          setState(47);
+          setState(63);
 
-          if (!(precpred(_ctx, 2))) throw FailedPredicateException(this, "precpred(_ctx, 2)");
-          setState(48);
+          if (!(precpred(_ctx, 3))) throw FailedPredicateException(this, "precpred(_ctx, 3)");
+          setState(64);
           _la = _input->LA(1);
           if (!(_la == WorkScriptParser::MULTIPLY
 
@@ -609,8 +772,8 @@ WorkScriptParser::TermExpressionContext* WorkScriptParser::termExpression(int pr
             _errHandler->reportMatch(this);
             consume();
           }
-          setState(49);
-          termExpression(3);
+          setState(65);
+          termExpression(4);
           break;
         }
 
@@ -618,10 +781,10 @@ WorkScriptParser::TermExpressionContext* WorkScriptParser::termExpression(int pr
           auto newContext = _tracker.createInstance<PlusMinusExpressionContext>(_tracker.createInstance<TermExpressionContext>(parentContext, parentState));
           _localctx = newContext;
           pushNewRecursionContext(newContext, startState, RuleTermExpression);
-          setState(50);
+          setState(66);
 
-          if (!(precpred(_ctx, 1))) throw FailedPredicateException(this, "precpred(_ctx, 1)");
-          setState(51);
+          if (!(precpred(_ctx, 2))) throw FailedPredicateException(this, "precpred(_ctx, 2)");
+          setState(67);
           _la = _input->LA(1);
           if (!(_la == WorkScriptParser::PLUS
 
@@ -632,28 +795,83 @@ WorkScriptParser::TermExpressionContext* WorkScriptParser::termExpression(int pr
             _errHandler->reportMatch(this);
             consume();
           }
-          setState(52);
-          termExpression(2);
+          setState(68);
+          termExpression(3);
           break;
         }
 
         case 4: {
-          auto newContext = _tracker.createInstance<FunctionPolynomialExpressionContext>(_tracker.createInstance<TermExpressionContext>(parentContext, parentState));
+          auto newContext = _tracker.createInstance<CompareExpressionContext>(_tracker.createInstance<TermExpressionContext>(parentContext, parentState));
           _localctx = newContext;
           pushNewRecursionContext(newContext, startState, RuleTermExpression);
-          setState(53);
+          setState(69);
 
-          if (!(precpred(_ctx, 5))) throw FailedPredicateException(this, "precpred(_ctx, 5)");
-          setState(54);
-          parentheseExpression();
+          if (!(precpred(_ctx, 1))) throw FailedPredicateException(this, "precpred(_ctx, 1)");
+          setState(70);
+          _la = _input->LA(1);
+          if (!((((_la & ~ 0x3fULL) == 0) &&
+            ((1ULL << _la) & ((1ULL << WorkScriptParser::GREATER_THAN)
+            | (1ULL << WorkScriptParser::GREATER_THAN_EQUAL)
+            | (1ULL << WorkScriptParser::LESS_THAN)
+            | (1ULL << WorkScriptParser::LESS_THAN_EQUAL))) != 0))) {
+          _errHandler->recoverInline(this);
+          }
+          else {
+            _errHandler->reportMatch(this);
+            consume();
+          }
+          setState(71);
+          termExpression(2);
+          break;
+        }
+
+        case 5: {
+          auto newContext = _tracker.createInstance<DirectFunctionExpressionContext>(_tracker.createInstance<TermExpressionContext>(parentContext, parentState));
+          _localctx = newContext;
+          pushNewRecursionContext(newContext, startState, RuleTermExpression);
+          setState(72);
+
+          if (!(precpred(_ctx, 6))) throw FailedPredicateException(this, "precpred(_ctx, 6)");
+          setState(78); 
+          _errHandler->sync(this);
+          alt = 1;
+          do {
+            switch (alt) {
+              case 1: {
+                    setState(73);
+                    match(WorkScriptParser::LEFT_PARENTHESE);
+                    setState(75);
+                    _errHandler->sync(this);
+
+                    _la = _input->LA(1);
+                    if ((((_la & ~ 0x3fULL) == 0) &&
+                      ((1ULL << _la) & ((1ULL << WorkScriptParser::IDENTIFIER)
+                      | (1ULL << WorkScriptParser::NUMBER)
+                      | (1ULL << WorkScriptParser::STRING)
+                      | (1ULL << WorkScriptParser::LEFT_PARENTHESE))) != 0)) {
+                      setState(74);
+                      polynomialExpression();
+                    }
+                    setState(77);
+                    match(WorkScriptParser::RIGHT_PARENTHESE);
+                    break;
+                  }
+
+            default:
+              throw NoViableAltException(this);
+            }
+            setState(80); 
+            _errHandler->sync(this);
+            alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 11, _ctx);
+          } while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER);
           break;
         }
 
         } 
       }
-      setState(59);
+      setState(86);
       _errHandler->sync(this);
-      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 7, _ctx);
+      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 13, _ctx);
     }
   }
   catch (RecognitionException &e) {
@@ -661,73 +879,6 @@ WorkScriptParser::TermExpressionContext* WorkScriptParser::termExpression(int pr
     _localctx->exception = std::current_exception();
     _errHandler->recover(this, _localctx->exception);
   }
-  return _localctx;
-}
-
-//----------------- ParentheseExpressionContext ------------------------------------------------------------------
-
-WorkScriptParser::ParentheseExpressionContext::ParentheseExpressionContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
-}
-
-tree::TerminalNode* WorkScriptParser::ParentheseExpressionContext::LEFT_PARENTHESE() {
-  return getToken(WorkScriptParser::LEFT_PARENTHESE, 0);
-}
-
-tree::TerminalNode* WorkScriptParser::ParentheseExpressionContext::RIGHT_PARENTHESE() {
-  return getToken(WorkScriptParser::RIGHT_PARENTHESE, 0);
-}
-
-WorkScriptParser::PolynomialExpressionContext* WorkScriptParser::ParentheseExpressionContext::polynomialExpression() {
-  return getRuleContext<WorkScriptParser::PolynomialExpressionContext>(0);
-}
-
-
-size_t WorkScriptParser::ParentheseExpressionContext::getRuleIndex() const {
-  return WorkScriptParser::RuleParentheseExpression;
-}
-
-antlrcpp::Any WorkScriptParser::ParentheseExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
-  if (auto parserVisitor = dynamic_cast<WorkScriptVisitor*>(visitor))
-    return parserVisitor->visitParentheseExpression(this);
-  else
-    return visitor->visitChildren(this);
-}
-
-WorkScriptParser::ParentheseExpressionContext* WorkScriptParser::parentheseExpression() {
-  ParentheseExpressionContext *_localctx = _tracker.createInstance<ParentheseExpressionContext>(_ctx, getState());
-  enterRule(_localctx, 10, WorkScriptParser::RuleParentheseExpression);
-  size_t _la = 0;
-
-  auto onExit = finally([=] {
-    exitRule();
-  });
-  try {
-    enterOuterAlt(_localctx, 1);
-    setState(60);
-    match(WorkScriptParser::LEFT_PARENTHESE);
-    setState(62);
-    _errHandler->sync(this);
-
-    _la = _input->LA(1);
-    if ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & ((1ULL << WorkScriptParser::IDENTIFIER)
-      | (1ULL << WorkScriptParser::NUMBER)
-      | (1ULL << WorkScriptParser::STRING)
-      | (1ULL << WorkScriptParser::LEFT_PARENTHESE))) != 0)) {
-      setState(61);
-      polynomialExpression();
-    }
-    setState(64);
-    match(WorkScriptParser::RIGHT_PARENTHESE);
-   
-  }
-  catch (RecognitionException &e) {
-    _errHandler->reportError(this, e);
-    _localctx->exception = std::current_exception();
-    _errHandler->recover(this, _localctx->exception);
-  }
-
   return _localctx;
 }
 
@@ -743,10 +894,11 @@ bool WorkScriptParser::sempred(RuleContext *context, size_t ruleIndex, size_t pr
 
 bool WorkScriptParser::termExpressionSempred(TermExpressionContext *_localctx, size_t predicateIndex) {
   switch (predicateIndex) {
-    case 0: return precpred(_ctx, 3);
-    case 1: return precpred(_ctx, 2);
-    case 2: return precpred(_ctx, 1);
-    case 3: return precpred(_ctx, 5);
+    case 0: return precpred(_ctx, 4);
+    case 1: return precpred(_ctx, 3);
+    case 2: return precpred(_ctx, 2);
+    case 3: return precpred(_ctx, 1);
+    case 4: return precpred(_ctx, 6);
 
   default:
     break;
@@ -764,7 +916,7 @@ std::vector<uint16_t> WorkScriptParser::_serializedATN;
 
 std::vector<std::string> WorkScriptParser::_ruleNames = {
   "program", "expression", "relationExpression", "polynomialExpression", 
-  "termExpression", "parentheseExpression"
+  "termExpression"
 };
 
 std::vector<std::string> WorkScriptParser::_literalNames = {
@@ -799,53 +951,71 @@ WorkScriptParser::Initializer::Initializer() {
 
   _serializedATN = {
     0x3, 0x608b, 0xa72a, 0x8133, 0xb9ed, 0x417c, 0x3be7, 0x7786, 0x5964, 
-    0x3, 0x15, 0x45, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 0x9, 
-    0x4, 0x4, 0x5, 0x9, 0x5, 0x4, 0x6, 0x9, 0x6, 0x4, 0x7, 0x9, 0x7, 0x3, 
-    0x2, 0x3, 0x2, 0x7, 0x2, 0x11, 0xa, 0x2, 0xc, 0x2, 0xe, 0x2, 0x14, 0xb, 
-    0x2, 0x3, 0x2, 0x5, 0x2, 0x17, 0xa, 0x2, 0x3, 0x3, 0x3, 0x3, 0x5, 0x3, 
-    0x1b, 0xa, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 
-    0x4, 0x3, 0x5, 0x6, 0x5, 0x24, 0xa, 0x5, 0xd, 0x5, 0xe, 0x5, 0x25, 0x3, 
-    0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x5, 0x6, 0x2d, 0xa, 0x6, 
-    0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 
-    0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x7, 0x6, 0x3a, 0xa, 0x6, 0xc, 
-    0x6, 0xe, 0x6, 0x3d, 0xb, 0x6, 0x3, 0x7, 0x3, 0x7, 0x5, 0x7, 0x41, 0xa, 
-    0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x2, 0x3, 0xa, 0x8, 0x2, 0x4, 0x6, 
-    0x8, 0xa, 0xc, 0x2, 0x5, 0x3, 0x3, 0x7, 0x7, 0x3, 0x2, 0xf, 0x10, 0x3, 
-    0x2, 0xd, 0xe, 0x2, 0x4b, 0x2, 0x16, 0x3, 0x2, 0x2, 0x2, 0x4, 0x1a, 
-    0x3, 0x2, 0x2, 0x2, 0x6, 0x1e, 0x3, 0x2, 0x2, 0x2, 0x8, 0x23, 0x3, 0x2, 
-    0x2, 0x2, 0xa, 0x2c, 0x3, 0x2, 0x2, 0x2, 0xc, 0x3e, 0x3, 0x2, 0x2, 0x2, 
-    0xe, 0x11, 0x5, 0x4, 0x3, 0x2, 0xf, 0x11, 0x7, 0x7, 0x2, 0x2, 0x10, 
-    0xe, 0x3, 0x2, 0x2, 0x2, 0x10, 0xf, 0x3, 0x2, 0x2, 0x2, 0x11, 0x14, 
-    0x3, 0x2, 0x2, 0x2, 0x12, 0x10, 0x3, 0x2, 0x2, 0x2, 0x12, 0x13, 0x3, 
-    0x2, 0x2, 0x2, 0x13, 0x17, 0x3, 0x2, 0x2, 0x2, 0x14, 0x12, 0x3, 0x2, 
-    0x2, 0x2, 0x15, 0x17, 0x7, 0x2, 0x2, 0x3, 0x16, 0x12, 0x3, 0x2, 0x2, 
-    0x2, 0x16, 0x15, 0x3, 0x2, 0x2, 0x2, 0x17, 0x3, 0x3, 0x2, 0x2, 0x2, 
-    0x18, 0x1b, 0x5, 0x8, 0x5, 0x2, 0x19, 0x1b, 0x5, 0x6, 0x4, 0x2, 0x1a, 
-    0x18, 0x3, 0x2, 0x2, 0x2, 0x1a, 0x19, 0x3, 0x2, 0x2, 0x2, 0x1b, 0x1c, 
-    0x3, 0x2, 0x2, 0x2, 0x1c, 0x1d, 0x9, 0x2, 0x2, 0x2, 0x1d, 0x5, 0x3, 
-    0x2, 0x2, 0x2, 0x1e, 0x1f, 0x5, 0x8, 0x5, 0x2, 0x1f, 0x20, 0x7, 0xc, 
-    0x2, 0x2, 0x20, 0x21, 0x5, 0x8, 0x5, 0x2, 0x21, 0x7, 0x3, 0x2, 0x2, 
-    0x2, 0x22, 0x24, 0x5, 0xa, 0x6, 0x2, 0x23, 0x22, 0x3, 0x2, 0x2, 0x2, 
-    0x24, 0x25, 0x3, 0x2, 0x2, 0x2, 0x25, 0x23, 0x3, 0x2, 0x2, 0x2, 0x25, 
-    0x26, 0x3, 0x2, 0x2, 0x2, 0x26, 0x9, 0x3, 0x2, 0x2, 0x2, 0x27, 0x28, 
-    0x8, 0x6, 0x1, 0x2, 0x28, 0x2d, 0x7, 0x4, 0x2, 0x2, 0x29, 0x2d, 0x7, 
-    0x5, 0x2, 0x2, 0x2a, 0x2d, 0x7, 0x3, 0x2, 0x2, 0x2b, 0x2d, 0x5, 0xc, 
-    0x7, 0x2, 0x2c, 0x27, 0x3, 0x2, 0x2, 0x2, 0x2c, 0x29, 0x3, 0x2, 0x2, 
-    0x2, 0x2c, 0x2a, 0x3, 0x2, 0x2, 0x2, 0x2c, 0x2b, 0x3, 0x2, 0x2, 0x2, 
-    0x2d, 0x3b, 0x3, 0x2, 0x2, 0x2, 0x2e, 0x2f, 0xc, 0x5, 0x2, 0x2, 0x2f, 
-    0x30, 0x7, 0x6, 0x2, 0x2, 0x30, 0x3a, 0x5, 0xa, 0x6, 0x6, 0x31, 0x32, 
-    0xc, 0x4, 0x2, 0x2, 0x32, 0x33, 0x9, 0x3, 0x2, 0x2, 0x33, 0x3a, 0x5, 
-    0xa, 0x6, 0x5, 0x34, 0x35, 0xc, 0x3, 0x2, 0x2, 0x35, 0x36, 0x9, 0x4, 
-    0x2, 0x2, 0x36, 0x3a, 0x5, 0xa, 0x6, 0x4, 0x37, 0x38, 0xc, 0x7, 0x2, 
-    0x2, 0x38, 0x3a, 0x5, 0xc, 0x7, 0x2, 0x39, 0x2e, 0x3, 0x2, 0x2, 0x2, 
-    0x39, 0x31, 0x3, 0x2, 0x2, 0x2, 0x39, 0x34, 0x3, 0x2, 0x2, 0x2, 0x39, 
-    0x37, 0x3, 0x2, 0x2, 0x2, 0x3a, 0x3d, 0x3, 0x2, 0x2, 0x2, 0x3b, 0x39, 
-    0x3, 0x2, 0x2, 0x2, 0x3b, 0x3c, 0x3, 0x2, 0x2, 0x2, 0x3c, 0xb, 0x3, 
-    0x2, 0x2, 0x2, 0x3d, 0x3b, 0x3, 0x2, 0x2, 0x2, 0x3e, 0x40, 0x7, 0x8, 
-    0x2, 0x2, 0x3f, 0x41, 0x5, 0x8, 0x5, 0x2, 0x40, 0x3f, 0x3, 0x2, 0x2, 
-    0x2, 0x40, 0x41, 0x3, 0x2, 0x2, 0x2, 0x41, 0x42, 0x3, 0x2, 0x2, 0x2, 
-    0x42, 0x43, 0x7, 0x9, 0x2, 0x2, 0x43, 0xd, 0x3, 0x2, 0x2, 0x2, 0xb, 
-    0x10, 0x12, 0x16, 0x1a, 0x25, 0x2c, 0x39, 0x3b, 0x40, 
+    0x3, 0x15, 0x5a, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 0x9, 
+    0x4, 0x4, 0x5, 0x9, 0x5, 0x4, 0x6, 0x9, 0x6, 0x3, 0x2, 0x3, 0x2, 0x7, 
+    0x2, 0xf, 0xa, 0x2, 0xc, 0x2, 0xe, 0x2, 0x12, 0xb, 0x2, 0x3, 0x2, 0x5, 
+    0x2, 0x15, 0xa, 0x2, 0x3, 0x3, 0x3, 0x3, 0x5, 0x3, 0x19, 0xa, 0x3, 0x3, 
+    0x3, 0x3, 0x3, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x5, 0x6, 
+    0x5, 0x22, 0xa, 0x5, 0xd, 0x5, 0xe, 0x5, 0x23, 0x3, 0x6, 0x3, 0x6, 0x3, 
+    0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x5, 0x6, 0x2c, 0xa, 0x6, 0x3, 0x6, 
+    0x3, 0x6, 0x3, 0x6, 0x5, 0x6, 0x31, 0xa, 0x6, 0x3, 0x6, 0x6, 0x6, 0x34, 
+    0xa, 0x6, 0xd, 0x6, 0xe, 0x6, 0x35, 0x3, 0x6, 0x3, 0x6, 0x5, 0x6, 0x3a, 
+    0xa, 0x6, 0x3, 0x6, 0x5, 0x6, 0x3d, 0xa, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 
+    0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 
+    0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x5, 0x6, 0x4e, 
+    0xa, 0x6, 0x3, 0x6, 0x6, 0x6, 0x51, 0xa, 0x6, 0xd, 0x6, 0xe, 0x6, 0x52, 
+    0x7, 0x6, 0x55, 0xa, 0x6, 0xc, 0x6, 0xe, 0x6, 0x58, 0xb, 0x6, 0x3, 0x6, 
+    0x2, 0x3, 0xa, 0x7, 0x2, 0x4, 0x6, 0x8, 0xa, 0x2, 0x6, 0x3, 0x3, 0x7, 
+    0x7, 0x3, 0x2, 0xf, 0x10, 0x3, 0x2, 0xd, 0xe, 0x3, 0x2, 0x11, 0x14, 
+    0x2, 0x68, 0x2, 0x14, 0x3, 0x2, 0x2, 0x2, 0x4, 0x18, 0x3, 0x2, 0x2, 
+    0x2, 0x6, 0x1c, 0x3, 0x2, 0x2, 0x2, 0x8, 0x21, 0x3, 0x2, 0x2, 0x2, 0xa, 
+    0x3c, 0x3, 0x2, 0x2, 0x2, 0xc, 0xf, 0x5, 0x4, 0x3, 0x2, 0xd, 0xf, 0x7, 
+    0x7, 0x2, 0x2, 0xe, 0xc, 0x3, 0x2, 0x2, 0x2, 0xe, 0xd, 0x3, 0x2, 0x2, 
+    0x2, 0xf, 0x12, 0x3, 0x2, 0x2, 0x2, 0x10, 0xe, 0x3, 0x2, 0x2, 0x2, 0x10, 
+    0x11, 0x3, 0x2, 0x2, 0x2, 0x11, 0x15, 0x3, 0x2, 0x2, 0x2, 0x12, 0x10, 
+    0x3, 0x2, 0x2, 0x2, 0x13, 0x15, 0x7, 0x2, 0x2, 0x3, 0x14, 0x10, 0x3, 
+    0x2, 0x2, 0x2, 0x14, 0x13, 0x3, 0x2, 0x2, 0x2, 0x15, 0x3, 0x3, 0x2, 
+    0x2, 0x2, 0x16, 0x19, 0x5, 0x8, 0x5, 0x2, 0x17, 0x19, 0x5, 0x6, 0x4, 
+    0x2, 0x18, 0x16, 0x3, 0x2, 0x2, 0x2, 0x18, 0x17, 0x3, 0x2, 0x2, 0x2, 
+    0x19, 0x1a, 0x3, 0x2, 0x2, 0x2, 0x1a, 0x1b, 0x9, 0x2, 0x2, 0x2, 0x1b, 
+    0x5, 0x3, 0x2, 0x2, 0x2, 0x1c, 0x1d, 0x5, 0x8, 0x5, 0x2, 0x1d, 0x1e, 
+    0x7, 0xc, 0x2, 0x2, 0x1e, 0x1f, 0x5, 0x8, 0x5, 0x2, 0x1f, 0x7, 0x3, 
+    0x2, 0x2, 0x2, 0x20, 0x22, 0x5, 0xa, 0x6, 0x2, 0x21, 0x20, 0x3, 0x2, 
+    0x2, 0x2, 0x22, 0x23, 0x3, 0x2, 0x2, 0x2, 0x23, 0x21, 0x3, 0x2, 0x2, 
+    0x2, 0x23, 0x24, 0x3, 0x2, 0x2, 0x2, 0x24, 0x9, 0x3, 0x2, 0x2, 0x2, 
+    0x25, 0x26, 0x8, 0x6, 0x1, 0x2, 0x26, 0x3d, 0x7, 0x4, 0x2, 0x2, 0x27, 
+    0x3d, 0x7, 0x5, 0x2, 0x2, 0x28, 0x3d, 0x7, 0x3, 0x2, 0x2, 0x29, 0x2b, 
+    0x7, 0x8, 0x2, 0x2, 0x2a, 0x2c, 0x5, 0x8, 0x5, 0x2, 0x2b, 0x2a, 0x3, 
+    0x2, 0x2, 0x2, 0x2b, 0x2c, 0x3, 0x2, 0x2, 0x2, 0x2c, 0x2d, 0x3, 0x2, 
+    0x2, 0x2, 0x2d, 0x33, 0x7, 0x9, 0x2, 0x2, 0x2e, 0x30, 0x7, 0x8, 0x2, 
+    0x2, 0x2f, 0x31, 0x5, 0x8, 0x5, 0x2, 0x30, 0x2f, 0x3, 0x2, 0x2, 0x2, 
+    0x30, 0x31, 0x3, 0x2, 0x2, 0x2, 0x31, 0x32, 0x3, 0x2, 0x2, 0x2, 0x32, 
+    0x34, 0x7, 0x9, 0x2, 0x2, 0x33, 0x2e, 0x3, 0x2, 0x2, 0x2, 0x34, 0x35, 
+    0x3, 0x2, 0x2, 0x2, 0x35, 0x33, 0x3, 0x2, 0x2, 0x2, 0x35, 0x36, 0x3, 
+    0x2, 0x2, 0x2, 0x36, 0x3d, 0x3, 0x2, 0x2, 0x2, 0x37, 0x39, 0x7, 0x8, 
+    0x2, 0x2, 0x38, 0x3a, 0x5, 0x8, 0x5, 0x2, 0x39, 0x38, 0x3, 0x2, 0x2, 
+    0x2, 0x39, 0x3a, 0x3, 0x2, 0x2, 0x2, 0x3a, 0x3b, 0x3, 0x2, 0x2, 0x2, 
+    0x3b, 0x3d, 0x7, 0x9, 0x2, 0x2, 0x3c, 0x25, 0x3, 0x2, 0x2, 0x2, 0x3c, 
+    0x27, 0x3, 0x2, 0x2, 0x2, 0x3c, 0x28, 0x3, 0x2, 0x2, 0x2, 0x3c, 0x29, 
+    0x3, 0x2, 0x2, 0x2, 0x3c, 0x37, 0x3, 0x2, 0x2, 0x2, 0x3d, 0x56, 0x3, 
+    0x2, 0x2, 0x2, 0x3e, 0x3f, 0xc, 0x6, 0x2, 0x2, 0x3f, 0x40, 0x7, 0x6, 
+    0x2, 0x2, 0x40, 0x55, 0x5, 0xa, 0x6, 0x7, 0x41, 0x42, 0xc, 0x5, 0x2, 
+    0x2, 0x42, 0x43, 0x9, 0x3, 0x2, 0x2, 0x43, 0x55, 0x5, 0xa, 0x6, 0x6, 
+    0x44, 0x45, 0xc, 0x4, 0x2, 0x2, 0x45, 0x46, 0x9, 0x4, 0x2, 0x2, 0x46, 
+    0x55, 0x5, 0xa, 0x6, 0x5, 0x47, 0x48, 0xc, 0x3, 0x2, 0x2, 0x48, 0x49, 
+    0x9, 0x5, 0x2, 0x2, 0x49, 0x55, 0x5, 0xa, 0x6, 0x4, 0x4a, 0x50, 0xc, 
+    0x8, 0x2, 0x2, 0x4b, 0x4d, 0x7, 0x8, 0x2, 0x2, 0x4c, 0x4e, 0x5, 0x8, 
+    0x5, 0x2, 0x4d, 0x4c, 0x3, 0x2, 0x2, 0x2, 0x4d, 0x4e, 0x3, 0x2, 0x2, 
+    0x2, 0x4e, 0x4f, 0x3, 0x2, 0x2, 0x2, 0x4f, 0x51, 0x7, 0x9, 0x2, 0x2, 
+    0x50, 0x4b, 0x3, 0x2, 0x2, 0x2, 0x51, 0x52, 0x3, 0x2, 0x2, 0x2, 0x52, 
+    0x50, 0x3, 0x2, 0x2, 0x2, 0x52, 0x53, 0x3, 0x2, 0x2, 0x2, 0x53, 0x55, 
+    0x3, 0x2, 0x2, 0x2, 0x54, 0x3e, 0x3, 0x2, 0x2, 0x2, 0x54, 0x41, 0x3, 
+    0x2, 0x2, 0x2, 0x54, 0x44, 0x3, 0x2, 0x2, 0x2, 0x54, 0x47, 0x3, 0x2, 
+    0x2, 0x2, 0x54, 0x4a, 0x3, 0x2, 0x2, 0x2, 0x55, 0x58, 0x3, 0x2, 0x2, 
+    0x2, 0x56, 0x54, 0x3, 0x2, 0x2, 0x2, 0x56, 0x57, 0x3, 0x2, 0x2, 0x2, 
+    0x57, 0xb, 0x3, 0x2, 0x2, 0x2, 0x58, 0x56, 0x3, 0x2, 0x2, 0x2, 0x10, 
+    0xe, 0x10, 0x14, 0x18, 0x23, 0x2b, 0x30, 0x35, 0x39, 0x3c, 0x4d, 0x52, 
+    0x54, 0x56, 
   };
 
   atn::ATNDeserializer deserializer;

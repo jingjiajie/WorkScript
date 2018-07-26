@@ -306,6 +306,7 @@
     <ClInclude Include="DivideExpression.h" />
     <ClInclude Include="ExecuteCppCodeExpression.h" />
     <ClInclude Include="ExpressionWrapper.h" />
+    <ClInclude Include="FunctionExpression.h" />
     <ClInclude Include="Generated\WorkScriptBaseVisitor.h" />
     <ClInclude Include="Generated\WorkScriptLexer.h" />
     <ClInclude Include="Generated\WorkScriptParser.h" />
@@ -342,6 +343,7 @@
     <ClCompile Include="ExecuteCppCodeExpression.cpp" />
     <ClCompile Include="ExpressionBind.cpp" />
     <ClCompile Include="ExpressionWrapper.cpp" />
+    <ClCompile Include="FunctionExpression.cpp" />
     <ClCompile Include="Generated\WorkScriptBaseVisitor.cpp" />
     <ClCompile Include="Generated\WorkScriptLexer.cpp" />
     <ClCompile Include="Generated\WorkScriptParser.cpp" />

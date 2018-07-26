@@ -13,17 +13,25 @@ relationExpression:
 polynomialExpression: termExpression+;
 
 termExpression:
-	NUMBER												# NumberExpression
-	| STRING											# StringExpression
-	| IDENTIFIER										# IdentifierExpression
-	| termExpression parentheseExpression				# FunctionPolynomialExpression
-	| parentheseExpression								# IndependentParentheseExpression
-	| termExpression POINT termExpression				# MemberEvaluateExpression
-	| termExpression (MULTIPLY | DIVIDE) termExpression	# MultiplyDivideExpression
-	| termExpression (PLUS | MINUS) termExpression		# PlusMinusExpression;
-
-parentheseExpression:
-	LEFT_PARENTHESE polynomialExpression? RIGHT_PARENTHESE;
+	NUMBER			# NumberExpression
+	| STRING		# StringExpression
+	| IDENTIFIER	# IdentifierExpression
+	| LEFT_PARENTHESE polynomialExpression? RIGHT_PARENTHESE (
+		LEFT_PARENTHESE polynomialExpression? RIGHT_PARENTHESE
+	)+ # EvaluatedFunctionExpression
+	| termExpression (
+		LEFT_PARENTHESE polynomialExpression? RIGHT_PARENTHESE
+	)+															# DirectFunctionExpression
+	| LEFT_PARENTHESE polynomialExpression? RIGHT_PARENTHESE	# IndependentParentheseExpression
+	| termExpression POINT termExpression						# MemberEvaluateExpression
+	| termExpression (MULTIPLY | DIVIDE) termExpression			# MultiplyDivideExpression
+	| termExpression (PLUS | MINUS) termExpression				# PlusMinusExpression
+	| termExpression (
+		GREATER_THAN
+		| GREATER_THAN_EQUAL
+		| LESS_THAN
+		| LESS_THAN_EQUAL
+	) termExpression # CompareExpression;
 
 // blockExpression: LEFT_BRACE expression* RIGHT_BRACE;
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;

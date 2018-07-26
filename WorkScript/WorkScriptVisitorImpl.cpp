@@ -17,6 +17,7 @@
 #include "MemberEvaluateExpression.h"
 #include "MultiplyExpression.h"
 #include "DivideExpression.h"
+#include "FunctionExpression.h"
 
 using namespace std;
 
@@ -80,20 +81,6 @@ antlrcpp::Any WorkScriptVisitorImpl::visitRelationExpression(WorkScriptParser::R
 	this->inRelationExpressionRight = false;
 	auto lpExpr = make_shared<const RelationExpression>(this->context, leftExpression, rightExpression);
 	return ExpressionWrapper(lpExpr);
-}
-
-antlrcpp::Any WorkScriptVisitorImpl::visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *ctx)
-{
-	this->parenthereLevel++;
-	shared_ptr<const Expression> subExpression;
-	if (ctx->polynomialExpression() != nullptr) {
-		const ExpressionWrapper wrapper = ctx->polynomialExpression()->accept(this);
-		subExpression = wrapper.getExpression();
-	}
-	auto lpExpr = new ParentheseExpression(context,subExpression);
-	this->parenthereLevel--;
-
-	return ExpressionWrapper(shared_ptr<const ParentheseExpression>(lpExpr));
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitPolynomialExpression(WorkScriptParser::PolynomialExpressionContext *ctx)
@@ -165,19 +152,46 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideExpression(WorkScriptPar
 	}
 }
 
-antlrcpp::Any WorkScriptVisitorImpl::visitFunctionPolynomialExpression(WorkScriptParser::FunctionPolynomialExpressionContext *ctx)
+antlrcpp::Any WorkScriptVisitorImpl::visitDirectFunctionExpression(WorkScriptParser::DirectFunctionExpressionContext *ctx)
 {
+	vector<shared_ptr<const Expression>> subExpressions;
 	ExpressionWrapper termExprWrapper = ctx->termExpression()->accept(this);
-	auto termExpr = termExprWrapper.getExpression();
-	ExpressionWrapper parentheseExprWrapper = ctx->parentheseExpression()->accept(this);
-	auto parentheseExpr = parentheseExprWrapper.getExpression();
-	shared_ptr<const Expression> expr(new PolynomialExpression(this->context, { termExpr,parentheseExpr }));
+	subExpressions.push_back(termExprWrapper.getExpression());
+	this->parenthereLevel++;
+	for (auto &polynomialExpr : ctx->polynomialExpression()) {
+		ExpressionWrapper polynomialExprWrapper = polynomialExpr->accept(this);
+		subExpressions.push_back(polynomialExprWrapper.getExpression());
+	}
+	this->parenthereLevel--;
+	shared_ptr<const Expression> expr(new FunctionExpression(this->context, true, subExpressions));
+	return ExpressionWrapper(expr);
+}
+
+antlrcpp::Any WorkScriptVisitorImpl::visitEvaluatedFunctionExpression(WorkScriptParser::EvaluatedFunctionExpressionContext *ctx)
+{
+	vector<shared_ptr<const Expression>> subExpressions;
+	this->parenthereLevel++;
+	for (auto &polynomialExpr : ctx->polynomialExpression()) {
+		ExpressionWrapper polynomialExprWrapper = polynomialExpr->accept(this);
+		subExpressions.push_back(polynomialExprWrapper.getExpression());
+	}
+	this->parenthereLevel--;
+	shared_ptr<const Expression> expr(new FunctionExpression(this->context, false, subExpressions));
 	return ExpressionWrapper(expr);
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitIndependentParentheseExpression(WorkScriptParser::IndependentParentheseExpressionContext *ctx)
 {
-	return ctx->parentheseExpression()->accept(this);
+	this->parenthereLevel++;
+	shared_ptr<const Expression> subExpression;
+	if (ctx->polynomialExpression() != nullptr) {
+		const ExpressionWrapper wrapper = ctx->polynomialExpression()->accept(this);
+		subExpression = wrapper.getExpression();
+	}
+	auto lpExpr = new ParentheseExpression(context, subExpression);
+	this->parenthereLevel--;
+
+	return ExpressionWrapper(shared_ptr<const ParentheseExpression>(lpExpr));
 }
 
 WorkScriptVisitorImpl::WorkScriptVisitorImpl(Context *lpContext)

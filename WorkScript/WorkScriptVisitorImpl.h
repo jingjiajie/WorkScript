@@ -13,13 +13,13 @@ public:
 	antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext*) override;
 	antlrcpp::Any visitIdentifierExpression(WorkScriptParser::IdentifierExpressionContext*) override;
 	antlrcpp::Any visitRelationExpression(WorkScriptParser::RelationExpressionContext*) override;
-	antlrcpp::Any visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext*) override;
 	antlrcpp::Any visitPolynomialExpression(WorkScriptParser::PolynomialExpressionContext*) override;
 	antlrcpp::Any visitExpression(WorkScriptParser::ExpressionContext*) override;
 	antlrcpp::Any visitMemberEvaluateExpression(WorkScriptParser::MemberEvaluateExpressionContext*) override;
 	antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext*) override;
 	antlrcpp::Any visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext*) override;
-	antlrcpp::Any visitFunctionPolynomialExpression(WorkScriptParser::FunctionPolynomialExpressionContext*)override;
+	antlrcpp::Any visitDirectFunctionExpression(WorkScriptParser::DirectFunctionExpressionContext*)override;
+	antlrcpp::Any visitEvaluatedFunctionExpression(WorkScriptParser::EvaluatedFunctionExpressionContext*)override;
 	antlrcpp::Any visitIndependentParentheseExpression(WorkScriptParser::IndependentParentheseExpressionContext*)override;
 	WorkScriptVisitorImpl(Context*);
 	virtual ~WorkScriptVisitorImpl();
