@@ -77,9 +77,8 @@ bool MultiplyExpression::match(const std::shared_ptr<const Expression>& matchExp
 			return false;
 		}
 		//将变量表达式绑定为匹配表达式-非变量表达式
-		shared_ptr<const DivideExpression> minusExpr(new DivideExpression(this->context, matchExpression, myNonVarExpr));
-		outExpressionBind->addExpressionMap(myVarExpr, minusExpr);
-		return true;
+		shared_ptr<const DivideExpression> divideExpr(new DivideExpression(this->context, matchExpression, myNonVarExpr));
+		return myVarExpr->match(divideExpr, outExpressionBind);
 	}
 }
 

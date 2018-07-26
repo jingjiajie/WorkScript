@@ -59,12 +59,10 @@ bool DivideExpression::match(const std::shared_ptr<const Expression>& matchExpre
 		//且自己的左右表达式中只有一个是变量
 		if (mappedLeft->getType()->equals(variableType) && !mappedRight->getType()->equals(variableType))
 		{
-			outExpressionBind->addExpressionMap(mappedLeft, shared_ptr<const MultiplyExpression>(new MultiplyExpression(this->context, mappedRight, matchExpression)));
-			return true;
+			return dynamic_pointer_cast<const VariableExpression>(mappedLeft)->match(shared_ptr<const MultiplyExpression>(new MultiplyExpression(this->context, mappedRight, matchExpression)), outExpressionBind);
 		}
 		else if (!mappedLeft->getType()->equals(variableType) && mappedRight->getType()->equals(variableType)) {
-			outExpressionBind->addExpressionMap(mappedRight, shared_ptr<const DivideExpression>(new DivideExpression(this->context, mappedLeft, matchExpression)));
-			return true;
+			return dynamic_pointer_cast<const VariableExpression>(mappedRight)->match(shared_ptr<const DivideExpression>(new DivideExpression(this->context, mappedLeft, matchExpression)), outExpressionBind);
 		}
 		else {
 			return false;

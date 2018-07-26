@@ -60,8 +60,18 @@ const std::string NumberExpression::toString() const
 	if (fabs(number - (int)number) < 1e-8) {
 		numberStr = to_string((int)number);
 	}
-	else {
+	else { //如果是小数，删除末尾0
 		numberStr = to_string(number);
+		size_t lastZeroCount = 0;
+		for (size_t i = numberStr.size() - 1; i >= 0; i--) {
+			if (numberStr[i] == '0') {
+				lastZeroCount++;
+			}
+			else {
+				break;
+			}
+		}
+		numberStr = numberStr.substr(0, numberStr.size() - lastZeroCount);
 	}
 	return numberStr;
 }

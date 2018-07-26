@@ -80,8 +80,7 @@ bool PlusExpression::match(const std::shared_ptr<const Expression>& matchExpress
 		}
 		//将变量表达式绑定为匹配表达式-非变量表达式
 		shared_ptr<const MinusExpression> minusExpr(new MinusExpression(this->context, matchExpression, myNonVarExpr));
-		outExpressionBind->addExpressionMap(myVarExpr, minusExpr);
-		return true;
+		return myVarExpr->match(minusExpr,outExpressionBind);
 	}
 }
 
