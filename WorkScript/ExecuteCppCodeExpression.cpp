@@ -4,7 +4,7 @@
 #include "UnimplementedException.h"
 
 ExecuteCppCodeExpression::ExecuteCppCodeExpression(Context *const &context, const std::function<const std::shared_ptr<const Expression>(const ExpressionBind&)> &evaluateFunction)
-	:PolynomialExpression(context)
+	:TermExpression(context)
 {
 	this->evaluateFunction = evaluateFunction;
 }
@@ -32,4 +32,9 @@ bool ExecuteCppCodeExpression::equals(const std::shared_ptr<const Expression> &t
 const std::shared_ptr<const TypeExpression> ExecuteCppCodeExpression::getType() const
 {
 	return this->context->findType(TYPENAME_EXECUTE_CPP_CODE_EXPRESSION, false);
+}
+
+const std::string ExecuteCppCodeExpression::toString() const
+{
+	return "(C++ Code)";
 }

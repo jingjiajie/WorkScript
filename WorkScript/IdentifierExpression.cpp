@@ -5,7 +5,7 @@
 using namespace std;
 
 IdentifierExpression::IdentifierExpression(Context *const &context,const std::string& identifierName)
-	:PolynomialExpression(context)
+	:TermExpression(context)
 {
 	this->setIdentifierName(identifierName);
 }
@@ -61,4 +61,9 @@ const shared_ptr<const Expression> IdentifierExpression::evaluate(const Expressi
 	else {
 		return result;
 	}
+}
+
+const std::string IdentifierExpression::toString() const
+{
+	return this->identifierName;
 }

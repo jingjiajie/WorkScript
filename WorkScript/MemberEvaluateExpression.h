@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
-#include "PolynomialExpression.h"
+#include "TermExpression.h"
 class MemberEvaluateExpression :
-	public PolynomialExpression
+	public TermExpression
 {
 public:
 	MemberEvaluateExpression(Context *const &context ,const std::shared_ptr<const Expression> &objExpr, const std::shared_ptr<const Expression> &memberExpr);
@@ -12,6 +12,7 @@ public:
 	virtual bool match(const std::shared_ptr<const Expression> &matchExpression, ExpressionBind *outExpressionBind) const override;
 	virtual bool equals(const std::shared_ptr<const Expression> &) const override;
 	virtual const std::shared_ptr<const TypeExpression> getType() const override;
+	virtual const std::string toString() const override;
 
 	const std::shared_ptr<const Expression> getObjectExpression() const;
 	void setObjectExpression(const std::shared_ptr<const Expression>&);

@@ -13,7 +13,9 @@ const std::string TYPENAME_EXPRESSION = "Expression";
 const std::string TYPENAME_TYPE_EXPRESSION = "TypeExpression";
 const std::string TYPENAME_TYPE_MEMBER_EXPRESSION = "TypeMemberExpression";
 const std::string TYPENAME_RELATION_EXPRESSION = "RelationExpression";
+const std::string TYPENAME_VALUE_EXPRESSION = "ValueExpression";
 const std::string TYPENAME_POLYNOMIAL_EXPRESSION = "PolynomialExpression";
+const std::string TYPENAME_TERM_EXPRESSION = "TermExpression";
 const std::string TYPENAME_MULTIPLY_EXPRESSION = "MultiplyExpression";
 const std::string TYPENAME_DIVIDE_EXPRESSION = "DivideExpression";
 const std::string TYPENAME_PLUS_EXPRESSION = "PlusExpression";
@@ -23,7 +25,6 @@ const std::string TYPENAME_PRINT_EXPRESSION = "PrintExpression";
 const std::string TYPENAME_THIS_EXPRESSION = "ThisExpression";
 const std::string TYPENAME_MEMBER_EVALUATE_EXPRESSION = "MemberEvaluateExpression";
 const std::string TYPENAME_GET_TYPE_EXPRESSION = "GetTypeExpression";
-const std::string TYPENAME_MULTI_TERM_EXPRESSION = "MultiTermExpression";
 const std::string TYPENAME_IDENTIFIER_EXPRESSION = "Identifier";
 const std::string TYPENAME_VARIABLE_EXPRESSION = "Variable";
 const std::string TYPENAME_RAW_VALUE_EXPRESSION = "RawValueExpression";
@@ -44,6 +45,7 @@ public:
 	virtual bool match(const std::shared_ptr<const Expression> &matchExpression, ExpressionBind *outExpressionBind) const override;
 	virtual bool equals(const std::shared_ptr<const Expression> &) const override;
 	virtual const std::shared_ptr<const TypeExpression> getType() const override;
+	virtual const std::string toString() const override;
 
 	//¿‡√˚
 	const std::string& getName() const;
@@ -62,7 +64,6 @@ public:
 	void addMemberExpression(const std::shared_ptr<const TypeMemberExpression> &memberExpression);
 	const std::shared_ptr<const TypeMemberExpression> matchStaticMemberExpression(const std::shared_ptr<const Expression> &matchExpression, ExpressionBind *outExpressionBind) const;
 
-	std::string toString() const;
 private:
 	std::string name;
 	std::shared_ptr<const TypeExpression> baseType;

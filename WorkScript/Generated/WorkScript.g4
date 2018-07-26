@@ -10,21 +10,22 @@ expression: (polynomialExpression | relationExpression) (
 relationExpression:
 	polynomialExpression EQUALS polynomialExpression;
 
-polynomialExpression:
-	termExpression													# TermExpressionInPolynomial
-	| polynomialExpression (MULTIPLY | DIVIDE) polynomialExpression	# MultiplyDivideExpression
-	| polynomialExpression (PLUS | MINUS) polynomialExpression		# PlusMinusExpression;
+polynomialExpression: termExpression+;
 
 termExpression:
-	NUMBER													# NumberExpression
-	| STRING												# StringExpression
-	| IDENTIFIER											# IdentifierExpression
-	| termExpression POINT termExpression					# MemberEvaluateExpression
-	| LEFT_PARENTHESE polynomialExpression RIGHT_PARENTHESE	# ParentheseExpression
-	| termExpression termExpression+						# MultiTermExpression;
+	NUMBER												# NumberExpression
+	| STRING											# StringExpression
+	| IDENTIFIER										# IdentifierExpression
+	| termExpression parentheseExpression				# FunctionPolynomialExpression
+	| parentheseExpression								# IndependentParentheseExpression
+	| termExpression POINT termExpression				# MemberEvaluateExpression
+	| termExpression (MULTIPLY | DIVIDE) termExpression	# MultiplyDivideExpression
+	| termExpression (PLUS | MINUS) termExpression		# PlusMinusExpression;
+
+parentheseExpression:
+	LEFT_PARENTHESE polynomialExpression? RIGHT_PARENTHESE;
 
 // blockExpression: LEFT_BRACE expression* RIGHT_BRACE;
-
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
 NUMBER: [0-9]+ (POINT [0-9]+)?;
 STRING: '"' ~'"'* '"' | ['] ~[']* ['];

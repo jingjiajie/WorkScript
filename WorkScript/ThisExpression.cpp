@@ -3,7 +3,7 @@
 #include "Context.h"
 
 ThisExpression::ThisExpression(Context * const & context)
-	:PolynomialExpression(context)
+	:TermExpression(context)
 {
 
 }
@@ -34,4 +34,9 @@ bool ThisExpression::equals(const std::shared_ptr<const Expression> &target) con
 const std::shared_ptr<const TypeExpression> ThisExpression::getType() const
 {
 	return this->context->findType(TYPENAME_THIS_EXPRESSION,false);
+}
+
+const std::string ThisExpression::toString() const
+{
+	return "ThisExpression";
 }

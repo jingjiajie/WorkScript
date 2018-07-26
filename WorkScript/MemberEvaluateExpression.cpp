@@ -6,7 +6,7 @@
 using namespace std;
 
 MemberEvaluateExpression::MemberEvaluateExpression(Context *const &context, const std::shared_ptr<const Expression> &objExpr, const std::shared_ptr<const Expression> &memberExpr)
-	:PolynomialExpression(context)
+	:TermExpression(context)
 {
 	this->setObjectExpression(objExpr);
 	this->setMemberExpression(memberExpr);
@@ -74,6 +74,11 @@ bool MemberEvaluateExpression::equals(const std::shared_ptr<const Expression>&ta
 const std::shared_ptr<const TypeExpression> MemberEvaluateExpression::getType() const
 {
 	return this->context->findType(TYPENAME_MEMBER_EVALUATE_EXPRESSION, false);
+}
+
+const std::string MemberEvaluateExpression::toString() const
+{
+	return this->objectExpression->toString() + "." + this->objectExpression->toString();
 }
 
 const std::shared_ptr<const Expression> MemberEvaluateExpression::getObjectExpression() const

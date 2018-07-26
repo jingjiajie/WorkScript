@@ -63,3 +63,8 @@ const std::shared_ptr<const TypeExpression> VariableExpression::getType() const
 	auto ret = this->context->findType(TYPENAME_VARIABLE_EXPRESSION, false);
 	return ret;
 }
+
+const std::string VariableExpression::toString() const
+{
+	return this->identifierName;
+}

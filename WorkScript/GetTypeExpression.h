@@ -1,7 +1,7 @@
 #pragma once
-#include "PolynomialExpression.h"
+#include "TermExpression.h"
 class GetTypeExpression :
-	public PolynomialExpression
+	public TermExpression
 {
 public:
 	GetTypeExpression(Context *const &context, const std::shared_ptr<const Expression> &expression);
@@ -11,6 +11,7 @@ public:
 	virtual bool match(const std::shared_ptr<const Expression> &matchExpression, ExpressionBind *outExpressionBind) const override;
 	virtual bool equals(const std::shared_ptr<const Expression> &) const override;
 	virtual const std::shared_ptr<const TypeExpression> getType() const override;
+	virtual const std::string toString() const override;
 
 	const std::shared_ptr<const Expression> getExpression() const;
 	void setExpression(const std::shared_ptr<const Expression>&);

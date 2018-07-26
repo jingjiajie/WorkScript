@@ -10,6 +10,7 @@ public:
 	virtual bool equals(const std::shared_ptr<const Expression> &) const override;
 	virtual const std::shared_ptr<const Expression> evaluate(const ExpressionBind &) const override;
 	virtual const std::shared_ptr<const TypeExpression> getType() const override;
+	virtual const std::string toString() const override;
 
 	void setLeftAndRightExpression(const std::shared_ptr<const Expression> &leftExpression, const std::shared_ptr<const Expression> &rightExpression);
 	const std::shared_ptr<const Expression> & getLeftExpression() const;

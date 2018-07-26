@@ -25,23 +25,25 @@ public:
 
     virtual antlrcpp::Any visitRelationExpression(WorkScriptParser::RelationExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitPolynomialExpression(WorkScriptParser::PolynomialExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitTermExpressionInPolynomial(WorkScriptParser::TermExpressionInPolynomialContext *context) = 0;
-
-    virtual antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitMultiTermExpression(WorkScriptParser::MultiTermExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitFunctionPolynomialExpression(WorkScriptParser::FunctionPolynomialExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitMemberEvaluateExpression(WorkScriptParser::MemberEvaluateExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitNumberExpression(WorkScriptParser::NumberExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitIndependentParentheseExpression(WorkScriptParser::IndependentParentheseExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitIdentifierExpression(WorkScriptParser::IdentifierExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *context) = 0;
 
 
 };

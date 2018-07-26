@@ -27,19 +27,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitPolynomialExpression(WorkScriptParser::PolynomialExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitTermExpressionInPolynomial(WorkScriptParser::TermExpressionInPolynomialContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitMultiTermExpression(WorkScriptParser::MultiTermExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitFunctionPolynomialExpression(WorkScriptParser::FunctionPolynomialExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -47,7 +39,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -59,7 +51,19 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitIndependentParentheseExpression(WorkScriptParser::IndependentParentheseExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitIdentifierExpression(WorkScriptParser::IdentifierExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 

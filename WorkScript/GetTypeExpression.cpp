@@ -5,7 +5,7 @@
 using namespace std;
 
 GetTypeExpression::GetTypeExpression(Context *const &context, const std::shared_ptr<const Expression> &expression)
-	:PolynomialExpression(context)
+	:TermExpression(context)
 {
 	this->setExpression(expression);
 }
@@ -40,6 +40,11 @@ const std::shared_ptr<const TypeExpression> GetTypeExpression::getType() const
 {
 	auto ret = this->context->findType(TYPENAME_GET_TYPE_EXPRESSION,false);
 	return ret;
+}
+
+const std::string GetTypeExpression::toString() const
+{
+	return "GetTypeExpression(" + this->expression->toString() + ")";
 }
 
 const std::shared_ptr<const Expression> GetTypeExpression::getExpression() const

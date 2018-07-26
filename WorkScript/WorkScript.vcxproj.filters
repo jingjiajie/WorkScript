@@ -129,16 +129,19 @@
     <ClInclude Include="MinusExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="MultiTermExpression.h">
+    <ClInclude Include="MultiplyExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DivideExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ValueExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="PolynomialExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="MultiplyExpression.h">
-      <Filter>DataStructures\Expressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="DivideExpression.h">
+    <ClInclude Include="TermExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -228,16 +231,19 @@
     <ClCompile Include="MinusExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="MultiTermExpression.cpp">
+    <ClCompile Include="MultiplyExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="DivideExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ValueExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="PolynomialExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="MultiplyExpression.cpp">
-      <Filter>DataStructures\Expressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="DivideExpression.cpp">
+    <ClCompile Include="TermExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
   </ItemGroup>

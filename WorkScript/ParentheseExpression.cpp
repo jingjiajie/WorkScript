@@ -5,7 +5,7 @@
 using namespace std;
 
 ParentheseExpression::ParentheseExpression(Context *const &context, const shared_ptr<const Expression> &subExpression)
-	:PolynomialExpression(context)
+	:TermExpression(context)
 {
 	this->setSubExpression(subExpression);
 }
@@ -67,7 +67,8 @@ bool ParentheseExpression::equals(const std::shared_ptr<const Expression>& targe
 	else { //子表达式不为空的情况
 		if (targetType->equals(this->context->findType(TYPENAME_PARENTHESE_EXPRESSION, false))) {
 			auto targetParentheseExpression = (const std::shared_ptr<const ParentheseExpression>&) targetExpression;
-			return targetParentheseExpression->subExpression->equals(this->subExpression);
+			if (targetParentheseExpression->subExpression == nullptr)return false;
+			return this->subExpression->equals(targetParentheseExpression->subExpression);
 		}
 		else {
 			return this->subExpression->equals(targetExpression);
@@ -78,6 +79,16 @@ bool ParentheseExpression::equals(const std::shared_ptr<const Expression>& targe
 const std::shared_ptr<const TypeExpression> ParentheseExpression::getType() const
 {
 	return this->context->findType(TYPENAME_PARENTHESE_EXPRESSION,false);
+}
+
+const std::string ParentheseExpression::toString() const
+{
+	if (this->subExpression == nullptr) {
+		return "()";
+	}
+	else {
+		return "(" + this->subExpression->toString() +")";
+	}
 }
 
 const std::shared_ptr<const Expression>& ParentheseExpression::getSubExpression() const

@@ -8,7 +8,7 @@
 using namespace std;
 
 DivideExpression::DivideExpression(Context * const & context)
-	:PolynomialExpression(context)
+	:TermExpression(context)
 {
 }
 
@@ -59,6 +59,11 @@ bool DivideExpression::equals(const std::shared_ptr<const Expression> &target) c
 const std::shared_ptr<const TypeExpression> DivideExpression::getType() const
 {
 	return this->context->findType(TYPENAME_DIVIDE_EXPRESSION, false);
+}
+
+const std::string DivideExpression::toString() const
+{
+	return this->leftExpression->toString() + "/" + this->rightExpression->toString();
 }
 
 const std::shared_ptr<const Expression> DivideExpression::getLeftExpression() const

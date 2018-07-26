@@ -9,7 +9,7 @@
 #include "NumberExpression.h"
 #include "ExpressionWrapper.h"
 #include "ParentheseExpression.h"
-#include "MultiTermExpression.h"
+#include "PolynomialExpression.h"
 #include "VariableExpression.h"
 #include "TypeExpression.h"
 #include "PlusExpression.h"
@@ -96,15 +96,20 @@ antlrcpp::Any WorkScriptVisitorImpl::visitParentheseExpression(WorkScriptParser:
 	return ExpressionWrapper(shared_ptr<const ParentheseExpression>(lpExpr));
 }
 
-antlrcpp::Any WorkScriptVisitorImpl::visitMultiTermExpression(WorkScriptParser::MultiTermExpressionContext *ctx)
+antlrcpp::Any WorkScriptVisitorImpl::visitPolynomialExpression(WorkScriptParser::PolynomialExpressionContext *ctx)
 {
 	vector<shared_ptr<const Expression>> subExpressions;
 	for (auto &subCtx : ctx->termExpression()) {
 		const ExpressionWrapper &wrapper = subCtx->accept(this);
 		subExpressions.push_back(wrapper.getExpression());
 	}
-	auto multiValueExpession = make_shared<const MultiTermExpression>(this->context,subExpressions);
-	return ExpressionWrapper(multiValueExpession);
+	//特殊处理：如果多项式只有一项，则返回TermExpression
+	if (subExpressions.size() == 1) {
+		return ExpressionWrapper(subExpressions[0]);
+	}
+	//否则返回多项式
+	auto polynomialExpession = make_shared<const PolynomialExpression>(this->context,subExpressions);
+	return ExpressionWrapper(polynomialExpession);
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitExpression(WorkScriptParser::ExpressionContext *ctx)
@@ -134,9 +139,9 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMemberEvaluateExpression(WorkScriptPar
 
 antlrcpp::Any WorkScriptVisitorImpl::visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *ctx)
 {
-	const ExpressionWrapper &leftExpressionWrapper = ctx->polynomialExpression()[0]->accept(this);
+	const ExpressionWrapper &leftExpressionWrapper = ctx->termExpression()[0]->accept(this);
 	auto leftExpression = leftExpressionWrapper.getExpression();
-	const ExpressionWrapper &rightExpressionWrapper = ctx->polynomialExpression()[1]->accept(this);
+	const ExpressionWrapper &rightExpressionWrapper = ctx->termExpression()[1]->accept(this);
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	if (ctx->PLUS()) {
 		return ExpressionWrapper(make_shared<const PlusExpression>(this->context, leftExpression, rightExpression));
@@ -148,9 +153,9 @@ antlrcpp::Any WorkScriptVisitorImpl::visitPlusMinusExpression(WorkScriptParser::
 
 antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext *ctx)
 {
-	const ExpressionWrapper &leftExpressionWrapper = ctx->polynomialExpression()[0]->accept(this);
+	const ExpressionWrapper &leftExpressionWrapper = ctx->termExpression()[0]->accept(this);
 	auto leftExpression = leftExpressionWrapper.getExpression();
-	const ExpressionWrapper &rightExpressionWrapper = ctx->polynomialExpression()[1]->accept(this);
+	const ExpressionWrapper &rightExpressionWrapper = ctx->termExpression()[1]->accept(this);
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	if (ctx->MULTIPLY()) {
 		return ExpressionWrapper(make_shared<const MultiplyExpression>(this->context, leftExpression, rightExpression));
@@ -158,6 +163,21 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideExpression(WorkScriptPar
 	else { //MINUS
 		return ExpressionWrapper(make_shared<const DivideExpression>(this->context, leftExpression, rightExpression));
 	}
+}
+
+antlrcpp::Any WorkScriptVisitorImpl::visitFunctionPolynomialExpression(WorkScriptParser::FunctionPolynomialExpressionContext *ctx)
+{
+	ExpressionWrapper termExprWrapper = ctx->termExpression()->accept(this);
+	auto termExpr = termExprWrapper.getExpression();
+	ExpressionWrapper parentheseExprWrapper = ctx->parentheseExpression()->accept(this);
+	auto parentheseExpr = parentheseExprWrapper.getExpression();
+	shared_ptr<const Expression> expr(new PolynomialExpression(this->context, { termExpr,parentheseExpr }));
+	return ExpressionWrapper(expr);
+}
+
+antlrcpp::Any WorkScriptVisitorImpl::visitIndependentParentheseExpression(WorkScriptParser::IndependentParentheseExpressionContext *ctx)
+{
+	return ctx->parentheseExpression()->accept(this);
 }
 
 WorkScriptVisitorImpl::WorkScriptVisitorImpl(Context *lpContext)

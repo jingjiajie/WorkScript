@@ -2,7 +2,7 @@
 #include "StringExpression.h"
 #include "TypeExpression.h"
 #include "Context.h"
-#include "MultiTermExpression.h"
+#include "PolynomialExpression.h"
 #include "IdentifierExpression.h"
 #include "RelationExpression.h"
 #include "ParentheseExpression.h"
@@ -10,7 +10,7 @@
 using namespace std;
 
 NumberExpression::NumberExpression(Context *const &context)
-	:PolynomialExpression(context)
+	:TermExpression(context)
 {
 
 }
@@ -52,6 +52,19 @@ const std::shared_ptr<const TypeExpression> NumberExpression::getType() const
 	return this->context->findType(TYPENAME_NUMBER_EXPRESSION, false);
 }
 
+const std::string NumberExpression::toString() const
+{
+	double number = this->value;
+	string numberStr;
+	if (fabs(number - (int)number) < 1e-8) {
+		numberStr = to_string((int)number);
+	}
+	else {
+		numberStr = to_string(number);
+	}
+	return numberStr;
+}
+
 const double NumberExpression::getValue() const
 {
 	return this->value;
@@ -59,7 +72,7 @@ const double NumberExpression::getValue() const
 
 void NumberExpression::setValue(const double &value)
 {
-	//SPCEXPRESSION toStringLeft(new MultiTermExpression(this->context, { SPCEXPRESSION(new IdentifierExpression(this->context, "toString")), SPCEXPRESSION(new ParentheseExpression(this->context, nullptr)) }));
+	//SPCEXPRESSION toStringLeft(new PolynomialExpression(this->context, { SPCEXPRESSION(new IdentifierExpression(this->context, "toString")), SPCEXPRESSION(new ParentheseExpression(this->context, nullptr)) }));
 	//this->instantialExpressions.insert(this->instantialExpressions.begin(),
 	//	SPCEXPRESSION(new TypeMemberExpression(this->context, this->getType(), Authority::PUBLIC,
 	//		SPCEXPRESSION(new RelationExpression(this->context,

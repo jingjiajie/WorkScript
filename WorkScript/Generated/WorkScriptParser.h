@@ -20,7 +20,7 @@ public:
 
   enum {
     RuleProgram = 0, RuleExpression = 1, RuleRelationExpression = 2, RulePolynomialExpression = 3, 
-    RuleTermExpression = 4
+    RuleTermExpression = 4, RuleParentheseExpression = 5
   };
 
   WorkScriptParser(antlr4::TokenStream *input);
@@ -37,7 +37,8 @@ public:
   class ExpressionContext;
   class RelationExpressionContext;
   class PolynomialExpressionContext;
-  class TermExpressionContext; 
+  class TermExpressionContext;
+  class ParentheseExpressionContext; 
 
   class  ProgramContext : public antlr4::ParserRuleContext {
   public:
@@ -87,48 +88,16 @@ public:
   class  PolynomialExpressionContext : public antlr4::ParserRuleContext {
   public:
     PolynomialExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-   
-    PolynomialExpressionContext() : antlr4::ParserRuleContext() { }
-    void copyFrom(PolynomialExpressionContext *context);
-    using antlr4::ParserRuleContext::copyFrom;
-
     virtual size_t getRuleIndex() const override;
+    std::vector<TermExpressionContext *> termExpression();
+    TermExpressionContext* termExpression(size_t i);
 
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
-  };
-
-  class  MultiplyDivideExpressionContext : public PolynomialExpressionContext {
-  public:
-    MultiplyDivideExpressionContext(PolynomialExpressionContext *ctx);
-
-    std::vector<PolynomialExpressionContext *> polynomialExpression();
-    PolynomialExpressionContext* polynomialExpression(size_t i);
-    antlr4::tree::TerminalNode *MULTIPLY();
-    antlr4::tree::TerminalNode *DIVIDE();
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  TermExpressionInPolynomialContext : public PolynomialExpressionContext {
-  public:
-    TermExpressionInPolynomialContext(PolynomialExpressionContext *ctx);
-
-    TermExpressionContext *termExpression();
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  PlusMinusExpressionContext : public PolynomialExpressionContext {
-  public:
-    PlusMinusExpressionContext(PolynomialExpressionContext *ctx);
-
-    std::vector<PolynomialExpressionContext *> polynomialExpression();
-    PolynomialExpressionContext* polynomialExpression(size_t i);
-    antlr4::tree::TerminalNode *PLUS();
-    antlr4::tree::TerminalNode *MINUS();
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
   PolynomialExpressionContext* polynomialExpression();
-  PolynomialExpressionContext* polynomialExpression(int precedence);
+
   class  TermExpressionContext : public antlr4::ParserRuleContext {
   public:
     TermExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -142,12 +111,12 @@ public:
    
   };
 
-  class  MultiTermExpressionContext : public TermExpressionContext {
+  class  FunctionPolynomialExpressionContext : public TermExpressionContext {
   public:
-    MultiTermExpressionContext(TermExpressionContext *ctx);
+    FunctionPolynomialExpressionContext(TermExpressionContext *ctx);
 
-    std::vector<TermExpressionContext *> termExpression();
-    TermExpressionContext* termExpression(size_t i);
+    TermExpressionContext *termExpression();
+    ParentheseExpressionContext *parentheseExpression();
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
@@ -161,13 +130,14 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  ParentheseExpressionContext : public TermExpressionContext {
+  class  MultiplyDivideExpressionContext : public TermExpressionContext {
   public:
-    ParentheseExpressionContext(TermExpressionContext *ctx);
+    MultiplyDivideExpressionContext(TermExpressionContext *ctx);
 
-    antlr4::tree::TerminalNode *LEFT_PARENTHESE();
-    PolynomialExpressionContext *polynomialExpression();
-    antlr4::tree::TerminalNode *RIGHT_PARENTHESE();
+    std::vector<TermExpressionContext *> termExpression();
+    TermExpressionContext* termExpression(size_t i);
+    antlr4::tree::TerminalNode *MULTIPLY();
+    antlr4::tree::TerminalNode *DIVIDE();
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
@@ -187,6 +157,25 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  IndependentParentheseExpressionContext : public TermExpressionContext {
+  public:
+    IndependentParentheseExpressionContext(TermExpressionContext *ctx);
+
+    ParentheseExpressionContext *parentheseExpression();
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  PlusMinusExpressionContext : public TermExpressionContext {
+  public:
+    PlusMinusExpressionContext(TermExpressionContext *ctx);
+
+    std::vector<TermExpressionContext *> termExpression();
+    TermExpressionContext* termExpression(size_t i);
+    antlr4::tree::TerminalNode *PLUS();
+    antlr4::tree::TerminalNode *MINUS();
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  IdentifierExpressionContext : public TermExpressionContext {
   public:
     IdentifierExpressionContext(TermExpressionContext *ctx);
@@ -197,9 +186,22 @@ public:
 
   TermExpressionContext* termExpression();
   TermExpressionContext* termExpression(int precedence);
+  class  ParentheseExpressionContext : public antlr4::ParserRuleContext {
+  public:
+    ParentheseExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *LEFT_PARENTHESE();
+    antlr4::tree::TerminalNode *RIGHT_PARENTHESE();
+    PolynomialExpressionContext *polynomialExpression();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ParentheseExpressionContext* parentheseExpression();
+
 
   virtual bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;
-  bool polynomialExpressionSempred(PolynomialExpressionContext *_localctx, size_t predicateIndex);
   bool termExpressionSempred(TermExpressionContext *_localctx, size_t predicateIndex);
 
 private:

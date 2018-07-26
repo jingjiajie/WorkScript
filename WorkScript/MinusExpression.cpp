@@ -7,13 +7,13 @@
 using namespace std;
 
 MinusExpression::MinusExpression(Context * const & context)
-	:PolynomialExpression(context)
+	:TermExpression(context)
 {
 
 }
 
 MinusExpression::MinusExpression(Context * const & context, const std::shared_ptr<const Expression> &leftExpression, const std::shared_ptr<const Expression> &rightExpression)
-	: PolynomialExpression(context)
+	: TermExpression(context)
 {
 	this->setLeftExpression(leftExpression);
 	this->setRightExpression(rightExpression);
@@ -69,6 +69,11 @@ bool MinusExpression::equals(const std::shared_ptr<const Expression> &target) co
 const std::shared_ptr<const TypeExpression> MinusExpression::getType() const
 {
 	return this->context->findType(TYPENAME_MINUS_EXPRESSION, false);
+}
+
+const std::string MinusExpression::toString() const
+{
+	return this->leftExpression->toString() + "-" + this->rightExpression->toString();
 }
 
 const std::shared_ptr<const Expression> MinusExpression::getLeftExpression() const

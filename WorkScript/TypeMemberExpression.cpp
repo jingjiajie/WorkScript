@@ -1,7 +1,11 @@
+#include <sstream>
+
 #include "TypeMemberExpression.h"
 #include "Context.h"
 #include "AccessDeniedException.h"
 #include "UnimplementedException.h"
+
+using namespace std;
 
 TypeMemberExpression::TypeMemberExpression(Context * const & context, const std::shared_ptr<const TypeExpression>& belongType, const Authority & authority, const std::shared_ptr<const Expression>& expression)
 	:Expression(context)
@@ -41,6 +45,21 @@ bool TypeMemberExpression::equals(const std::shared_ptr<const Expression> &targe
 const std::shared_ptr<const TypeExpression> TypeMemberExpression::getType() const
 {
 	return this->context->findType(TYPENAME_TYPE_MEMBER_EXPRESSION, false);
+}
+
+const std::string TypeMemberExpression::toString() const
+{
+	stringstream ss;
+	if (this->authority == Authority::PUBLIC) {
+		ss << "public ";
+	}else if(this->authority == Authority::PROTECTED){
+		ss << "protected ";
+	}
+	else {
+		ss << "private ";
+	}
+	ss << this->expression->toString();
+	return ss.str();
 }
 
 const std::shared_ptr<const TypeExpression> TypeMemberExpression::getBelongType() const

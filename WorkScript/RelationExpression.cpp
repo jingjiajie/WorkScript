@@ -26,6 +26,11 @@ const std::shared_ptr<const TypeExpression> RelationExpression::getType() const
 	return this->context->findType(TYPENAME_RELATION_EXPRESSION,false);
 }
 
+const std::string RelationExpression::toString() const
+{
+	return this->leftExpression->toString() + " = " + this->rightExpression->toString();
+}
+
 bool RelationExpression::equals(const std::shared_ptr<const Expression> &targetExpression) const
 {
 	if (!targetExpression->getType()->equals(this->getType())) return false;

@@ -8,7 +8,7 @@
 using namespace std;
 
 MultiplyExpression::MultiplyExpression(Context * const & context)
-	:PolynomialExpression(context)
+	:TermExpression(context)
 {
 }
 
@@ -64,6 +64,11 @@ bool MultiplyExpression::equals(const std::shared_ptr<const Expression> &target)
 const std::shared_ptr<const TypeExpression> MultiplyExpression::getType() const
 {
 	return this->context->findType(TYPENAME_MULTIPLY_EXPRESSION, false);
+}
+
+const std::string MultiplyExpression::toString() const
+{
+	return this->leftExpression->toString() + "*" + this->rightExpression->toString();
 }
 
 const std::shared_ptr<const Expression> MultiplyExpression::getLeftExpression() const

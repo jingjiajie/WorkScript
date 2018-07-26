@@ -3,7 +3,7 @@
 #include "UnimplementedException.h"
 #include "Context.h"
 #include "TypeMemberExpression.h"
-#include "MultiTermExpression.h"
+#include "PolynomialExpression.h"
 #include "IdentifierExpression.h"
 #include "ParentheseExpression.h"
 #include "RelationExpression.h"
@@ -153,7 +153,7 @@ const std::shared_ptr<const TypeMemberExpression> TypeExpression::matchStaticMem
 	}
 }
 
-std::string TypeExpression::toString() const
+const std::string TypeExpression::toString() const
 {
 	stringstream ss;
 	ss << (this->name);

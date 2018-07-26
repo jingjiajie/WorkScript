@@ -3,7 +3,7 @@
 #include "TypeExpression.h"
 #include "NumberExpression.h"
 #include "StringExpression.h"
-#include "MultiTermExpression.h"
+#include "PolynomialExpression.h"
 #include "IdentifierExpression.h"
 #include "ParentheseExpression.h"
 #include "MemberEvaluateExpression.h"
@@ -11,13 +11,13 @@
 using namespace std;
 
 PlusExpression::PlusExpression(Context * const & context)
-	:PolynomialExpression(context)
+	:TermExpression(context)
 {
 
 }
 
 PlusExpression::PlusExpression(Context * const & context, const std::shared_ptr<const Expression> &leftExpression, const std::shared_ptr<const Expression> &rightExpression)
-	: PolynomialExpression(context)
+	: TermExpression(context)
 {
 	this->setLeftExpression(leftExpression);
 	this->setRightExpression(rightExpression);
@@ -67,6 +67,11 @@ const std::shared_ptr<const TypeExpression> PlusExpression::getType() const
 	return this->context->findType(TYPENAME_PLUS_EXPRESSION,false);
 }
 
+const std::string PlusExpression::toString() const
+{
+	return this->leftExpression->toString() + "+" + this->rightExpression->toString();
+}
+
 const std::shared_ptr<const Expression> PlusExpression::getLeftExpression() const
 {
 	return this->leftExpression;
@@ -95,13 +100,8 @@ std::shared_ptr<const NumberExpression> PlusExpression::numberPlusNumber(const s
 
 std::shared_ptr<const StringExpression> PlusExpression::exprPlusExpr(const std::shared_ptr<const Expression>&left, const std::shared_ptr<const Expression>&right) const
 {
-	SPCEXPRESSION toStringExpr(new MultiTermExpression(this->context, { SPCEXPRESSION(new IdentifierExpression(this->context, "toString")), SPCEXPRESSION(new ParentheseExpression(this->context, nullptr)) }));
-	SPCEXPRESSION leftToStringEvaluate(new MemberEvaluateExpression(this->context, left, toStringExpr));
-	SPCEXPRESSION rightToStringEvaluate(new MemberEvaluateExpression(this->context, right, toStringExpr));
-	auto leftEvaluatedStringExpr = dynamic_pointer_cast<const StringExpression>(leftToStringEvaluate->evaluate(ExpressionBind()));
-	auto rightEvaluatedStringExpr = dynamic_pointer_cast<const StringExpression>(rightToStringEvaluate->evaluate(ExpressionBind()));
-	string leftEvaluatedString = leftEvaluatedStringExpr->getValue();
-	string rightEvaluatedString = rightEvaluatedStringExpr->getValue();
+	string leftEvaluatedString = left->toString();
+	string rightEvaluatedString = right->toString();
 	shared_ptr<const StringExpression> newStringExpr(new StringExpression(this->context, leftEvaluatedString + rightEvaluatedString));
 	return newStringExpr;
 }
