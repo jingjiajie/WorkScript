@@ -36,10 +36,9 @@ const std::string FunctionExpression::toString() const
 		}
 		else {
 			ss << "(" << this->subExpressions[i]->toString() << ")";
-		}
-
-		if (i != subExpressionCount - 1) {
-			ss << " ";
+			if (i != subExpressionCount - 1) {
+				ss << " ";
+			}
 		}
 	}
 	return ss.str();

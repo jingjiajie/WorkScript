@@ -4,6 +4,8 @@
 #include "StringExpression.h"
 #include "NumberExpression.h"
 #include "Context.h"
+#include "VariableExpression.h"
+#include "DivideExpression.h"
 
 using namespace std;
 
@@ -47,10 +49,38 @@ const std::shared_ptr<const Expression> MultiplyExpression::evaluate(const Expre
 
 bool MultiplyExpression::match(const std::shared_ptr<const Expression>& matchExpression, ExpressionBind * outExpressionBind) const
 {
-	if (!matchExpression->getType()->equals(this->getType()))return false;
-	auto matchMultiplyExpression = dynamic_pointer_cast<const MultiplyExpression>(matchExpression);
-	return this->leftExpression->match(matchMultiplyExpression->leftExpression, outExpressionBind)
-		&& this->rightExpression->match(matchMultiplyExpression->rightExpression, outExpressionBind);
+	if (matchExpression->getType()->equals(this->getType())) {
+		auto matchMultiplyExpression = dynamic_pointer_cast<const MultiplyExpression>(matchExpression);
+		return this->leftExpression->match(matchMultiplyExpression->leftExpression, outExpressionBind)
+			&& this->rightExpression->match(matchMultiplyExpression->rightExpression, outExpressionBind);
+	}
+	else //如果匹配的不是乘法表达式
+	{
+		auto variableType = this->context->findType(TYPENAME_VARIABLE_EXPRESSION, false);
+		shared_ptr<const VariableExpression> myVarExpr;
+		shared_ptr<const ValueExpression> myNonVarExpr;
+		auto mappedLeft = outExpressionBind->getMappedExpression(this->leftExpression);
+		if (mappedLeft == nullptr)mappedLeft = this->leftExpression;
+		auto mappedRight = outExpressionBind->getMappedExpression(this->rightExpression);
+		if (mappedRight == nullptr)mappedRight = this->rightExpression;
+		//且自己的左右表达式中只有一个是变量
+		if (mappedLeft->getType()->equals(variableType) && !mappedRight->getType()->equals(variableType))
+		{
+			myVarExpr = dynamic_pointer_cast<const VariableExpression>(mappedLeft);
+			myNonVarExpr = dynamic_pointer_cast<const ValueExpression>(mappedRight);
+		}
+		else if (!mappedLeft->getType()->equals(variableType) && mappedRight->getType()->equals(variableType)) {
+			myNonVarExpr = dynamic_pointer_cast<const ValueExpression>(mappedLeft);
+			myVarExpr = dynamic_pointer_cast<const VariableExpression>(mappedRight);
+		}
+		else {
+			return false;
+		}
+		//将变量表达式绑定为匹配表达式-非变量表达式
+		shared_ptr<const DivideExpression> minusExpr(new DivideExpression(this->context, matchExpression, myNonVarExpr));
+		outExpressionBind->addExpressionMap(myVarExpr, minusExpr);
+		return true;
+	}
 }
 
 bool MultiplyExpression::equals(const std::shared_ptr<const Expression> &target) const

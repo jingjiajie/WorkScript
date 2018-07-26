@@ -3,6 +3,8 @@
 #include "TypeExpression.h"
 #include "NumberExpression.h"
 #include "StringExpression.h"
+#include "VariableExpression.h"
+#include "PlusExpression.h"
 
 using namespace std;
 
@@ -52,10 +54,32 @@ const std::shared_ptr<const Expression> MinusExpression::evaluate(const Expressi
 
 bool MinusExpression::match(const std::shared_ptr<const Expression>& matchExpression, ExpressionBind * outExpressionBind) const
 {
-	if (!matchExpression->getType()->equals(this->getType()))return false;
-	auto matchMinusExpression = dynamic_pointer_cast<const MinusExpression>(matchExpression);
-	return this->leftExpression->match(matchMinusExpression->leftExpression, outExpressionBind)
-		&& this->rightExpression->match(matchMinusExpression->rightExpression, outExpressionBind);
+	if (matchExpression->getType()->equals(this->getType())) {
+		auto matchMinusExpression = dynamic_pointer_cast<const MinusExpression>(matchExpression);
+		return this->leftExpression->match(matchMinusExpression->leftExpression, outExpressionBind)
+			&& this->rightExpression->match(matchMinusExpression->rightExpression, outExpressionBind);
+	}
+	else //如果匹配的不是减法表达式
+	{
+		auto variableType = this->context->findType(TYPENAME_VARIABLE_EXPRESSION, false);
+		auto mappedLeft = outExpressionBind->getMappedExpression(this->leftExpression);
+		if (mappedLeft == nullptr)mappedLeft = this->leftExpression;
+		auto mappedRight = outExpressionBind->getMappedExpression(this->rightExpression);
+		if (mappedRight == nullptr)mappedRight = this->rightExpression;
+		//且自己的左右表达式中只有一个是变量
+		if (mappedLeft->getType()->equals(variableType) && !mappedRight->getType()->equals(variableType))
+		{
+			outExpressionBind->addExpressionMap(mappedLeft, shared_ptr<const PlusExpression>(new PlusExpression(this->context, mappedRight, matchExpression)));
+			return true; 
+		}
+		else if (!mappedLeft->getType()->equals(variableType) && mappedRight->getType()->equals(variableType)) {
+			outExpressionBind->addExpressionMap(mappedRight, shared_ptr<const MinusExpression>(new MinusExpression(this->context, mappedLeft, matchExpression)));
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 }
 
 bool MinusExpression::equals(const std::shared_ptr<const Expression> &target) const

@@ -4,6 +4,8 @@
 #include "StringExpression.h"
 #include "NumberExpression.h"
 #include "Context.h"
+#include "VariableExpression.h"
+#include "MultiplyExpression.h"
 
 using namespace std;
 
@@ -42,10 +44,32 @@ const std::shared_ptr<const Expression> DivideExpression::evaluate(const Express
 
 bool DivideExpression::match(const std::shared_ptr<const Expression>& matchExpression, ExpressionBind * outExpressionBind) const
 {
-	if (!matchExpression->getType()->equals(this->getType()))return false;
-	auto matchDivideExpression = dynamic_pointer_cast<const DivideExpression>(matchExpression);
-	return this->leftExpression->match(matchDivideExpression->leftExpression, outExpressionBind)
-		&& this->rightExpression->match(matchDivideExpression->rightExpression, outExpressionBind);
+	if (matchExpression->getType()->equals(this->getType())) {
+		auto matchDivideExpression = dynamic_pointer_cast<const DivideExpression>(matchExpression);
+		return this->leftExpression->match(matchDivideExpression->leftExpression, outExpressionBind)
+			&& this->rightExpression->match(matchDivideExpression->rightExpression, outExpressionBind);
+	}
+	else //如果匹配的不是除法表达式
+	{
+		auto variableType = this->context->findType(TYPENAME_VARIABLE_EXPRESSION, false);
+		auto mappedLeft = outExpressionBind->getMappedExpression(this->leftExpression);
+		if (mappedLeft == nullptr)mappedLeft = this->leftExpression;
+		auto mappedRight = outExpressionBind->getMappedExpression(this->rightExpression);
+		if (mappedRight == nullptr)mappedRight = this->rightExpression;
+		//且自己的左右表达式中只有一个是变量
+		if (mappedLeft->getType()->equals(variableType) && !mappedRight->getType()->equals(variableType))
+		{
+			outExpressionBind->addExpressionMap(mappedLeft, shared_ptr<const MultiplyExpression>(new MultiplyExpression(this->context, mappedRight, matchExpression)));
+			return true;
+		}
+		else if (!mappedLeft->getType()->equals(variableType) && mappedRight->getType()->equals(variableType)) {
+			outExpressionBind->addExpressionMap(mappedRight, shared_ptr<const DivideExpression>(new DivideExpression(this->context, mappedLeft, matchExpression)));
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 }
 
 bool DivideExpression::equals(const std::shared_ptr<const Expression> &target) const

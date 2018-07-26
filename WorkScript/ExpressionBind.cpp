@@ -35,5 +35,5 @@ const std::shared_ptr<const Expression> ExpressionBind::getMappedExpression(cons
 			return pair.second;
 		}
 	}
-	return std::shared_ptr<const Expression>(nullptr);
+	return nullptr;
 }

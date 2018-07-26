@@ -7,6 +7,8 @@
 #include "IdentifierExpression.h"
 #include "ParentheseExpression.h"
 #include "MemberEvaluateExpression.h"
+#include "VariableExpression.h"
+#include "MinusExpression.h"
 
 using namespace std;
 
@@ -48,10 +50,39 @@ const std::shared_ptr<const Expression> PlusExpression::evaluate(const Expressio
 
 bool PlusExpression::match(const std::shared_ptr<const Expression>& matchExpression, ExpressionBind * outExpressionBind) const
 {
-	if (!matchExpression->getType()->equals(this->getType()))return false;
-	auto matchPlusExpression = dynamic_pointer_cast<const PlusExpression>(matchExpression);
-	return this->leftExpression->match(matchPlusExpression->leftExpression,outExpressionBind)
-		&& this->rightExpression->match(matchPlusExpression->rightExpression,outExpressionBind);
+	//如果匹配的是加法表达式，则按左右表达式匹配
+	if (matchExpression->getType()->equals(this->getType())) {
+		auto matchPlusExpression = dynamic_pointer_cast<const PlusExpression>(matchExpression);
+		return this->leftExpression->match(matchPlusExpression->leftExpression, outExpressionBind)
+			&& this->rightExpression->match(matchPlusExpression->rightExpression, outExpressionBind);
+	}
+	else //如果匹配的不是加法表达式
+	{
+		auto variableType = this->context->findType(TYPENAME_VARIABLE_EXPRESSION,false);
+		shared_ptr<const VariableExpression> myVarExpr;
+		shared_ptr<const ValueExpression> myNonVarExpr;
+		auto mappedLeft = outExpressionBind->getMappedExpression(this->leftExpression);
+		if (mappedLeft == nullptr)mappedLeft = this->leftExpression;
+		auto mappedRight = outExpressionBind->getMappedExpression(this->rightExpression);
+		if (mappedRight == nullptr)mappedRight = this->rightExpression;
+		//且自己的左右表达式中只有一个是变量
+		if (mappedLeft->getType()->equals(variableType) && !mappedRight->getType()->equals(variableType))
+		{
+			myVarExpr = dynamic_pointer_cast<const VariableExpression>(mappedLeft);
+			myNonVarExpr = dynamic_pointer_cast<const ValueExpression>(mappedRight);
+		}
+		else if (!mappedLeft->getType()->equals(variableType) && mappedRight->getType()->equals(variableType)) {
+			myNonVarExpr = dynamic_pointer_cast<const ValueExpression>(mappedLeft);
+			myVarExpr = dynamic_pointer_cast<const VariableExpression>(mappedRight);
+		}
+		else {
+			return false;
+		}
+		//将变量表达式绑定为匹配表达式-非变量表达式
+		shared_ptr<const MinusExpression> minusExpr(new MinusExpression(this->context, matchExpression, myNonVarExpr));
+		outExpressionBind->addExpressionMap(myVarExpr, minusExpr);
+		return true;
+	}
 }
 
 bool PlusExpression::equals(const std::shared_ptr<const Expression> &target) const

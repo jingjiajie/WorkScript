@@ -16,9 +16,10 @@ const std::shared_ptr<const Expression> VariableExpression::evaluate(const Expre
 {
 	auto mappedExpr = expressionBind.getMappedExpression(this->shared_from_this());
 	if (mappedExpr == nullptr) return this->shared_from_this();
-	auto matchResult = this->matchFirstUpInContextAndEvaluate(mappedExpr);
+	auto evaluatedMappedExpr = mappedExpr->evaluate(ExpressionBind());
+	auto matchResult = this->matchFirstUpInContextAndEvaluate(evaluatedMappedExpr);
 	if (matchResult == nullptr) {
-		return mappedExpr;
+		return evaluatedMappedExpr;
 	}
 	else {
 		return matchResult;
