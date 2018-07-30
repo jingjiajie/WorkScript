@@ -15,7 +15,7 @@ FunctionExpression::FunctionExpression(Context * const & context, bool direct)
 	:PolynomialExpression(context)
 {
 	this->direct = direct;
-	this->allowLastVariableMatchRests = false;
+	//this->allowLastVariableMatchRests = false;
 	this->type = context->findType(TYPENAME_FUNCTION_EXPRESSION,false);
 }
 

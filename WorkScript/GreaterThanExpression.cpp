@@ -31,7 +31,8 @@ const std::shared_ptr<const Expression> GreaterThanExpression::evaluate(const Ex
 	}
 	else {
 		shared_ptr<const GreaterThanExpression> newMe(new GreaterThanExpression(this->context, evaluatedLeft, evaluatedRight));
-		return this->matchFirstUpInContextAndEvaluate(newMe);
+		auto matchResult = this->matchFirstUpInContextAndEvaluate(newMe);
+		return matchResult == nullptr ? newMe : matchResult;
 	}
 }
 
