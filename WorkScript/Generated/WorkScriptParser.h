@@ -12,10 +12,10 @@
 class  WorkScriptParser : public antlr4::Parser {
 public:
   enum {
-    IDENTIFIER = 1, NUMBER = 2, STRING = 3, POINT = 4, NEWLINE = 5, LEFT_PARENTHESE = 6, 
-    RIGHT_PARENTHESE = 7, LEFT_BRACE = 8, RIGHT_BRACE = 9, EQUALS = 10, 
-    PLUS = 11, MINUS = 12, MULTIPLY = 13, DIVIDE = 14, GREATER_THAN = 15, 
-    GREATER_THAN_EQUAL = 16, LESS_THAN = 17, LESS_THAN_EQUAL = 18, WS = 19
+    IDENTIFIER = 1, NUMBER = 2, STRING = 3, POINT = 4, COMMA = 5, NEWLINE = 6, 
+    LEFT_PARENTHESE = 7, RIGHT_PARENTHESE = 8, LEFT_BRACE = 9, RIGHT_BRACE = 10, 
+    EQUALS = 11, PLUS = 12, MINUS = 13, MULTIPLY = 14, DIVIDE = 15, GREATER_THAN = 16, 
+    GREATER_THAN_EQUAL = 17, LESS_THAN = 18, LESS_THAN_EQUAL = 19, WS = 20
   };
 
   enum {
@@ -90,6 +90,8 @@ public:
     virtual size_t getRuleIndex() const override;
     std::vector<TermExpressionContext *> termExpression();
     TermExpressionContext* termExpression(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> COMMA();
+    antlr4::tree::TerminalNode* COMMA(size_t i);
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    

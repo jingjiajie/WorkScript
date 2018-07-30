@@ -17,7 +17,9 @@ RelationExpression::~RelationExpression()
 
 const std::shared_ptr<const Expression> RelationExpression::evaluate(const ExpressionBind &expressionBind) const
 {
-	auto resultExpr = this->rightExpression->evaluate(expressionBind);
+	auto mappedRight = expressionBind.getMappedExpression(this->rightExpression);
+	if (mappedRight == nullptr)mappedRight = this->rightExpression;
+	auto resultExpr = mappedRight->evaluate(expressionBind);
 	return resultExpr;
 }
 

@@ -303,6 +303,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AccessDeniedException.h" />
+    <ClInclude Include="BooleanExpression.h" />
     <ClInclude Include="DivideExpression.h" />
     <ClInclude Include="ExecuteCppCodeExpression.h" />
     <ClInclude Include="ExpressionWrapper.h" />
@@ -312,6 +313,7 @@
     <ClInclude Include="Generated\WorkScriptParser.h" />
     <ClInclude Include="Generated\WorkScriptVisitor.h" />
     <ClInclude Include="GetTypeExpression.h" />
+    <ClInclude Include="GreaterThanExpression.h" />
     <ClInclude Include="IdentifierExpression.h" />
     <ClInclude Include="MemberEvaluateExpression.h" />
     <ClInclude Include="MinusExpression.h" />
@@ -339,6 +341,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccessDeniedException.cpp" />
+    <ClCompile Include="BooleanExpression.cpp" />
     <ClCompile Include="DivideExpression.cpp" />
     <ClCompile Include="ExecuteCppCodeExpression.cpp" />
     <ClCompile Include="ExpressionBind.cpp" />
@@ -349,6 +352,7 @@
     <ClCompile Include="Generated\WorkScriptParser.cpp" />
     <ClCompile Include="Generated\WorkScriptVisitor.cpp" />
     <ClCompile Include="GetTypeExpression.cpp" />
+    <ClCompile Include="GreaterThanExpression.cpp" />
     <ClCompile Include="IdentifierExpression.cpp" />
     <ClCompile Include="MemberEvaluateExpression.cpp" />
     <ClCompile Include="MinusExpression.cpp" />

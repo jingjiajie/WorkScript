@@ -10,7 +10,7 @@ expression: (polynomialExpression | relationExpression) (
 relationExpression:
 	polynomialExpression EQUALS polynomialExpression;
 
-polynomialExpression: termExpression+;
+polynomialExpression: termExpression (COMMA? termExpression)*;
 
 termExpression:
 	NUMBER			# NumberExpression
@@ -38,6 +38,7 @@ IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
 NUMBER: [0-9]+ (POINT [0-9]+)?;
 STRING: '"' ~'"'* '"' | ['] ~[']* ['];
 POINT: '.';
+COMMA: ',';
 NEWLINE: '\r\n' | '\n';
 LEFT_PARENTHESE: '(';
 RIGHT_PARENTHESE: ')';

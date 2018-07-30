@@ -21,12 +21,14 @@ public:
 	antlrcpp::Any visitDirectFunctionExpression(WorkScriptParser::DirectFunctionExpressionContext*)override;
 	antlrcpp::Any visitEvaluatedFunctionExpression(WorkScriptParser::EvaluatedFunctionExpressionContext*)override;
 	antlrcpp::Any visitIndependentParentheseExpression(WorkScriptParser::IndependentParentheseExpressionContext*)override;
+	antlrcpp::Any visitCompareExpression(WorkScriptParser::CompareExpressionContext*)override;
 	WorkScriptVisitorImpl(Context*);
 	virtual ~WorkScriptVisitorImpl();
 private:
 	Context *context;
 	bool inRelationExpressionLeft = false;
 	bool inRelationExpressionRight = false;
+	bool isDirectFunctionName = false;
+	int parentheseLevel = 0;
 	std::vector<std::shared_ptr<const VariableExpression>> relationLeftVariables;
-	int parenthereLevel = 0;
 };

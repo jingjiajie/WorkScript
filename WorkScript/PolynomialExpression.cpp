@@ -57,41 +57,66 @@ const std::shared_ptr<const Expression> PolynomialExpression::evaluate(const Exp
 bool PolynomialExpression::match(const std::shared_ptr<const Expression>& targetExpression, ExpressionBind * outExpressionBind) const
 {
 	if (!targetExpression->getType()->equals(this->getType()))return false;
- 	auto targetPolynomialExpression = (const std::shared_ptr<const PolynomialExpression> &)targetExpression;
-	//如果目标的子表达式个数小于自己的子表达式个数，则匹配失败
-	if (targetPolynomialExpression->subExpressions.size() < this->subExpressions.size()) {
-		return false;
-	}		//如果目标表达式的个数等于自己的子表达式个数，则依次匹配
-	else if (targetPolynomialExpression->subExpressions.size() == this->subExpressions.size()) {
-		for (size_t i = 0; i < this->subExpressions.size(); i++) {
-			if (!this->subExpressions[i]->match(targetPolynomialExpression->subExpressions[i], outExpressionBind)) {
-				return false;
+	auto targetPolynomialExpression = (const std::shared_ptr<const PolynomialExpression> &)targetExpression;
+	auto flattedTargetSubExpressions = this->flatPolynomial(targetPolynomialExpression);
+
+	vector<shared_ptr<const Expression>> cacheExpressions; //如果有的子表达式算出来是个多项式，则将多出来的项暂存在这里
+	size_t mySubExprPos = 0;
+	size_t targetSubExprPos = 0;
+	bool isLastExpr = false;
+	auto polynomialType = this->context->findType(TYPENAME_POLYNOMIAL_EXPRESSION, false);
+	while ((mySubExprPos < this->subExpressions.size() || cacheExpressions.size() > 0)
+		&& targetSubExprPos < flattedTargetSubExpressions.size()) {
+		shared_ptr<const Expression> myNextEvaluatedSubExpr; //下一个要匹配的表达式
+		shared_ptr<const Expression> targetNextSubExpr = flattedTargetSubExpressions[targetSubExprPos];
+		if (cacheExpressions.size() > 0) {
+			myNextEvaluatedSubExpr = cacheExpressions[0];
+			cacheExpressions.erase(cacheExpressions.begin());
+			if (cacheExpressions.size() == 0 && mySubExprPos == this->subExpressions.size() - 1) {
+				isLastExpr = true;
 			}
 		}
-		return true;
-	}
-	else if(this->allowLastVariableMatchRests){ //目标表达式的子表达式个数大于自己的子表达式个数，并且开启了最后一项变量匹配所有剩余表达式，并且且自己的最后一个子表达式是变量，则最后变量匹配目标剩余所有子表达式
-		size_t mySubExprCount = this->subExpressions.size();
-		size_t targetSubExprCount = targetPolynomialExpression->subExpressions.size();
-		auto myLastExpr = this->subExpressions[mySubExprCount - 1];
-		if (!myLastExpr->getType()->equals(this->context->findType(TYPENAME_VARIABLE_EXPRESSION, false)))return false;
-		//将目标表达式的剩余项构建成新的PolynomialExpression
-		vector<shared_ptr<const Expression>> restExpressions;
-		for (size_t i = mySubExprCount - 1; i < targetSubExprCount; i++) {
-			restExpressions.push_back(targetPolynomialExpression->subExpressions[i]);
-		}
-		shared_ptr<PolynomialExpression> restMultiTermExpression(new PolynomialExpression(this->context, restExpressions));
-		auto myLastVariable = dynamic_pointer_cast<const VariableExpression>(myLastExpr);
-		myLastVariable->match(restMultiTermExpression, outExpressionBind);
-		
-		for (size_t i = 0; i < mySubExprCount - 1; i++) {
-			if (!this->subExpressions[i]->match(targetPolynomialExpression->subExpressions[i], outExpressionBind)) {
-				return false;
+		else {
+			auto evaluatedExpr = subExpressions[mySubExprPos]->evaluate(*outExpressionBind);
+			//如果子表达式计算得到多项式，则展开作为多个子表达式匹配
+			if (evaluatedExpr->getType()->equals(polynomialType) || evaluatedExpr->getType()->isSubTypeOf(polynomialType)) {
+				auto evaluatedPolynomialExpr = dynamic_pointer_cast<const PolynomialExpression>(evaluatedExpr);
+				auto flattedEvaluatedPolynomialSubExpressions = flatPolynomial(evaluatedPolynomialExpr);
+				myNextEvaluatedSubExpr = flattedEvaluatedPolynomialSubExpressions[0];
+				if (flattedEvaluatedPolynomialSubExpressions.size() > 1) {
+					for (size_t j = 1; j < flattedEvaluatedPolynomialSubExpressions.size(); j++) {
+						cacheExpressions.push_back(flattedEvaluatedPolynomialSubExpressions[j]);
+					}
+				}
 			}
+			else {
+				myNextEvaluatedSubExpr = evaluatedExpr;
+			}
+			if (mySubExprPos == this->subExpressions.size() - 1 && cacheExpressions.size() == 0) {
+				isLastExpr = true;
+			}
+			mySubExprPos++;
 		}
-		return true;
+
+		//如果开启了最后一项变量匹配剩余所有表达式，则如果符合此条件，进行相应匹配
+		if (this->allowLastVariableMatchRests 
+			&& isLastExpr
+			&& flattedTargetSubExpressions.size() - targetSubExprPos > 1
+			&& myNextEvaluatedSubExpr->getType()->equals(this->context->findType(TYPENAME_VARIABLE_EXPRESSION, false))) {
+			auto myLastVar = myNextEvaluatedSubExpr;
+			vector<shared_ptr<const Expression>> restTargetExpressions;
+			for (; targetSubExprPos < flattedTargetSubExpressions.size(); targetSubExprPos++) {
+				restTargetExpressions.push_back(flattedTargetSubExpressions[targetSubExprPos]);
+			}
+			shared_ptr<PolynomialExpression> newLastPolynomial(new PolynomialExpression(this->context, restTargetExpressions));
+			return myLastVar->match(newLastPolynomial, outExpressionBind);
+		}
+		else if (!myNextEvaluatedSubExpr->match(flattedTargetSubExpressions[targetSubExprPos], outExpressionBind)) {
+			return false;
+		}
+		targetSubExprPos++;
 	}
-	return false;
+	return true;
 }
 
 bool PolynomialExpression::equals(const std::shared_ptr<const Expression> &targetExpression) const
@@ -123,4 +148,21 @@ const std::string PolynomialExpression::toString() const
 		}
 	}
 	return ss.str();
+}
+
+const std::vector<std::shared_ptr<const Expression>> PolynomialExpression::flatPolynomial(const std::shared_ptr<const PolynomialExpression> &polynomialExpr) const
+{
+	vector<shared_ptr<const Expression>> resultExpressions;
+	for (auto &curSubExpr : polynomialExpr->subExpressions) {
+		if (curSubExpr->getType()->equals(this->context->findType(TYPENAME_POLYNOMIAL_EXPRESSION, false))) {
+			auto flatResults = flatPolynomial(dynamic_pointer_cast<const PolynomialExpression>(curSubExpr));
+			for (auto &flatResult : flatResults) {
+				resultExpressions.push_back(flatResult);
+			}
+		}
+		else {
+			resultExpressions.push_back(curSubExpr);
+		}
+	}
+	return resultExpressions;
 }

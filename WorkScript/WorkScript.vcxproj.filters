@@ -147,6 +147,12 @@
     <ClInclude Include="FunctionExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="BooleanExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GreaterThanExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Context.cpp">
@@ -250,6 +256,12 @@
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FunctionExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="BooleanExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="GreaterThanExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
   </ItemGroup>

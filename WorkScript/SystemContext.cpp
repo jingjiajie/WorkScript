@@ -15,6 +15,7 @@
 #include "VariableExpression.h"
 #include "PrintExpression.h"
 #include "ExecuteCppCodeExpression.h"
+#include "FunctionExpression.h"
 
 using namespace std;
 
@@ -30,7 +31,12 @@ SystemContext::SystemContext()
 	auto relationExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, expressionType))->setName(TYPENAME_RELATION_EXPRESSION);
 	auto valueExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, expressionType))->setName(TYPENAME_VALUE_EXPRESSION);
 	auto polynomialExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, valueExpressionType))->setName(TYPENAME_POLYNOMIAL_EXPRESSION);
+	auto functionExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, polynomialExpressionType))->setName(TYPENAME_FUNCTION_EXPRESSION);
 	auto termExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, valueExpressionType))->setName(TYPENAME_TERM_EXPRESSION);
+	auto greaterThanExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, termExpressionType))->setName(TYPENAME_GREATER_THAN_EXPRESSION);
+	auto greaterThanEqualExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, termExpressionType))->setName(TYPENAME_GREATER_THAN_EQUAL_EXPRESSION);
+	auto lessThanExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, termExpressionType))->setName(TYPENAME_LESS_THAN_EXPRESSION);
+	auto lessThanEqualExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, termExpressionType))->setName(TYPENAME_LESS_THAN_EQUAL_EXPRESSION);
 	auto plusExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, termExpressionType))->setName(TYPENAME_PLUS_EXPRESSION);
 	auto minusExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, termExpressionType))->setName(TYPENAME_MINUS_EXPRESSION);
 	auto multiplyExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, termExpressionType))->setName(TYPENAME_MULTIPLY_EXPRESSION);
@@ -45,6 +51,7 @@ SystemContext::SystemContext()
 	auto parentheseExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, termExpressionType))->setName(TYPENAME_PARENTHESE_EXPRESSION);
 	auto stringExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, termExpressionType))->setName(TYPENAME_STRING_EXPRESSION);
 	auto numberExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, termExpressionType))->setName(TYPENAME_NUMBER_EXPRESSION);
+	auto booleanExpressionType = SPTYPEEXPRESSION(new TypeExpression(this, termExpressionType))->setName(TYPENAME_BOOLEAN_EXPRESSION);
 
 	types.push_back(objectType);
 	types.push_back(expressionType);
@@ -52,6 +59,11 @@ SystemContext::SystemContext()
 	types.push_back(typeMemberExpressionType);
 	types.push_back(relationExpressionType);
 	types.push_back(polynomialExpressionType);
+	types.push_back(functionExpressionType);
+	types.push_back(greaterThanExpressionType);
+	types.push_back(greaterThanEqualExpressionType);
+	types.push_back(lessThanExpressionType);
+	types.push_back(lessThanEqualExpressionType);
 	types.push_back(plusExpressionType);
 	types.push_back(minusExpressionType);
 	types.push_back(multiplyExpressionType);
@@ -66,6 +78,7 @@ SystemContext::SystemContext()
 	types.push_back(parentheseExpressionType);
 	types.push_back(stringExpressionType);
 	types.push_back(numberExpressionType);
+	types.push_back(booleanExpressionType);
 
 	for (auto &type : types) {
 		this->addType(type);
@@ -177,7 +190,7 @@ void SystemContext::initPrintExpression(const shared_ptr<TypeExpression> &printE
 	shared_ptr<const VariableExpression> varExpr(new VariableExpression(context, "x"));
 	shared_ptr<const IdentifierExpression> printIdentifierExpr(new IdentifierExpression(context, "print"));
 	shared_ptr<const ParentheseExpression> parentheseExpr(new ParentheseExpression(context, varExpr));
-	shared_ptr<const PolynomialExpression> printFunctionExpr(new PolynomialExpression(context, { printIdentifierExpr ,parentheseExpr }));
+	shared_ptr<const FunctionExpression> printFunctionExpr(new FunctionExpression(context, true, { printIdentifierExpr ,parentheseExpr }));
 
 	shared_ptr<const RelationExpression> relation(new RelationExpression(context, printFunctionExpr,shared_ptr<const PrintExpression>(new PrintExpression(context, varExpr))));
 	context->pushExpression(relation);

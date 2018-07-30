@@ -1,5 +1,7 @@
 #include <sstream>
 #include "FunctionExpression.h"
+#include "TypeExpression.h"
+#include "Context.h"
 
 using namespace std;
 
@@ -14,6 +16,7 @@ FunctionExpression::FunctionExpression(Context * const & context, bool direct)
 {
 	this->direct = direct;
 	this->allowLastVariableMatchRests = false;
+	this->type = context->findType(TYPENAME_FUNCTION_EXPRESSION,false);
 }
 
 
@@ -24,6 +27,17 @@ FunctionExpression::~FunctionExpression()
 std::shared_ptr<PolynomialExpression> FunctionExpression::newInstance() const
 {
 	return shared_ptr<FunctionExpression>(new FunctionExpression(this->context, this->direct));
+}
+
+const std::shared_ptr<const TypeExpression> FunctionExpression::getType() const
+{
+	return this->type;
+}
+
+bool FunctionExpression::match(const std::shared_ptr<const Expression>& matchExpression, ExpressionBind * outExpressionBind) const
+{
+	//函数只能匹配函数
+	return this->PolynomialExpression::match(matchExpression, outExpressionBind);
 }
 
 const std::string FunctionExpression::toString() const

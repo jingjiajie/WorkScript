@@ -18,6 +18,7 @@
 #include "MultiplyExpression.h"
 #include "DivideExpression.h"
 #include "FunctionExpression.h"
+#include "GreaterThanExpression.h"
 
 using namespace std;
 
@@ -47,8 +48,8 @@ antlrcpp::Any WorkScriptVisitorImpl::visitStringExpression(WorkScriptParser::Str
 antlrcpp::Any WorkScriptVisitorImpl::visitIdentifierExpression(WorkScriptParser::IdentifierExpressionContext *ctx)
 {
 	string identifierName = ctx->IDENTIFIER()->getText();
-	//如果在关系表达式左部的括号表达式中声明的标识符，则识别为变量
-	if (this->inRelationExpressionLeft && this->parenthereLevel > 0) {
+	//如果在关系表达式左部中声明的标识符，则识别为变量
+	if (this->inRelationExpressionLeft && this->parentheseLevel > 0 && !this->isDirectFunctionName) {
 		auto expr = make_shared<const VariableExpression>(this->context, identifierName);
 		this->relationLeftVariables.push_back(expr);
 		return ExpressionWrapper(expr);
@@ -155,14 +156,16 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideExpression(WorkScriptPar
 antlrcpp::Any WorkScriptVisitorImpl::visitDirectFunctionExpression(WorkScriptParser::DirectFunctionExpressionContext *ctx)
 {
 	vector<shared_ptr<const Expression>> subExpressions;
+	isDirectFunctionName = true;
 	ExpressionWrapper termExprWrapper = ctx->termExpression()->accept(this);
+	isDirectFunctionName = false;
 	subExpressions.push_back(termExprWrapper.getExpression());
-	this->parenthereLevel++;
+	++parentheseLevel;
 	for (auto &polynomialExpr : ctx->polynomialExpression()) {
 		ExpressionWrapper polynomialExprWrapper = polynomialExpr->accept(this);
 		subExpressions.push_back(polynomialExprWrapper.getExpression());
 	}
-	this->parenthereLevel--;
+	--parentheseLevel;
 	shared_ptr<const Expression> expr(new FunctionExpression(this->context, true, subExpressions));
 	return ExpressionWrapper(expr);
 }
@@ -170,28 +173,40 @@ antlrcpp::Any WorkScriptVisitorImpl::visitDirectFunctionExpression(WorkScriptPar
 antlrcpp::Any WorkScriptVisitorImpl::visitEvaluatedFunctionExpression(WorkScriptParser::EvaluatedFunctionExpressionContext *ctx)
 {
 	vector<shared_ptr<const Expression>> subExpressions;
-	this->parenthereLevel++;
+	++parentheseLevel;
 	for (auto &polynomialExpr : ctx->polynomialExpression()) {
 		ExpressionWrapper polynomialExprWrapper = polynomialExpr->accept(this);
 		subExpressions.push_back(polynomialExprWrapper.getExpression());
 	}
-	this->parenthereLevel--;
+	--parentheseLevel;
 	shared_ptr<const Expression> expr(new FunctionExpression(this->context, false, subExpressions));
 	return ExpressionWrapper(expr);
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitIndependentParentheseExpression(WorkScriptParser::IndependentParentheseExpressionContext *ctx)
 {
-	this->parenthereLevel++;
 	shared_ptr<const Expression> subExpression;
+	++parentheseLevel;
 	if (ctx->polynomialExpression() != nullptr) {
 		const ExpressionWrapper wrapper = ctx->polynomialExpression()->accept(this);
 		subExpression = wrapper.getExpression();
 	}
+	--parentheseLevel;
 	auto lpExpr = new ParentheseExpression(context, subExpression);
-	this->parenthereLevel--;
 
 	return ExpressionWrapper(shared_ptr<const ParentheseExpression>(lpExpr));
+}
+
+antlrcpp::Any WorkScriptVisitorImpl::visitCompareExpression(WorkScriptParser::CompareExpressionContext *ctx)
+{
+	ExpressionWrapper wrapperLeft = ctx->termExpression()[0]->accept(this);
+	ExpressionWrapper wrapperRight = ctx->termExpression()[1]->accept(this);
+	auto leftExpression = wrapperLeft.getExpression();
+	auto rightExpression = wrapperRight.getExpression();
+	if (ctx->GREATER_THAN()) {
+		shared_ptr<const GreaterThanExpression> greaterThanExpr(new GreaterThanExpression(this->context, leftExpression, rightExpression));
+		return ExpressionWrapper(greaterThanExpr);
+	}
 }
 
 WorkScriptVisitorImpl::WorkScriptVisitorImpl(Context *lpContext)

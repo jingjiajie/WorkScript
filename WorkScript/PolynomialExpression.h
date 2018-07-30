@@ -21,8 +21,9 @@ public:
 	virtual const std::string toString() const override;
 
 protected:
+	const std::vector<std::shared_ptr<const Expression>> flatPolynomial(const std::shared_ptr<const PolynomialExpression>&) const;
+
 	std::vector<std::shared_ptr<const Expression>> subExpressions;
-	//TODO 如果是FunctionExpression，要禁掉这个
 	bool allowLastVariableMatchRests = true;
 };
 

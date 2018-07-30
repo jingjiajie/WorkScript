@@ -33,11 +33,7 @@ bool VariableExpression::match(const std::shared_ptr<const Expression>& matchExp
 	if (mappedExpression != nullptr && !mappedExpression->equals(matchExpression)) {
 		return false;
 	}
-	//如果Identifier绑定成功，直接返回
-	if (IdentifierExpression::match(matchExpression, outExpressionBind)) {
-		return true;
-	}
-	//否则尝试绑定值或表达式，但不绑定变量！
+	//尝试绑定值或表达式，但不绑定变量！
 	//因为普通求值表达式不会产生变量，变量一定是之前关系表达式右部匹配失败剩余的变量
 	//若匹配变量，则会造成不可预知的逻辑错误
 	auto matchType = matchExpression->getType();

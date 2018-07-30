@@ -24,7 +24,7 @@ const std::shared_ptr<const Expression> ValueExpression::matchFirstUpInContextAn
 			//不匹配自己
 			if (expression->equals(matchExpression)) continue;
 			//只匹配关系表达式
-			//if (!expression->getType()->equals(relationType)) continue;
+			if (!expression->getType()->equals(relationType)) continue;
 			ExpressionBind newExpressionBind;
 			if (!expression->match(matchExpression, &newExpressionBind)) continue;
 			auto resultExpr = expression->evaluate(newExpressionBind);

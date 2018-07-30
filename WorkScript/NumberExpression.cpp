@@ -28,8 +28,9 @@ NumberExpression::~NumberExpression()
 
 const std::shared_ptr<const Expression> NumberExpression::evaluate(const ExpressionBind &) const
 {
-	auto matchResult = this->matchFirstUpInContextAndEvaluate(this->shared_from_this());
-	return matchResult == nullptr ? this->shared_from_this() : matchResult;
+	//auto matchResult = this->matchFirstUpInContextAndEvaluate(this->shared_from_this());
+	//return matchResult == nullptr ? this->shared_from_this() : matchResult;
+	return this->shared_from_this();
 }
 
 bool NumberExpression::match(const std::shared_ptr<const Expression>& matchExpression, ExpressionBind * outExpressionBind) const
@@ -83,12 +84,5 @@ const double NumberExpression::getValue() const
 
 void NumberExpression::setValue(const double &value)
 {
-	//SPCEXPRESSION toStringLeft(new PolynomialExpression(this->context, { SPCEXPRESSION(new IdentifierExpression(this->context, "toString")), SPCEXPRESSION(new ParentheseExpression(this->context, nullptr)) }));
-	//this->instantialExpressions.insert(this->instantialExpressions.begin(),
-	//	SPCEXPRESSION(new TypeMemberExpression(this->context, this->getType(), Authority::PUBLIC,
-	//		SPCEXPRESSION(new RelationExpression(this->context,
-	//			toStringLeft,
-	//			SPCEXPRESSION(new StringExpression(this->context))->setValue(to_string(value)))
-	//		))));
 	this->value = value;
 }
