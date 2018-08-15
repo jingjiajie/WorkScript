@@ -1,34 +1,35 @@
 #include "Context.h"
 #include "TypeExpression.h"
+#include "FunctionExpression.h"
 #include "Expression.h"
+#include "FunctionInvocationExpression.h"
+#include "VariableExpression.h"
+
 using namespace std;
 
-Context::Context()
+Context::Context(size_t localVariableCount)
 {
 	this->baseContext = nullptr;
+	this->localVariables = new shared_ptr<TermExpression>[localVariableCount];
+}
+
+Context::Context(Context * baseContext, size_t localVariableCount)
+	:Context(localVariableCount)
+{
+	this->setBaseContext(baseContext);
 }
 
 Context::~Context()
 {
-
+	delete []this->localVariables;
 }
 
-void Context::pushExpression(const shared_ptr<const Expression> &expr)
-{
-	this->expressions.push_back(expr);
-}
-
-const std::vector<shared_ptr<const Expression>>& Context::getExpressions() const
-{
-	return  this->expressions;
-}
-
-void Context::addType(const std::shared_ptr<const TypeExpression> &type)
+void Context::addType(const std::shared_ptr<TypeExpression> &type)
 {
 	this->types.push_back(type);
 }
 
-const std::shared_ptr<const TypeExpression> Context::findType(const std::string &typeName,bool isGenericType, const std::vector<std::shared_ptr<const TypeExpression>> &genericTypes) const
+const std::shared_ptr<TypeExpression> Context::findType(const std::string &typeName,bool isGenericType, const std::vector<std::shared_ptr<TypeExpression>> &genericTypes) const
 {
 	//遍历查找本Context中的类型定义
 	for (auto lpCurType : this->types) {
@@ -58,7 +59,7 @@ void Context::setBaseContext(Context *const ctx)
 	this->baseContext = ctx;
 }
 
-const std::shared_ptr<const Expression> Context::getCurrentExpression() const
+const std::shared_ptr<TermExpression> Context::getCurrentExpression() const
 {
 	if (this->baseContext != nullptr) {
 		return this->baseContext->getCurrentExpression();
@@ -68,7 +69,7 @@ const std::shared_ptr<const Expression> Context::getCurrentExpression() const
 	}
 }
 
-void Context::setCurrentExpression(const std::shared_ptr<const Expression> &expr)
+void Context::setCurrentExpression(const std::shared_ptr<TermExpression> &expr)
 {
 	if (this->baseContext != nullptr) {
 		this->baseContext->setCurrentExpression(expr);
@@ -76,4 +77,14 @@ void Context::setCurrentExpression(const std::shared_ptr<const Expression> &expr
 	else {
 		this->currentExpression = expr;
 	}
+}
+
+const std::shared_ptr<TermExpression> Context::getLocalVariable(size_t offset) const
+{
+	return this->localVariables[offset];
+}
+
+void Context::setLocalVariable(size_t offset, const std::shared_ptr<TermExpression>& value)
+{
+	this->localVariables[offset] = value;
 }

@@ -9,13 +9,12 @@
 
 using namespace std;
 
-DivideExpression::DivideExpression(Context * const & context)
-	:TermExpression(context)
+DivideExpression::DivideExpression()
 {
 }
 
-DivideExpression::DivideExpression(Context * const & context, const std::shared_ptr<const Expression> &leftExpr, const std::shared_ptr<const Expression>&rightExpr)
-	: DivideExpression(context)
+DivideExpression::DivideExpression(const std::shared_ptr<TermExpression> &leftExpr, const std::shared_ptr<TermExpression>&rightExpr)
+	: DivideExpression()
 {
 	this->setLeftExpression(leftExpr);
 	this->setRightExpression(rightExpr);
@@ -25,62 +24,52 @@ DivideExpression::~DivideExpression()
 {
 }
 
-const std::shared_ptr<const Expression> DivideExpression::evaluate(const ExpressionBind &expressionBind) const
+const std::shared_ptr<TermExpression> DivideExpression::evaluate(Context *context)
 {
-	auto evaluatedLeftExpr = this->leftExpression->evaluate(expressionBind);
-	auto evaluatedRightExpr = this->rightExpression->evaluate(expressionBind);
+	auto evaluatedLeftExpr = this->leftExpression->evaluate(context);
+	auto evaluatedRightExpr = this->rightExpression->evaluate(context);
 	//开始做除法运算。
-	auto numberType = this->context->findType(TYPENAME_NUMBER_EXPRESSION, false);
-	auto stringType = this->context->findType(TYPENAME_STRING_EXPRESSION, false);
+	auto numberType = TypeExpression::NUMBER_EXPRESSION;
+	auto stringType = TypeExpression::STRING_EXPRESSION;
 
 	if (evaluatedLeftExpr->getType()->equals(numberType)) {
 		if (evaluatedRightExpr->getType()->equals(numberType)) {
-			return this->numberDivideNumber(dynamic_pointer_cast<const NumberExpression>(evaluatedLeftExpr), dynamic_pointer_cast<const NumberExpression>(evaluatedRightExpr));
+			return this->numberDivideNumber(dynamic_pointer_cast<NumberExpression>(evaluatedLeftExpr), dynamic_pointer_cast<NumberExpression>(evaluatedRightExpr));
 		}
 	}
-	auto newMe = shared_ptr<const DivideExpression>(new DivideExpression(this->context, evaluatedLeftExpr, evaluatedRightExpr));
+	auto newMe = shared_ptr<DivideExpression>(new DivideExpression(evaluatedLeftExpr, evaluatedRightExpr));
 	return newMe;
 }
 
-bool DivideExpression::match(const std::shared_ptr<const Expression>& matchExpression, ExpressionBind * outExpressionBind) const
-{
-	if (matchExpression->getType()->equals(this->getType())) {
-		auto matchDivideExpression = dynamic_pointer_cast<const DivideExpression>(matchExpression);
-		return this->leftExpression->match(matchDivideExpression->leftExpression, outExpressionBind)
-			&& this->rightExpression->match(matchDivideExpression->rightExpression, outExpressionBind);
-	}
-	else //如果匹配的不是除法表达式
-	{
-		auto variableType = this->context->findType(TYPENAME_VARIABLE_EXPRESSION, false);
-		auto mappedLeft = outExpressionBind->getMappedExpression(this->leftExpression);
-		if (mappedLeft == nullptr)mappedLeft = this->leftExpression;
-		auto mappedRight = outExpressionBind->getMappedExpression(this->rightExpression);
-		if (mappedRight == nullptr)mappedRight = this->rightExpression;
-		//且自己的左右表达式中只有一个是变量
-		if (mappedLeft->getType()->equals(variableType) && !mappedRight->getType()->equals(variableType))
-		{
-			return dynamic_pointer_cast<const VariableExpression>(mappedLeft)->match(shared_ptr<const MultiplyExpression>(new MultiplyExpression(this->context, mappedRight, matchExpression)), outExpressionBind);
-		}
-		else if (!mappedLeft->getType()->equals(variableType) && mappedRight->getType()->equals(variableType)) {
-			return dynamic_pointer_cast<const VariableExpression>(mappedRight)->match(shared_ptr<const DivideExpression>(new DivideExpression(this->context, mappedLeft, matchExpression)), outExpressionBind);
-		}
-		else {
-			return false;
-		}
-	}
-}
+//bool DivideExpression::match(const std::shared_ptr<TermExpression>& matchExpression, Context *context) const
+//{
+//	if (matchExpression->getType()->equals(this->getType())) {
+//		auto matchDivideExpression = dynamic_pointer_cast<DivideExpression>(matchExpression);
+//		return this->leftExpression->match(matchDivideExpression->leftExpression, context)
+//			&& this->rightExpression->match(matchDivideExpression->rightExpression, context);
+//	}
+//	else //如果匹配的不是除法表达式
+//	{
+//		auto variableType = TypeExpression::VARIABLE_EXPRESSION;
+//		auto evaluatedLeft = this->leftExpression->evaluate(context);
+//		auto evaluatedRight = this->rightExpression->evaluate(context);
+//		//且自己的左右表达式中只有一个是变量
+//		if (evaluatedLeft->getType()->equals(variableType) && !evaluatedRight->getType()->equals(variableType))
+//		{
+//			return dynamic_pointer_cast<VariableExpression>(evaluatedLeft)->match(shared_ptr<MultiplyExpression>(new MultiplyExpression(evaluatedRight, matchExpression)), context);
+//		}
+//		else if (!evaluatedLeft->getType()->equals(variableType) && evaluatedRight->getType()->equals(variableType)) {
+//			return dynamic_pointer_cast<VariableExpression>(evaluatedRight)->match(shared_ptr<DivideExpression>(new DivideExpression(evaluatedLeft, matchExpression)), context);
+//		}
+//		else {
+//			return false;
+//		}
+//	}
+//}
 
-bool DivideExpression::equals(const std::shared_ptr<const Expression> &target) const
+const std::shared_ptr<TypeExpression> DivideExpression::getType() const
 {
-	if (!target->getType()->equals(this->getType()))return false;
-	auto targetDivideExpression = dynamic_pointer_cast<const DivideExpression>(target);
-	return targetDivideExpression->leftExpression->equals(this->leftExpression)
-		&& targetDivideExpression->rightExpression->equals(this->rightExpression);
-}
-
-const std::shared_ptr<const TypeExpression> DivideExpression::getType() const
-{
-	return this->context->findType(TYPENAME_DIVIDE_EXPRESSION, false);
+	return TypeExpression::DIVIDE_EXPRESSION;
 }
 
 const std::string DivideExpression::toString() const
@@ -88,28 +77,8 @@ const std::string DivideExpression::toString() const
 	return this->leftExpression->toString() + "/" + this->rightExpression->toString();
 }
 
-const std::shared_ptr<const Expression> DivideExpression::getLeftExpression() const
+std::shared_ptr<NumberExpression> DivideExpression::numberDivideNumber(const std::shared_ptr<NumberExpression>&left, const std::shared_ptr<NumberExpression>&right) const
 {
-	return this->leftExpression;
-}
-
-void DivideExpression::setLeftExpression(const std::shared_ptr<const Expression> &expr)
-{
-	this->leftExpression = expr;
-}
-
-const std::shared_ptr<const Expression> DivideExpression::getRightExpression() const
-{
-	return this->rightExpression;
-}
-
-void DivideExpression::setRightExpression(const std::shared_ptr<const Expression> &expr)
-{
-	this->rightExpression = expr;
-}
-
-std::shared_ptr<const NumberExpression> DivideExpression::numberDivideNumber(const std::shared_ptr<const NumberExpression>&left, const std::shared_ptr<const NumberExpression>&right) const
-{
-	shared_ptr<const NumberExpression> newNumExpr(new NumberExpression(this->context, left->getValue() / right->getValue()));
+	shared_ptr<NumberExpression> newNumExpr(new NumberExpression(left->getValue() / right->getValue()));
 	return newNumExpr;
 }

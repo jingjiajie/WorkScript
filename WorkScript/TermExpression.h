@@ -1,10 +1,14 @@
 #pragma once
-#include "ValueExpression.h"
+#include "Expression.h"
+
+class Context;
+
 class TermExpression :
-	public ValueExpression
+	public Expression
 {
 public:
-	TermExpression(Context *const &context);
+	TermExpression();
 	virtual ~TermExpression();
-};
 
+	virtual bool equals(const std::shared_ptr<TermExpression>&) const = 0;
+};

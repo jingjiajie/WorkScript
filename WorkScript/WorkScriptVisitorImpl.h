@@ -2,7 +2,7 @@
 #include <memory>
 #include <vector>
 #include "Generated/WorkScriptBaseVisitor.h"
-#include "Context.h"
+#include "Program.h"
 #include "VariableExpression.h"
 
 class WorkScriptVisitorImpl :
@@ -11,24 +11,18 @@ class WorkScriptVisitorImpl :
 public:
 	antlrcpp::Any visitNumberExpression(WorkScriptParser::NumberExpressionContext*) override;
 	antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext*) override;
-	antlrcpp::Any visitIdentifierExpression(WorkScriptParser::IdentifierExpressionContext*) override;
-	antlrcpp::Any visitRelationExpression(WorkScriptParser::RelationExpressionContext*) override;
-	antlrcpp::Any visitPolynomialExpression(WorkScriptParser::PolynomialExpressionContext*) override;
+	antlrcpp::Any visitVariableExpression(WorkScriptParser::VariableExpressionContext*) override;
+	antlrcpp::Any visitFunctionExpression(WorkScriptParser::FunctionExpressionContext*) override;
+	antlrcpp::Any visitFunctionInvocationExpression(WorkScriptParser::FunctionInvocationExpressionContext*) override;
 	antlrcpp::Any visitExpression(WorkScriptParser::ExpressionContext*) override;
-	antlrcpp::Any visitMemberEvaluateExpression(WorkScriptParser::MemberEvaluateExpressionContext*) override;
+	//antlrcpp::Any visitMemberEvaluateExpression(WorkScriptParser::MemberEvaluateExpressionContext*) override;
 	antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext*) override;
 	antlrcpp::Any visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext*) override;
-	antlrcpp::Any visitDirectFunctionExpression(WorkScriptParser::DirectFunctionExpressionContext*)override;
-	antlrcpp::Any visitEvaluatedFunctionExpression(WorkScriptParser::EvaluatedFunctionExpressionContext*)override;
-	antlrcpp::Any visitIndependentParentheseExpression(WorkScriptParser::IndependentParentheseExpressionContext*)override;
+	antlrcpp::Any visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext*)override;
 	antlrcpp::Any visitCompareExpression(WorkScriptParser::CompareExpressionContext*)override;
-	WorkScriptVisitorImpl(Context*);
+	antlrcpp::Any visitListExpression(WorkScriptParser::ListExpressionContext*)override;
+	WorkScriptVisitorImpl(Program*);
 	virtual ~WorkScriptVisitorImpl();
 private:
-	Context *context;
-	bool inRelationExpressionLeft = false;
-	bool inRelationExpressionRight = false;
-	bool isDirectFunctionName = false;
-	int parentheseLevel = 0;
-	std::vector<std::shared_ptr<const VariableExpression>> relationLeftVariables;
+	Program *program;
 };

@@ -4,15 +4,16 @@ class NumberExpression :
 	public TermExpression
 {
 public:
-	NumberExpression(Context *const &context);
-	NumberExpression(Context *const &context,const double &value);
+	NumberExpression();
+	NumberExpression(const double &value);
 	virtual ~NumberExpression();
 
-	virtual const std::shared_ptr<const Expression> evaluate(const ExpressionBind &) const override;
-	virtual bool match(const std::shared_ptr<const Expression> &matchExpression, ExpressionBind *outExpressionBind) const override;
-	virtual bool equals(const std::shared_ptr<const Expression> &) const override;
-	virtual const std::shared_ptr<const TypeExpression> getType() const override;
+	virtual const std::shared_ptr<TermExpression> evaluate(Context *context) override;
+	//virtual bool match(const std::shared_ptr<TermExpression> &matchExpression, Context *context) const override;
+	virtual const std::shared_ptr<TypeExpression> getType() const override;
+	virtual bool equals(const std::shared_ptr<TermExpression>& targetExpression) const;
 	virtual const std::string toString() const override;
+	virtual void compile(CompileContext *context) override;
 
 	const double getValue() const;
 	void setValue(const double &value);

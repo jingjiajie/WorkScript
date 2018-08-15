@@ -1,21 +1,15 @@
 #include "StringExpression.h"
 #include "TypeExpression.h"
 #include "Context.h"
-#include "PolynomialExpression.h"
-#include "IdentifierExpression.h"
-#include "RelationExpression.h"
-#include "ParentheseExpression.h"
 
 using namespace std;
 
-StringExpression::StringExpression(Context *const &context)
-	:TermExpression(context)
+StringExpression::StringExpression()
 {
 
 }
 
-StringExpression::StringExpression(Context * const & context, const std::string & value)
-	:StringExpression(context)
+StringExpression::StringExpression(const std::string & value)
 {
 	this->setValue(value);
 }
@@ -25,37 +19,43 @@ StringExpression::~StringExpression()
 {
 }
 
-const std::shared_ptr<const Expression> StringExpression::evaluate(const ExpressionBind &) const
+const std::shared_ptr<TermExpression> StringExpression::evaluate(Context *context)
 {
-	//auto matchResult = this->matchFirstUpInContextAndEvaluate(this->shared_from_this());
-	//return matchResult == nullptr ? this->shared_from_this() : matchResult;
-	return this->shared_from_this();
+	return (const std::shared_ptr<TermExpression>&)this->shared_from_this();
+}
+//
+//bool StringExpression::match(const std::shared_ptr<TermExpression>& matchExpression, Context *context) const
+//{
+//	//如果类型不同，匹配失败
+//	if (!matchExpression->getType()->equals(this->getType())) {
+//		return false;
+//	}
+//	//类型相同，比较值是否相同
+//	auto matchValueExpression = (const std::shared_ptr<std::remove_pointer<decltype(this)>::type> &)matchExpression;
+//	return matchValueExpression->getValue() == this->getValue();
+//}
+
+const std::shared_ptr<TypeExpression> StringExpression::getType() const
+{
+	return TypeExpression::STRING_EXPRESSION;
 }
 
-bool StringExpression::match(const std::shared_ptr<const Expression>& matchExpression, ExpressionBind * outExpressionBind) const
+bool StringExpression::equals(const std::shared_ptr<TermExpression>& targetExpression) const
 {
-	return this->equals(matchExpression);
-}
-
-bool StringExpression::equals(const std::shared_ptr<const Expression>&matchExpression) const
-{
-	//如果类型不同，匹配失败
-	if (!matchExpression->getType()->equals(this->getType())) {
+	if (!targetExpression->getType()->equals(this->getType())) {
 		return false;
 	}
-	//类型相同，比较值是否相同
-	auto matchValueExpression = (const std::shared_ptr<std::remove_pointer<decltype(this)>::type> &)matchExpression;
-	return matchValueExpression->getValue() == this->getValue();
-}
-
-const std::shared_ptr<const TypeExpression> StringExpression::getType() const
-{
-	return this->context->findType(TYPENAME_STRING_EXPRESSION,false);
+	return dynamic_pointer_cast<StringExpression>(targetExpression)->getValue() == this->value;
 }
 
 const std::string StringExpression::toString() const
 {
 	return this->value;
+}
+
+void StringExpression::compile(CompileContext * context)
+{
+	return;
 }
 
 const std::string StringExpression::getValue() const
@@ -65,13 +65,5 @@ const std::string StringExpression::getValue() const
 
 void StringExpression::setValue(const std::string & value)
 {
-	//SPCEXPRESSION toStringLeft(new PolynomialExpression(this->context, { SPCEXPRESSION(new IdentifierExpression(this->context, "toString")), SPCEXPRESSION(new ParentheseExpression(this->context, nullptr)) }));
-	//this->instantialExpressions.insert(this->instantialExpressions.begin(),
-	//	SPCEXPRESSION(new TypeMemberExpression(this->context, this->getType(), Authority::PUBLIC,
-	//		SPCEXPRESSION(new RelationExpression(this->context,
-	//			toStringLeft,
-	//			this->shared_from_this())
-	//))));
-	//
 	this->value = value;
 }

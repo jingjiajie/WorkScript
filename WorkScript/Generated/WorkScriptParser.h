@@ -14,13 +14,14 @@ public:
   enum {
     IDENTIFIER = 1, NUMBER = 2, STRING = 3, POINT = 4, COMMA = 5, NEWLINE = 6, 
     LEFT_PARENTHESE = 7, RIGHT_PARENTHESE = 8, LEFT_BRACE = 9, RIGHT_BRACE = 10, 
-    EQUALS = 11, PLUS = 12, MINUS = 13, MULTIPLY = 14, DIVIDE = 15, GREATER_THAN = 16, 
-    GREATER_THAN_EQUAL = 17, LESS_THAN = 18, LESS_THAN_EQUAL = 19, WS = 20
+    LEFT_BRACKET = 11, RIGHT_BRACKET = 12, EQUALS = 13, PLUS = 14, MINUS = 15, 
+    MULTIPLY = 16, DIVIDE = 17, GREATER_THAN = 18, GREATER_THAN_EQUAL = 19, 
+    LESS_THAN = 20, LESS_THAN_EQUAL = 21, WS = 22
   };
 
   enum {
-    RuleProgram = 0, RuleExpression = 1, RuleRelationExpression = 2, RulePolynomialExpression = 3, 
-    RuleTermExpression = 4
+    RuleProgram = 0, RuleExpression = 1, RuleTermExpression = 2, RuleListExpression = 3, 
+    RuleBlockExpression = 4
   };
 
   WorkScriptParser(antlr4::TokenStream *input);
@@ -35,19 +36,19 @@ public:
 
   class ProgramContext;
   class ExpressionContext;
-  class RelationExpressionContext;
-  class PolynomialExpressionContext;
-  class TermExpressionContext; 
+  class TermExpressionContext;
+  class ListExpressionContext;
+  class BlockExpressionContext; 
 
   class  ProgramContext : public antlr4::ParserRuleContext {
   public:
     ProgramContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *EOF();
     std::vector<ExpressionContext *> expression();
     ExpressionContext* expression(size_t i);
     std::vector<antlr4::tree::TerminalNode *> NEWLINE();
     antlr4::tree::TerminalNode* NEWLINE(size_t i);
-    antlr4::tree::TerminalNode *EOF();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
@@ -59,45 +60,13 @@ public:
   public:
     ExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *NEWLINE();
-    antlr4::tree::TerminalNode *EOF();
-    PolynomialExpressionContext *polynomialExpression();
-    RelationExpressionContext *relationExpression();
+    TermExpressionContext *termExpression();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
   };
 
   ExpressionContext* expression();
-
-  class  RelationExpressionContext : public antlr4::ParserRuleContext {
-  public:
-    RelationExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    std::vector<PolynomialExpressionContext *> polynomialExpression();
-    PolynomialExpressionContext* polynomialExpression(size_t i);
-    antlr4::tree::TerminalNode *EQUALS();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  RelationExpressionContext* relationExpression();
-
-  class  PolynomialExpressionContext : public antlr4::ParserRuleContext {
-  public:
-    PolynomialExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    std::vector<TermExpressionContext *> termExpression();
-    TermExpressionContext* termExpression(size_t i);
-    std::vector<antlr4::tree::TerminalNode *> COMMA();
-    antlr4::tree::TerminalNode* COMMA(size_t i);
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  PolynomialExpressionContext* polynomialExpression();
 
   class  TermExpressionContext : public antlr4::ParserRuleContext {
   public:
@@ -112,45 +81,32 @@ public:
    
   };
 
-  class  MemberEvaluateExpressionContext : public TermExpressionContext {
+  class  ParentheseExpressionContext : public TermExpressionContext {
   public:
-    MemberEvaluateExpressionContext(TermExpressionContext *ctx);
+    ParentheseExpressionContext(TermExpressionContext *ctx);
 
-    std::vector<TermExpressionContext *> termExpression();
-    TermExpressionContext* termExpression(size_t i);
-    antlr4::tree::TerminalNode *POINT();
+    antlr4::tree::TerminalNode *LEFT_PARENTHESE();
+    TermExpressionContext *termExpression();
+    antlr4::tree::TerminalNode *RIGHT_PARENTHESE();
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  MultiplyDivideExpressionContext : public TermExpressionContext {
+  class  TermBlockExpressionContext : public TermExpressionContext {
   public:
-    MultiplyDivideExpressionContext(TermExpressionContext *ctx);
+    TermBlockExpressionContext(TermExpressionContext *ctx);
 
-    std::vector<TermExpressionContext *> termExpression();
-    TermExpressionContext* termExpression(size_t i);
-    antlr4::tree::TerminalNode *MULTIPLY();
-    antlr4::tree::TerminalNode *DIVIDE();
+    BlockExpressionContext *blockExpression();
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  StringExpressionContext : public TermExpressionContext {
+  class  FunctionInvocationExpressionContext : public TermExpressionContext {
   public:
-    StringExpressionContext(TermExpressionContext *ctx);
+    FunctionInvocationExpressionContext(TermExpressionContext *ctx);
 
-    antlr4::tree::TerminalNode *STRING();
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  EvaluatedFunctionExpressionContext : public TermExpressionContext {
-  public:
-    EvaluatedFunctionExpressionContext(TermExpressionContext *ctx);
-
-    std::vector<antlr4::tree::TerminalNode *> LEFT_PARENTHESE();
-    antlr4::tree::TerminalNode* LEFT_PARENTHESE(size_t i);
-    std::vector<antlr4::tree::TerminalNode *> RIGHT_PARENTHESE();
-    antlr4::tree::TerminalNode* RIGHT_PARENTHESE(size_t i);
-    std::vector<PolynomialExpressionContext *> polynomialExpression();
-    PolynomialExpressionContext* polynomialExpression(size_t i);
+    TermExpressionContext *termExpression();
+    antlr4::tree::TerminalNode *LEFT_PARENTHESE();
+    ListExpressionContext *listExpression();
+    antlr4::tree::TerminalNode *RIGHT_PARENTHESE();
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
@@ -162,13 +118,11 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  IndependentParentheseExpressionContext : public TermExpressionContext {
+  class  VariableExpressionContext : public TermExpressionContext {
   public:
-    IndependentParentheseExpressionContext(TermExpressionContext *ctx);
+    VariableExpressionContext(TermExpressionContext *ctx);
 
-    antlr4::tree::TerminalNode *LEFT_PARENTHESE();
-    antlr4::tree::TerminalNode *RIGHT_PARENTHESE();
-    PolynomialExpressionContext *polynomialExpression();
+    antlr4::tree::TerminalNode *IDENTIFIER();
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
@@ -185,17 +139,69 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  DirectFunctionExpressionContext : public TermExpressionContext {
+  class  MethodInvocationExpressionContext : public TermExpressionContext {
   public:
-    DirectFunctionExpressionContext(TermExpressionContext *ctx);
+    MethodInvocationExpressionContext(TermExpressionContext *ctx);
 
     TermExpressionContext *termExpression();
-    std::vector<antlr4::tree::TerminalNode *> LEFT_PARENTHESE();
-    antlr4::tree::TerminalNode* LEFT_PARENTHESE(size_t i);
-    std::vector<antlr4::tree::TerminalNode *> RIGHT_PARENTHESE();
-    antlr4::tree::TerminalNode* RIGHT_PARENTHESE(size_t i);
-    std::vector<PolynomialExpressionContext *> polynomialExpression();
-    PolynomialExpressionContext* polynomialExpression(size_t i);
+    antlr4::tree::TerminalNode *POINT();
+    antlr4::tree::TerminalNode *IDENTIFIER();
+    antlr4::tree::TerminalNode *LEFT_PARENTHESE();
+    ListExpressionContext *listExpression();
+    antlr4::tree::TerminalNode *RIGHT_PARENTHESE();
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  FunctionExpressionContext : public TermExpressionContext {
+  public:
+    FunctionExpressionContext(TermExpressionContext *ctx);
+
+    antlr4::tree::TerminalNode *LEFT_PARENTHESE();
+    ListExpressionContext *listExpression();
+    antlr4::tree::TerminalNode *RIGHT_PARENTHESE();
+    antlr4::tree::TerminalNode *EQUALS();
+    TermExpressionContext *termExpression();
+    BlockExpressionContext *blockExpression();
+    antlr4::tree::TerminalNode *IDENTIFIER();
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  AssignmentExpressionContext : public TermExpressionContext {
+  public:
+    AssignmentExpressionContext(TermExpressionContext *ctx);
+
+    antlr4::tree::TerminalNode *IDENTIFIER();
+    antlr4::tree::TerminalNode *EQUALS();
+    TermExpressionContext *termExpression();
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  MultiplyDivideExpressionContext : public TermExpressionContext {
+  public:
+    MultiplyDivideExpressionContext(TermExpressionContext *ctx);
+
+    std::vector<TermExpressionContext *> termExpression();
+    TermExpressionContext* termExpression(size_t i);
+    antlr4::tree::TerminalNode *MULTIPLY();
+    antlr4::tree::TerminalNode *DIVIDE();
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  MemberEvaluateExpressionContext : public TermExpressionContext {
+  public:
+    MemberEvaluateExpressionContext(TermExpressionContext *ctx);
+
+    TermExpressionContext *termExpression();
+    antlr4::tree::TerminalNode *POINT();
+    antlr4::tree::TerminalNode *IDENTIFIER();
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  StringExpressionContext : public TermExpressionContext {
+  public:
+    StringExpressionContext(TermExpressionContext *ctx);
+
+    antlr4::tree::TerminalNode *STRING();
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
@@ -210,16 +216,42 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  IdentifierExpressionContext : public TermExpressionContext {
-  public:
-    IdentifierExpressionContext(TermExpressionContext *ctx);
-
-    antlr4::tree::TerminalNode *IDENTIFIER();
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
   TermExpressionContext* termExpression();
   TermExpressionContext* termExpression(int precedence);
+  class  ListExpressionContext : public antlr4::ParserRuleContext {
+  public:
+    ListExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<TermExpressionContext *> termExpression();
+    TermExpressionContext* termExpression(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> COMMA();
+    antlr4::tree::TerminalNode* COMMA(size_t i);
+    antlr4::tree::TerminalNode *LEFT_BRACKET();
+    antlr4::tree::TerminalNode *RIGHT_BRACKET();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ListExpressionContext* listExpression();
+
+  class  BlockExpressionContext : public antlr4::ParserRuleContext {
+  public:
+    BlockExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *LEFT_BRACE();
+    antlr4::tree::TerminalNode *RIGHT_BRACE();
+    std::vector<antlr4::tree::TerminalNode *> NEWLINE();
+    antlr4::tree::TerminalNode* NEWLINE(size_t i);
+    std::vector<ExpressionContext *> expression();
+    ExpressionContext* expression(size_t i);
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  BlockExpressionContext* blockExpression();
+
 
   virtual bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;
   bool termExpressionSempred(TermExpressionContext *_localctx, size_t predicateIndex);

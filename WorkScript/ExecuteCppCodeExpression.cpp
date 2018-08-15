@@ -3,8 +3,7 @@
 #include "TypeExpression.h"
 #include "UnimplementedException.h"
 
-ExecuteCppCodeExpression::ExecuteCppCodeExpression(Context *const &context, const std::function<const std::shared_ptr<const Expression>(const ExpressionBind&)> &evaluateFunction)
-	:TermExpression(context)
+ExecuteCppCodeExpression::ExecuteCppCodeExpression(const std::function<const std::shared_ptr<TermExpression>(Context*)> &evaluateFunction)
 {
 	this->evaluateFunction = evaluateFunction;
 }
@@ -14,27 +13,32 @@ ExecuteCppCodeExpression::~ExecuteCppCodeExpression()
 {
 }
 
-const std::shared_ptr<const Expression> ExecuteCppCodeExpression::evaluate(const ExpressionBind &expressionBind) const
+const std::shared_ptr<TermExpression> ExecuteCppCodeExpression::evaluate(Context *context)
 {
-	return this->evaluateFunction(expressionBind);
+	return this->evaluateFunction(context);
 }
 
-bool ExecuteCppCodeExpression::match(const std::shared_ptr<const Expression>& matchExpression, ExpressionBind * outExpressionBind) const
+//bool ExecuteCppCodeExpression::match(const std::shared_ptr<TermExpression>& matchExpression, Context *context) const
+//{
+//	throw UnimplementedException();
+//}
+
+const std::shared_ptr<TypeExpression> ExecuteCppCodeExpression::getType() const
 {
-	throw UnimplementedException();
+	return TypeExpression::EXECUTE_CPP_CODE_EXPRESSION;
 }
 
-bool ExecuteCppCodeExpression::equals(const std::shared_ptr<const Expression> &target) const
+bool ExecuteCppCodeExpression::equals(const std::shared_ptr<TermExpression>& targetExpression) const
 {
 	return false;
 }
 
-const std::shared_ptr<const TypeExpression> ExecuteCppCodeExpression::getType() const
-{
-	return this->context->findType(TYPENAME_EXECUTE_CPP_CODE_EXPRESSION, false);
-}
-
 const std::string ExecuteCppCodeExpression::toString() const
 {
-	return "(C++ Code)";
+	return "(Native Code)";
+}
+
+void ExecuteCppCodeExpression::compile(CompileContext * context)
+{
+	return;
 }

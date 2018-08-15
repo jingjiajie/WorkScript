@@ -3,22 +3,21 @@
 #include <string>
 #include <vector>
 #include "WorkScriptVisitorImpl.h"
-#include "IdentifierExpression.h"
-#include "RelationExpression.h"
 #include "StringExpression.h"
 #include "NumberExpression.h"
 #include "ExpressionWrapper.h"
-#include "ParentheseExpression.h"
-#include "PolynomialExpression.h"
-#include "VariableExpression.h"
 #include "TypeExpression.h"
 #include "PlusExpression.h"
 #include "MinusExpression.h"
 #include "MemberEvaluateExpression.h"
 #include "MultiplyExpression.h"
 #include "DivideExpression.h"
+#include "FunctionInvocationExpression.h"
 #include "FunctionExpression.h"
 #include "GreaterThanExpression.h"
+#include "ListExpression.h"
+#include "VariableExpression.h"
+#include "EqualExpression.h"
 
 using namespace std;
 
@@ -30,8 +29,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 	if (len == 0) {
 		throw new exception(("无法识别的数字：" + text).c_str());
 	}
-	auto lpType = this->context->findType(TYPENAME_NUMBER_EXPRESSION,false);
-	auto lpExpr = make_shared<const NumberExpression>(this->context, value);
+	auto lpExpr = make_shared<NumberExpression>(value);
 	auto wrapper = ExpressionWrapper(lpExpr);
 	return wrapper;
 }
@@ -40,178 +38,145 @@ antlrcpp::Any WorkScriptVisitorImpl::visitStringExpression(WorkScriptParser::Str
 {
 	string textWithQuotationMark = ctx->STRING()->getText();
 	string text = textWithQuotationMark.substr(1, textWithQuotationMark.length() - 2);
-	auto lpType = this->context->findType(TYPENAME_STRING_EXPRESSION,false);
-	auto lpExpr = make_shared<const StringExpression>(this->context, text);
+	auto lpExpr = make_shared<StringExpression>(text);
 	return ExpressionWrapper(lpExpr);
 }
 
-antlrcpp::Any WorkScriptVisitorImpl::visitIdentifierExpression(WorkScriptParser::IdentifierExpressionContext *ctx)
+antlrcpp::Any WorkScriptVisitorImpl::visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx)
 {
-	string identifierName = ctx->IDENTIFIER()->getText();
-	//如果在关系表达式左部中声明的标识符，则识别为变量
-	if (this->inRelationExpressionLeft && this->parentheseLevel > 0 && !this->isDirectFunctionName) {
-		auto expr = make_shared<const VariableExpression>(this->context, identifierName);
-		this->relationLeftVariables.push_back(expr);
-		return ExpressionWrapper(expr);
-	} //如果在关系表达式右部存在已经在左部被识别为变量的同名标识符，则右部该标识符也识别为变量
-	else if (this->inRelationExpressionRight) {
-		for (auto &varExpr : this->relationLeftVariables) {
-			if (varExpr->getIdentifierName() == identifierName) {
-				return ExpressionWrapper(varExpr);
-			}
+	string varName = ctx->IDENTIFIER()->getText();
+	return ExpressionWrapper(shared_ptr<VariableExpression>(new VariableExpression(varName)));
+}
+
+antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *ctx)
+{
+	const string funcName = ctx->IDENTIFIER()->getText();
+	ExpressionWrapper paramsWrapper = ctx->listExpression()->accept(this);
+	auto params = dynamic_pointer_cast<ListExpression>(paramsWrapper.getExpression());
+	ExpressionWrapper implWrapper = ctx->termExpression()->accept(this);
+	auto impl = dynamic_pointer_cast<TermExpression>(implWrapper.getExpression());
+
+	auto paramItems = params->getItems();
+	vector<string> paramVarNames;
+	vector<shared_ptr<TermExpression>> constraints;
+	for (size_t i = 0; i < paramItems.size(); i++) {
+		if (paramItems[i]->getType()->equals(TypeExpression::VARIABLE_EXPRESSION)) {
+			paramVarNames.push_back(dynamic_pointer_cast<VariableExpression>(paramItems[i])->getName());
 		}
-		auto expr = make_shared<const IdentifierExpression>(this->context, identifierName);
-		return ExpressionWrapper(expr);
-	} //否则识别为标识符
-	else {
-		auto expr = make_shared<const IdentifierExpression>(this->context, identifierName);
-		return ExpressionWrapper(expr);
+		else {
+			string tmpVarName = "_" + i;
+			paramVarNames.push_back(tmpVarName);
+			shared_ptr<EqualExpression> constraint(new EqualExpression);
+			constraint->setLeftExpression(shared_ptr<VariableExpression>(new VariableExpression(tmpVarName)));
+			constraint->setRightExpression(paramItems[i]);
+			constraints.push_back(constraint);
+		}
 	}
+
+	shared_ptr<FunctionExpression> funcExpr(new FunctionExpression);
+	funcExpr->setFunctionName(funcName);
+
+	auto overload = shared_ptr<FunctionExpression::Overload>(new FunctionExpression::Overload);
+	overload->setParameterNames(paramVarNames);
+	overload->setConstraints(constraints);
+	overload->setImplement(impl);
+	funcExpr->addOverload(overload);
+	return ExpressionWrapper(funcExpr);
 }
 
-antlrcpp::Any WorkScriptVisitorImpl::visitRelationExpression(WorkScriptParser::RelationExpressionContext *ctx)
+antlrcpp::Any WorkScriptVisitorImpl::visitFunctionInvocationExpression(WorkScriptParser::FunctionInvocationExpressionContext *ctx)
 {
-	this->inRelationExpressionLeft = true;
-	this->relationLeftVariables.clear();
-	const ExpressionWrapper &leftExpressionWrapper = ctx->polynomialExpression()[0]->accept(this);
-	auto leftExpression = leftExpressionWrapper.getExpression();
-	this->inRelationExpressionLeft = false;
-	this->inRelationExpressionRight = true;
-	const ExpressionWrapper &rightExpressionWrapper = ctx->polynomialExpression()[1]->accept(this);
-	auto rightExpression = rightExpressionWrapper.getExpression();
-	this->inRelationExpressionRight = false;
-	auto lpExpr = make_shared<const RelationExpression>(this->context, leftExpression, rightExpression);
-	return ExpressionWrapper(lpExpr);
-}
-
-antlrcpp::Any WorkScriptVisitorImpl::visitPolynomialExpression(WorkScriptParser::PolynomialExpressionContext *ctx)
-{
-	vector<shared_ptr<const Expression>> subExpressions;
-	for (auto &subCtx : ctx->termExpression()) {
-		const ExpressionWrapper &wrapper = subCtx->accept(this);
-		subExpressions.push_back(wrapper.getExpression());
-	}
-	//特殊处理：如果多项式只有一项，则返回TermExpression
-	if (subExpressions.size() == 1) {
-		return ExpressionWrapper(subExpressions[0]);
-	}
-	//否则返回多项式
-	auto polynomialExpession = make_shared<const PolynomialExpression>(this->context,subExpressions);
-	return ExpressionWrapper(polynomialExpession);
+	ExpressionWrapper termExpressionWrapper = ctx->termExpression()->accept(this);
+	ExpressionWrapper paramExpressionWrapper = ctx->listExpression()->accept(this);
+	auto termExpr = dynamic_pointer_cast<TermExpression>(termExpressionWrapper.getExpression());
+	auto paramExpr = dynamic_pointer_cast<ListExpression>(paramExpressionWrapper.getExpression());
+	shared_ptr<FunctionInvocationExpression> expr(new FunctionInvocationExpression);
+	expr->setLeftExpression(termExpr);
+	expr->setParameters(paramExpr);
+	return ExpressionWrapper(expr);
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitExpression(WorkScriptParser::ExpressionContext *ctx)
 {
-	ExpressionWrapper wrapper;
-	if (ctx->polynomialExpression() != nullptr) {
-		wrapper = ctx->polynomialExpression()->accept(this);
-	}
-	else {
-		wrapper = ctx->relationExpression()->accept(this);
-	}
-	auto expression = wrapper.getExpression();
-	this->context->pushExpression(expression);
+	ExpressionWrapper wrapper = ctx->termExpression()->accept(this);
+	this->program->pushExpression(wrapper.getExpression());
 	return nullptr;
 }
 
-antlrcpp::Any WorkScriptVisitorImpl::visitMemberEvaluateExpression(WorkScriptParser::MemberEvaluateExpressionContext *ctx)
-{
-	auto objExprCtx = ctx->termExpression()[0];
-	ExpressionWrapper objExprWrapper = objExprCtx->accept(this);
-	auto objExpr = objExprWrapper.getExpression();
-	auto memberExprCtx = ctx->termExpression()[1];
-	ExpressionWrapper memberExprWrapper = memberExprCtx->accept(this);
-	auto memberExpr = memberExprWrapper.getExpression();
-	return ExpressionWrapper(shared_ptr<const Expression>(new MemberEvaluateExpression(this->context,objExpr,memberExpr)));
-}
+//antlrcpp::Any WorkScriptVisitorImpl::visitMemberEvaluateExpression(WorkScriptParser::MemberEvaluateExpressionContext *ctx)
+//{
+//	auto objExprCtx = ctx->termExpression()[0];
+//	ExpressionWrapper objExprWrapper = objExprCtx->accept(this);
+//	auto objExpr = objExprWrapper.getExpression();
+//	auto memberExprCtx = ctx->termExpression()[1];
+//	ExpressionWrapper memberExprWrapper = memberExprCtx->accept(this);
+//	auto memberExpr = memberExprWrapper.getExpression();
+//	return ExpressionWrapper(shared_ptr<Expression>(new MemberEvaluateExpression(this->context,objExpr,memberExpr)));
+//}
 
 antlrcpp::Any WorkScriptVisitorImpl::visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *ctx)
 {
 	const ExpressionWrapper &leftExpressionWrapper = ctx->termExpression()[0]->accept(this);
-	auto leftExpression = leftExpressionWrapper.getExpression();
+	auto leftExpression = leftExpressionWrapper.getTermExpression();
 	const ExpressionWrapper &rightExpressionWrapper = ctx->termExpression()[1]->accept(this);
-	auto rightExpression = rightExpressionWrapper.getExpression();
+	auto rightExpression = rightExpressionWrapper.getTermExpression();
 	if (ctx->PLUS()) {
-		return ExpressionWrapper(make_shared<const PlusExpression>(this->context, leftExpression, rightExpression));
+		return ExpressionWrapper(make_shared<PlusExpression>(leftExpression, rightExpression));
 	}
 	else { //MINUS
-		return ExpressionWrapper(make_shared<const MinusExpression>(this->context, leftExpression, rightExpression));
+		return ExpressionWrapper(make_shared<MinusExpression>(leftExpression, rightExpression));
 	}
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext *ctx)
 {
 	const ExpressionWrapper &leftExpressionWrapper = ctx->termExpression()[0]->accept(this);
-	auto leftExpression = leftExpressionWrapper.getExpression();
+	auto leftExpression = leftExpressionWrapper.getTermExpression();
 	const ExpressionWrapper &rightExpressionWrapper = ctx->termExpression()[1]->accept(this);
-	auto rightExpression = rightExpressionWrapper.getExpression();
+	auto rightExpression = rightExpressionWrapper.getTermExpression();
 	if (ctx->MULTIPLY()) {
-		return ExpressionWrapper(make_shared<const MultiplyExpression>(this->context, leftExpression, rightExpression));
+		return ExpressionWrapper(make_shared<MultiplyExpression>(leftExpression, rightExpression));
 	}
 	else { //MINUS
-		return ExpressionWrapper(make_shared<const DivideExpression>(this->context, leftExpression, rightExpression));
+		return ExpressionWrapper(make_shared<DivideExpression>(leftExpression, rightExpression));
 	}
 }
 
-antlrcpp::Any WorkScriptVisitorImpl::visitDirectFunctionExpression(WorkScriptParser::DirectFunctionExpressionContext *ctx)
+antlrcpp::Any WorkScriptVisitorImpl::visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *ctx)
 {
-	vector<shared_ptr<const Expression>> subExpressions;
-	isDirectFunctionName = true;
-	ExpressionWrapper termExprWrapper = ctx->termExpression()->accept(this);
-	isDirectFunctionName = false;
-	subExpressions.push_back(termExprWrapper.getExpression());
-	++parentheseLevel;
-	for (auto &polynomialExpr : ctx->polynomialExpression()) {
-		ExpressionWrapper polynomialExprWrapper = polynomialExpr->accept(this);
-		subExpressions.push_back(polynomialExprWrapper.getExpression());
-	}
-	--parentheseLevel;
-	shared_ptr<const Expression> expr(new FunctionExpression(this->context, true, subExpressions));
-	return ExpressionWrapper(expr);
-}
-
-antlrcpp::Any WorkScriptVisitorImpl::visitEvaluatedFunctionExpression(WorkScriptParser::EvaluatedFunctionExpressionContext *ctx)
-{
-	vector<shared_ptr<const Expression>> subExpressions;
-	++parentheseLevel;
-	for (auto &polynomialExpr : ctx->polynomialExpression()) {
-		ExpressionWrapper polynomialExprWrapper = polynomialExpr->accept(this);
-		subExpressions.push_back(polynomialExprWrapper.getExpression());
-	}
-	--parentheseLevel;
-	shared_ptr<const Expression> expr(new FunctionExpression(this->context, false, subExpressions));
-	return ExpressionWrapper(expr);
-}
-
-antlrcpp::Any WorkScriptVisitorImpl::visitIndependentParentheseExpression(WorkScriptParser::IndependentParentheseExpressionContext *ctx)
-{
-	shared_ptr<const Expression> subExpression;
-	++parentheseLevel;
-	if (ctx->polynomialExpression() != nullptr) {
-		const ExpressionWrapper wrapper = ctx->polynomialExpression()->accept(this);
-		subExpression = wrapper.getExpression();
-	}
-	--parentheseLevel;
-	auto lpExpr = new ParentheseExpression(context, subExpression);
-
-	return ExpressionWrapper(shared_ptr<const ParentheseExpression>(lpExpr));
+	return ctx->termExpression()->accept(this);
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitCompareExpression(WorkScriptParser::CompareExpressionContext *ctx)
 {
 	ExpressionWrapper wrapperLeft = ctx->termExpression()[0]->accept(this);
 	ExpressionWrapper wrapperRight = ctx->termExpression()[1]->accept(this);
-	auto leftExpression = wrapperLeft.getExpression();
-	auto rightExpression = wrapperRight.getExpression();
+	auto leftExpression = wrapperLeft.getTermExpression();
+	auto rightExpression = wrapperLeft.getTermExpression();
 	if (ctx->GREATER_THAN()) {
-		shared_ptr<const GreaterThanExpression> greaterThanExpr(new GreaterThanExpression(this->context, leftExpression, rightExpression));
+		shared_ptr<GreaterThanExpression> greaterThanExpr(new GreaterThanExpression(leftExpression, rightExpression));
 		return ExpressionWrapper(greaterThanExpr);
 	}
 }
 
-WorkScriptVisitorImpl::WorkScriptVisitorImpl(Context *lpContext)
+antlrcpp::Any WorkScriptVisitorImpl::visitListExpression(WorkScriptParser::ListExpressionContext *ctx)
 {
-	this->context = lpContext;
+	auto subContext = ctx->termExpression();
+	size_t subContextCount = subContext.size();
+	vector<shared_ptr<TermExpression>> items;
+	for (size_t i = 0; i < subContextCount; i++) {
+		ExpressionWrapper wrapper = subContext[i]->accept(this);
+		auto itemExpr = wrapper.getTermExpression();
+		items.push_back(itemExpr);
+	}
+	shared_ptr<ListExpression> expr(new ListExpression);
+	expr->setItems(items);
+	return ExpressionWrapper(expr);
+}
+
+WorkScriptVisitorImpl::WorkScriptVisitorImpl(Program *lpProgram)
+{
+	this->program = lpProgram;
 }
 
 WorkScriptVisitorImpl::~WorkScriptVisitorImpl()

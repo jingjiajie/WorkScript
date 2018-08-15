@@ -2,9 +2,11 @@
 #include "Context.h"
 #include "TypeExpression.h"
 
-VariableExpression::VariableExpression(Context *const &context, const std::string& identifierName)
-	:IdentifierExpression(context,identifierName)
+using namespace std;
+
+VariableExpression::VariableExpression(const std::string& name)
 {
+	this->setName(name);
 }
 
 
@@ -12,56 +14,87 @@ VariableExpression::~VariableExpression()
 {
 }
 
-const std::shared_ptr<const Expression> VariableExpression::evaluate(const ExpressionBind &expressionBind) const
+const std::shared_ptr<TermExpression> VariableExpression::evaluate(Context *context)
 {
-	auto mappedExpr = expressionBind.getMappedExpression(this->shared_from_this());
-	if (mappedExpr == nullptr) return this->shared_from_this();
-	auto evaluatedMappedExpr = mappedExpr->evaluate(ExpressionBind());
-	auto matchResult = this->matchFirstUpInContextAndEvaluate(evaluatedMappedExpr);
-	if (matchResult == nullptr) {
-		return evaluatedMappedExpr;
+	Context *targetContext = context;
+	for (int i = 0; i < this->variableInfo.upLevel; i++) {
+		targetContext = targetContext->getBaseContext();
+	}
+	auto value = targetContext->getLocalVariable(this->variableInfo.offset);
+	if (!value) {
+		return (const std::shared_ptr<TermExpression>&)this->shared_from_this();
 	}
 	else {
-		return matchResult;
+		return value;
 	}
 }
 
-bool VariableExpression::match(const std::shared_ptr<const Expression>& matchExpression, ExpressionBind * outExpressionBind) const
+//
+//bool VariableExpression::match(const std::shared_ptr<TermExpression>& matchExpression, Context * context) const
+//{
+//	//如果同名变量已经被绑定，且本次绑定的值和同名变量绑定的值不相等，则匹配失败
+//	auto evaluateResult = this->evaluate(context);
+//	if (evaluateResult.get() != this && !evaluateResult->equals(evaluateResult)) {
+//		return false;
+//	}
+//	//尝试绑定值或表达式，但不绑定变量！
+//	//因为普通求值表达式不会产生变量，变量一定是之前关系表达式右部匹配失败剩余的变量
+//	//若匹配变量，则会造成不可预知的逻辑错误
+//	auto matchType = matchExpression->getType();
+//	auto variableExpressionType = this->getType();
+//	if (!matchType->equals(variableExpressionType)) {
+//		context->setVariable(this->name, matchExpression);
+//		return true;
+//	}
+//	return false;
+//}
+
+const std::shared_ptr<TypeExpression> VariableExpression::getType() const
 {
-	//如果同名变量已经被绑定，且本次绑定的值和同名变量绑定的值不相等，则匹配失败
-	auto mappedExpression = outExpressionBind->getMappedExpression(this->shared_from_this());
-	if (mappedExpression != nullptr && !mappedExpression->equals(matchExpression)) {
+	return TypeExpression::VARIABLE_EXPRESSION;
+}
+
+bool VariableExpression::equals(const std::shared_ptr<TermExpression>& targetExpression) const
+{
+	if (!targetExpression->getType()->equals(this->getType())) {
 		return false;
 	}
-	//尝试绑定值或表达式，但不绑定变量！
-	//因为普通求值表达式不会产生变量，变量一定是之前关系表达式右部匹配失败剩余的变量
-	//若匹配变量，则会造成不可预知的逻辑错误
-	auto matchType = matchExpression->getType();
-	auto variableExpressionType = this->getType();
-	if (!matchType->equals(variableExpressionType)) {
-		outExpressionBind->addExpressionMap(this->shared_from_this(), matchExpression);
-		return true;
-	}
-	return false;
-}
-
-bool VariableExpression::equals(const std::shared_ptr<const Expression>& targetExpression) const
-{
-	auto targetType = targetExpression->getType();
-	if (!targetType->equals(this->getType())) {
-		return false;
-	}
-	auto targetVariableExpression = (const std::shared_ptr<const VariableExpression>&)targetExpression;
-	return this->identifierName == targetVariableExpression->getIdentifierName();
-}
-
-const std::shared_ptr<const TypeExpression> VariableExpression::getType() const
-{
-	auto ret = this->context->findType(TYPENAME_VARIABLE_EXPRESSION, false);
-	return ret;
+	auto targetVariableExpr = dynamic_pointer_cast<VariableExpression>(targetExpression);
+	return targetVariableExpr->name == this->name;
 }
 
 const std::string VariableExpression::toString() const
 {
-	return this->identifierName;
+	return this->name;
+}
+
+void VariableExpression::compile(CompileContext *context)
+{
+	VariableInfo info = context->getVariableInfo(this->name);
+	if (info.found) {
+		this->variableInfo = info;
+	}
+	else {
+		this->variableInfo = context->addLocalVariable(this->name);
+	}
+}
+
+const std::string VariableExpression::getName() const
+{
+	return this->name;
+}
+
+void VariableExpression::setName(const std::string & name)
+{
+	this->name = name;
+}
+
+const VariableInfo VariableExpression::getVariableInfo() const
+{
+	return this->variableInfo;
+}
+
+void VariableExpression::setVariableInfo(const VariableInfo & info)
+{
+	this->variableInfo = info;
 }

@@ -4,20 +4,24 @@ class BooleanExpression :
 	public TermExpression
 {
 public:
-	BooleanExpression(Context *const &context);
-	BooleanExpression(Context *const &context, const bool &value);
+	BooleanExpression();
+	BooleanExpression(const bool &value);
 	virtual ~BooleanExpression();
 
-	virtual const std::shared_ptr<const Expression> evaluate(const ExpressionBind &) const override;
-	virtual bool match(const std::shared_ptr<const Expression> &matchExpression, ExpressionBind *outExpressionBind) const override;
-	virtual bool equals(const std::shared_ptr<const Expression> &) const override;
-	virtual const std::shared_ptr<const TypeExpression> getType() const override;
+	virtual const std::shared_ptr<TermExpression> evaluate(Context *context) override;
+	//virtual bool match(const std::shared_ptr<TermExpression> &matchExpression, Context *context) const override;
+	virtual const std::shared_ptr<TypeExpression> getType() const override;
+	virtual bool equals(const std::shared_ptr<TermExpression>& targetExpression) const override;
 	virtual const std::string toString() const override;
+	virtual void compile(CompileContext *context) override;
 
 	const bool getValue() const;
 	void setValue(const bool &value);
 protected:
 	bool value;
-	std::shared_ptr<const TypeExpression> type;
+
+public:
+	static std::shared_ptr<BooleanExpression> YES, NO;
+
 };
 
