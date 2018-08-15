@@ -162,10 +162,13 @@
     <ClInclude Include="UninvocableException.h">
       <Filter>DataStructures\Exceptions\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="CompileContext.h" />
-    <ClInclude Include="VariableInfo.h">
-      <Filter>DataStructures</Filter>
+    <ClInclude Include="CompileContext.h">
+      <Filter>DataStructures\CompileContext\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="VariableInfo.h">
+      <Filter>DataStructures\CompileContext\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourcePool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Context.cpp">
@@ -268,6 +271,9 @@
     <ClCompile Include="UninvocableException.cpp">
       <Filter>DataStructures\Exceptions\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="CompileContext.cpp" />
+    <ClCompile Include="CompileContext.cpp">
+      <Filter>DataStructures\CompileContext\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourcePool.cpp" />
   </ItemGroup>
 </Project>

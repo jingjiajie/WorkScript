@@ -24,7 +24,7 @@ const std::shared_ptr<TypeExpression> ListExpression::getType() const
 const std::string ListExpression::toString() const
 {
 	stringstream ss;
-	size_t total = this->items.size();
+	size_t total = this->count;
 	ss << "[";
 	for (size_t i = 0; i < total; i++) {
 		ss << this->items[i]->toString();
@@ -38,19 +38,22 @@ const std::string ListExpression::toString() const
 
 void ListExpression::compile(CompileContext * context)
 {
-	for (auto &item : this->items) {
-		item->compile(context);
+	for (size_t i = 0; i < count; i++) {
+		this->items[i]->compile(context);
 	}
 }
 
 const std::shared_ptr<TermExpression> ListExpression::evaluate(Context *context)
 {
-	vector<shared_ptr<TermExpression>> evaluatedItems;
-	for (auto &item : this->items) {
-		evaluatedItems.push_back(item->evaluate(context));
+	shared_ptr<TermExpression> *evaluatedItems = new shared_ptr<TermExpression>[this->count];
+	for (size_t i = 0; i < this->count; i++) {
+		evaluatedItems[i] = this->items[i]->evaluate(context);
 	}
 	auto newMe = shared_ptr<ListExpression>(new ListExpression());
-	newMe->setItems(evaluatedItems);
+	for (size_t i = 0; i < this->count; i++) {
+		newMe->addItem(evaluatedItems[i]);
+	}
+	delete[]evaluatedItems;
 	return newMe;
 }
 
@@ -60,21 +63,9 @@ bool ListExpression::equals(const std::shared_ptr<TermExpression> &target) const
 		return false;
 	}
 	auto targetListExpr = dynamic_pointer_cast<ListExpression>(target);
-	auto targetItems = targetListExpr->getItems();
-	auto myItems = this->items;
-	if (myItems.size() != targetItems.size())return false;
-	for (size_t i = 0; i < myItems.size(); i++) {
-		if (!myItems[i]->equals(targetItems[i]))return false;
+	if (this->count != targetListExpr->count) return false;
+	for (size_t i = 0; i < this->count; i++) {
+		if (!this->items[i]->equals(targetListExpr->items[i]))return false;
 	}
 	return true;
-}
-
-const std::vector<std::shared_ptr<TermExpression>> ListExpression::getItems() const
-{
-	return this->items;
-}
-
-void ListExpression::setItems(const std::vector<std::shared_ptr<TermExpression>>& termExpressions)
-{
-	this->items = termExpressions;
 }

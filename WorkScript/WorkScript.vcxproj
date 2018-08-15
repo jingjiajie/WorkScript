@@ -327,6 +327,7 @@
     <ClInclude Include="Context.h" />
     <ClInclude Include="Expression.h" />
     <ClInclude Include="Program.h" />
+    <ClInclude Include="ResourcePool.h" />
     <ClInclude Include="StringExpression.h" />
     <ClInclude Include="TermExpression.h" />
     <ClInclude Include="TypeExpression.h" />
@@ -362,6 +363,7 @@
     <ClCompile Include="NumberExpression.cpp" />
     <ClCompile Include="PlusExpression.cpp" />
     <ClCompile Include="Program.cpp" />
+    <ClCompile Include="ResourcePool.cpp" />
     <ClCompile Include="StringExpression.cpp" />
     <ClCompile Include="TermExpression.cpp" />
     <ClCompile Include="TypeExpression.cpp" />

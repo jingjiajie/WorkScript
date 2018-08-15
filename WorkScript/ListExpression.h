@@ -17,8 +17,25 @@ public:
 
 	virtual const std::shared_ptr<TermExpression> evaluate(Context *context) override;
 	virtual bool equals(const std::shared_ptr<TermExpression>&) const override;
-	const std::vector<std::shared_ptr<TermExpression>> getItems() const;
-	void setItems(const std::vector<std::shared_ptr<TermExpression>>& termExpressions);
+	
+	inline const std::shared_ptr<TermExpression> getItem(size_t offset) const
+	{
+		return this->items[offset];
+	}
+
+	inline const size_t addItem(const std::shared_ptr<TermExpression>& termExpression)
+	{
+		this->items[count] = termExpression;
+		count++;
+		return count - 1;
+	}
+
+	inline const size_t getCount() const {
+		return this->count;
+	}
+
 private:
-	std::vector<std::shared_ptr<TermExpression>> items;
+	//TODO 静态大小不可以的，要改成动态大小！
+	std::shared_ptr<TermExpression> items[10];
+	size_t count = 0;
 };

@@ -56,19 +56,18 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	ExpressionWrapper implWrapper = ctx->termExpression()->accept(this);
 	auto impl = dynamic_pointer_cast<TermExpression>(implWrapper.getExpression());
 
-	auto paramItems = params->getItems();
 	vector<string> paramVarNames;
 	vector<shared_ptr<TermExpression>> constraints;
-	for (size_t i = 0; i < paramItems.size(); i++) {
-		if (paramItems[i]->getType()->equals(TypeExpression::VARIABLE_EXPRESSION)) {
-			paramVarNames.push_back(dynamic_pointer_cast<VariableExpression>(paramItems[i])->getName());
+	for (size_t i = 0; i < params->getCount(); i++) {
+		if (params->getItem(i)->getType()->equals(TypeExpression::VARIABLE_EXPRESSION)) {
+			paramVarNames.push_back(dynamic_pointer_cast<VariableExpression>(params->getItem(i))->getName());
 		}
 		else {
 			string tmpVarName = "_" + i;
 			paramVarNames.push_back(tmpVarName);
 			shared_ptr<EqualExpression> constraint(new EqualExpression);
 			constraint->setLeftExpression(shared_ptr<VariableExpression>(new VariableExpression(tmpVarName)));
-			constraint->setRightExpression(paramItems[i]);
+			constraint->setRightExpression(params->getItem(i));
 			constraints.push_back(constraint);
 		}
 	}
@@ -163,14 +162,12 @@ antlrcpp::Any WorkScriptVisitorImpl::visitListExpression(WorkScriptParser::ListE
 {
 	auto subContext = ctx->termExpression();
 	size_t subContextCount = subContext.size();
-	vector<shared_ptr<TermExpression>> items;
+	shared_ptr<ListExpression> expr(new ListExpression);
 	for (size_t i = 0; i < subContextCount; i++) {
 		ExpressionWrapper wrapper = subContext[i]->accept(this);
 		auto itemExpr = wrapper.getTermExpression();
-		items.push_back(itemExpr);
+		expr->addItem(itemExpr);
 	}
-	shared_ptr<ListExpression> expr(new ListExpression);
-	expr->setItems(items);
 	return ExpressionWrapper(expr);
 }
 

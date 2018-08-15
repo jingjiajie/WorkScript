@@ -115,8 +115,7 @@ const std::shared_ptr<TermExpression> FunctionExpression::invoke(const shared_pt
 
 bool FunctionExpression::Overload::match(const shared_ptr<ListExpression> &params, Context * context) const
 {
-	auto targetParamList = params->getItems();
-	size_t targetParamCount = targetParamList.size();
+	size_t targetParamCount = params->getCount();
 	auto myParamOffsets = this->parameterLocalOffsets;
 	size_t myParamCount = myParamOffsets.size();
 	//根据是否允许最后变量匹配剩余所有参数，以及参数个数，预先否决不可能的匹配
@@ -132,10 +131,12 @@ bool FunctionExpression::Overload::match(const shared_ptr<ListExpression> &param
 		//如果是最后一个变量，则视情况匹配
 		if (i == myParamCount - 1 && i < targetParamCount - 1 && this->allowLastMatchRest) {
 			shared_ptr<ListExpression> restParamList(new ListExpression());
-			restParamList->setItems(vector<shared_ptr<TermExpression>>(targetParamList.begin() + i, targetParamList.end()));
+			for (size_t j = i; j < targetParamCount; j++) {
+				restParamList->addItem(params->getItem(j));
+			}
 		}
 		else {
-			context->setLocalVariable(myParamOffsets[i], targetParamList[i]);
+			context->setLocalVariable(myParamOffsets[i], params->getItem(i));
 		}
 	}
 	//验证约束是否符合，若有不符合则匹配失败
