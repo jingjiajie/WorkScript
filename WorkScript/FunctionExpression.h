@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
-#include "TermExpression.h"
+#include <string.h>
+#include "Expression.h"
 #include "TypeExpression.h"
 
 class FunctionInvocationExpression;
@@ -9,55 +10,74 @@ class ListExpression;
 class Context;
 
 class FunctionExpression :
-	public TermExpression
+	public Expression
 {
 public:
 	class Overload {
 	public:
-		virtual bool match(const std::shared_ptr<ListExpression> &params, Context *context) const;
-		virtual const std::shared_ptr<TermExpression> invoke(Context *context) const;
-		virtual void compile(CompileContext *context);
+		~Overload();
+		virtual bool match(ListExpression* const &params, Context *const& context) const;
+		virtual Expression* const invoke(Context *const& context) const;
+		virtual void compile(CompileContext *const& context);
 
 		const std::vector<std::string> getParameterNames() const;
 		void setParameterNames(const std::vector<std::string>& parameters);
-		const std::vector<std::shared_ptr<TermExpression>> getConstraints() const;
-		void setConstraints(const std::vector<std::shared_ptr<TermExpression>> &constraints);
+		Expression **const getConstraints() const;
+		void setConstraints(Expression **const &constraints, size_t count);
 		const bool getAllowLastMatchRest()const;
 		void setAllowLastMatchRest(const bool& allowLastMatchRest);
-		const std::shared_ptr<TermExpression> getImplement() const;
-		void setImplement(const std::shared_ptr<TermExpression> &implement);
+		Expression* const getImplement() const;
+		void setImplement(Expression* const &implement);
+		const size_t getLocalVariableCount() const;
+		void setLocalVariableCount(const size_t &count);
 
 	protected:
 		bool allowLastMatchRest = true;
 		std::vector<std::string> parameterNames;
-		std::vector<size_t> parameterLocalOffsets;
+		size_t *parameterLocalOffsets;
+		size_t parameterCount;
 
-		std::vector<std::shared_ptr<TermExpression>> constraints;
-		std::shared_ptr<TermExpression> implement;
+		Expression **constraints;
+		size_t constraintCount;
+		Expression *implement;
+
+		size_t localVariableCount = 0;
 	};
 
-	FunctionExpression();
+	inline FunctionExpression(const StorageLevel level = StorageLevel::TEMP)
+	{
+		this->setStorageLevel(level);
+	}
 	virtual ~FunctionExpression();
 
-	virtual const std::shared_ptr<TypeExpression> getType() const override;
-	virtual const std::shared_ptr<TermExpression> evaluate(Context *context) override;
-	virtual bool equals(const std::shared_ptr<TermExpression>& targetExpression) const;
-	virtual const std::string toString() const override;
-	virtual void compile(CompileContext *context) override;
+	virtual TypeExpression* const getType(Context *const& context) const override;
+	virtual Expression* const evaluate(Context *const& context) override;
+	virtual bool equals(Context *const &context, Expression* const& targetExpression) const;
+	virtual StringExpression *const toString(Context *const& context) override;
+	virtual void compile(CompileContext *const& context) override;
 
-	virtual const std::shared_ptr<TermExpression> invoke(const std::shared_ptr<ListExpression> &params) const;
+	virtual Expression* const invoke(ListExpression* const &params) const;
 
-	const std::string getFunctionName()const;
-	void setFunctionName(const std::string &funcName);
-	const std::vector<std::shared_ptr<Overload>> getOverloads()const;
-	void addOverload(const std::shared_ptr<Overload> &overload);
+	inline const char *const getName()const
+	{
+		return name;
+	}
+
+	inline void setName(const char *const &funcName) 
+	{
+		if (this->name)delete[]this->name;
+		this->name = new char[strlen(funcName) + 1];
+		strcpy(this->name,funcName);
+	}
+
+	const std::vector<Overload *> getOverloads()const;
+	void addOverload(Overload* const &overload);
 
 protected:
 	Context * declareContext;
-	std::string functionName;
+	char *name;
 	VariableInfo functionVariableInfo;
-	std::vector<std::shared_ptr<Overload>> overloads;
+	std::vector<Overload *> overloads;
 	VariableInfo baseFunctionVariableInfo;
-	size_t localVariableCount = 0;
 };
 

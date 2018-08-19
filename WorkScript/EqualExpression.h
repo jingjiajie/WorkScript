@@ -4,12 +4,16 @@ class EqualExpression :
 	public BinaryTermExpression
 {
 public:
-	EqualExpression();
+	inline EqualExpression(const StorageLevel level = StorageLevel::TEMP)
+		:BinaryTermExpression(level)
+	{
+
+	}
+
 	virtual ~EqualExpression();
 
-	virtual const std::shared_ptr<TypeExpression> getType() const override;
-	virtual const std::string toString() const override;
+	virtual TypeExpression* const getType(Context *const& context) const override;
+	virtual StringExpression *const toString(Context *const& context) override;
 
-	virtual const std::shared_ptr<TermExpression> evaluate(Context *context) override;
-	virtual bool equals(const std::shared_ptr<TermExpression>&) const override;
+	virtual Expression* const evaluate(Context *const& context) override;
 };

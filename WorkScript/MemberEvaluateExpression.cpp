@@ -5,7 +5,7 @@
 //
 //using namespace std;
 //
-//MemberEvaluateExpression::MemberEvaluateExpression(const std::shared_ptr<TermExpression> &objExpr, const std::shared_ptr<TermExpression> &memberExpr)
+//MemberEvaluateExpression::MemberEvaluateExpression(Expression* const &objExpr, Expression* const &memberExpr)
 //{
 //	this->setObjectExpression(objExpr);
 //	this->setMemberExpression(memberExpr);
@@ -16,15 +16,15 @@
 //{
 //}
 //
-//const std::shared_ptr<Expression> MemberEvaluateExpression::evaluate(Context *context)
+//Expression* const MemberEvaluateExpression::evaluate(Context *const& context)
 //{
 //	auto prevExpr = this->context->getCurrentExpression();
 //	auto evaluatedObjExpression = this->objectExpression->evaluate(expressionBind);
 //	auto evaluatedMemberExpression = this->memberExpression->evaluate(expressionBind);
-//	auto evaluatedObjType = evaluatedObjExpression->getType();
+//	auto evaluatedObjType = evaluatedObjExpression->getType(context);
 //	this->context->setCurrentExpression(evaluatedObjExpression); //设定当前表达式为ObjectExpression
 //	ExpressionBind tmpExpressionBind;
-//	shared_ptr<Expression> result;
+//	Expression * result;
 //	//先匹配实例表达式，若匹配失败尝试匹配类静态表达式
 //	bool matchedInstantialExpr = false;
 //	for (auto &expr : evaluatedObjExpression->getInstantialExpressions()) {
@@ -37,7 +37,7 @@
 //	if (!matchedInstantialExpr) {
 //		auto matchedMember = evaluatedObjType->matchStaticMemberExpression(evaluatedMemberExpression, &tmpExpressionBind);
 //		if (matchedMember == nullptr) {
-//			auto newMe = shared_ptr<MemberEvaluateExpression>(new MemberEvaluateExpression(context, evaluatedObjExpression, evaluatedMemberExpression));
+//			auto newMe = MemberEvaluateExpression *(new MemberEvaluateExpression(context, evaluatedObjExpression, evaluatedMemberExpression));
 //			result = newMe;
 //		}
 //		else {
@@ -48,11 +48,11 @@
 //	return result;
 //}
 ////
-////bool MemberEvaluateExpression::match(const std::shared_ptr<Expression>& matchExpression, ExpressionBind * outExpressionBind) const
+////bool MemberEvaluateExpression::match(Expression* const& matchExpression, ExpressionBind * outExpressionBind) const
 ////{
-////	auto matchType = matchExpression->getType();
-////	if (!matchType->equals(this->shared_from_this()))return false;
-////	auto matchMemberEvaluateExpression = (const std::shared_ptr<MemberEvaluateExpression>&)matchExpression;
+////	auto matchType = matchExpression->getType(context);
+////	if (!matchType->equals(this))return false;
+////	auto matchMemberEvaluateExpression = (MemberEvaluateExpression* const&)matchExpression;
 ////	ExpressionBind tmpExpressionBind;
 ////	if (!this->objectExpression->match(matchMemberEvaluateExpression->objectExpression, &tmpExpressionBind))return false;
 ////	if (!this->memberExpression->match(matchMemberEvaluateExpression->memberExpression, &tmpExpressionBind))return false;
@@ -60,42 +60,42 @@
 ////	return true;
 ////}
 //
-//bool MemberEvaluateExpression::equals(const std::shared_ptr<TermExpression>& targetExpression) const
+//bool MemberEvaluateExpression::equals(Context *const &context, Expression* const& targetExpression) const
 //{
-//	if (!targetExpression->getType()->equals(this->getType())) {
+//	if (!targetExpression->getType(context)->equals(this->getType(context))) {
 //		return false;
 //	}
-//	auto targetMemberEvaluateExpr = dynamic_pointer_cast<MemberEvaluateExpression>(targetExpression);
+//	auto targetMemberEvaluateExpr = (MemberEvaluateExpression *const&)(targetExpression);
 //	return targetMemberEvaluateExpr->objectExpression->equals(this->objectExpression)
 //		&& targetMemberEvaluateExpr->memberExpression->equals(this->memberExpression);
 //}
 //
-//const std::shared_ptr<TypeExpression> MemberEvaluateExpression::getType() const
+//TypeExpression* const MemberEvaluateExpression::getType(Context *const& context) const
 //{
-//	return TypeExpression::MEMBER_EVALUATE_EXPRESSION;
+//	return &TypeExpression::TYPE_MEMBER_EVALUATE_EXPRESSION;
 //}
 //
-//const std::string MemberEvaluateExpression::toString() const
+//StringExpression *const MemberEvaluateExpression::toString(Context *const& context)
 //{
 //	return this->objectExpression->toString() + "." + this->objectExpression->toString();
 //}
 //
-//const std::shared_ptr<TermExpression> MemberEvaluateExpression::getObjectExpression() const
+//Expression* const MemberEvaluateExpression::getObjectExpression() const
 //{
 //	return this->objectExpression;
 //}
 //
-//void MemberEvaluateExpression::setObjectExpression(const std::shared_ptr<TermExpression> &expr)
+//void MemberEvaluateExpression::setObjectExpression(Expression* const &expr)
 //{
 //	this->objectExpression = expr;
 //}
 //
-//const std::shared_ptr<TermExpression> MemberEvaluateExpression::getMemberExpression() const
+//Expression* const MemberEvaluateExpression::getMemberExpression() const
 //{
 //	return this->memberExpression;
 //}
 //
-//void MemberEvaluateExpression::setMemberExpression(const std::shared_ptr<TermExpression> &expr)
+//void MemberEvaluateExpression::setMemberExpression(Expression* const &expr)
 //{
 //	this->memberExpression = expr;
 //}

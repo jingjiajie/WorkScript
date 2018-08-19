@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <memory>
 
 class Expression;
 class Context;
@@ -14,13 +13,12 @@ public:
 	void execute();
 	void compile();
 
-	void pushExpression(const std::shared_ptr<Expression> &);
-	const std::vector<std::shared_ptr<Expression>>& getExpressions() const;
+	void pushExpression(Expression* const &);
+	const std::vector<Expression*>& getExpressions() const;
 
 protected:
-	std::vector<std::shared_ptr<Expression>> expressions;
+	std::vector<Expression*> expressions;
 	size_t localVariableCount = 0;
 
 	void initPrintExpression();
 };
-

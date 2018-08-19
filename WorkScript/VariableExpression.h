@@ -1,30 +1,52 @@
 #pragma once
-#include "TermExpression.h"
+#include <string.h>
+#include "Expression.h"
 #include "VariableInfo.h"
 
 class Context;
 
 class VariableExpression :
-	public TermExpression
+	public Expression
 {
 public:
-	VariableExpression(const std::string& identifierName);
+	inline VariableExpression(const char *const &name, const StorageLevel level = StorageLevel::TEMP)
+	{
+		this->setName(name);
+		this->setStorageLevel(level);
+	}
+
 	virtual ~VariableExpression();
 
-	virtual const std::shared_ptr<TermExpression> evaluate(Context *context) override;
-	//virtual bool match(const std::shared_ptr<TermExpression> &matchExpression, Context *context) const override;
-	virtual const std::shared_ptr<TypeExpression> getType() const override;
-	virtual bool equals(const std::shared_ptr<TermExpression>& targetExpression) const override;
-	virtual const std::string toString() const override;
-	virtual void compile(CompileContext *context) override;
+	virtual Expression* const evaluate(Context *const& context) override;
+	//virtual bool match(Expression* const &matchExpression, Context *const& context) const override;
+	virtual TypeExpression* const getType(Context *const& context) const override;
+	virtual bool equals(Context *const &context, Expression* const& targetExpression) const override;
+	virtual StringExpression *const toString(Context *const& context) override;
+	virtual void compile(CompileContext *const& context) override;
 
-	const std::string getName() const;
-	void setName(const std::string &name);
+	inline const char *const & getName() const 
+	{
+		return this->name;
+	}
 
-	const VariableInfo getVariableInfo() const;
-	void setVariableInfo(const VariableInfo &info);
+	inline void setName(const char *const &name) 
+	{
+		if (this->name)delete[]this->name;
+		this->name = new char[strlen(name) + 1];
+		strcpy(this->name, name);
+	}
+
+	inline const VariableInfo getVariableInfo() const
+	{
+		return this->variableInfo;
+	}
+
+	inline void setVariableInfo(const VariableInfo &info)
+	{
+		this->variableInfo = info;
+	}
 protected:
-	std::string name;
+	char * name = nullptr;
 	VariableInfo variableInfo;
 };
 

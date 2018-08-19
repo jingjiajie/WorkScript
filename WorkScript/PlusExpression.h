@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include "BinaryTermExpression.h"
 
 class NumberExpression;
@@ -9,17 +8,25 @@ class PlusExpression :
 	public BinaryTermExpression
 {
 public:
-	PlusExpression();
-	PlusExpression(const std::shared_ptr<TermExpression> &, const std::shared_ptr<TermExpression> &);
+	inline PlusExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
+		:BinaryTermExpression(left,right,level) 
+	{
+
+	}
+	inline PlusExpression(const StorageLevel level = StorageLevel::TEMP)
+		:BinaryTermExpression(level) 
+	{
+
+	}
 	virtual ~PlusExpression();
 
-	virtual const std::shared_ptr<TermExpression> evaluate(Context *context) override;
-	//virtual bool match(const std::shared_ptr<TermExpression> &matchExpression, Context *context) const override;
-	virtual const std::shared_ptr<TypeExpression> getType() const override;
-	virtual const std::string toString() const override;
+	virtual Expression* const evaluate(Context *const& context) override;
+	//virtual bool match(Expression* const &matchExpression, Context *const& context) const override;
+	virtual TypeExpression* const getType(Context *const& context) const override;
+	virtual StringExpression *const toString(Context *const& context) override;
 
 private:
-	std::shared_ptr<NumberExpression> numberPlusNumber(const std::shared_ptr<NumberExpression>&,const std::shared_ptr<NumberExpression>&) const;
-	std::shared_ptr<StringExpression> exprPlusExpr(const std::shared_ptr<Expression>&, const std::shared_ptr<Expression>&) const;
+	NumberExpression * numberPlusNumber(Context *const &context, NumberExpression* const&,NumberExpression* const&) const;
+	StringExpression * exprPlusExpr(Context *const &context, Expression* const&, Expression* const&) const;
 };
 

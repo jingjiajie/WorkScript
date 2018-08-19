@@ -9,14 +9,17 @@ class GreaterThanExpression :
 	public BinaryTermExpression
 {
 public:
-	GreaterThanExpression(const std::shared_ptr<TermExpression> &, const std::shared_ptr<TermExpression> &);
+	inline GreaterThanExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
+		:BinaryTermExpression(left,right,level)
+	{
+	}
 	virtual ~GreaterThanExpression();
 
-	virtual const std::shared_ptr<TermExpression> evaluate(Context *context) override;
-	//virtual bool match(const std::shared_ptr<TermExpression> &matchExpression, Context *context) const override;
-	virtual const std::shared_ptr<TypeExpression> getType() const override;
-	virtual const std::string toString() const override;
+	virtual Expression* const evaluate(Context *const& context) override;
+	//virtual bool match(Expression* const &matchExpression, Context *const& context) const override;
+	virtual TypeExpression* const getType(Context *const& context) const override;
+	virtual StringExpression *const toString(Context *const& context) override;
 
 protected:
-	const std::shared_ptr<BooleanExpression> numberGreaterThanNumber(const std::shared_ptr<NumberExpression>&, const std::shared_ptr<NumberExpression>&)const;
+	BooleanExpression* const numberGreaterThanNumber(NumberExpression* const&, NumberExpression* const&)const;
 };

@@ -1,26 +1,26 @@
 //#pragma once
 //#include <memory>
-//#include "TermExpression.h"
+//#include "Expression.h"
 //class MemberEvaluateExpression :
-//	public TermExpression
+//	public Expression
 //{
 //public:
-//	MemberEvaluateExpression(const std::shared_ptr<TermExpression> &objExpr, const std::shared_ptr<TermExpression> &memberExpr);
+//	MemberEvaluateExpression(Expression* const &objExpr, Expression* const &memberExpr);
 //	virtual ~MemberEvaluateExpression();
 //
-// virtual const std::shared_ptr<TermExpression> evaluate(Context *context) override;
-//	//virtual bool match(const std::shared_ptr<TermExpression> &matchExpression, Context *context) const override;
-//	virtual bool equals(const std::shared_ptr<TermExpression>& targetExpression) const;
-//	virtual const std::shared_ptr<TypeExpression> getType() const override;
-//	virtual const std::string toString() const override;
+// virtual Expression* const evaluate(Context *const& context) override;
+//	//virtual bool match(Expression* const &matchExpression, Context *const& context) const override;
+//	virtual bool equals(Context *const &context, Expression* const& targetExpression) const;
+//	virtual TypeExpression* const getType(Context *const& context) const override;
+//	virtual StringExpression *const toString(Context *const& context) override;
 //
-//	const std::shared_ptr<TermExpression> getObjectExpression() const;
-//	void setObjectExpression(const std::shared_ptr<TermExpression>&);
-//	const std::shared_ptr<TermExpression> getMemberExpression() const;
-//	void setMemberExpression(const std::shared_ptr<TermExpression>&);
+//	Expression* const getObjectExpression() const;
+//	void setObjectExpression(Expression* const&);
+//	Expression* const getMemberExpression() const;
+//	void setMemberExpression(Expression* const&);
 //
 //protected:
-//	std::shared_ptr<TermExpression> objectExpression;
-//	std::shared_ptr<TermExpression> memberExpression;
+//	Expression * objectExpression;
+//	Expression * memberExpression;
 //};
 //

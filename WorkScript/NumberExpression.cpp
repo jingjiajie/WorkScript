@@ -2,33 +2,25 @@
 #include "StringExpression.h"
 #include "TypeExpression.h"
 #include "Context.h"
+#include "Program.h"
 
 using namespace std;
 
-NumberExpression::NumberExpression()
-{
-
-}
-
-NumberExpression::NumberExpression(const double & value)
-{
-	this->setValue(value);
-}
-
+ObjectPool<NumberExpression> NumberExpression::pool(1024);
 
 NumberExpression::~NumberExpression()
 {
 }
 
-const std::shared_ptr<TermExpression> NumberExpression::evaluate(Context *context)
+Expression* const NumberExpression::evaluate(Context *const& context)
 {
-	return (const std::shared_ptr<TermExpression>&)this->shared_from_this();
+	return this->storageLevel == StorageLevel::LITERAL ? NumberExpression::newInstance(this->value) : this;
 }
 
-//bool NumberExpression::match(const std::shared_ptr<TermExpression>& matchExpression, Context *context) const
+//bool NumberExpression::match(Expression* const& matchExpression, Context *const& context) const
 //{
 //	//如果类型不同，匹配失败
-//	if (!matchExpression->getType()->equals(this->getType())) {
+//	if (!matchExpression->getType(context)->equals(this->getType(context))) {
 //		return false;
 //	}
 //	//类型相同，比较值是否相同
@@ -36,19 +28,15 @@ const std::shared_ptr<TermExpression> NumberExpression::evaluate(Context *contex
 //	return matchValueExpression->getValue() == this->getValue();
 //}
 
-const std::shared_ptr<TypeExpression> NumberExpression::getType() const
+bool NumberExpression::equals(Context *const &context, Expression* const& targetExpression) const
 {
-	return TypeExpression::NUMBER_EXPRESSION;
-}
-
-bool NumberExpression::equals(const std::shared_ptr<TermExpression>& targetExpression) const
-{
-	if (!targetExpression->getType()->equals(this->getType()))return false;
-	auto targetNumExpr = dynamic_pointer_cast<NumberExpression>(targetExpression);
+	if (targetExpression == this)return true;
+	if (!targetExpression->getType(context)->equals(context, this->getType(context)))return false;
+	auto targetNumExpr = (NumberExpression *const&)(targetExpression);
 	return targetNumExpr->getValue() == this->getValue();
 }
 
-const std::string NumberExpression::toString() const
+StringExpression *const NumberExpression::toString(Context *const& context)
 {
 	double number = this->value;
 	string numberStr;
@@ -68,20 +56,10 @@ const std::string NumberExpression::toString() const
 		}
 		numberStr = numberStr.substr(0, numberStr.size() - lastZeroCount);
 	}
-	return numberStr;
+	return StringExpression::newInstance(numberStr.c_str());
 }
 
-void NumberExpression::compile(CompileContext * context)
+void NumberExpression::compile(CompileContext *const &context)
 {
 	return;
-}
-
-const double NumberExpression::getValue() const
-{
-	return this->value;
-}
-
-void NumberExpression::setValue(const double &value)
-{
-	this->value = value;
 }

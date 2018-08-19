@@ -6,93 +6,84 @@
 #include "Context.h"
 #include "VariableExpression.h"
 #include "DivideExpression.h"
+#include "Program.h"
 
 using namespace std;
-
-MultiplyExpression::MultiplyExpression()
-{
-}
-
-MultiplyExpression::MultiplyExpression(const std::shared_ptr<TermExpression> &leftExpr, const std::shared_ptr<TermExpression>&rightExpr)
-{
-	this->setLeftExpression(leftExpr);
-	this->setRightExpression(rightExpr);
-}
 
 MultiplyExpression::~MultiplyExpression()
 {
 }
 
-const std::shared_ptr<TermExpression> MultiplyExpression::evaluate(Context *context)
+Expression* const MultiplyExpression::evaluate(Context *const& context)
 {
 	auto evaluatedLeftExpr = this->leftExpression->evaluate(context);
 	auto evaluatedRightExpr = this->rightExpression->evaluate(context);
 	//开始做乘法运算。
-	auto numberType = TypeExpression::NUMBER_EXPRESSION;
-	auto stringType = TypeExpression::STRING_EXPRESSION;
+	auto numberType = &TypeExpression::NUMBER_EXPRESSION;
+	auto stringType = &TypeExpression::STRING_EXPRESSION;
 
-	if (evaluatedLeftExpr->getType()->equals(numberType)) {
-		if (evaluatedRightExpr->getType()->equals(numberType)) {
-			return this->numberMultiplyNumber(dynamic_pointer_cast<NumberExpression>(evaluatedLeftExpr), dynamic_pointer_cast<NumberExpression>(evaluatedRightExpr));
+	if (evaluatedLeftExpr->getType(context)->equals(context, numberType)) {
+		if (evaluatedRightExpr->getType(context)->equals(context, numberType)) {
+			return this->numberMultiplyNumber(context, (NumberExpression *const&)(evaluatedLeftExpr), (NumberExpression *const&)(evaluatedRightExpr));
 		}
 	}
-	else if (evaluatedLeftExpr->getType()->equals(stringType)) {
-		if (evaluatedRightExpr->getType()->equals(numberType)) {
-			return this->stringMultiplyNumber(dynamic_pointer_cast<StringExpression>(evaluatedLeftExpr), dynamic_pointer_cast<NumberExpression>(evaluatedRightExpr));
+	else if (evaluatedLeftExpr->getType(context)->equals(context, stringType)) {
+		if (evaluatedRightExpr->getType(context)->equals(context, numberType)) {
+			return this->stringMultiplyNumber(context, (StringExpression *const&)(evaluatedLeftExpr), (NumberExpression *const&)(evaluatedRightExpr));
 		}
 	}
-	auto newMe = shared_ptr<MultiplyExpression>(new MultiplyExpression(evaluatedLeftExpr, evaluatedRightExpr));
+	auto newMe = new MultiplyExpression(evaluatedLeftExpr, evaluatedRightExpr);
 	return newMe;
 }
 //
-//bool MultiplyExpression::match(const std::shared_ptr<TermExpression>& matchExpression, Context *context) const
+//bool MultiplyExpression::match(Expression* const& matchExpression, Context *const& context) const
 //{
-//	if (matchExpression->getType()->equals(this->getType())) {
-//		auto matchMultiplyExpression = dynamic_pointer_cast<MultiplyExpression>(matchExpression);
+//	if (matchExpression->getType(context)->equals(this->getType(context))) {
+//		auto matchMultiplyExpression = (MultiplyExpression *const&)(matchExpression);
 //		return this->leftExpression->match(matchMultiplyExpression->leftExpression, context)
 //			&& this->rightExpression->match(matchMultiplyExpression->rightExpression, context);
 //	}
 //	else //如果匹配的不是乘法表达式
 //	{
 //		auto variableType = TypeExpression::VARIABLE_EXPRESSION;
-//		shared_ptr<VariableExpression> myVarExpr;
-//		shared_ptr<TermExpression> myNonVarExpr;
+//		VariableExpression * myVarExpr;
+//		Expression * myNonVarExpr;
 //		//且自己的左右表达式中只有一个是变量
-//		if (this->leftExpression->getType()->equals(variableType) && !this->rightExpression->getType()->equals(variableType))
+//		if (this->leftExpression->getType(context)->equals(variableType) && !this->rightExpression->getType(context)->equals(variableType))
 //		{
-//			myVarExpr = dynamic_pointer_cast<VariableExpression>(this->leftExpression);
-//			myNonVarExpr = dynamic_pointer_cast<TermExpression>(this->rightExpression);
+//			myVarExpr = (VariableExpression *const&)(this->leftExpression);
+//			myNonVarExpr = (Expression *const&)(this->rightExpression);
 //		}
-//		else if (!this->leftExpression->getType()->equals(variableType) && this->rightExpression->getType()->equals(variableType)) {
-//			myNonVarExpr = dynamic_pointer_cast<TermExpression>(this->leftExpression);
-//			myVarExpr = dynamic_pointer_cast<VariableExpression>(this->rightExpression);
+//		else if (!this->leftExpression->getType(context)->equals(variableType) && this->rightExpression->getType(context)->equals(variableType)) {
+//			myNonVarExpr = (Expression *const&)(this->leftExpression);
+//			myVarExpr = (VariableExpression *const&)(this->rightExpression);
 //		}
 //		else {
 //			return false;
 //		}
 //		//将变量表达式绑定为匹配表达式-非变量表达式
-//		shared_ptr<DivideExpression> divideExpr(new DivideExpression(matchExpression, myNonVarExpr));
+//		DivideExpression * divideExpr(new DivideExpression(matchExpression, myNonVarExpr));
 //		return myVarExpr->match(divideExpr, context);
 //	}
 //}
 
-const std::shared_ptr<TypeExpression> MultiplyExpression::getType() const
+TypeExpression* const MultiplyExpression::getType(Context *const& context) const
 {
-	return TypeExpression::MULTIPLY_EXPRESSION;
+	return &TypeExpression::MULTIPLY_EXPRESSION;
 }
 
-const std::string MultiplyExpression::toString() const
+StringExpression *const MultiplyExpression::toString(Context *const& context)
 {
-	return this->leftExpression->toString() + "*" + this->rightExpression->toString();
+	static StringExpression sign("*");
+	return BinaryTermExpression::toString(context, &sign);
 }
 
-std::shared_ptr<NumberExpression> MultiplyExpression::numberMultiplyNumber(const std::shared_ptr<NumberExpression>&left, const std::shared_ptr<NumberExpression>&right) const
+NumberExpression * MultiplyExpression::numberMultiplyNumber(Context *const &context, NumberExpression* const&left, NumberExpression* const&right) const
 {
-	shared_ptr<NumberExpression> newNumExpr(new NumberExpression(left->getValue() * right->getValue()));
-	return newNumExpr;
+	return NumberExpression::newInstance(left->getValue() * right->getValue());
 }
 
-std::shared_ptr<StringExpression> MultiplyExpression::stringMultiplyNumber(const std::shared_ptr<StringExpression>&left, const std::shared_ptr<NumberExpression>&right) const
+StringExpression * MultiplyExpression::stringMultiplyNumber(Context *const &context, StringExpression* const&left, NumberExpression* const&right) const
 {
 	string oriString = left->getValue();
 	double times = right->getValue();
@@ -101,6 +92,5 @@ std::shared_ptr<StringExpression> MultiplyExpression::stringMultiplyNumber(const
 		ss << oriString;
 	}
 	string resultStr = ss.str();
-	shared_ptr<StringExpression> newStringExpr(new StringExpression(resultStr));
-	return newStringExpr;
+	return StringExpression::newInstance(resultStr.c_str());
 }

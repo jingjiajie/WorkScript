@@ -2,43 +2,41 @@
 #include "Context.h"
 #include "TypeExpression.h"
 #include "UnimplementedException.h"
+#include "StringExpression.h"
+#include "Program.h"
 
-ExecuteCppCodeExpression::ExecuteCppCodeExpression(const std::function<const std::shared_ptr<TermExpression>(Context*)> &evaluateFunction)
-{
-	this->evaluateFunction = evaluateFunction;
-}
-
+using namespace std;
 
 ExecuteCppCodeExpression::~ExecuteCppCodeExpression()
 {
 }
 
-const std::shared_ptr<TermExpression> ExecuteCppCodeExpression::evaluate(Context *context)
+Expression* const ExecuteCppCodeExpression::evaluate(Context *const& context)
 {
 	return this->evaluateFunction(context);
 }
 
-//bool ExecuteCppCodeExpression::match(const std::shared_ptr<TermExpression>& matchExpression, Context *context) const
+//bool ExecuteCppCodeExpression::match(Expression* const& matchExpression, Context *const& context) const
 //{
 //	throw UnimplementedException();
 //}
 
-const std::shared_ptr<TypeExpression> ExecuteCppCodeExpression::getType() const
+TypeExpression* const ExecuteCppCodeExpression::getType(Context *const& context) const
 {
-	return TypeExpression::EXECUTE_CPP_CODE_EXPRESSION;
+	return &TypeExpression::EXECUTE_CPP_CODE_EXPRESSION;
 }
 
-bool ExecuteCppCodeExpression::equals(const std::shared_ptr<TermExpression>& targetExpression) const
+bool ExecuteCppCodeExpression::equals(Context *const &context, Expression* const& targetExpression) const
 {
 	return false;
 }
 
-const std::string ExecuteCppCodeExpression::toString() const
+StringExpression *const ExecuteCppCodeExpression::toString(Context *const& context)
 {
-	return "(Native Code)";
+	return StringExpression::newInstance("(Native Code)");
 }
 
-void ExecuteCppCodeExpression::compile(CompileContext * context)
+void ExecuteCppCodeExpression::compile(CompileContext *const &context)
 {
 	return;
 }

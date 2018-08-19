@@ -6,97 +6,102 @@
 #include "MemberEvaluateExpression.h"
 #include "VariableExpression.h"
 #include "MinusExpression.h"
+#include "Program.h"
 
 using namespace std;
-
-PlusExpression::PlusExpression()
-{
-
-}
-
-PlusExpression::PlusExpression(const std::shared_ptr<TermExpression> &leftExpression, const std::shared_ptr<TermExpression> &rightExpression)
-{
-	this->setLeftExpression(leftExpression);
-	this->setRightExpression(rightExpression);
-}
-
 
 PlusExpression::~PlusExpression()
 {
 }
 
-const std::shared_ptr<TermExpression> PlusExpression::evaluate(Context *context)
+Expression* const PlusExpression::evaluate(Context *const& context)
 {
 	auto evaluatedLeftExpr = this->leftExpression->evaluate(context);
 	auto evaluatedRightExpr = this->rightExpression->evaluate(context);
+	auto leftType = evaluatedLeftExpr->getType(context);
+	auto rightType = evaluatedRightExpr->getType(context);
+	Expression *ret;
 	//开始做加法运算。
-	auto numberType = TypeExpression::NUMBER_EXPRESSION;
-	auto stringType = TypeExpression::STRING_EXPRESSION;
+	auto numberType = &TypeExpression::NUMBER_EXPRESSION;
+	auto stringType = &TypeExpression::STRING_EXPRESSION;
 
-	if (evaluatedLeftExpr->getType()->equals(numberType) && evaluatedRightExpr->getType()->equals(numberType)) {
-		return this->numberPlusNumber(dynamic_pointer_cast<NumberExpression>(evaluatedLeftExpr), dynamic_pointer_cast<NumberExpression>(evaluatedRightExpr));
+	if (leftType->equals(context, numberType) && rightType->equals(context, numberType)) {
+		ret = this->numberPlusNumber(context, (NumberExpression *const&)(evaluatedLeftExpr), (NumberExpression *const&)(evaluatedRightExpr));
+		goto OK;
 	}
 	else {
-		return this->exprPlusExpr(evaluatedLeftExpr, evaluatedRightExpr);
+		ret = this->exprPlusExpr(context, evaluatedLeftExpr, evaluatedRightExpr);
+		goto OK;
 	}
-	auto newMe = shared_ptr<PlusExpression>(new PlusExpression(evaluatedLeftExpr, evaluatedRightExpr));
-	return newMe;
+OK:
+	evaluatedLeftExpr->releaseTemp();
+	evaluatedRightExpr->releaseTemp();
+	leftType->releaseTemp();
+	rightType->releaseTemp();
+	return ret;
+MISMATCHED:
+	leftType->releaseTemp();
+	rightType->releaseTemp();
+	return ret;
 }
 
-//bool PlusExpression::match(const std::shared_ptr<TermExpression>& matchExpression, Context *context) const
+//bool PlusExpression::match(Expression* const& matchExpression, Context *const& context) const
 //{
 //	//如果匹配的是加法表达式，则按左右表达式匹配
-//	if (matchExpression->getType()->equals(this->getType())) {
-//		auto matchPlusExpression = dynamic_pointer_cast<PlusExpression>(matchExpression);
+//	if (matchExpression->getType(context)->equals(this->getType(context))) {
+//		auto matchPlusExpression = (PlusExpression *const&)(matchExpression);
 //		return this->leftExpression->match(matchPlusExpression->leftExpression, context)
 //			&& this->rightExpression->match(matchPlusExpression->rightExpression, context);
 //	}
 //	else //如果匹配的不是加法表达式
 //	{
 //		auto variableType = TypeExpression::VARIABLE_EXPRESSION;
-//		shared_ptr<VariableExpression> myVarExpr;
-//		shared_ptr<TermExpression> myNonVarExpr;
+//		VariableExpression * myVarExpr;
+//		Expression * myNonVarExpr;
 //		auto evaluatedLeft = this->leftExpression->evaluate(context);
 //		auto evaluatedRight = this->rightExpression->evaluate(context);
 //		//且自己的左右表达式中只有一个是变量
-//		if (evaluatedLeft->getType()->equals(variableType) && !evaluatedRight->getType()->equals(variableType))
+//		if (evaluatedLeft->getType(context)->equals(variableType) && !evaluatedRight->getType(context)->equals(variableType))
 //		{
-//			myVarExpr = dynamic_pointer_cast<VariableExpression>(evaluatedLeft);
-//			myNonVarExpr = dynamic_pointer_cast<TermExpression>(evaluatedRight);
+//			myVarExpr = (VariableExpression *const&)(evaluatedLeft);
+//			myNonVarExpr = (Expression *const&)(evaluatedRight);
 //		}
-//		else if (!evaluatedLeft->getType()->equals(variableType) && evaluatedRight->getType()->equals(variableType)) {
-//			myNonVarExpr = dynamic_pointer_cast<TermExpression>(evaluatedLeft);
-//			myVarExpr = dynamic_pointer_cast<VariableExpression>(evaluatedRight);
+//		else if (!evaluatedLeft->getType(context)->equals(variableType) && evaluatedRight->getType(context)->equals(variableType)) {
+//			myNonVarExpr = (Expression *const&)(evaluatedLeft);
+//			myVarExpr = (VariableExpression *const&)(evaluatedRight);
 //		}
 //		else {
 //			return false;
 //		}
 //		//将变量表达式绑定为匹配表达式-非变量表达式
-//		shared_ptr<MinusExpression> minusExpr(new MinusExpression(matchExpression, myNonVarExpr));
+//		MinusExpression * minusExpr(new MinusExpression(matchExpression, myNonVarExpr));
 //		return myVarExpr->match(minusExpr,context);
 //	}
 //}
 
-const std::shared_ptr<TypeExpression> PlusExpression::getType() const
+TypeExpression* const PlusExpression::getType(Context *const& context) const
 {
-	return TypeExpression::PLUS_EXPRESSION;
+	return &TypeExpression::PLUS_EXPRESSION;
 }
 
-const std::string PlusExpression::toString() const
+StringExpression *const PlusExpression::toString(Context *const& context)
 {
-	return this->leftExpression->toString() + "+" + this->rightExpression->toString();
+	static StringExpression sign("+");
+	return BinaryTermExpression::toString(context, &sign);
 }
 
-std::shared_ptr<NumberExpression> PlusExpression::numberPlusNumber(const std::shared_ptr<NumberExpression>&left, const std::shared_ptr<NumberExpression>&right) const
+NumberExpression * PlusExpression::numberPlusNumber(Context *const &context, NumberExpression* const&left, NumberExpression* const&right) const
 {
-	shared_ptr<NumberExpression> newNumExpr(new NumberExpression(left->getValue() + right->getValue()));
-	return newNumExpr;
+	return NumberExpression::newInstance(left->getValue() + right->getValue());
 }
 
-std::shared_ptr<StringExpression> PlusExpression::exprPlusExpr(const std::shared_ptr<Expression>&left, const std::shared_ptr<Expression>&right) const
+StringExpression * PlusExpression::exprPlusExpr(Context *const &context, Expression* const&left, Expression* const&right) const
 {
-	string leftEvaluatedString = left->toString();
-	string rightEvaluatedString = right->toString();
-	shared_ptr<StringExpression> newStringExpr(new StringExpression(leftEvaluatedString + rightEvaluatedString));
-	return newStringExpr;
+	auto leftEvaluatedString = left->toString(context);
+	auto rightEvaluatedString = right->toString(context);
+	StringExpression *exprs[] = { leftEvaluatedString,rightEvaluatedString };
+	auto result = StringExpression::combine(exprs, 2);
+	leftEvaluatedString->releaseTemp();
+	rightEvaluatedString->releaseTemp();
+	return result;
 }

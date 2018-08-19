@@ -2,39 +2,31 @@
 #include "StringExpression.h"
 #include "TypeExpression.h"
 #include "Context.h"
-#include <type_traits>
+#include "Program.h"
 
 using namespace std;
 
-shared_ptr<BooleanExpression> BooleanExpression::YES(new BooleanExpression(true));
-shared_ptr<BooleanExpression> BooleanExpression::NO(new BooleanExpression(false));
+ObjectPool<BooleanExpression> BooleanExpression::pool(1024);
 
-BooleanExpression::BooleanExpression()
-	:TermExpression()
-{
+BooleanExpression BooleanExpression::YES(true, StorageLevel::EXTERN);
+BooleanExpression BooleanExpression::NO(false, StorageLevel::EXTERN);
 
-}
-
-BooleanExpression::BooleanExpression(const bool & value)
-	: BooleanExpression()
-{
-	this->setValue(value);
-}
-
+StringExpression BooleanExpression::STR_YES("yes", StorageLevel::EXTERN);
+StringExpression BooleanExpression::STR_NO("no", StorageLevel::EXTERN);
 
 BooleanExpression::~BooleanExpression()
 {
 }
 
-const std::shared_ptr<TermExpression> BooleanExpression::evaluate(Context *context)
+Expression* const BooleanExpression::evaluate(Context *const& context)
 {
-	return (const std::shared_ptr<TermExpression>&)this->shared_from_this();
+	return this->storageLevel == StorageLevel::LITERAL ? BooleanExpression::newInstance(this->value) : this;
 }
 
-//bool BooleanExpression::match(const std::shared_ptr<TermExpression>& matchExpression, Context * context) const
+//bool BooleanExpression::match(Expression* const& matchExpression,Context *const &context) const
 //{
 //	//如果类型不同，匹配失败
-//	if (!matchExpression->getType()->equals(this->getType())) {
+//	if (!matchExpression->getType(context)->equals(this->getType(context))) {
 //		return false;
 //	}
 //	//类型相同，比较值是否相同
@@ -42,38 +34,18 @@ const std::shared_ptr<TermExpression> BooleanExpression::evaluate(Context *conte
 //	return matchValueExpression->getValue() == this->getValue();
 //}
 
-const std::shared_ptr<TypeExpression> BooleanExpression::getType() const
+bool BooleanExpression::equals(Context *const &context, Expression* const& targetExpression) const
 {
-	return TypeExpression::BOOLEAN_EXPRESSION;
-}
-
-bool BooleanExpression::equals(const std::shared_ptr<TermExpression>& targetExpression) const
-{
-	if (!targetExpression->getType()->equals(this->getType())) {
+	if (targetExpression == this)return true;
+	if (!targetExpression->getType(context)->equals(context, this->getType(context))) {
 		return false;
 	}
-	auto targetExpressionOfMyType = dynamic_pointer_cast<remove_pointer_t<decltype(this)>>(targetExpression);
+	auto targetExpressionOfMyType = (BooleanExpression *const&)targetExpression;
 	
 	return targetExpressionOfMyType->getValue() == this->value;
 }
 
-const std::string BooleanExpression::toString() const
+StringExpression * const BooleanExpression::toString(Context * const & context)
 {
-	if (this->value)return "true";
-	else return "false";
-}
-
-void BooleanExpression::compile(CompileContext * context)
-{
-	return;
-}
-
-const bool BooleanExpression::getValue() const
-{
-	return this->value;
-}
-
-void BooleanExpression::setValue(const bool &value)
-{
-	this->value = value;
+	return this->value ? &BooleanExpression::STR_YES : &BooleanExpression::STR_NO;
 }

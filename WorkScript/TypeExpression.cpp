@@ -2,116 +2,81 @@
 #include "Expression.h"
 #include "UnimplementedException.h"
 #include "Context.h"
+#include "Program.h"
 #include "TypeMemberExpression.h"
-#include <sstream>
-#include <string>
-using namespace std;
+#include "StringExpression.h"
 
-shared_ptr<TypeExpression> TypeExpression::OBJECT(new TypeExpression("Object", nullptr));
-shared_ptr<TypeExpression> TypeExpression::EXPRESSION(new TypeExpression("Expression",TypeExpression::OBJECT));
-shared_ptr<TypeExpression> TypeExpression::TYPE_EXPRESSION(new TypeExpression("TypeExpression", TypeExpression::EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::TYPE_MEMBER_EXPRESSION(new TypeExpression("TypeMemberExpression", TypeExpression::EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::TERM_EXPRESSION(new TypeExpression("TermExpression", TypeExpression::EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::FUNCTION_EXPRESSION(new TypeExpression("FunctionExpression",TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::FUNCTION_INVOCATION_EXPRESSION(new TypeExpression("FunctionInvocationExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::GREATER_THAN_EXPRESSION(new TypeExpression("GreaterThanExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::GREATER_THAN_EQUAL_EXPRESSION(new TypeExpression("GreaterThanEqualExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::LESS_THAN_EXPRESSION(new TypeExpression("LessThanExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::LESS_THAN_EQUAL_EXPRESSION(new TypeExpression("LessThanEqualExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::EQUAL_EXPRESSION(new TypeExpression("EqualExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::PLUS_EXPRESSION(new TypeExpression("PlusExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::MINUS_EXPRESSION(new TypeExpression("MinusExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::MULTIPLY_EXPRESSION(new TypeExpression("MultiplyExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::DIVIDE_EXPRESSION(new TypeExpression("DivideExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::EXECUTE_CPP_CODE_EXPRESSION(new TypeExpression("ExecuteCppCodeExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::PRINT_EXPRESSION(new TypeExpression("PrintExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::THIS_EXPRESSION(new TypeExpression("ThisExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::MEMBER_EVALUATE_EXPRESSION(new TypeExpression("MemberEvaluateExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::GET_TYPE_EXPRESSION(new TypeExpression("GetTypeExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::VARIABLE_EXPRESSION(new TypeExpression("VariableExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::STRING_EXPRESSION(new TypeExpression("StringExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::NUMBER_EXPRESSION(new TypeExpression("NumberExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::BOOLEAN_EXPRESSION(new TypeExpression("BooleanExpression", TypeExpression::TERM_EXPRESSION));
-shared_ptr<TypeExpression> TypeExpression::LIST_EXPRESSION(new TypeExpression("ListExpression", TypeExpression::TERM_EXPRESSION));
+TypeExpression TypeExpression::OBJECT("Object", nullptr, StorageLevel::EXTERN);
+TypeExpression TypeExpression::EXPRESSION("Expression", &OBJECT, StorageLevel::EXTERN);
+TypeExpression TypeExpression::TYPE_EXPRESSION("TypeExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::TYPE_MEMBER_EXPRESSION("TypeMemberExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::FUNCTION_EXPRESSION("FunctionExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::FUNCTION_INVOCATION_EXPRESSION("FunctionInvocationExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::GREATER_THAN_EXPRESSION("GreaterThanExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::GREATER_THAN_EQUAL_EXPRESSION("GreaterThanEqualExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::LESS_THAN_EXPRESSION("LessThanExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::LESS_THAN_EQUAL_EXPRESSION("LessThanEqualExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::EQUAL_EXPRESSION("EqualExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::PLUS_EXPRESSION("PlusExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::MINUS_EXPRESSION("MinusExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::MULTIPLY_EXPRESSION("MultiplyExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::DIVIDE_EXPRESSION("DivideExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::EXECUTE_CPP_CODE_EXPRESSION("ExecuteCppCodeExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::PRINT_EXPRESSION("PrintExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::THIS_EXPRESSION("ThisExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::MEMBER_EVALUATE_EXPRESSION("MemberEvaluateExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::GET_TYPE_EXPRESSION("GetTypeExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::VARIABLE_EXPRESSION("VariableExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::STRING_EXPRESSION("StringExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::NUMBER_EXPRESSION("NumberExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::BOOLEAN_EXPRESSION("BooleanExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::LIST_EXPRESSION("ListExpression", &EXPRESSION, StorageLevel::EXTERN);
 
-TypeExpression::TypeExpression(const std::string &typeName,const std::shared_ptr<TypeExpression> &baseType)
+TypeExpression::~TypeExpression()
 {
-	this->setBaseType(baseType);
-	this->setName(typeName);
-
-	//auto toStringRight = SPCEXPRESSION(new ExecuteCppCodeExpression(this, [this](const ExpressionBind &expressionBind) {
-	//	SPCEXPRESSION thisExpression(new ThisExpression(this));
-	//	auto expr = dynamic_pointer_cast<Expression>(thisExpression->evaluate(expressionBind));
-	//	return SPCEXPRESSION(new StringExpression(this, expr->toString()));
-	//}));
-	//shared_ptr<RelationExpression> relation(new RelationExpression(this, toStringExpression, toStringRight));
-	//auto memberExpression = shared_ptr<TypeMemberExpression>(new TypeMemberExpression(typeExpr, Authority::PUBLIC, relation));
-	//typeExpr->addMemberExpression(memberExpression);
+	if (this->name)delete[]this->name;
 }
 
-const std::shared_ptr<TermExpression> TypeExpression::evaluate(Context *context)
+Expression* const TypeExpression::evaluate(Context *const& context)
 {
-	return (const std::shared_ptr<TermExpression>&)this->shared_from_this();
+	return (Expression* const&)this;
 }
 
-TypeExpression::TypeExpression(const std::string &typeName,const std::shared_ptr<TypeExpression> &baseType, const std::vector<std::shared_ptr<TypeExpression>>& genericTypes)
-	:TypeExpression(typeName,baseType)
+TypeExpression* const TypeExpression::getType(Context *const& context) const
 {
-	this->_isGenericType = true;
-	this->setGenericTypes(genericTypes);
+	return &TypeExpression::TYPE_EXPRESSION;
 }
 
-bool TypeExpression::equals(const std::shared_ptr<TermExpression> & target) const
-{
-	//判断地址是否相同。也就是说同一个类型必须对应同一个TypeExpression
-	return (decltype(this))target.get() == this;
-}
-
-const std::shared_ptr<TypeExpression> TypeExpression::getType() const
-{
-	return TypeExpression::TYPE_EXPRESSION;
-}
-
-const std::string & TypeExpression::getName() const
-{
-	return this->name;
-}
-
-void TypeExpression::setName(const std::string &name)
-{
-	this->name = name;
-}
-
-const std::shared_ptr<TypeExpression> &  TypeExpression::getBaseType() const
+TypeExpression* const &  TypeExpression::getBaseType() const
 {
 	return this->baseType;
 }
 
-void TypeExpression::setBaseType(const std::shared_ptr<TypeExpression> &lpBaseType)
+void TypeExpression::setBaseType(TypeExpression* const &lpBaseType)
 {
 	this->baseType = lpBaseType;
 }
 
-const std::vector<std::shared_ptr<TypeExpression>>& TypeExpression::getGenericTypes() const
+const std::vector<TypeExpression *>& TypeExpression::getGenericTypes() const
 {
 	return this->genericTypes;
 }
 
-void TypeExpression::setGenericTypes(const std::vector<std::shared_ptr<TypeExpression>>& vecGenericTypes)
+void TypeExpression::setGenericTypes(const std::vector<TypeExpression *>& vecGenericTypes)
 {
 	this->genericTypes = vecGenericTypes;
 }
 
-void TypeExpression::addGenericType(const std::shared_ptr<TypeExpression> &typeInfo)
+void TypeExpression::addGenericType(TypeExpression* const &typeInfo)
 {
 	this->genericTypes.push_back(typeInfo);
 }
 
-bool TypeExpression::isSubTypeOf(const std::shared_ptr<TypeExpression> &type) const
+bool TypeExpression::isSubTypeOf(Context *const &context, TypeExpression* const &type) const
 {
-	auto curType = dynamic_pointer_cast<const TypeExpression> (this->shared_from_this());
+	auto curType = this;
 	while (curType) {
-		if (curType->equals(type)) {
+		if (curType->equals(context, type)) {
 			return true;
 		}
 		if (curType->baseType != curType) {
@@ -128,18 +93,18 @@ bool TypeExpression::isGenericType() const
 {
 	return this->_isGenericType;
 }
+//
+//const std::vector<TypeMemberExpression *> TypeExpression::getMemberExpressions() const
+//{
+//	return this->memberExpressions;
+//}
+//
+//void TypeExpression::addMemberExpression(TypeMemberExpression* const& memberExpression)
+//{
+//	this->memberExpressions.push_back(memberExpression);
+//}
 
-const std::vector<std::shared_ptr<TypeMemberExpression>> TypeExpression::getMemberExpressions() const
-{
-	return this->memberExpressions;
-}
-
-void TypeExpression::addMemberExpression(const std::shared_ptr<TypeMemberExpression>& memberExpression)
-{
-	this->memberExpressions.push_back(memberExpression);
-}
-
-//const std::shared_ptr<TypeMemberExpression> TypeExpression::matchStaticMemberExpression(const std::shared_ptr<Expression>& matchExpression, ExpressionBind * outExpressionBind) const
+//TypeMemberExpression* const TypeExpression::matchStaticMemberExpression(Expression* const& matchExpression, ExpressionBind * outExpressionBind) const
 //{
 //	//在本类型中匹配，如果匹配成功则返回
 //	for (auto &memberExpression : this->memberExpressions) {
@@ -148,7 +113,7 @@ void TypeExpression::addMemberExpression(const std::shared_ptr<TypeMemberExpress
 //		}
 //	}
 //	//如果匹配不到，则进入父类型进行匹配
-//	if (this->baseType != nullptr && !this->baseType->equals(this->shared_from_this())) {
+//	if (this->baseType != nullptr && !this->baseType->equals(this)) {
 //		return this->baseType->matchStaticMemberExpression(matchExpression,outExpressionBind);
 //	}
 //	else { //没有父类，则返回nullptr
@@ -156,21 +121,13 @@ void TypeExpression::addMemberExpression(const std::shared_ptr<TypeMemberExpress
 //	}
 //}
 
-const std::string TypeExpression::toString() const
+StringExpression *const TypeExpression::toString(Context *const& context)
 {
-	stringstream ss;
-	ss << (this->name);
-	if (this->isGenericType()) {
-		ss << "<";
-		for (auto &genericType : this->genericTypes) {
-			ss << (genericType->getName());
-		}
-		ss << ">";
-	}
-	return ss.str();
+	//TODO 泛型参数
+	return StringExpression::newInstance(this->name);
 }
 
-void TypeExpression::compile(CompileContext * context)
+void TypeExpression::compile(CompileContext *const &context)
 {
 	
 }

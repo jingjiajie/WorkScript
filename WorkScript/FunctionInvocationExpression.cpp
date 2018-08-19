@@ -3,100 +3,120 @@
 #include "VariableExpression.h"
 #include "UninvocableException.h"
 #include "FunctionExpression.h"
+#include "Program.h"
+#include "StringExpression.h"
 #include <sstream>
 
 using namespace std;
 
-FunctionInvocationExpression::FunctionInvocationExpression()
-{
-}
-
-
 FunctionInvocationExpression::~FunctionInvocationExpression()
 {
+	if(this->leftExpression) this->leftExpression->releaseLiteral();
+	if(this->parameters) this->parameters->releaseLiteral();
 }
 
-const std::shared_ptr<TermExpression> FunctionInvocationExpression::evaluate(Context *context)
+Expression* const FunctionInvocationExpression::evaluate(Context *const& context)
 {
-	shared_ptr<TermExpression> finalLeft;
+	Expression * finalLeft;
 	auto evaluatedLeft = this->leftExpression->evaluate(context);
-	if (evaluatedLeft->getType()->equals(TypeExpression::FUNCTION_EXPRESSION)) {
-		finalLeft = evaluatedLeft;
+	auto evaluatedLeftType = evaluatedLeft->getType(context);
+	if (evaluatedLeftType->equals(context, &TypeExpression::FUNCTION_EXPRESSION)) {
+		finalLeft = (Expression *const&)evaluatedLeft;
 	}
-	else if(evaluatedLeft->getType()->equals(TypeExpression::VARIABLE_EXPRESSION)){
-		auto leftVar = (const shared_ptr<VariableExpression>&)evaluatedLeft;
-		finalLeft = leftVar->evaluate(context);
+	else if(evaluatedLeftType->equals(context, &TypeExpression::VARIABLE_EXPRESSION)){
+		finalLeft = evaluatedLeft->evaluate(context);
+		evaluatedLeft->releaseTemp();
 	}
 	else {
 		finalLeft = evaluatedLeft;
 	}
-	
-	if (!finalLeft->getType()->equals(TypeExpression::FUNCTION_EXPRESSION)) {
-		throw UninvocableException(finalLeft->toString() + "不是函数！");
+	evaluatedLeftType->releaseTemp();
+
+	auto finalLeftType = finalLeft->getType(context);
+	if (!finalLeftType->equals(context, &TypeExpression::FUNCTION_EXPRESSION)) {
+		auto leftStrExpr = finalLeft->toString(context);
+		finalLeft->releaseTemp();
+		string leftName(leftStrExpr->getValue());
+		throw UninvocableException(leftName + "不是函数！");
 	}
-	auto funcExpr = (const shared_ptr<FunctionExpression>&)finalLeft;
-	auto evaluatedParams = (const shared_ptr<ListExpression>&)this->parameters->evaluate(context);
-	auto ret = funcExpr->invoke(evaluatedParams);
-	
+
+	auto evaluatedParams = (ListExpression* const)this->parameters->evaluate(context);
+	//将所有参数设为EXTERN
+	auto oriParamLevels = new StorageLevel[evaluatedParams->getCount()];
+	for (size_t i = 0; i < evaluatedParams->getCount(); ++i) {
+		oriParamLevels[i] = evaluatedParams->getItem(i)->getStorageLevel();
+		evaluatedParams->getItem(i)->setStorageLevel(StorageLevel::EXTERN);
+	}
+	//开始调用
+	auto ret = ((FunctionExpression* const&)finalLeft)->invoke(evaluatedParams);
+	//恢复各个参数的存储级别
+	for (size_t i = 0; i < evaluatedParams->getCount(); ++i) {
+		evaluatedParams[i].setStorageLevel(oriParamLevels[i]);
+	}
+	delete oriParamLevels;
+
 	if (ret != nullptr) {
+		finalLeft->releaseTemp();
+		evaluatedParams->releaseTemp();
 		return ret;
 	}
 	else {
-		auto newMe = shared_ptr<FunctionInvocationExpression>(new FunctionInvocationExpression());
-		newMe->setLeftExpression(finalLeft);
-		newMe->setParameters((const shared_ptr<ListExpression>&)this->parameters->evaluate(context));
-		return (const shared_ptr<FunctionInvocationExpression>&)this->shared_from_this();
+		finalLeft->releaseTemp();
+		auto newMe = new FunctionInvocationExpression;
+		newMe->setLeftExpression(this->leftExpression);
+		newMe->setParameters(evaluatedParams);
+		return this;
 	}
 }
 
-bool FunctionInvocationExpression::equals(const std::shared_ptr<TermExpression> &target) const
+bool FunctionInvocationExpression::equals(Context *const &context, Expression* const &target) const
 {
-	if (!target->getType()->equals(this->getType())) {
+	if (!target->getType(context)->equals(context, this->getType(context))) {
 		return false;
 	}
-	auto targetFunctionInvocationExpression = dynamic_pointer_cast<FunctionInvocationExpression>(target);
-	if (!targetFunctionInvocationExpression->leftExpression->equals(this->leftExpression))return false;
-	if (!this->parameters->equals(targetFunctionInvocationExpression->parameters))return false;
+	auto targetFunctionInvocationExpression = (FunctionInvocationExpression *const&)(target);
+	if (!targetFunctionInvocationExpression->leftExpression->equals(context,this->leftExpression))return false;
+	if (!this->parameters->equals(context,targetFunctionInvocationExpression->parameters))return false;
 	return true;
 }
 
-const std::shared_ptr<TypeExpression> FunctionInvocationExpression::getType() const
+TypeExpression* const FunctionInvocationExpression::getType(Context *const& context) const
 {
-	return TypeExpression::FUNCTION_INVOCATION_EXPRESSION;
+	return &TypeExpression::FUNCTION_INVOCATION_EXPRESSION;
 }
 
-const std::string FunctionInvocationExpression::toString() const
+StringExpression *const FunctionInvocationExpression::toString(Context *const& context)
 {
 	stringstream ss;
-	ss << this->leftExpression->toString();
+	ss << this->leftExpression->toString(context);
 	ss << "(";
-	ss << this->parameters->toString();
+	ss << this->parameters->toString(context)->getValue();
 	ss << ")";
-	return ss.str();
+	return StringExpression::newInstance(ss.str().c_str());
 }
 
-void FunctionInvocationExpression::compile(CompileContext * context)
+void FunctionInvocationExpression::compile(CompileContext *const &context)
 {
 	this->leftExpression->compile(context);
 	this->parameters->compile(context);
 }
 
-const std::shared_ptr<TermExpression> FunctionInvocationExpression::getLeftExpression() const
+Expression* const FunctionInvocationExpression::getLeftExpression() const
 {
 	return this->leftExpression;
 }
 
-void FunctionInvocationExpression::setLeftExpression(const std::shared_ptr<TermExpression>& left)
+void FunctionInvocationExpression::setLeftExpression(Expression* const& left)
 {
 	this->leftExpression = left;
 }
 
-const std::shared_ptr<ListExpression> FunctionInvocationExpression::getParameters() const
+ListExpression* const FunctionInvocationExpression::getParameters() const
 {
 	return this->parameters;
 }
 
-void FunctionInvocationExpression::setParameters(const std::shared_ptr<ListExpression>& parameters)
+void FunctionInvocationExpression::setParameters(ListExpression* const& parameters)
 {
 	this->parameters = parameters;
 }

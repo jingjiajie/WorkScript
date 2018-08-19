@@ -1,49 +1,74 @@
 #pragma once
-#include <string>
 #include <vector>
-#include "TermExpression.h"
+#include <string.h>
+#include "Expression.h"
 
-class TypeMemberExpression;
+//class TypeMemberExpression;
 
-class TypeExpression : public TermExpression
+class TypeExpression : public Expression
 {
 public:
-	TypeExpression(const std::string &typeName, const std::shared_ptr<TypeExpression> &baseType, const std::vector<std::shared_ptr<TypeExpression>>& genericTypes);
-	TypeExpression(const std::string &typeName, const std::shared_ptr<TypeExpression> &baseType);
+	inline TypeExpression(const char *const &name, TypeExpression* const &baseType, const std::vector<TypeExpression *>& genericTypes, const StorageLevel level = StorageLevel::TEMP)
+		:TypeExpression(name, baseType,level)
+	{
+		this->_isGenericType = true;
+		this->setGenericTypes(genericTypes);
+	}
+
+	inline TypeExpression(const char *const &name, TypeExpression* const &baseType, const StorageLevel level = StorageLevel::TEMP)
+	{
+		this->setBaseType(baseType);
+		this->setName(name);
+		this->setStorageLevel(level);
+	}
+	virtual ~TypeExpression();
 	//继承成员
-	virtual const std::shared_ptr<TermExpression> evaluate(Context *context) override;
-	//virtual bool match(const std::shared_ptr<TermExpression> &matchExpression, Context *newContext) const override;
-	virtual bool equals(const std::shared_ptr<TermExpression> &) const override;
-	virtual const std::shared_ptr<TypeExpression> getType() const override;
-	virtual const std::string toString() const override;
-	virtual void compile(CompileContext *context) override;
+	virtual Expression* const evaluate(Context *const& context) override;
+	//virtual bool match(Expression* const &matchExpression, Context *newContext) const override;
+	virtual TypeExpression* const getType(Context *const& context) const override;
+	virtual StringExpression *const toString(Context *const& context) override;
+	virtual void compile(CompileContext *const& context) override;
+
+	inline virtual bool equals(Context *const &context, Expression* const &target) const override
+	{
+		return target == this;
+	}
 
 	//类名
-	const std::string& getName() const;
-	void setName(const std::string&);
+	inline const char *const getName() const
+	{
+		return this->name;
+	}
+
+	inline void setName(const char *const &name)
+	{
+		if (this->name)delete[]this->name;
+		this->name = new char[strlen(name) + 1];
+		strcpy(this->name, name);
+	}
 	//基类
-	bool isSubTypeOf(const std::shared_ptr<TypeExpression>&) const;
-	const std::shared_ptr<TypeExpression> & getBaseType() const;
-	void setBaseType(const std::shared_ptr<TypeExpression> &);
+	bool isSubTypeOf(Context *const &context, TypeExpression* const&) const;
+	TypeExpression* const & getBaseType() const;
+	void setBaseType(TypeExpression* const &);
 	//泛型
-	const std::vector<std::shared_ptr<TypeExpression>>& getGenericTypes() const;
-	void setGenericTypes(const std::vector<std::shared_ptr<TypeExpression>>&);
-	void addGenericType(const std::shared_ptr<TypeExpression> &typeInfo);
+	const std::vector<TypeExpression *>& getGenericTypes() const;
+	void setGenericTypes(const std::vector<TypeExpression *>&);
+	void addGenericType(TypeExpression* const &typeInfo);
 	bool isGenericType() const;
-	//成员表达式
-	const std::vector<std::shared_ptr<TypeMemberExpression>> getMemberExpressions() const;
-	void addMemberExpression(const std::shared_ptr<TypeMemberExpression> &memberExpression);
-	//const std::shared_ptr<TypeMemberExpression> matchStaticMemberExpression(const std::shared_ptr<Expression> &matchExpression, ExpressionBind *outExpressionBind) const;
+	////成员表达式
+	//const std::vector<TypeMemberExpression *> getMemberExpressions() const;
+	//void addMemberExpression(TypeMemberExpression* const &memberExpression);
+	//TypeMemberExpression* const matchStaticMemberExpression(Expression* const &matchExpression, ExpressionBind *outExpressionBind) const;
 
 private:
-	std::string name;
-	std::shared_ptr<TypeExpression> baseType;
+	char *name = nullptr;
+	TypeExpression * baseType;
 	bool _isGenericType = false;
-	std::vector<std::shared_ptr<TypeExpression>> genericTypes;
-	std::vector<std::shared_ptr<TypeMemberExpression>> memberExpressions;
+	std::vector<TypeExpression *> genericTypes;
+	//std::vector<TypeMemberExpression *> memberExpressions;
 
 public:
-	static std::shared_ptr<TypeExpression>
+	static TypeExpression 
 		OBJECT,
 		EXPRESSION,
 		TYPE_EXPRESSION,

@@ -1,29 +1,77 @@
 #pragma once
 #include <iostream>
-#include <vector>
-#include <memory>
 #include "WorkScriptException.h"
 #include "TypeInfo.h"
 #include "CompileContext.h"
 
-class TermExpression;
+class Expression;
 class TypeExpression;
 class Context;
+class StringExpression;
 
-class Expression : public std::enable_shared_from_this<Expression>
+enum class StorageLevel : unsigned char {
+	TEMP = 0,
+	LOCAL = 1,
+	EXTERN = 2,
+	LITERAL = 3
+};
+
+class Expression
 {
 public:
-	Expression();
+	inline Expression() {};
 	virtual ~Expression();
 	//需要实现的接口函数
-	virtual const std::shared_ptr<TermExpression> evaluate(Context *context) = 0;
-	virtual void compile(CompileContext *context) = 0;
-	virtual const std::shared_ptr<TypeExpression> getType() const = 0;
-	virtual const std::string toString() const = 0;
+	virtual Expression* const evaluate(Context *const& context) = 0;
+	virtual void compile(CompileContext *const& context) = 0;
+	virtual TypeExpression* const getType(Context *const& context) const = 0;
+	virtual StringExpression *const toString(Context *const& context) = 0;
+	virtual bool equals(Context *const &context, Expression* const&) const = 0;
 
-	////已经实现的函数
-	//virtual const std::vector<std::shared_ptr<TypeMemberExpression>> getInstantialExpressions() const;
-	//virtual void addInstantialExpressions(const std::shared_ptr<TypeMemberExpression> &expr);
+	//已经实现的非虚函数
+	inline StorageLevel getStorageLevel() const
+	{
+		return this->storageLevel;
+	}
+
+	inline void setStorageLevel(const StorageLevel level = StorageLevel::TEMP)
+	{
+		this->storageLevel = level;
+	}
+
+	inline void releaseTemp()
+	{
+		if (this->storageLevel > StorageLevel::TEMP)return;
+		this->release();
+	}
+
+	inline void releaseLocal()
+	{
+		if (this->storageLevel > StorageLevel::LOCAL)return;
+		this->release();
+	}
+
+	inline void releaseExtern()
+	{
+		if (this->storageLevel > StorageLevel::EXTERN)return;
+		this->release();
+	}
+
+	inline void releaseLiteral()
+	{
+		if (this->storageLevel > StorageLevel::LITERAL)return;
+		this->release();
+	}
+
+	////已经实现的虚函数
+	//virtual const std::vector<TypeMemberExpression *> getInstantialExpressions() const;
+	//virtual void addInstantialExpressions(TypeMemberExpression* const &expr);
 protected:
-	//std::vector<std::shared_ptr<TypeMemberExpression>> instantialExpressions;
+	//std::vector<TypeMemberExpression *> instantialExpressions;
+	StorageLevel storageLevel = StorageLevel::TEMP;
+
+	virtual void release()
+	{
+		delete this;
+	}
 };

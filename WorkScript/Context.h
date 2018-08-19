@@ -6,33 +6,45 @@
 #include <memory>
 #include <functional>
 
-class TermExpression;
+class Expression;
 class TypeExpression;
 class FunctionExpression;
 class FunctionInvocationExpression;
 class Expression;
+class Program;
 
 class Context
 {
 public:
-	Context(size_t localVariableCount);
+	Context(Program *program,size_t localVariableCount);
 	Context(Context *baseContext, size_t localVariableCount);
 	virtual ~Context();
 
-	void addType(const std::shared_ptr<TypeExpression>&);
-	const std::shared_ptr<TypeExpression> findType(const std::string &typeName,bool isGenericType, const std::vector<std::shared_ptr<TypeExpression>> &genericTypes = std::vector<std::shared_ptr<TypeExpression>>()) const;
+	//void addType(TypeExpression* const&);
+	//TypeExpression* const findType(const std::string &typeName,bool isGenericType, const std::vector<TypeExpression *> &genericTypes = std::vector<TypeExpression *>());
 
-	Context * getBaseContext() const;
+	Context * const& getBaseContext() const;
 	void setBaseContext(Context *const);
 
-	const std::shared_ptr<TermExpression> getCurrentExpression() const;
-	void setCurrentExpression(const std::shared_ptr<TermExpression> &);
+	Expression* const getCurrentExpression() const;
+	void setCurrentExpression(Expression* const &);
 
-	const std::shared_ptr<TermExpression> getLocalVariable(size_t offset) const;
-	void setLocalVariable(size_t offset, const std::shared_ptr<TermExpression> &value);
+	inline Expression* const getLocalVariable(size_t offset) const {
+		return this->localVariables[offset];
+	}
+
+	inline void setLocalVariable(size_t offset, Expression* const &value) {
+		this->localVariables[offset] = value;
+	}
+
+	inline Program * const getProgram() const {
+		return this->program;
+	}
 protected:
 	Context * baseContext = nullptr;
-	std::vector<std::shared_ptr<TypeExpression>> types;
-	std::shared_ptr<TermExpression> *localVariables;
-	std::shared_ptr<TermExpression> currentExpression;
+	Program *program = nullptr;
+	//std::vector<TypeExpression *> types;
+	Expression **localVariables;
+	size_t localVariableCount = 0;
+	Expression * currentExpression;
 };

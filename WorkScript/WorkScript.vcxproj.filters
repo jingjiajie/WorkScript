@@ -129,9 +129,6 @@
     <ClInclude Include="DivideExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="TermExpression.h">
-      <Filter>DataStructures\Expressions\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="FunctionExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
@@ -168,7 +165,7 @@
     <ClInclude Include="VariableInfo.h">
       <Filter>DataStructures\CompileContext\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="ResourcePool.h" />
+    <ClInclude Include="ObjectPool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Context.cpp">
@@ -195,9 +192,6 @@
     </ClCompile>
     <ClCompile Include="Generated\WorkScriptVisitor.cpp">
       <Filter>Generated</Filter>
-    </ClCompile>
-    <ClCompile Include="WorkScriptVisitorImpl.cpp">
-      <Filter>Runner\Sources</Filter>
     </ClCompile>
     <ClCompile Include="ExpressionWrapper.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
@@ -238,9 +232,6 @@
     <ClCompile Include="DivideExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="TermExpression.cpp">
-      <Filter>DataStructures\Expressions\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="FunctionExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
@@ -274,6 +265,8 @@
     <ClCompile Include="CompileContext.cpp">
       <Filter>DataStructures\CompileContext\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="ResourcePool.cpp" />
+    <ClCompile Include="WorkScriptVisitorImpl.cpp">
+      <Filter>Runner\Sources</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

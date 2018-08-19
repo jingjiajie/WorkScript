@@ -1,15 +1,15 @@
 #pragma once
 #include "Expression.h"
-#include "TermExpression.h"
+#include "Expression.h"
 
 class ExpressionWrapper
 {
 public:
 	ExpressionWrapper();
-	ExpressionWrapper(const std::shared_ptr<Expression> &expression);
-	const std::shared_ptr<Expression> & getExpression() const;
-	const std::shared_ptr<TermExpression> & getTermExpression() const;
-	void setExpression(const std::shared_ptr<Expression> & expression);
+	ExpressionWrapper(Expression* const &expression);
+	Expression* const & getExpression() const;
+	Expression* const & getTermExpression() const;
+	void setExpression(Expression* const & expression);
 protected:
-	std::shared_ptr<Expression> expression;
+	Expression * expression;
 };

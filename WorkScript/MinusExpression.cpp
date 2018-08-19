@@ -5,55 +5,54 @@
 #include "StringExpression.h"
 #include "VariableExpression.h"
 #include "PlusExpression.h"
+#include "Program.h"
 
 using namespace std;
-
-MinusExpression::MinusExpression()
-{
-
-}
-
-MinusExpression::MinusExpression(const std::shared_ptr<TermExpression> &leftExpression, const std::shared_ptr<TermExpression> &rightExpression)
-{
-	this->setLeftExpression(leftExpression);
-	this->setRightExpression(rightExpression);
-}
-
 
 MinusExpression::~MinusExpression()
 {
 }
 
-const std::shared_ptr<TermExpression> MinusExpression::evaluate(Context *context)
+Expression* const MinusExpression::evaluate(Context *const& context)
 {
 	auto evaluatedLeftExpr = this->leftExpression->evaluate(context);
 	auto evaluatedRightExpr = this->rightExpression->evaluate(context);
+	auto leftType = evaluatedLeftExpr->getType(context);
+	auto rightType = evaluatedRightExpr->getType(context);
+	Expression *ret;
 	//开始做减法运算。
-	auto numberType = TypeExpression::NUMBER_EXPRESSION;
-	auto stringType = TypeExpression::STRING_EXPRESSION;
+	auto numberType = &TypeExpression::NUMBER_EXPRESSION;
+	auto stringType = &TypeExpression::STRING_EXPRESSION;
 
-	if (evaluatedLeftExpr->getType()->equals(numberType)) {
-		if (evaluatedRightExpr->getType()->equals(numberType)) {
-			return this->numberMinusNumber((const shared_ptr<NumberExpression>&)evaluatedLeftExpr, (const shared_ptr<NumberExpression>&)evaluatedRightExpr);
-		}
+	if (leftType->equals(context, numberType) && rightType->equals(context, numberType)) {
+		ret = this->numberMinusNumber((NumberExpression* const&)evaluatedLeftExpr, (NumberExpression* const&)evaluatedRightExpr);
+		goto OK;
 	}
-	else if (evaluatedLeftExpr->getType()->equals(stringType)) {
-		if (evaluatedRightExpr->getType()->equals(numberType)) {
-			return this->stringMinusNumber((const shared_ptr<StringExpression>&)evaluatedLeftExpr, (const shared_ptr<NumberExpression>&)evaluatedRightExpr);
-		}
-		//TODO 字符串可以减字符串
-	/*	else if (evaluatedRightExpr->getType()->equals(stringType)) {
-			return this->stringPlusString(dynamic_pointer_cast<StringExpression>(evaluatedLeftExpr), dynamic_pointer_cast<StringExpression>(evaluatedRightExpr));
-		}*/
+	else if (leftType->equals(context, stringType) && rightType->equals(context, numberType)) {
+		ret = this->stringMinusNumber((StringExpression* const&)evaluatedLeftExpr, (NumberExpression* const&)evaluatedRightExpr);
+		goto OK;
 	}
-	auto newMe = shared_ptr<MinusExpression>(new MinusExpression(evaluatedLeftExpr, evaluatedRightExpr));
-	return newMe;
+	else {
+		ret = new MinusExpression(evaluatedLeftExpr, evaluatedRightExpr);
+		goto MISMATCHED;
+	}
+
+OK:
+	evaluatedLeftExpr->releaseTemp();
+	evaluatedRightExpr->releaseTemp();
+	leftType->releaseTemp();
+	rightType->releaseTemp();
+	return ret;
+MISMATCHED:
+	leftType->releaseTemp();
+	rightType->releaseTemp();
+	return ret;
 }
 
-//bool MinusExpression::match(const std::shared_ptr<TermExpression>& matchExpression, Context *context) const
+//bool MinusExpression::match(Expression* const& matchExpression, Context *const& context) const
 //{
-//	if (matchExpression->getType()->equals(this->getType())) {
-//		auto matchMinusExpression = dynamic_pointer_cast<MinusExpression>(matchExpression);
+//	if (matchExpression->getType(context)->equals(this->getType(context))) {
+//		auto matchMinusExpression = (MinusExpression *const&)(matchExpression);
 //		return this->leftExpression->match(matchMinusExpression->leftExpression, context)
 //			&& this->rightExpression->match(matchMinusExpression->rightExpression, context);
 //	}
@@ -63,12 +62,12 @@ const std::shared_ptr<TermExpression> MinusExpression::evaluate(Context *context
 //		auto evaluatedLeft = this->leftExpression->evaluate(context);
 //		auto evaluatedRight = this->rightExpression->evaluate(context);
 //		//且自己的左右表达式中只有一个是变量
-//		if (evaluatedLeft->getType()->equals(variableType) && !evaluatedRight->getType()->equals(variableType))
+//		if (evaluatedLeft->getType(context)->equals(variableType) && !evaluatedRight->getType(context)->equals(variableType))
 //		{
-//			return dynamic_pointer_cast<VariableExpression>(evaluatedLeft)->match(shared_ptr<PlusExpression>(new PlusExpression(evaluatedRight, matchExpression)), context);
+//			return (VariableExpression *const&)(evaluatedLeft)->match(PlusExpression *(new PlusExpression(evaluatedRight, matchExpression)), context);
 //		}
-//		else if (!evaluatedLeft->getType()->equals(variableType) && evaluatedRight->getType()->equals(variableType)) {
-//			return dynamic_pointer_cast<VariableExpression>(evaluatedRight)->match(shared_ptr<MinusExpression>(new MinusExpression(evaluatedLeft, matchExpression)), context);
+//		else if (!evaluatedLeft->getType(context)->equals(variableType) && evaluatedRight->getType(context)->equals(variableType)) {
+//			return (VariableExpression *const&)(evaluatedRight)->match(MinusExpression *(new MinusExpression(evaluatedLeft, matchExpression)), context);
 //		}
 //		else {
 //			return false;
@@ -76,31 +75,30 @@ const std::shared_ptr<TermExpression> MinusExpression::evaluate(Context *context
 //	}
 //}
 
-const std::shared_ptr<TypeExpression> MinusExpression::getType() const
+TypeExpression* const MinusExpression::getType(Context *const& context) const
 {
-	return TypeExpression::MINUS_EXPRESSION;
+	return &TypeExpression::MINUS_EXPRESSION;
 }
 
-const std::string MinusExpression::toString() const
+StringExpression *const MinusExpression::toString(Context *const& context)
 {
-	return this->leftExpression->toString() + "-" + this->rightExpression->toString();
+	static StringExpression sign("-");
+	return BinaryTermExpression::toString(context, &sign);
 }
 
-std::shared_ptr<NumberExpression> MinusExpression::numberMinusNumber(const std::shared_ptr<NumberExpression>&left, const std::shared_ptr<NumberExpression>&right) const
+NumberExpression * MinusExpression::numberMinusNumber(NumberExpression* const&left, NumberExpression* const&right) const
 {
-	shared_ptr<NumberExpression> newNumExpr(new NumberExpression(left->getValue() - right->getValue()));
-	return newNumExpr;
+	return NumberExpression::newInstance(left->getValue() - right->getValue());
 }
 
-std::shared_ptr<StringExpression> MinusExpression::stringMinusNumber(const std::shared_ptr<StringExpression>&left, const std::shared_ptr<NumberExpression>&right) const
+StringExpression * MinusExpression::stringMinusNumber(StringExpression* const&left, NumberExpression* const&right) const
 {
 	string oriString = left->getValue();
-	shared_ptr<StringExpression> newStringExpr(new StringExpression(oriString.substr(0, oriString.size() - (size_t)right->getValue())));
-	return newStringExpr;
+	return StringExpression::newInstance(oriString.substr(0, oriString.size() - (size_t)right->getValue()).c_str());
 }
 
-//std::shared_ptr<StringExpression> MinusExpression::stringMinusString(const std::shared_ptr<StringExpression>&left, const std::shared_ptr<StringExpression>&right) const
+//StringExpression * MinusExpression::stringMinusString(StringExpression* const&left, StringExpression* const&right) const
 //{
-//	shared_ptr<StringExpression> newStringExpr(new StringExpression(this->context, left->getValue() + right->getValue()));
+//	StringExpression * newStringExpr(new StringExpression(this->context, left->getValue() + right->getValue()));
 //	return newStringExpr;
 //}

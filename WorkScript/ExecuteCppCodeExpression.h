@@ -1,22 +1,26 @@
 #pragma once
 #include <memory>
 #include <functional>
-#include "TermExpression.h"
+#include "Expression.h"
 class ExecuteCppCodeExpression :
-	public TermExpression
+	public Expression
 {
 public:
-	ExecuteCppCodeExpression(const std::function<const std::shared_ptr<TermExpression>(Context*)> &evaluateFunction);
+	inline ExecuteCppCodeExpression(const std::function<Expression* const(Context*)> &evaluateFunction, const StorageLevel level = StorageLevel::TEMP)
+	{
+		this->setStorageLevel(level);
+		this->evaluateFunction = evaluateFunction;
+	}
 	virtual ~ExecuteCppCodeExpression();
 
- virtual const std::shared_ptr<TermExpression> evaluate(Context *context) override;
-	//virtual bool match(const std::shared_ptr<TermExpression> &matchExpression, Context *context) const override;
-	virtual const std::shared_ptr<TypeExpression> getType() const override;
-	virtual bool equals(const std::shared_ptr<TermExpression>& targetExpression) const;
-	virtual const std::string toString() const override;
-	virtual void compile(CompileContext *context) override;
+ virtual Expression* const evaluate(Context *const& context) override;
+	//virtual bool match(Expression* const &matchExpression, Context *const& context) const override;
+	virtual TypeExpression* const getType(Context *const& context) const override;
+	virtual bool equals(Context *const &context, Expression* const& targetExpression) const;
+	virtual StringExpression *const toString(Context *const& context) override;
+	virtual void compile(CompileContext *const& context) override;
 
 protected:
-	std::function<const std::shared_ptr<TermExpression>(Context*)> evaluateFunction;
+	std::function<Expression* const(Context*)> evaluateFunction;
 };
 

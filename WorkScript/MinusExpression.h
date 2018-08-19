@@ -8,18 +8,21 @@ class MinusExpression :
 	public BinaryTermExpression
 {
 public:
-	MinusExpression();
-	MinusExpression(const std::shared_ptr<TermExpression> &, const std::shared_ptr<TermExpression> &);
+	inline MinusExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
+		:BinaryTermExpression(left, right, level) 
+	{
+
+	}
 	virtual ~MinusExpression();
 
-	virtual const std::shared_ptr<TermExpression> evaluate(Context *context) override;
-	//virtual bool match(const std::shared_ptr<TermExpression> &matchExpression, Context *context) const override;
-	virtual const std::shared_ptr<TypeExpression> getType() const override;
-	virtual const std::string toString() const override;
+	virtual Expression* const evaluate(Context *const& context) override;
+	//virtual bool match(Expression* const &matchExpression, Context *const& context) const override;
+	virtual TypeExpression* const getType(Context *const& context) const override;
+	virtual StringExpression *const toString(Context *const& context) override;
 
 private:
-	std::shared_ptr<NumberExpression> numberMinusNumber(const std::shared_ptr<NumberExpression>&, const std::shared_ptr<NumberExpression>&) const;
-	std::shared_ptr<StringExpression> stringMinusNumber(const std::shared_ptr<StringExpression>&, const std::shared_ptr<NumberExpression>&) const;
-	//std::shared_ptr<StringExpression> stringMinusString(const std::shared_ptr<StringExpression>&, const std::shared_ptr<StringExpression>&) const;
+	NumberExpression * numberMinusNumber(NumberExpression* const&, NumberExpression* const&) const;
+	StringExpression * stringMinusNumber(StringExpression* const&, NumberExpression* const&) const;
+	//StringExpression * stringMinusString(StringExpression* const&, StringExpression* const&) const;
 };
 

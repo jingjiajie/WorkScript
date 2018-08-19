@@ -1,51 +1,28 @@
-#include <type_traits>
 #include "BinaryTermExpression.h"
 #include "TypeExpression.h"
+#include "Program.h"
 
 using namespace std;
 
-BinaryTermExpression::BinaryTermExpression()
-{
-}
-
-
 BinaryTermExpression::~BinaryTermExpression()
 {
+	if (this->leftExpression) this->leftExpression->releaseLiteral();
+	if (this->rightExpression) this->rightExpression->releaseLiteral();
 }
 
-bool BinaryTermExpression::equals(const shared_ptr<TermExpression> &targetExpression) const
+bool BinaryTermExpression::equals(Context *const &context, Expression* const &targetExpression) const
 {
-	if (!targetExpression->getType()->equals(this->getType())) {
+	if (!targetExpression->getType(context)->equals(context,this->getType(context))) {
 		return false;
 	}
-	auto targetExpressionOfMyType = dynamic_pointer_cast<remove_pointer_t<decltype(this)>>(targetExpression);
+	auto targetExpressionOfMyType = (BinaryTermExpression *const&)targetExpression;
 
-	return this->leftExpression->equals(targetExpressionOfMyType->leftExpression) && this->rightExpression->equals(targetExpressionOfMyType->rightExpression);
+	return this->leftExpression->equals(context, targetExpressionOfMyType->leftExpression) 
+		&& this->rightExpression->equals(context, targetExpressionOfMyType->rightExpression);
 }
 
-void BinaryTermExpression::compile(CompileContext * context)
+void BinaryTermExpression::compile(CompileContext *const &context)
 {
 	this->leftExpression->compile(context);
 	this->rightExpression->compile(context);
-}
-
-
-const std::shared_ptr<TermExpression> BinaryTermExpression::getLeftExpression() const
-{
-	return this->leftExpression;
-}
-
-void BinaryTermExpression::setLeftExpression(const std::shared_ptr<TermExpression> &expr)
-{
-	this->leftExpression = expr;
-}
-
-const std::shared_ptr<TermExpression> BinaryTermExpression::getRightExpression() const
-{
-	return this->rightExpression;
-}
-
-void BinaryTermExpression::setRightExpression(const std::shared_ptr<TermExpression> &expr)
-{
-	this->rightExpression = expr;
 }

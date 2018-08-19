@@ -1,30 +1,33 @@
 #pragma once
-#include "TermExpression.h"
+#include "Expression.h"
 #include "TypeExpression.h"
 
 class ListExpression;
 
 class FunctionInvocationExpression :
-	public TermExpression
+	public Expression
 {
 public:
-	FunctionInvocationExpression();
+	inline FunctionInvocationExpression(const StorageLevel level = StorageLevel::TEMP)
+	{
+		this->setStorageLevel(level);
+	}
 	virtual ~FunctionInvocationExpression();
 
-	virtual const std::shared_ptr<TermExpression> evaluate(Context *context) override;
-	virtual bool equals(const std::shared_ptr<TermExpression>&) const override;
+	virtual Expression* const evaluate(Context *const& context) override;
+	virtual bool equals(Context *const &context,Expression* const&) const override;
 
-	virtual const std::shared_ptr<TypeExpression> getType() const override;
-	virtual const std::string toString() const override;
-	virtual void compile(CompileContext *context) override;
+	virtual TypeExpression* const getType(Context *const& context) const override;
+	virtual StringExpression *const toString(Context *const& context) override;
+	virtual void compile(CompileContext *const& context) override;
 
-	const std::shared_ptr<TermExpression> getLeftExpression() const;
-	void setLeftExpression(const std::shared_ptr<TermExpression> &left);
-	const std::shared_ptr<ListExpression> getParameters() const;
-	void setParameters(const std::shared_ptr<ListExpression>& parameters);
+	Expression* const getLeftExpression() const;
+	void setLeftExpression(Expression* const &left);
+	ListExpression* const getParameters() const;
+	void setParameters(ListExpression* const& parameters);
 
 protected:
-	std::shared_ptr<TermExpression> leftExpression;
-	std::shared_ptr<ListExpression> parameters;
+	Expression * leftExpression = nullptr;
+	ListExpression * parameters = nullptr;
 };
 

@@ -1,29 +1,32 @@
 #pragma once
-#include "TermExpression.h"
+#include "Expression.h"
 #include "Context.h"
 
-class TermExpression;
+class Expression;
 
 class ListExpression :
-	public TermExpression
+	public Expression
 {
 public:
-	ListExpression();
+	inline ListExpression(const StorageLevel level = StorageLevel::TEMP)
+	{
+		this->setStorageLevel(level);
+	}
 	virtual ~ListExpression();
 
-	virtual const std::shared_ptr<TypeExpression> getType() const;
-	virtual const std::string toString() const;
-	virtual void compile(CompileContext *context) override;
+	virtual TypeExpression* const getType(Context *const& context) const;
+	virtual StringExpression *const toString(Context *const& context);
+	virtual void compile(CompileContext *const& context) override;
 
-	virtual const std::shared_ptr<TermExpression> evaluate(Context *context) override;
-	virtual bool equals(const std::shared_ptr<TermExpression>&) const override;
+	virtual Expression* const evaluate(Context *const &context) override;
+	virtual bool equals(Context *const &context,Expression* const&) const override;
 	
-	inline const std::shared_ptr<TermExpression> getItem(size_t offset) const
+	inline Expression* const getItem(size_t offset) const
 	{
 		return this->items[offset];
 	}
 
-	inline const size_t addItem(const std::shared_ptr<TermExpression>& termExpression)
+	inline const size_t addItem(Expression* const& termExpression)
 	{
 		this->items[count] = termExpression;
 		count++;
@@ -36,6 +39,6 @@ public:
 
 private:
 	//TODO 静态大小不可以的，要改成动态大小！
-	std::shared_ptr<TermExpression> items[10];
+	Expression * items[10];
 	size_t count = 0;
 };

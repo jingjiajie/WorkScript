@@ -1,40 +1,33 @@
 #include "EqualExpression.h"
 #include "TypeExpression.h"
 #include "BooleanExpression.h"
+#include "Program.h"
+#include "StringExpression.h"
 
 using namespace std;
-
-EqualExpression::EqualExpression()
-{
-}
-
 
 EqualExpression::~EqualExpression()
 {
 }
 
-const std::shared_ptr<TypeExpression> EqualExpression::getType() const
+TypeExpression* const EqualExpression::getType(Context *const& context) const
 {
-	return TypeExpression::EQUAL_EXPRESSION;
+	return &TypeExpression::EQUAL_EXPRESSION;
 }
 
-const std::string EqualExpression::toString() const
+StringExpression *const EqualExpression::toString(Context *const& context)
 {
-	return this->leftExpression->toString() + " == " + this->rightExpression->toString();
+	static StringExpression equal("==");
+	return BinaryTermExpression::toString(context, &equal);
 }
 
-const std::shared_ptr<TermExpression> EqualExpression::evaluate(Context * context)
+Expression* const EqualExpression::evaluate(Context *const &context)
 {
-	bool eq = this->leftExpression->evaluate(context)->equals(this->rightExpression->evaluate(context));
-	return shared_ptr<BooleanExpression>(new BooleanExpression(eq));
-}
-
-bool EqualExpression::equals(const std::shared_ptr<TermExpression> &targetExpression) const
-{
-	if (!targetExpression->getType()->equals(this->getType())) {
-		return false;
-	}
-	auto targetEqualExpression = dynamic_pointer_cast<EqualExpression>(targetExpression);
-	return this->leftExpression->equals(targetEqualExpression->leftExpression)
-		&& this->rightExpression->equals(targetEqualExpression->rightExpression);
+	auto left = this->leftExpression->evaluate(context);
+	auto right = this->rightExpression->evaluate(context);
+	bool eq = left->equals(context, right);
+	auto ret = BooleanExpression::newInstance(eq);
+	left->releaseTemp();
+	right->releaseTemp();
+	return ret;
 }

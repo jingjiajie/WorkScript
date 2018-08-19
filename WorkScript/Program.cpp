@@ -5,8 +5,8 @@
 #include "FunctionExpression.h"
 #include "BooleanExpression.h"
 #include "VariableExpression.h"
+#include "StringExpression.h"
 #include <time.h>
-#include <memory>
 
 using namespace std;
 
@@ -18,13 +18,16 @@ Program::Program()
 
 Program::~Program()
 {
+	for (auto &lpExpr : this->expressions) {
+		lpExpr->releaseLiteral();
+	}
 }
 
 void Program::execute()
 {
-	Context context(this->localVariableCount);
+	Context context(this,this->localVariableCount);
 	for (auto &expr : this->expressions) {
-		expr->evaluate(&context);
+		expr->evaluate(&context)->releaseTemp();
 	}
 	return;
 }
@@ -38,27 +41,29 @@ void Program::compile()
 	this->localVariableCount = context.getLocalVariableCount();
 }
 
-void Program::pushExpression(const shared_ptr<Expression> &expr)
+void Program::pushExpression(Expression* const &expr)
 {
 	this->expressions.push_back(expr);
 }
 
-const std::vector<shared_ptr<Expression>>& Program::getExpressions() const
+const std::vector<Expression*>& Program::getExpressions() const
 {
 	return  this->expressions;
 }
 
 void Program::initPrintExpression()
 {
-	shared_ptr<FunctionExpression> printFunc(new FunctionExpression());
-	printFunc->setFunctionName("print");
-	shared_ptr<FunctionExpression::Overload> overload(new FunctionExpression::Overload);
+	FunctionExpression * printFunc = new FunctionExpression(StorageLevel::LITERAL);
+	printFunc->setName("print");
+	auto overload = new FunctionExpression::Overload;
 	overload->setParameterNames({ "x" });
-	overload->setImplement(shared_ptr<ExecuteCppCodeExpression>(new ExecuteCppCodeExpression([overload](Context *context)->std::shared_ptr<TermExpression> {
-		shared_ptr<VariableExpression> varX(new VariableExpression("x"));
-		cout << varX->evaluate(context)->toString();
-		return BooleanExpression::YES;
-	})));
+	overload->setImplement(new ExecuteCppCodeExpression([overload](Context *const& context)->Expression * {
+		auto value = context->getLocalVariable(0);
+		auto strExpr = value->toString(context);
+		cout << strExpr->getValue();
+		strExpr->releaseTemp();
+		return &BooleanExpression::YES;
+	}));
 	printFunc->addOverload(overload);
 	this->pushExpression(printFunc);
 }

@@ -1,69 +1,46 @@
 #include "StringExpression.h"
 #include "TypeExpression.h"
 #include "Context.h"
+#include "Program.h"
+#include <string.h>
 
 using namespace std;
 
-StringExpression::StringExpression()
-{
+ObjectPool<StringExpression> StringExpression::pool(1024);
 
+StringExpression *const StringExpression::combine(const StringExpression *const *const &stringExpressions, const size_t &count, const StorageLevel level)
+{
+	auto newInstance = StringExpression::pool.get();
+	newInstance->setStorageLevel(level);
+	size_t totalLength = 0;
+	for (size_t i = 0; i < count; i++) {
+		totalLength += stringExpressions[i]->getLength();
+	}
+
+	char *buff = new char[totalLength + 1];
+	size_t curPos = 0;
+
+	for (size_t i = 0; i < count; i++) {
+		strcpy(buff + curPos, stringExpressions[i]->getValue());
+	}
+	if (newInstance->value)delete[]newInstance->value;
+	newInstance->value = buff;
+	return newInstance;
 }
 
-StringExpression::StringExpression(const std::string & value)
+void StringExpression::release()
 {
-	this->setValue(value);
+	StringExpression::pool.push(this);
 }
 
-
-StringExpression::~StringExpression()
-{
-}
-
-const std::shared_ptr<TermExpression> StringExpression::evaluate(Context *context)
-{
-	return (const std::shared_ptr<TermExpression>&)this->shared_from_this();
-}
 //
-//bool StringExpression::match(const std::shared_ptr<TermExpression>& matchExpression, Context *context) const
+//bool StringExpression::match(Expression* const& matchExpression, Context *const& context) const
 //{
 //	//如果类型不同，匹配失败
-//	if (!matchExpression->getType()->equals(this->getType())) {
+//	if (!matchExpression->getType(context)->equals(this->getType(context))) {
 //		return false;
 //	}
 //	//类型相同，比较值是否相同
 //	auto matchValueExpression = (const std::shared_ptr<std::remove_pointer<decltype(this)>::type> &)matchExpression;
 //	return matchValueExpression->getValue() == this->getValue();
 //}
-
-const std::shared_ptr<TypeExpression> StringExpression::getType() const
-{
-	return TypeExpression::STRING_EXPRESSION;
-}
-
-bool StringExpression::equals(const std::shared_ptr<TermExpression>& targetExpression) const
-{
-	if (!targetExpression->getType()->equals(this->getType())) {
-		return false;
-	}
-	return dynamic_pointer_cast<StringExpression>(targetExpression)->getValue() == this->value;
-}
-
-const std::string StringExpression::toString() const
-{
-	return this->value;
-}
-
-void StringExpression::compile(CompileContext * context)
-{
-	return;
-}
-
-const std::string StringExpression::getValue() const
-{
-	return this->value;
-}
-
-void StringExpression::setValue(const std::string & value)
-{
-	this->value = value;
-}

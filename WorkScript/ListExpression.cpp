@@ -1,71 +1,90 @@
 #include <sstream>
 #include "ListExpression.h"
 #include "TypeExpression.h"
+#include "Program.h"
+#include "StringExpression.h"
 
 using namespace std;
 
-ListExpression::ListExpression()
-{
-
-}
-
-
 ListExpression::~ListExpression()
 {
-
-}
-
-
-const std::shared_ptr<TypeExpression> ListExpression::getType() const
-{
-	return TypeExpression::LIST_EXPRESSION;
-}
-
-const std::string ListExpression::toString() const
-{
-	stringstream ss;
-	size_t total = this->count;
-	ss << "[";
-	for (size_t i = 0; i < total; i++) {
-		ss << this->items[i]->toString();
-		if (i != total - 1) {
-			ss << ", ";
+	//如果是字面量列表，则释放所有字面量。如果是动态生成的列表，则释放所有临时变量
+	if (this->getStorageLevel() == StorageLevel::LITERAL) {
+		for (size_t i = 0; i < this->count; i++) {
+			this->items[i]->releaseLiteral();
 		}
 	}
-	ss << "]";
-	return ss.str();
+	else {
+		for (size_t i = 0; i < this->count; i++) {
+			this->items[i]->releaseTemp();
+		}
+	}
+
 }
 
-void ListExpression::compile(CompileContext * context)
+
+TypeExpression* const ListExpression::getType(Context *const& context) const
+{
+	return &TypeExpression::LIST_EXPRESSION;
+}
+
+StringExpression *const ListExpression::toString(Context *const& context)
+{
+	static StringExpression leftBracket("["),rightBracket("]"),comma(", ");
+	size_t itemCount = this->count;
+	size_t strCount = itemCount == 0 ? 2 : itemCount * 2 + 1;
+	StringExpression **strExprs = new StringExpression*[strCount];
+	strExprs[0] = &leftBracket;
+	strExprs[strCount - 1] = &rightBracket;
+	for (size_t itemPos = 0, strPos = 1; itemPos < itemCount; itemPos++, strPos += 2) {
+		strExprs[strPos] = this->items[itemPos]->toString(context);
+		//如果不是最后一项，则添加逗号
+		if (itemPos != itemCount - 1) strExprs[strPos + 1] = &comma;
+	}
+	auto result = StringExpression::combine(strExprs, strCount);
+	for (size_t i = 0; i < itemCount; i++) {
+		strExprs[i * 2 + 1]->releaseTemp();
+	}
+	delete[]strExprs;
+	return result;
+}
+
+void ListExpression::compile(CompileContext *const &context)
 {
 	for (size_t i = 0; i < count; i++) {
 		this->items[i]->compile(context);
 	}
 }
 
-const std::shared_ptr<TermExpression> ListExpression::evaluate(Context *context)
+Expression* const ListExpression::evaluate(Context *const& context)
 {
-	shared_ptr<TermExpression> *evaluatedItems = new shared_ptr<TermExpression>[this->count];
-	for (size_t i = 0; i < this->count; i++) {
-		evaluatedItems[i] = this->items[i]->evaluate(context);
+	if (this->getStorageLevel() == StorageLevel::LITERAL) 
+	{
+		Expression **evaluatedItems = new Expression *[this->count];
+		for (size_t i = 0; i < this->count; i++) {
+			evaluatedItems[i] = this->items[i]->evaluate(context);
+		}
+		auto newMe = new ListExpression();
+		for (size_t i = 0; i < this->count; i++) {
+			newMe->addItem(evaluatedItems[i]);
+		}
+		delete[]evaluatedItems;
+		return newMe;
 	}
-	auto newMe = shared_ptr<ListExpression>(new ListExpression());
-	for (size_t i = 0; i < this->count; i++) {
-		newMe->addItem(evaluatedItems[i]);
+	else {
+		return this;
 	}
-	delete[]evaluatedItems;
-	return newMe;
 }
 
-bool ListExpression::equals(const std::shared_ptr<TermExpression> &target) const
+bool ListExpression::equals(Context *const &context, Expression *const &target) const
 {
-	if (!target->getType()->equals(this->getType())) {
+	if (!target->getType(context)->equals(context, this->getType(context))) {
 		return false;
 	}
-	auto targetListExpr = dynamic_pointer_cast<ListExpression>(target);
+	auto targetListExpr = (ListExpression *const&)(target);
 	if (this->count != targetListExpr->count) return false;
 	for (size_t i = 0; i < this->count; i++) {
-		if (!this->items[i]->equals(targetListExpr->items[i]))return false;
+		if (!this->items[i]->equals(context, targetListExpr->items[i]))return false;
 	}
 	return true;
 }
