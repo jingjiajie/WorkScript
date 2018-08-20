@@ -14,7 +14,9 @@ public:
 	antlrcpp::Any visitVariableExpression(WorkScriptParser::VariableExpressionContext*) override;
 	antlrcpp::Any visitFunctionExpression(WorkScriptParser::FunctionExpressionContext*) override;
 	antlrcpp::Any visitFunctionInvocationExpression(WorkScriptParser::FunctionInvocationExpressionContext*) override;
-	antlrcpp::Any visitExpression(WorkScriptParser::ExpressionContext*) override;
+	antlrcpp::Any visitProgram(WorkScriptParser::ProgramContext*) override;
+	antlrcpp::Any visitAssignmentExpression(WorkScriptParser::AssignmentExpressionContext*)override;
+	antlrcpp::Any visitParameterExpression(WorkScriptParser::ParameterExpressionContext*) override;
 	//antlrcpp::Any visitMemberEvaluateExpression(WorkScriptParser::MemberEvaluateExpressionContext*) override;
 	antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext*) override;
 	antlrcpp::Any visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext*) override;

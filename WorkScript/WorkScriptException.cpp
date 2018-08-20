@@ -1,13 +1,8 @@
 #include "WorkScriptException.h"
+#include <iostream>
 using namespace std;
-
-
-WorkScriptException::WorkScriptException(string message)
-{
-	exception::exception(message.c_str());
-}
-
 
 WorkScriptException::~WorkScriptException()
 {
+	if (this->message) delete[] this->message;
 }

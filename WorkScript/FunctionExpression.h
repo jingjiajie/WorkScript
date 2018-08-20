@@ -6,7 +6,7 @@
 
 class FunctionInvocationExpression;
 class VariableExpression;
-class ListExpression;
+class ParameterExpression;
 class Context;
 
 class FunctionExpression :
@@ -16,7 +16,7 @@ public:
 	class Overload {
 	public:
 		~Overload();
-		virtual bool match(ListExpression* const &params, Context *const& context) const;
+		virtual bool match(ParameterExpression* const &params, Context *const& context) const;
 		virtual Expression* const invoke(Context *const& context) const;
 		virtual void compile(CompileContext *const& context);
 
@@ -56,7 +56,7 @@ public:
 	virtual StringExpression *const toString(Context *const& context) override;
 	virtual void compile(CompileContext *const& context) override;
 
-	virtual Expression* const invoke(ListExpression* const &params) const;
+	virtual Expression* const invoke(ParameterExpression *const &params) const;
 
 	inline const char *const getName()const
 	{

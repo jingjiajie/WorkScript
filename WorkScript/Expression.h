@@ -12,8 +12,9 @@ class StringExpression;
 enum class StorageLevel : unsigned char {
 	TEMP = 0,
 	LOCAL = 1,
-	EXTERN = 2,
-	LITERAL = 3
+	TRANSFER = 2,
+	EXTERN = 3,
+	LITERAL = 4
 };
 
 class Expression
@@ -51,6 +52,12 @@ public:
 		this->release();
 	}
 
+	inline void releaseTransfer()
+	{
+		if (this->storageLevel > StorageLevel::TRANSFER)return;
+		this->release();
+	}
+
 	inline void releaseExtern()
 	{
 		if (this->storageLevel > StorageLevel::EXTERN)return;
@@ -60,6 +67,12 @@ public:
 	inline void releaseLiteral()
 	{
 		if (this->storageLevel > StorageLevel::LITERAL)return;
+		this->release();
+	}
+
+	inline void release(const StorageLevel level)
+	{
+		if (this->storageLevel > level)return;
 		this->release();
 	}
 

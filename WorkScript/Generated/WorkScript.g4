@@ -2,35 +2,32 @@ grammar WorkScript;
 
 program: (expression NEWLINE | NEWLINE)* EOF;
 
-expression: termExpression;
-
-termExpression:
-	NUMBER								# NumberExpression
-	| STRING							# StringExpression
-	| IDENTIFIER						# VariableExpression
-	| IDENTIFIER EQUALS termExpression	# AssignmentExpression
-	| IDENTIFIER? LEFT_PARENTHESE listExpression RIGHT_PARENTHESE (
-		EQUALS termExpression
-		| blockExpression
-	)																					# FunctionExpression
-	| termExpression LEFT_PARENTHESE listExpression RIGHT_PARENTHESE					# FunctionInvocationExpression
-	| termExpression POINT IDENTIFIER LEFT_PARENTHESE listExpression RIGHT_PARENTHESE	#
+expression:
+	 LEFT_PARENTHESE expression RIGHT_PARENTHESE	# ParentheseExpression
+	|LEFT_BRACKET (expression (COMMA? expression)*)? RIGHT_BRACKET						# ListExpression
+	| expression LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE					# FunctionInvocationExpression
+	| expression POINT IDENTIFIER LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE	#
 		MethodInvocationExpression
-	| termExpression POINT IDENTIFIER					# MemberEvaluateExpression
-	| LEFT_PARENTHESE termExpression RIGHT_PARENTHESE	# ParentheseExpression
-	| termExpression (MULTIPLY | DIVIDE) termExpression	# MultiplyDivideExpression
-	| termExpression (PLUS | MINUS) termExpression		# PlusMinusExpression
-	| termExpression (
+	| expression POINT IDENTIFIER					# MemberEvaluateExpression
+	| expression (MULTIPLY | DIVIDE) expression		# MultiplyDivideExpression
+	| expression (PLUS | MINUS) expression			# PlusMinusExpression
+	| blockExpression								# TermBlockExpression
+	| functionExpression							# FunctionExpression_
+	| expression EQUALS expression					# AssignmentExpression
+	| expression (
 		GREATER_THAN
 		| GREATER_THAN_EQUAL
 		| LESS_THAN
 		| LESS_THAN_EQUAL
-	) termExpression	# CompareExpression
-	| blockExpression	# TermBlockExpression;
+	) expression	# CompareExpression
+	| NUMBER		# NumberExpression
+	| STRING		# StringExpression
+	| IDENTIFIER	# VariableExpression;
 
-listExpression:
-	termExpression (COMMA termExpression)*
-	| LEFT_BRACKET (termExpression (COMMA termExpression)*)? RIGHT_BRACKET;
+parameterExpression: (expression (COMMA? expression)*)?;
+
+functionExpression:
+	IDENTIFIER? LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE EQUALS expression;
 
 blockExpression:
 	LEFT_BRACE NEWLINE* ((expression NEWLINE+)* expression)? NEWLINE* RIGHT_BRACE;

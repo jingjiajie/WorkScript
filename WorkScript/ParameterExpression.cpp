@@ -1,63 +1,62 @@
-#include <sstream>
-#include "ListExpression.h"
+#include "ParameterExpression.h"
 #include "TypeExpression.h"
-#include "Program.h"
 #include "StringExpression.h"
 
-using namespace std;
-
-ListExpression::~ListExpression()
+ParameterExpression::~ParameterExpression()
 {
-	for (size_t i = 0; i < this->count; i++) {
+	for (size_t i = 0; i < count; ++i)
+	{
 		this->items[i]->release(this->storageLevel);
 	}
 }
 
-
-TypeExpression* const ListExpression::getType(Context *const& context) const
+TypeExpression * const ParameterExpression::getType(Context * const & context) const
 {
-	return &TypeExpression::LIST_EXPRESSION;
+	return &TypeExpression::PARAMETER_EXPRESSION;
 }
 
-StringExpression *const ListExpression::toString(Context *const& context)
+StringExpression * const ParameterExpression::toString(Context * const & context)
 {
-	static StringExpression leftBracket("["),rightBracket("]"),comma(", ");
+	static StringExpression comma(", ");
 	size_t itemCount = this->count;
-	size_t strCount = itemCount == 0 ? 2 : itemCount * 2 + 1;
+	//如果有0项，直接返回空字符串就行了
+	if (itemCount == 0) {
+		return StringExpression::newInstance("");
+	}
+	//否则返回逗号分隔的各项
+	size_t strCount = itemCount * 2 - 1;
 	StringExpression **strExprs = new StringExpression*[strCount];
-	strExprs[0] = &leftBracket;
-	strExprs[strCount - 1] = &rightBracket;
-	for (size_t itemPos = 0, strPos = 1; itemPos < itemCount; itemPos++, strPos += 2) {
+	for (size_t itemPos = 0, strPos = 0; itemPos < itemCount; ++itemPos, strPos += 2) {
 		strExprs[strPos] = this->items[itemPos]->toString(context);
 		//如果不是最后一项，则添加逗号
 		if (itemPos != itemCount - 1) strExprs[strPos + 1] = &comma;
 	}
 	auto result = StringExpression::combine(strExprs, strCount);
-	for (size_t i = 0; i < itemCount; i++) {
-		strExprs[i * 2 + 1]->releaseTemp();
+	for (size_t i = 0; i < strCount; i++) {
+		strExprs[i]->releaseTemp();
 	}
 	delete[]strExprs;
 	return result;
 }
 
-void ListExpression::compile(CompileContext *const &context)
+void ParameterExpression::compile(CompileContext * const & context)
 {
 	for (size_t i = 0; i < count; i++) {
 		this->items[i]->compile(context);
 	}
 }
 
-Expression* const ListExpression::evaluate(Context *const& context)
+Expression * const ParameterExpression::evaluate(Context * const & context)
 {
-	if (this->getStorageLevel() == StorageLevel::LITERAL) 
+	if (this->getStorageLevel() == StorageLevel::LITERAL)
 	{
 		Expression **evaluatedItems = new Expression *[this->count];
 		for (size_t i = 0; i < this->count; i++) {
 			evaluatedItems[i] = this->items[i]->evaluate(context);
 		}
-		auto newMe = new ListExpression();
+		auto newMe = new ParameterExpression(this->count);
 		for (size_t i = 0; i < this->count; i++) {
-			newMe->addItem(evaluatedItems[i]);
+			newMe->setItem(i,evaluatedItems[i]);
 		}
 		delete[]evaluatedItems;
 		return newMe;
@@ -67,12 +66,12 @@ Expression* const ListExpression::evaluate(Context *const& context)
 	}
 }
 
-bool ListExpression::equals(Context *const &context, Expression *const &target) const
+bool ParameterExpression::equals(Context * const & context, Expression * const &target) const
 {
 	if (!target->getType(context)->equals(context, this->getType(context))) {
 		return false;
 	}
-	auto targetListExpr = (ListExpression *const&)(target);
+	auto targetListExpr = (ParameterExpression *const&)(target);
 	if (this->count != targetListExpr->count) return false;
 	for (size_t i = 0; i < this->count; i++) {
 		if (!this->items[i]->equals(context, targetListExpr->items[i]))return false;

@@ -21,11 +21,11 @@ public:
    */
     virtual antlrcpp::Any visitProgram(WorkScriptParser::ProgramContext *context) = 0;
 
-    virtual antlrcpp::Any visitExpression(WorkScriptParser::ExpressionContext *context) = 0;
-
     virtual antlrcpp::Any visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitTermBlockExpression(WorkScriptParser::TermBlockExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitListExpression(WorkScriptParser::ListExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionInvocationExpression(WorkScriptParser::FunctionInvocationExpressionContext *context) = 0;
 
@@ -37,8 +37,6 @@ public:
 
     virtual antlrcpp::Any visitMethodInvocationExpression(WorkScriptParser::MethodInvocationExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *context) = 0;
-
     virtual antlrcpp::Any visitAssignmentExpression(WorkScriptParser::AssignmentExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext *context) = 0;
@@ -47,9 +45,13 @@ public:
 
     virtual antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitFunctionExpression_(WorkScriptParser::FunctionExpression_Context *context) = 0;
+
     virtual antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitListExpression(WorkScriptParser::ListExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitParameterExpression(WorkScriptParser::ParameterExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitBlockExpression(WorkScriptParser::BlockExpressionContext *context) = 0;
 

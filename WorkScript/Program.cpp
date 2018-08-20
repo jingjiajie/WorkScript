@@ -26,8 +26,14 @@ Program::~Program()
 void Program::execute()
 {
 	Context context(this,this->localVariableCount);
-	for (auto &expr : this->expressions) {
-		expr->evaluate(&context)->releaseTemp();
+	try {
+		for (auto &expr : this->expressions) {
+			expr->evaluate(&context)->releaseTemp();
+		}
+	}
+	catch (WorkScriptException &ex)
+	{
+		cout << ex.what() << endl;
 	}
 	return;
 }

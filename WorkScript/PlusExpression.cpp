@@ -7,6 +7,7 @@
 #include "VariableExpression.h"
 #include "MinusExpression.h"
 #include "Program.h"
+#include "TempExpression.h"
 
 using namespace std;
 
@@ -39,10 +40,10 @@ OK:
 	leftType->releaseTemp();
 	rightType->releaseTemp();
 	return ret;
-MISMATCHED:
-	leftType->releaseTemp();
-	rightType->releaseTemp();
-	return ret;
+//MISMATCHED:
+//	leftType->releaseTemp();
+//	rightType->releaseTemp();
+//	return ret;
 }
 
 //bool PlusExpression::match(Expression* const& matchExpression, Context *const& context) const
@@ -97,11 +98,9 @@ NumberExpression * PlusExpression::numberPlusNumber(Context *const &context, Num
 
 StringExpression * PlusExpression::exprPlusExpr(Context *const &context, Expression* const&left, Expression* const&right) const
 {
-	auto leftEvaluatedString = left->toString(context);
-	auto rightEvaluatedString = right->toString(context);
+	TempExpression<StringExpression> leftEvaluatedString(left, left->toString(context));
+	TempExpression<StringExpression> rightEvaluatedString(right, right->toString(context));
 	StringExpression *exprs[] = { leftEvaluatedString,rightEvaluatedString };
 	auto result = StringExpression::combine(exprs, 2);
-	leftEvaluatedString->releaseTemp();
-	rightEvaluatedString->releaseTemp();
 	return result;
 }

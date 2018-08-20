@@ -247,7 +247,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -255,6 +255,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>ANTLR4CPP_STATIC;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -303,6 +306,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AccessDeniedException.h" />
+    <ClInclude Include="AssignmentExpression.h" />
     <ClInclude Include="BinaryTermExpression.h" />
     <ClInclude Include="BooleanExpression.h" />
     <ClInclude Include="CompileContext.h" />
@@ -324,13 +328,17 @@
     <ClInclude Include="MultiplyExpression.h" />
     <ClInclude Include="NumberExpression.h" />
     <ClInclude Include="ObjectPool.h" />
+    <ClInclude Include="ParameterExpression.h" />
     <ClInclude Include="PlusExpression.h" />
     <ClInclude Include="Context.h" />
     <ClInclude Include="Expression.h" />
+    <ClInclude Include="PointerExpression.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="StringExpression.h" />
+    <ClInclude Include="TempExpression.h" />
     <ClInclude Include="TypeExpression.h" />
     <ClInclude Include="TypeMemberExpression.h" />
+    <ClInclude Include="UnassignableExpection.h" />
     <ClInclude Include="UnimplementedException.h" />
     <ClInclude Include="UninvocableException.h" />
     <ClInclude Include="VariableExpression.h" />
@@ -340,6 +348,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccessDeniedException.cpp" />
+    <ClCompile Include="AssignmentExpression.cpp" />
     <ClCompile Include="BinaryTermExpression.cpp" />
     <ClCompile Include="BooleanExpression.cpp" />
     <ClCompile Include="CompileContext.cpp" />
@@ -360,11 +369,14 @@
     <ClCompile Include="MinusExpression.cpp" />
     <ClCompile Include="MultiplyExpression.cpp" />
     <ClCompile Include="NumberExpression.cpp" />
+    <ClCompile Include="ParameterExpression.cpp" />
     <ClCompile Include="PlusExpression.cpp" />
+    <ClCompile Include="PointerExpression.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="StringExpression.cpp" />
     <ClCompile Include="TypeExpression.cpp" />
     <ClCompile Include="TypeMemberExpression.cpp" />
+    <ClCompile Include="UnassignableExpection.cpp" />
     <ClCompile Include="UnimplementedException.cpp" />
     <ClCompile Include="UninvocableException.cpp" />
     <ClCompile Include="VariableExpression.cpp" />

@@ -35,18 +35,8 @@ public:
 		this->name = new char[strlen(name) + 1];
 		strcpy(this->name, name);
 	}
-
-	inline const VariableInfo getVariableInfo() const
-	{
-		return this->variableInfo;
-	}
-
-	inline void setVariableInfo(const VariableInfo &info)
-	{
-		this->variableInfo = info;
-	}
 protected:
-	char * name = nullptr;
 	VariableInfo variableInfo;
+	char * name = nullptr;
 };
 

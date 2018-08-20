@@ -4,7 +4,9 @@
 #include "UninvocableException.h"
 #include "FunctionExpression.h"
 #include "Program.h"
+#include "ParameterExpression.h"
 #include "StringExpression.h"
+#include "TempExpression.h"
 #include <sstream>
 
 using namespace std;
@@ -17,54 +19,42 @@ FunctionInvocationExpression::~FunctionInvocationExpression()
 
 Expression* const FunctionInvocationExpression::evaluate(Context *const& context)
 {
-	Expression * finalLeft;
-	auto evaluatedLeft = this->leftExpression->evaluate(context);
-	auto evaluatedLeftType = evaluatedLeft->getType(context);
-	if (evaluatedLeftType->equals(context, &TypeExpression::FUNCTION_EXPRESSION)) {
-		finalLeft = (Expression *const&)evaluatedLeft;
-	}
-	else if(evaluatedLeftType->equals(context, &TypeExpression::VARIABLE_EXPRESSION)){
-		finalLeft = evaluatedLeft->evaluate(context);
-		evaluatedLeft->releaseTemp();
-	}
-	else {
-		finalLeft = evaluatedLeft;
-	}
-	evaluatedLeftType->releaseTemp();
-
-	auto finalLeftType = finalLeft->getType(context);
-	if (!finalLeftType->equals(context, &TypeExpression::FUNCTION_EXPRESSION)) {
-		auto leftStrExpr = finalLeft->toString(context);
-		finalLeft->releaseTemp();
+	TempExpression<Expression> evaluatedLeft(this->leftExpression, this->leftExpression->evaluate(context));
+	if (!evaluatedLeft->getType(context)->equals(context, &TypeExpression::FUNCTION_EXPRESSION)) {
+		TempExpression<StringExpression> leftStrExpr(evaluatedLeft, evaluatedLeft->toString(context));
 		string leftName(leftStrExpr->getValue());
-		throw UninvocableException(leftName + "不是函数！");
+		string str = (leftName + "不是函数！");
+		throw std::move(UninvocableException(str.c_str()));
 	}
 
-	auto evaluatedParams = (ListExpression* const)this->parameters->evaluate(context);
-	//将所有参数设为EXTERN
+	TempExpression<ParameterExpression> evaluatedParams(this->parameters, this->parameters->evaluate(context));
+	//将所有参数设为TRANSFER
 	auto oriParamLevels = new StorageLevel[evaluatedParams->getCount()];
 	for (size_t i = 0; i < evaluatedParams->getCount(); ++i) {
 		oriParamLevels[i] = evaluatedParams->getItem(i)->getStorageLevel();
-		evaluatedParams->getItem(i)->setStorageLevel(StorageLevel::EXTERN);
+		evaluatedParams->getItem(i)->setStorageLevel(StorageLevel::TRANSFER);
 	}
 	//开始调用
-	auto ret = ((FunctionExpression* const&)finalLeft)->invoke(evaluatedParams);
-	//恢复各个参数的存储级别
+	auto ret = ((FunctionExpression* const&)evaluatedLeft)->invoke(evaluatedParams);
+	//恢复非返回值的各个参数的存储级别
 	for (size_t i = 0; i < evaluatedParams->getCount(); ++i) {
-		evaluatedParams[i].setStorageLevel(oriParamLevels[i]);
+		if (evaluatedParams->getItem(i) == ret)continue;
+		evaluatedParams->getItem(i)->setStorageLevel(oriParamLevels[i]);
 	}
 	delete oriParamLevels;
 
 	if (ret != nullptr) {
-		finalLeft->releaseTemp();
-		evaluatedParams->releaseTemp();
+		evaluatedParams.releaseTemp(); //先释放参数列表，此时如果参数列表中包含返回值(>=TRANSFER级)，不会被释放
+		if (ret->getStorageLevel() == StorageLevel::TRANSFER) {
+			ret->setStorageLevel(StorageLevel::TEMP);
+		}
 		return ret;
 	}
 	else {
-		finalLeft->releaseTemp();
 		auto newMe = new FunctionInvocationExpression;
 		newMe->setLeftExpression(this->leftExpression);
 		newMe->setParameters(evaluatedParams);
+		evaluatedParams.setNoRelease();
 		return this;
 	}
 }
@@ -99,24 +89,4 @@ void FunctionInvocationExpression::compile(CompileContext *const &context)
 {
 	this->leftExpression->compile(context);
 	this->parameters->compile(context);
-}
-
-Expression* const FunctionInvocationExpression::getLeftExpression() const
-{
-	return this->leftExpression;
-}
-
-void FunctionInvocationExpression::setLeftExpression(Expression* const& left)
-{
-	this->leftExpression = left;
-}
-
-ListExpression* const FunctionInvocationExpression::getParameters() const
-{
-	return this->parameters;
-}
-
-void FunctionInvocationExpression::setParameters(ListExpression* const& parameters)
-{
-	this->parameters = parameters;
 }

@@ -4,7 +4,17 @@ class DuplicateDeclarationException :
 	public WorkScriptException
 {
 public:
-	DuplicateDeclarationException(std::string message);
+	inline DuplicateDeclarationException(DuplicateDeclarationException &&tmp)
+		:WorkScriptException(std::forward<DuplicateDeclarationException>(tmp))
+	{
+
+	}
+
+	inline DuplicateDeclarationException(const char *const message)
+		:WorkScriptException(message)
+	{
+
+	}
 	virtual ~DuplicateDeclarationException();
 };
 

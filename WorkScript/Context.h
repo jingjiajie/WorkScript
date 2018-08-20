@@ -3,7 +3,6 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
-#include <memory>
 #include <functional>
 
 class Expression;
@@ -29,6 +28,11 @@ public:
 	Expression* const getCurrentExpression() const;
 	void setCurrentExpression(Expression* const &);
 
+	inline void release()
+	{
+		delete this;
+	}
+
 	inline Expression* const getLocalVariable(size_t offset) const {
 		return this->localVariables[offset];
 	}
@@ -40,11 +44,22 @@ public:
 	inline Program * const getProgram() const {
 		return this->program;
 	}
+
+	inline const bool getAssignLeft() const
+	{
+		return this->assignLeft;
+	}
+
+	inline void setAssignLeft(const bool assignLeft)
+	{
+		this->assignLeft = assignLeft;
+	}
 protected:
 	Context * baseContext = nullptr;
 	Program *program = nullptr;
 	//std::vector<TypeExpression *> types;
 	Expression **localVariables;
 	size_t localVariableCount = 0;
+	bool assignLeft = false;
 	Expression * currentExpression;
 };

@@ -15,11 +15,6 @@ Expression* const & ExpressionWrapper::getExpression() const
 	return this->expression;
 }
 
-Expression* const& ExpressionWrapper::getTermExpression() const
-{
-	return (Expression* const&)this->expression;
-}
-
 void ExpressionWrapper::setExpression(Expression* const &expression)
 {
 	this->expression = expression;

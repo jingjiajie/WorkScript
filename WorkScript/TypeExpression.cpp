@@ -10,8 +10,12 @@ TypeExpression TypeExpression::OBJECT("Object", nullptr, StorageLevel::EXTERN);
 TypeExpression TypeExpression::EXPRESSION("Expression", &OBJECT, StorageLevel::EXTERN);
 TypeExpression TypeExpression::TYPE_EXPRESSION("TypeExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::TYPE_MEMBER_EXPRESSION("TypeMemberExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::ASSIGNMENT_EXPRESSION("AssignmentExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::POINTER_EXPRESSION("PointerExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::VARIABLE_EXPRESSION("VariableExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::FUNCTION_EXPRESSION("FunctionExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::FUNCTION_INVOCATION_EXPRESSION("FunctionInvocationExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::PARAMETER_EXPRESSION("ParameterExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::GREATER_THAN_EXPRESSION("GreaterThanExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::GREATER_THAN_EQUAL_EXPRESSION("GreaterThanEqualExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::LESS_THAN_EXPRESSION("LessThanExpression", &EXPRESSION, StorageLevel::EXTERN);
@@ -26,7 +30,6 @@ TypeExpression TypeExpression::PRINT_EXPRESSION("PrintExpression", &EXPRESSION, 
 TypeExpression TypeExpression::THIS_EXPRESSION("ThisExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::MEMBER_EVALUATE_EXPRESSION("MemberEvaluateExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::GET_TYPE_EXPRESSION("GetTypeExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::VARIABLE_EXPRESSION("VariableExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::STRING_EXPRESSION("StringExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::NUMBER_EXPRESSION("NumberExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::BOOLEAN_EXPRESSION("BooleanExpression", &EXPRESSION, StorageLevel::EXTERN);
@@ -79,7 +82,7 @@ bool TypeExpression::isSubTypeOf(Context *const &context, TypeExpression* const 
 		if (curType->equals(context, type)) {
 			return true;
 		}
-		if (curType->baseType != curType) {
+		if (curType->baseType != nullptr && curType->baseType != curType) {
 			curType = curType->baseType;
 		}
 		else {

@@ -4,7 +4,17 @@ class UninvocableException :
 	public WorkScriptException
 {
 public:
-	UninvocableException(std::string message);
+	inline UninvocableException(UninvocableException &&tmp)
+		:WorkScriptException(std::forward<UninvocableException>(tmp))
+	{
+
+	}
+
+	inline UninvocableException(const char *const message)
+		:WorkScriptException(message)
+	{
+
+	}
 	virtual ~UninvocableException();
 };
 

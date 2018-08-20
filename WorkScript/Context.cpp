@@ -25,7 +25,7 @@ Context::Context(Context * baseContext, size_t localVariableCount)
 Context::~Context()
 {
 	for (size_t i = 0; i < this->localVariableCount; i++) {
-		this->localVariables[i]->releaseLocal();
+		if (this->localVariables[i]) this->localVariables[i]->releaseLocal();
 	}
 	delete []this->localVariables;
 }

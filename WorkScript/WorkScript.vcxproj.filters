@@ -61,6 +61,9 @@
     <Filter Include="DataStructures\CompileContext\Sources">
       <UniqueIdentifier>{007bd1a2-ba57-4d00-96ac-bee77659d771}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DataStructures\ExpressionWrappers">
+      <UniqueIdentifier>{27443959-80b3-445b-9c43-0f4591e5f6a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Context.h">
@@ -89,9 +92,6 @@
     </ClInclude>
     <ClInclude Include="WorkScriptVisitorImpl.h">
       <Filter>Runner\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="ExpressionWrapper.h">
-      <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="VariableExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
@@ -166,6 +166,22 @@
       <Filter>DataStructures\CompileContext\Headers</Filter>
     </ClInclude>
     <ClInclude Include="ObjectPool.h" />
+    <ClInclude Include="UnassignableExpection.h">
+      <Filter>DataStructures\Exceptions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PointerExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TempExpression.h">
+      <Filter>DataStructures\ExpressionWrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="ExpressionWrapper.h">
+      <Filter>DataStructures\ExpressionWrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="AssignmentExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ParameterExpression.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Context.cpp">
@@ -268,5 +284,15 @@
     <ClCompile Include="WorkScriptVisitorImpl.cpp">
       <Filter>Runner\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="UnassignableExpection.cpp">
+      <Filter>DataStructures\Exceptions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PointerExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="AssignmentExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ParameterExpression.cpp" />
   </ItemGroup>
 </Project>

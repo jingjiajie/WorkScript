@@ -18,6 +18,8 @@
 #include "ListExpression.h"
 #include "VariableExpression.h"
 #include "EqualExpression.h"
+#include "AssignmentExpression.h"
+#include "ParameterExpression.h"
 
 using namespace std;
 
@@ -51,9 +53,9 @@ antlrcpp::Any WorkScriptVisitorImpl::visitVariableExpression(WorkScriptParser::V
 antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *ctx)
 {
 	const string funcName = ctx->IDENTIFIER()->getText();
-	ExpressionWrapper paramsWrapper = ctx->listExpression()->accept(this);
-	auto params = (ListExpression *const&)(paramsWrapper.getExpression());
-	ExpressionWrapper implWrapper = ctx->termExpression()->accept(this);
+	ExpressionWrapper paramsWrapper = ctx->parameterExpression()->accept(this);
+	auto params = (ParameterExpression *const&)(paramsWrapper.getExpression());
+	ExpressionWrapper implWrapper = ctx->expression()->accept(this);
 	auto impl = (Expression *const&)(implWrapper.getExpression());
 
 	vector<string> paramVarNames;
@@ -90,29 +92,52 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 
 antlrcpp::Any WorkScriptVisitorImpl::visitFunctionInvocationExpression(WorkScriptParser::FunctionInvocationExpressionContext *ctx)
 {
-	ExpressionWrapper termExpressionWrapper = ctx->termExpression()->accept(this);
-	ExpressionWrapper paramExpressionWrapper = ctx->listExpression()->accept(this);
-	auto termExpr = (Expression *const&)(termExpressionWrapper.getExpression());
-	auto paramExpr = (ListExpression *const&)(paramExpressionWrapper.getExpression());
-	FunctionInvocationExpression * expr(new FunctionInvocationExpression(StorageLevel::LITERAL));
+	ExpressionWrapper expressionWrapper = ctx->expression()->accept(this);
+	ExpressionWrapper paramExpressionWrapper = ctx->parameterExpression()->accept(this);
+	auto termExpr = (Expression *const&)(expressionWrapper.getExpression());
+	auto paramExpr = (ParameterExpression *const&)(paramExpressionWrapper.getExpression());
+	auto expr = new FunctionInvocationExpression(StorageLevel::LITERAL);
 	expr->setLeftExpression(termExpr);
 	expr->setParameters(paramExpr);
 	return ExpressionWrapper(expr);
 }
 
-antlrcpp::Any WorkScriptVisitorImpl::visitExpression(WorkScriptParser::ExpressionContext *ctx)
+antlrcpp::Any WorkScriptVisitorImpl::visitProgram(WorkScriptParser::ProgramContext *ctx)
 {
-	ExpressionWrapper wrapper = ctx->termExpression()->accept(this);
-	this->program->pushExpression(wrapper.getExpression());
+	auto exprs = ctx->expression();
+	for (auto &expr : exprs)
+	{
+		this->program->pushExpression(((ExpressionWrapper)expr->accept(this)).getExpression());
+	}
 	return nullptr;
+}
+
+antlrcpp::Any WorkScriptVisitorImpl::visitAssignmentExpression(WorkScriptParser::AssignmentExpressionContext *ctx)
+{
+	auto left = ((ExpressionWrapper)ctx->expression()[0]->accept(this)).getExpression();
+	auto right = ((ExpressionWrapper)ctx->expression()[1]->accept(this)).getExpression();
+	return ExpressionWrapper(new AssignmentExpression(left, right, StorageLevel::LITERAL));
+}
+
+antlrcpp::Any WorkScriptVisitorImpl::visitParameterExpression(WorkScriptParser::ParameterExpressionContext *ctx)
+{
+	auto subContext = ctx->expression();
+	size_t subContextCount = subContext.size();
+	auto expr = new ParameterExpression(subContextCount, StorageLevel::LITERAL);
+	for (size_t i = 0; i < subContextCount; i++) {
+		ExpressionWrapper wrapper = subContext[i]->accept(this);
+		auto itemExpr = wrapper.getExpression();
+		expr->setItem(i, itemExpr);
+	}
+	return ExpressionWrapper(expr);
 }
 
 //antlrcpp::Any WorkScriptVisitorImpl::visitMemberEvaluateExpression(WorkScriptParser::MemberEvaluateExpressionContext *ctx)
 //{
-//	auto objExprCtx = ctx->termExpression()[0];
+//	auto objExprCtx = ctx->expression()[0];
 //	ExpressionWrapper objExprWrapper = objExprCtx->accept(this);
 //	auto objExpr = objExprWrapper.getExpression();
-//	auto memberExprCtx = ctx->termExpression()[1];
+//	auto memberExprCtx = ctx->expression()[1];
 //	ExpressionWrapper memberExprWrapper = memberExprCtx->accept(this);
 //	auto memberExpr = memberExprWrapper.getExpression();
 //	return ExpressionWrapper(Expression *(new MemberEvaluateExpression(this->context,objExpr,memberExpr)));
@@ -120,10 +145,10 @@ antlrcpp::Any WorkScriptVisitorImpl::visitExpression(WorkScriptParser::Expressio
 
 antlrcpp::Any WorkScriptVisitorImpl::visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *ctx)
 {
-	const ExpressionWrapper &leftExpressionWrapper = ctx->termExpression()[0]->accept(this);
-	auto leftExpression = leftExpressionWrapper.getTermExpression();
-	const ExpressionWrapper &rightExpressionWrapper = ctx->termExpression()[1]->accept(this);
-	auto rightExpression = rightExpressionWrapper.getTermExpression();
+	const ExpressionWrapper &leftExpressionWrapper = ctx->expression()[0]->accept(this);
+	auto leftExpression = leftExpressionWrapper.getExpression();
+	const ExpressionWrapper &rightExpressionWrapper = ctx->expression()[1]->accept(this);
+	auto rightExpression = rightExpressionWrapper.getExpression();
 	if (ctx->PLUS()) {
 		return ExpressionWrapper(new PlusExpression(leftExpression, rightExpression, StorageLevel::LITERAL));
 	}
@@ -134,10 +159,10 @@ antlrcpp::Any WorkScriptVisitorImpl::visitPlusMinusExpression(WorkScriptParser::
 
 antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext *ctx)
 {
-	const ExpressionWrapper &leftExpressionWrapper = ctx->termExpression()[0]->accept(this);
-	auto leftExpression = leftExpressionWrapper.getTermExpression();
-	const ExpressionWrapper &rightExpressionWrapper = ctx->termExpression()[1]->accept(this);
-	auto rightExpression = rightExpressionWrapper.getTermExpression();
+	const ExpressionWrapper &leftExpressionWrapper = ctx->expression()[0]->accept(this);
+	auto leftExpression = leftExpressionWrapper.getExpression();
+	const ExpressionWrapper &rightExpressionWrapper = ctx->expression()[1]->accept(this);
+	auto rightExpression = rightExpressionWrapper.getExpression();
 	if (ctx->MULTIPLY()) {
 		return ExpressionWrapper(new MultiplyExpression(leftExpression, rightExpression, StorageLevel::LITERAL));
 	}
@@ -148,15 +173,15 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideExpression(WorkScriptPar
 
 antlrcpp::Any WorkScriptVisitorImpl::visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *ctx)
 {
-	return ctx->termExpression()->accept(this);
+	return ctx->expression()->accept(this);
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitCompareExpression(WorkScriptParser::CompareExpressionContext *ctx)
 {
-	ExpressionWrapper wrapperLeft = ctx->termExpression()[0]->accept(this);
-	ExpressionWrapper wrapperRight = ctx->termExpression()[1]->accept(this);
-	auto leftExpression = wrapperLeft.getTermExpression();
-	auto rightExpression = wrapperLeft.getTermExpression();
+	ExpressionWrapper wrapperLeft = ctx->expression()[0]->accept(this);
+	ExpressionWrapper wrapperRight = ctx->expression()[1]->accept(this);
+	auto leftExpression = wrapperLeft.getExpression();
+	auto rightExpression = wrapperLeft.getExpression();
 	if (ctx->GREATER_THAN()) {
 		GreaterThanExpression * greaterThanExpr(new GreaterThanExpression(leftExpression, rightExpression, StorageLevel::LITERAL));
 		return ExpressionWrapper(greaterThanExpr);
@@ -165,12 +190,12 @@ antlrcpp::Any WorkScriptVisitorImpl::visitCompareExpression(WorkScriptParser::Co
 
 antlrcpp::Any WorkScriptVisitorImpl::visitListExpression(WorkScriptParser::ListExpressionContext *ctx)
 {
-	auto subContext = ctx->termExpression();
+	auto subContext = ctx->expression();
 	size_t subContextCount = subContext.size();
-	ListExpression * expr(new ListExpression(StorageLevel::LITERAL));
+	auto expr = new ListExpression(StorageLevel::LITERAL);
 	for (size_t i = 0; i < subContextCount; i++) {
 		ExpressionWrapper wrapper = subContext[i]->accept(this);
-		auto itemExpr = wrapper.getTermExpression();
+		auto itemExpr = wrapper.getExpression();
 		expr->addItem(itemExpr);
 	}
 	return ExpressionWrapper(expr);

@@ -2,10 +2,11 @@
 #include <string>
 #include "FunctionExpression.h"
 #include "FunctionInvocationExpression.h"
-#include "ListExpression.h"
 #include "BooleanExpression.h"
 #include "DuplicateDeclarationException.h"
 #include "StringExpression.h"
+#include "ParameterExpression.h"
+#include "Context.h"
 #include "Program.h"
 
 using namespace std;
@@ -33,7 +34,7 @@ Expression* const FunctionExpression::evaluate(Context *const &context)
 	}
 	else { //如果本层找到了同名函数，则合并重载
 		if (!varExpr->getType(context)->equals(context, &TypeExpression::FUNCTION_EXPRESSION)) {
-			throw DuplicateDeclarationException(string(this->name) + "已经被声明过，请勿重复声明！");
+			throw std::move(DuplicateDeclarationException((string(this->name) + "已经被声明过，请勿重复声明！").c_str()));
 		}
 		auto funcExpr = (FunctionExpression* const&)varExpr;
 		for (auto &overload : this->overloads) {
@@ -86,7 +87,7 @@ void FunctionExpression::compile(CompileContext *const &context)
 	}
 }
 
-Expression* const FunctionExpression::invoke(ListExpression* const &params) const
+Expression* const FunctionExpression::invoke(ParameterExpression *const &params) const
 {
 	for (auto &overload : this->overloads) {
 		Context subContext(this->declareContext, overload->getLocalVariableCount());
@@ -102,7 +103,7 @@ Expression* const FunctionExpression::invoke(ListExpression* const &params) cons
 		}
 		auto expr = targetContext->getLocalVariable(baseFunctionVariableInfo.offset);
 		if (!expr->getType(targetContext)->equals(targetContext, &TypeExpression::FUNCTION_EXPRESSION)) {
-			throw DuplicateDeclarationException(string(this->name) + "已经被声明，请勿重复声明！");
+			throw DuplicateDeclarationException((string(this->name) + "已经被声明，请勿重复声明！").c_str());
 		}
 		auto funcExpr = (FunctionExpression* const&)expr;
 		return funcExpr->invoke(params);
@@ -128,7 +129,7 @@ FunctionExpression::Overload::~Overload()
 	if (this->implement) this->implement->releaseLiteral();
 }
 
-bool FunctionExpression::Overload::match(ListExpression* const &params,Context *const &context) const
+bool FunctionExpression::Overload::match(ParameterExpression* const &params,Context *const &context) const
 {
 	size_t targetParamCount = params->getCount();
 	auto myParamOffsets = this->parameterLocalOffsets;
@@ -145,9 +146,9 @@ bool FunctionExpression::Overload::match(ListExpression* const &params,Context *
 	for (size_t i = 0; i < myParamCount; i++) {
 		//如果是最后一个变量，则视情况匹配
 		if (i == myParamCount - 1 && i < targetParamCount - 1 && this->allowLastMatchRest) {
-			ListExpression * restParamList(new ListExpression());
-			for (size_t j = i; j < targetParamCount; j++) {
-				restParamList->addItem(params->getItem(j));
+			ParameterExpression * restParamList(new ParameterExpression(targetParamCount - myParamCount + 1));
+			for (size_t targetPos = i, newPos = 0; targetPos < targetParamCount; ++targetPos, ++newPos) {
+				restParamList->setItem(newPos, params->getItem(targetPos));
 			}
 		}
 		else {
@@ -171,7 +172,9 @@ bool FunctionExpression::Overload::match(ListExpression* const &params,Context *
 Expression* const FunctionExpression::Overload::invoke(Context *const &context) const
 {
 	auto ret = this->implement->evaluate(context);
-	ret->setStorageLevel(StorageLevel::EXTERN); //返回值提升为EXTERN，防止局部栈帧销毁时释放
+	if (ret->getStorageLevel() < StorageLevel::TRANSFER) {
+		ret->setStorageLevel(StorageLevel::TRANSFER); //返回值提升为TRANSFER，防止局部栈帧销毁时释放
+	}
 	return ret;
 }
 

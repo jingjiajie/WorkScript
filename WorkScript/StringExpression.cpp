@@ -18,19 +18,19 @@ StringExpression *const StringExpression::combine(const StringExpression *const 
 	}
 
 	char *buff = new char[totalLength + 1];
-	size_t curPos = 0;
-
-	for (size_t i = 0; i < count; i++) {
+	for (size_t i = 0, curPos = 0; i < count; curPos += stringExpressions[i]->getLength(), ++i) {
 		strcpy(buff + curPos, stringExpressions[i]->getValue());
 	}
 	if (newInstance->value)delete[]newInstance->value;
 	newInstance->value = buff;
+	newInstance->length = totalLength;
 	return newInstance;
 }
 
 void StringExpression::release()
 {
 	StringExpression::pool.push(this);
+	//printf("push string %p\n", this);
 }
 
 //

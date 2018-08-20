@@ -32,8 +32,7 @@ bool NumberExpression::equals(Context *const &context, Expression* const& target
 {
 	if (targetExpression == this)return true;
 	if (!targetExpression->getType(context)->equals(context, this->getType(context)))return false;
-	auto targetNumExpr = (NumberExpression *const&)(targetExpression);
-	return targetNumExpr->getValue() == this->getValue();
+	return ((NumberExpression *const&)targetExpression)->getValue() == this->getValue();
 }
 
 StringExpression *const NumberExpression::toString(Context *const& context)
