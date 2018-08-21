@@ -23,10 +23,6 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitTermBlockExpression(WorkScriptParser::TermBlockExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual antlrcpp::Any visitListExpression(WorkScriptParser::ListExpressionContext *ctx) override {
     return visitChildren(ctx);
   }

@@ -7,13 +7,14 @@
 #include "StringExpression.h"
 #include "ParameterExpression.h"
 #include "Context.h"
+#include "TempExpression.h"
 #include "Program.h"
 
 using namespace std;
 
 FunctionExpression::~FunctionExpression()
 {
-	for (size_t i = 0; i < this->overloads.size();i++) {
+	for (size_t i = 0; i < this->overloads.size();++i) {
 		delete this->overloads[i];
 	}
 	if (this->name)delete[]this->name;
@@ -55,7 +56,7 @@ StringExpression *const FunctionExpression::toString(Context *const &context)
 	return StringExpression::newInstance("FunctionDeclaration");
 	//stringstream ss;
 	//ss << this->functionName;
-	//for (size_t i = 0; i < this->parameters.size(); i++) {
+	//for (size_t i = 0; i < this->parameters.size(); ++i) {
 	//	ss << "(" << this->parameters[i]->toString() << ")";
 	//	if (i != subExpressionCount - 1) {
 	//		ss << " ";
@@ -98,7 +99,7 @@ Expression* const FunctionExpression::invoke(ParameterExpression *const &params)
 	}
 	if (this->baseFunctionVariableInfo.found) {
 		Context *targetContext = this->declareContext;
-		for (int i = 0; i < this->baseFunctionVariableInfo.upLevel; i++) {
+		for (int i = 0; i < this->baseFunctionVariableInfo.upLevel; ++i) {
 			targetContext = targetContext->getBaseContext();
 		}
 		auto expr = targetContext->getLocalVariable(baseFunctionVariableInfo.offset);
@@ -119,14 +120,17 @@ FunctionExpression::Overload::~Overload()
 		delete[]parameterLocalOffsets;
 	}
 	if (this->constraints) {
-		for (size_t i = 0; i < this->constraintCount; i++) {
+		for (size_t i = 0; i < this->constraintCount; ++i) {
 			this->constraints[i]->releaseLiteral();
 		}
 		delete[]this->constraints;
 	}
 
-	//TODO implement应该改成数组
-	if (this->implement) this->implement->releaseLiteral();
+	for (size_t i = 0; i < this->implementCount; ++i)
+	{
+		if (this->implements[i]) this->implements[i]->releaseLiteral();
+	}
+	delete[]this->implements;
 }
 
 bool FunctionExpression::Overload::match(ParameterExpression* const &params,Context *const &context) const
@@ -143,21 +147,19 @@ bool FunctionExpression::Overload::match(ParameterExpression* const &params,Cont
 	}
 
 	//逐个匹配参数
-	for (size_t i = 0; i < myParamCount; i++) {
+	for (size_t i = 0; i < myParamCount; ++i) {
 		//如果是最后一个变量，则视情况匹配
 		if (i == myParamCount - 1 && i < targetParamCount - 1 && this->allowLastMatchRest) {
-			ParameterExpression * restParamList(new ParameterExpression(targetParamCount - myParamCount + 1));
-			for (size_t targetPos = i, newPos = 0; targetPos < targetParamCount; ++targetPos, ++newPos) {
-				restParamList->setItem(newPos, params->getItem(targetPos));
-			}
+			auto restParamList = new ParameterExpression(params->getItems() + i,targetParamCount - myParamCount + 1);
+			context->setLocalVariable(myParamOffsets[i], restParamList);
 		}
 		else {
 			//不出意外的话，传入的参数应该都是EXTERN级别
-			context->setLocalVariable(myParamOffsets[i], params->getItem(i));
+			context->setLocalVariable(myParamOffsets[i], params->getItems()[i]);
 		}
 	}
 	//验证约束是否符合，若有不符合则匹配失败
-	for (size_t i = 0; i < this->constraintCount;i++) {
+	for (size_t i = 0; i < this->constraintCount;++i) {
 		auto res = this->constraints[i]->evaluate(context);
 		if (!res->equals(context, &BooleanExpression::YES))
 		{
@@ -171,9 +173,17 @@ bool FunctionExpression::Overload::match(ParameterExpression* const &params,Cont
 
 Expression* const FunctionExpression::Overload::invoke(Context *const &context) const
 {
-	auto ret = this->implement->evaluate(context);
-	if (ret->getStorageLevel() < StorageLevel::TRANSFER) {
-		ret->setStorageLevel(StorageLevel::TRANSFER); //返回值提升为TRANSFER，防止局部栈帧销毁时释放
+	Expression *ret = nullptr;
+	for (size_t i = 0; i < this->implementCount; ++i)
+	{
+		TempExpression<Expression> res(this->implements[i], this->implements[i]->evaluate(context));
+		//最后一条语句的结果视为返回值
+		if (i == this->implementCount - 1) {
+			ret = res;
+			if (ret->getStorageLevel() < StorageLevel::TRANSFER) {
+				ret->setStorageLevel(StorageLevel::TRANSFER); //返回值提升为TRANSFER，防止局部栈帧销毁时释放
+			}
+		}
 	}
 	return ret;
 }
@@ -182,77 +192,15 @@ void FunctionExpression::Overload::compile(CompileContext *const &context)
 {
 	//编译参数列表
 	this->parameterLocalOffsets = new size_t[this->parameterCount]();
-	for (size_t i = 0; i < this->parameterCount;i++) {
+	for (size_t i = 0; i < this->parameterCount; ++i) {
 		this->parameterLocalOffsets[i] = context->addLocalVariable(this->parameterNames[i]).offset;
 	}
 	//编译约束列表
-	for (size_t i = 0; i < this->constraintCount; i++) {
+	for (size_t i = 0; i < this->constraintCount; ++i) {
 		this->constraints[i]->compile(context);
 	}
 	//编译实现
-	this->implement->compile(context);
-
-	this->localVariableCount = context->getLocalVariableCount();
-}
-
-const std::vector<std::string> FunctionExpression::Overload::getParameterNames() const
-{
-	return this->parameterNames;
-}
-
-void FunctionExpression::Overload::setParameterNames(const std::vector<std::string>& parameters)
-{
-	this->parameterCount = parameters.size();
-	this->parameterNames = parameters;
-}
-
-Expression **const FunctionExpression::Overload::getConstraints() const
-{
-	return this->constraints;
-}
-
-void FunctionExpression::Overload::setConstraints(Expression **const& constraints, size_t count)
-{
-	this->constraintCount = count;
-	this->constraints = constraints;
-}
-
-const bool FunctionExpression::Overload::getAllowLastMatchRest() const
-{
-	return allowLastMatchRest;
-}
-
-void FunctionExpression::Overload::setAllowLastMatchRest(const bool & allowLastMatchRest)
-{
-	this->allowLastMatchRest = allowLastMatchRest;
-}
-
-const std::vector<FunctionExpression::Overload*> FunctionExpression::getOverloads() const
-{
-	return this->overloads;
-}
-
-void FunctionExpression::addOverload(Overload* const& overload)
-{
-	this->overloads.push_back(overload);
-}
-
-Expression* const FunctionExpression::Overload::getImplement() const
-{
-	return this->implement;
-}
-
-void FunctionExpression::Overload::setImplement(Expression* const& implement)
-{
-	this->implement = implement;
-}
-
-const size_t FunctionExpression::Overload::getLocalVariableCount() const
-{
-	return this->localVariableCount;
-}
-
-void FunctionExpression::Overload::setLocalVariableCount(const size_t & count)
-{
-	this->localVariableCount = count;
+	for (size_t i = 0; i < this->implementCount; ++i) {
+		this->implements[i]->compile(context);
+	}
 }

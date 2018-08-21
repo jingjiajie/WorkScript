@@ -14,7 +14,7 @@ VariableExpression::~VariableExpression()
 Expression* const VariableExpression::evaluate(Context *const& context)
 {
 	Context *targetContext = context;
-	for (int i = 0; i < this->variableInfo.upLevel; i++) {
+	for (int i = 0; i < this->variableInfo.upLevel; ++i) {
 		targetContext = targetContext->getBaseContext();
 	}
 	if (context->getAssignLeft() == true)

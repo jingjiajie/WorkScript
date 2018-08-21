@@ -13,7 +13,7 @@ StringExpression *const StringExpression::combine(const StringExpression *const 
 	auto newInstance = StringExpression::pool.get();
 	newInstance->setStorageLevel(level);
 	size_t totalLength = 0;
-	for (size_t i = 0; i < count; i++) {
+	for (size_t i = 0; i < count; ++i) {
 		totalLength += stringExpressions[i]->getLength();
 	}
 

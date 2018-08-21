@@ -11,7 +11,6 @@ expression:
 	| expression POINT IDENTIFIER					# MemberEvaluateExpression
 	| expression (MULTIPLY | DIVIDE) expression		# MultiplyDivideExpression
 	| expression (PLUS | MINUS) expression			# PlusMinusExpression
-	| blockExpression								# TermBlockExpression
 	| functionExpression							# FunctionExpression_
 	| expression EQUALS expression					# AssignmentExpression
 	| expression (
@@ -27,7 +26,8 @@ expression:
 parameterExpression: (expression (COMMA? expression)*)?;
 
 functionExpression:
-	IDENTIFIER? LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE EQUALS expression;
+	IDENTIFIER? LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE (EQUALS expression
+	| NEWLINE* EQUALS? NEWLINE* blockExpression);
 
 blockExpression:
 	LEFT_BRACE NEWLINE* ((expression NEWLINE+)* expression)? NEWLINE* RIGHT_BRACE;

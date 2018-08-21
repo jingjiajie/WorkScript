@@ -74,7 +74,7 @@ TypeExpression* const MultiplyExpression::getType(Context *const& context) const
 
 StringExpression *const MultiplyExpression::toString(Context *const& context)
 {
-	static StringExpression sign("*");
+	static StringExpression sign("*", StorageLevel::EXTERN);
 	return BinaryTermExpression::toString(context, &sign);
 }
 
@@ -88,7 +88,7 @@ StringExpression * MultiplyExpression::stringMultiplyNumber(Context *const &cont
 	string oriString = left->getValue();
 	double times = right->getValue();
 	stringstream ss;
-	for (int i = 0; i < times; i++) {
+	for (int i = 0; i < times; ++i) {
 		ss << oriString;
 	}
 	string resultStr = ss.str();

@@ -209,7 +209,7 @@ WorkScriptLexer::Initializer::Initializer() {
 
   size_t count = _atn.getNumberOfDecisions();
   _decisionToDFA.reserve(count);
-  for (size_t i = 0; i < count; i++) { 
+  for (size_t i = 0; i < count; ++i) { 
     _decisionToDFA.emplace_back(_atn.getDecisionState(i), i);
   }
 }

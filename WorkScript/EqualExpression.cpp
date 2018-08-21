@@ -17,7 +17,7 @@ TypeExpression* const EqualExpression::getType(Context *const& context) const
 
 StringExpression *const EqualExpression::toString(Context *const& context)
 {
-	static StringExpression equal("==");
+	static StringExpression equal("==", StorageLevel::EXTERN);
 	return BinaryTermExpression::toString(context, &equal);
 }
 

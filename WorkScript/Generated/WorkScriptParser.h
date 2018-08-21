@@ -79,14 +79,6 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  TermBlockExpressionContext : public ExpressionContext {
-  public:
-    TermBlockExpressionContext(ExpressionContext *ctx);
-
-    BlockExpressionContext *blockExpression();
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
   class  ListExpressionContext : public ExpressionContext {
   public:
     ListExpressionContext(ExpressionContext *ctx);
@@ -237,7 +229,10 @@ public:
     antlr4::tree::TerminalNode *RIGHT_PARENTHESE();
     antlr4::tree::TerminalNode *EQUALS();
     ExpressionContext *expression();
+    BlockExpressionContext *blockExpression();
     antlr4::tree::TerminalNode *IDENTIFIER();
+    std::vector<antlr4::tree::TerminalNode *> NEWLINE();
+    antlr4::tree::TerminalNode* NEWLINE(size_t i);
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    

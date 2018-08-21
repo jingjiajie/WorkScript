@@ -23,8 +23,6 @@ public:
 
     virtual antlrcpp::Any visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitTermBlockExpression(WorkScriptParser::TermBlockExpressionContext *context) = 0;
-
     virtual antlrcpp::Any visitListExpression(WorkScriptParser::ListExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionInvocationExpression(WorkScriptParser::FunctionInvocationExpressionContext *context) = 0;

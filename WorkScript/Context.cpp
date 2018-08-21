@@ -24,7 +24,7 @@ Context::Context(Context * baseContext, size_t localVariableCount)
 
 Context::~Context()
 {
-	for (size_t i = 0; i < this->localVariableCount; i++) {
+	for (size_t i = 0; i < this->localVariableCount; ++i) {
 		if (this->localVariables[i]) this->localVariables[i]->releaseLocal();
 	}
 	delete []this->localVariables;
@@ -45,7 +45,7 @@ Context::~Context()
 //		if (lpCurType->isGenericType() != isGenericType)continue;
 //		auto &curGenericTypes = lpCurType->getGenericTypes();
 //		if (curGenericTypes.size() != genericTypes.size()) continue;
-//		for (size_t i = 0; i < genericTypes.size(); i++) {
+//		for (size_t i = 0; i < genericTypes.size(); ++i) {
 //			if (!curGenericTypes[i]->equals(this, genericTypes[i])) continue;
 //		}
 //		return lpCurType;

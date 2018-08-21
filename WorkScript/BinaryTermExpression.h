@@ -1,6 +1,7 @@
 #pragma once
 #include "Expression.h"
 #include "StringExpression.h"
+#include "TempExpression.h"
 
 class BinaryTermExpression :
 	public Expression
@@ -45,12 +46,10 @@ protected:
 
 	inline StringExpression * const toString(Context *const &context, StringExpression *const &middleStr)
 	{
-		auto left = this->leftExpression->toString(context);
-		auto right = this->rightExpression->toString(context);
+		TempExpression<StringExpression> left(this->leftExpression, this->leftExpression->toString(context));
+		TempExpression<StringExpression> right(this->rightExpression, this->rightExpression->toString(context));
 		StringExpression *exprs[] = { left,middleStr,right };
 		auto result = StringExpression::combine(exprs, 3);
-		left->releaseTemp();
-		right->releaseTemp();
 		return result;
 	}
 };

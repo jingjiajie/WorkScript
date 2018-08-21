@@ -26,7 +26,6 @@ Expression* const FunctionInvocationExpression::evaluate(Context *const& context
 		string str = (leftName + "不是函数！");
 		throw std::move(UninvocableException(str.c_str()));
 	}
-
 	TempExpression<ParameterExpression> evaluatedParams(this->parameters, this->parameters->evaluate(context));
 	//将所有参数设为TRANSFER
 	auto oriParamLevels = new StorageLevel[evaluatedParams->getCount()];

@@ -20,16 +20,63 @@ public:
 		virtual Expression* const invoke(Context *const& context) const;
 		virtual void compile(CompileContext *const& context);
 
-		const std::vector<std::string> getParameterNames() const;
-		void setParameterNames(const std::vector<std::string>& parameters);
-		Expression **const getConstraints() const;
-		void setConstraints(Expression **const &constraints, size_t count);
-		const bool getAllowLastMatchRest()const;
-		void setAllowLastMatchRest(const bool& allowLastMatchRest);
-		Expression* const getImplement() const;
-		void setImplement(Expression* const &implement);
-		const size_t getLocalVariableCount() const;
-		void setLocalVariableCount(const size_t &count);
+		inline const std::vector<std::string> getParameterNames() const
+		{
+			return this->parameterNames;
+		}
+
+		inline void setParameterNames(const std::vector<std::string>& parameters)
+		{
+			this->parameterCount = parameters.size();
+			this->parameterNames = parameters;
+		}
+
+		inline Expression **const getConstraints() const
+		{
+			return this->constraints;
+		}
+
+		inline void setConstraints(Expression **const &constraints,const size_t &count)
+		{
+			this->constraintCount = count;
+			this->constraints = constraints;
+		}
+
+		inline const bool getAllowLastMatchRest()const
+		{
+			return this->allowLastMatchRest;
+		}
+
+		inline void setAllowLastMatchRest(const bool& allowLastMatchRest)
+		{
+			this->allowLastMatchRest = allowLastMatchRest;
+		}
+
+		inline Expression** const getImplements() const
+		{
+			return this->implements;
+		}
+
+		inline void setImplements(Expression** const &impls, const size_t &count)
+		{
+			this->implementCount = count;
+			this->implements = impls;
+		}
+
+		inline void setImplement(Expression *impl)
+		{
+			this->implementCount = 1;
+			this->implements = new Expression*[1]{impl};
+		}
+
+		inline const size_t getLocalVariableCount() const
+		{
+			return this->localVariableCount;
+		}
+		inline void setLocalVariableCount(const size_t &count)
+		{
+			this->localVariableCount = count;
+		}
 
 	protected:
 		bool allowLastMatchRest = true;
@@ -39,9 +86,10 @@ public:
 
 		Expression **constraints;
 		size_t constraintCount;
-		Expression *implement;
+		Expression **implements;
+		size_t implementCount;
 
-		size_t localVariableCount = 0;
+		size_t localVariableCount = 0; //编译时存储局部变量个数，用于运行时分配局部变量空间
 	};
 
 	inline FunctionExpression(const StorageLevel level = StorageLevel::TEMP)
@@ -70,8 +118,15 @@ public:
 		strcpy(this->name,funcName);
 	}
 
-	const std::vector<Overload *> getOverloads()const;
-	void addOverload(Overload* const &overload);
+	inline 	const std::vector<Overload *> getOverloads()const
+	{
+		return this->overloads;
+	}
+
+	inline void addOverload(Overload* const &overload)
+	{
+		this->overloads.push_back(overload);
+	}
 
 protected:
 	Context * declareContext;

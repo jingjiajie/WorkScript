@@ -4,10 +4,9 @@ class ParameterExpression :
 	public Expression
 {
 public:
-	inline ParameterExpression(const size_t &count, const StorageLevel level = StorageLevel::TEMP)
+	inline ParameterExpression(Expression** const& items, const size_t &count, const StorageLevel level = StorageLevel::TEMP)
 	{
-		this->items = new Expression*[count];
-		this->count = count;
+		this->setItems(items,count);
 		this->storageLevel = level;
 	}
 
@@ -20,22 +19,31 @@ public:
 	virtual Expression* const evaluate(Context *const &context) override;
 	virtual bool equals(Context *const &context, Expression* const&) const override;
 
-	inline Expression* const getItem(const size_t &offset) const
+	inline Expression** const getItems() const
 	{
-		return this->items[offset];
+		return this->items;
 	}
 
-	inline void setItem(const size_t &offset, Expression* const& termExpression)
+	inline Expression *const getItem(const size_t &index)const
 	{
-		this->items[offset] = termExpression;
+		return this->items[index];
+	}
+
+	inline void setItems(Expression** const& items, const size_t &count)
+	{
+		this->items = items;
+		this->count = count;
+		this->flat(nullptr);
 	}
 
 	inline const size_t getCount() const {
 		return this->count;
 	}
 
+	void flat(Context *const &context);
+
 protected:
 	Expression **items;
-	size_t count = 0;
+	size_t count;
 };
 

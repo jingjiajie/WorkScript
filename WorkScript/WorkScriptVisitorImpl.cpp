@@ -55,12 +55,27 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	const string funcName = ctx->IDENTIFIER()->getText();
 	ExpressionWrapper paramsWrapper = ctx->parameterExpression()->accept(this);
 	auto params = (ParameterExpression *const&)(paramsWrapper.getExpression());
-	ExpressionWrapper implWrapper = ctx->expression()->accept(this);
-	auto impl = (Expression *const&)(implWrapper.getExpression());
+	Expression **impls;
+	size_t implCount;
+	if (ctx->expression() != nullptr) {
+		implCount = 1;
+		impls = new Expression*[1];
+		auto tmp = (ExpressionWrapper)ctx->expression()->accept(this);
+		impls[0] = (tmp).getExpression();
+	}
+	else {
+		auto exprs = ctx->blockExpression()->expression();
+		implCount = exprs.size();
+		impls = new Expression*[implCount];
+		for (size_t i = 0; i < implCount; ++i)
+		{
+			impls[i] = ((ExpressionWrapper)exprs[i]->accept(this)).getExpression();
+		}
+	}
 
 	vector<string> paramVarNames;
 	vector<Expression *> vecConstraints;
-	for (size_t i = 0; i < params->getCount(); i++) {
+	for (size_t i = 0; i < params->getCount(); ++i) {
 		if (params->getItem(i)->getType(nullptr)->equals(nullptr, &TypeExpression::VARIABLE_EXPRESSION)) {
 			paramVarNames.push_back(((VariableExpression *const)params->getItem(i))->getName());
 		}
@@ -78,14 +93,14 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	funcExpr->setName(funcName.c_str());
 
 	Expression **constraints = new Expression*[vecConstraints.size()];
-	for (size_t i = 0; i < vecConstraints.size(); i++) {
+	for (size_t i = 0; i < vecConstraints.size(); ++i) {
 		constraints[i] = vecConstraints[i];
 	}
 
 	auto overload = new FunctionExpression::Overload;
 	overload->setParameterNames(paramVarNames);
 	overload->setConstraints(constraints, vecConstraints.size());
-	overload->setImplement(impl);
+	overload->setImplements(impls, implCount);
 	funcExpr->addOverload(overload);
 	return ExpressionWrapper(funcExpr);
 }
@@ -123,12 +138,13 @@ antlrcpp::Any WorkScriptVisitorImpl::visitParameterExpression(WorkScriptParser::
 {
 	auto subContext = ctx->expression();
 	size_t subContextCount = subContext.size();
-	auto expr = new ParameterExpression(subContextCount, StorageLevel::LITERAL);
-	for (size_t i = 0; i < subContextCount; i++) {
+	auto items = new Expression*[subContextCount];
+	for (size_t i = 0; i < subContextCount; ++i) {
 		ExpressionWrapper wrapper = subContext[i]->accept(this);
 		auto itemExpr = wrapper.getExpression();
-		expr->setItem(i, itemExpr);
+		items[i] = itemExpr;
 	}
+	auto expr = new ParameterExpression(items, subContextCount, StorageLevel::LITERAL);
 	return ExpressionWrapper(expr);
 }
 
@@ -193,7 +209,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitListExpression(WorkScriptParser::ListE
 	auto subContext = ctx->expression();
 	size_t subContextCount = subContext.size();
 	auto expr = new ListExpression(StorageLevel::LITERAL);
-	for (size_t i = 0; i < subContextCount; i++) {
+	for (size_t i = 0; i < subContextCount; ++i) {
 		ExpressionWrapper wrapper = subContext[i]->accept(this);
 		auto itemExpr = wrapper.getExpression();
 		expr->addItem(itemExpr);

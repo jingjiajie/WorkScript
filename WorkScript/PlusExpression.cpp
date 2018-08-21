@@ -87,7 +87,7 @@ TypeExpression* const PlusExpression::getType(Context *const& context) const
 
 StringExpression *const PlusExpression::toString(Context *const& context)
 {
-	static StringExpression sign("+");
+	static StringExpression sign("+", StorageLevel::EXTERN);
 	return BinaryTermExpression::toString(context, &sign);
 }
 

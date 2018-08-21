@@ -181,7 +181,9 @@
     <ClInclude Include="AssignmentExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="ParameterExpression.h" />
+    <ClInclude Include="ParameterExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Context.cpp">
@@ -293,6 +295,8 @@
     <ClCompile Include="AssignmentExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="ParameterExpression.cpp" />
+    <ClCompile Include="ParameterExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
