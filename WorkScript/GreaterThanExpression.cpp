@@ -9,31 +9,6 @@ GreaterThanExpression::~GreaterThanExpression()
 {
 }
 
-
-Expression* const GreaterThanExpression::evaluate(Context *const& context)
-{
-	auto evaluatedLeft = this->leftExpression->evaluate(context);
-	auto evaluatedRight = this->rightExpression->evaluate(context);
-	auto numberType = &TypeExpression::NUMBER_EXPRESSION;
-	Expression *ret;
-	auto leftType = evaluatedLeft->getType(context);
-	auto rightType = evaluatedRight->getType(context);
-	if (leftType->equals(context, numberType) && rightType->equals(context, numberType)) {
-		ret = this->numberGreaterThanNumber((NumberExpression *const&)(evaluatedLeft), (NumberExpression *const&)(evaluatedRight));
-		goto OK;
-	}
-	else {
-		ret = new GreaterThanExpression(evaluatedLeft, evaluatedRight);
-		goto OK;
-	}
-
-OK:
-	evaluatedLeft->releaseTemp();
-	evaluatedRight->releaseTemp();
-	leftType->releaseTemp();
-	rightType->releaseTemp();
-	return ret;
-}
 //
 //bool GreaterThanExpression::match(Expression* const& matchExpression, Context *const& context) const
 //{
@@ -76,10 +51,10 @@ TypeExpression* const GreaterThanExpression::getType(Context *const& context) co
 StringExpression *const GreaterThanExpression::toString(Context *const& context)
 {
 	static StringExpression greaterThan(">",StorageLevel::EXTERN);
-	return BinaryTermExpression::toString(context, &greaterThan);
+	return BinaryExpression::toString(context, &greaterThan);
 }
 
-BooleanExpression* const GreaterThanExpression::numberGreaterThanNumber(NumberExpression* const &left, NumberExpression* const &right)const
+BooleanExpression* const GreaterThanExpression::numberCompareNumber(Context *context, NumberExpression* const &left, NumberExpression* const &right)const
 {
 	return BooleanExpression::newInstance(left->getValue() > right->getValue());
 }

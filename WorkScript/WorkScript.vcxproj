@@ -307,16 +307,21 @@
   <ItemGroup>
     <ClInclude Include="AccessDeniedException.h" />
     <ClInclude Include="AssignmentExpression.h" />
-    <ClInclude Include="BinaryTermExpression.h" />
+    <ClInclude Include="BinaryExpression.h" />
     <ClInclude Include="BooleanExpression.h" />
+    <ClInclude Include="CompareExpression.h" />
     <ClInclude Include="CompileContext.h" />
     <ClInclude Include="DivideExpression.h" />
     <ClInclude Include="DuplicateDeclarationException.h" />
-    <ClInclude Include="EqualExpression.h" />
+    <ClInclude Include="EqualsExpression.h" />
     <ClInclude Include="ExecuteCppCodeExpression.h" />
     <ClInclude Include="ExpressionWrapper.h" />
     <ClInclude Include="FunctionExpression.h" />
     <ClInclude Include="FunctionInvocationExpression.h" />
+    <ClInclude Include="GreaterThanEqualExpression.h" />
+    <ClInclude Include="IllegalValueException.h" />
+    <ClInclude Include="LessThanEqualExpression.h" />
+    <ClInclude Include="LessThanExpression.h" />
     <ClInclude Include="ListExpression.h" />
     <ClInclude Include="Generated\WorkScriptBaseVisitor.h" />
     <ClInclude Include="Generated\WorkScriptLexer.h" />
@@ -339,6 +344,7 @@
     <ClInclude Include="TypeExpression.h" />
     <ClInclude Include="TypeMemberExpression.h" />
     <ClInclude Include="UnassignableExpection.h" />
+    <ClInclude Include="UncomparableException.h" />
     <ClInclude Include="UnimplementedException.h" />
     <ClInclude Include="UninvocableException.h" />
     <ClInclude Include="VariableExpression.h" />
@@ -349,16 +355,21 @@
   <ItemGroup>
     <ClCompile Include="AccessDeniedException.cpp" />
     <ClCompile Include="AssignmentExpression.cpp" />
-    <ClCompile Include="BinaryTermExpression.cpp" />
+    <ClCompile Include="BinaryExpression.cpp" />
     <ClCompile Include="BooleanExpression.cpp" />
+    <ClCompile Include="CompareExpression.cpp" />
     <ClCompile Include="CompileContext.cpp" />
     <ClCompile Include="DivideExpression.cpp" />
     <ClCompile Include="DuplicateDeclarationException.cpp" />
-    <ClCompile Include="EqualExpression.cpp" />
+    <ClCompile Include="EqualsExpression.cpp" />
     <ClCompile Include="ExecuteCppCodeExpression.cpp" />
     <ClCompile Include="ExpressionWrapper.cpp" />
     <ClCompile Include="FunctionExpression.cpp" />
     <ClCompile Include="FunctionInvocationExpression.cpp" />
+    <ClCompile Include="GreaterThanEqualExpression.cpp" />
+    <ClCompile Include="IllegalValueException.cpp" />
+    <ClCompile Include="LessThanEqualExpression.cpp" />
+    <ClCompile Include="LessThanExpression.cpp" />
     <ClCompile Include="ListExpression.cpp" />
     <ClCompile Include="Generated\WorkScriptBaseVisitor.cpp" />
     <ClCompile Include="Generated\WorkScriptLexer.cpp" />
@@ -377,6 +388,7 @@
     <ClCompile Include="TypeExpression.cpp" />
     <ClCompile Include="TypeMemberExpression.cpp" />
     <ClCompile Include="UnassignableExpection.cpp" />
+    <ClCompile Include="UncomparableException.cpp" />
     <ClCompile Include="UnimplementedException.cpp" />
     <ClCompile Include="UninvocableException.cpp" />
     <ClCompile Include="VariableExpression.cpp" />

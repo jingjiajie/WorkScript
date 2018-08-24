@@ -35,6 +35,8 @@ public:
 
     virtual antlrcpp::Any visitMethodInvocationExpression(WorkScriptParser::MethodInvocationExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitAssignmentOrEqualsExpression(WorkScriptParser::AssignmentOrEqualsExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitAssignmentExpression(WorkScriptParser::AssignmentExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext *context) = 0;
@@ -47,11 +49,21 @@ public:
 
     virtual antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitEqualsExpression(WorkScriptParser::EqualsExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitParameterExpression(WorkScriptParser::ParameterExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitFunctionDeclarationExpression(WorkScriptParser::FunctionDeclarationExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitFunctionImplementationExpression(WorkScriptParser::FunctionImplementationExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitFunctionConstraintExpression(WorkScriptParser::FunctionConstraintExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitBlockExpression(WorkScriptParser::BlockExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitIdentifier(WorkScriptParser::IdentifierContext *context) = 0;
 
 
 };

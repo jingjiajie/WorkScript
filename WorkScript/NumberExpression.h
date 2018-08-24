@@ -46,6 +46,7 @@ protected:
 		//	return;
 		//}
 		NumberExpression::pool.push(this);
+		//printf("push number %p \n",this);
 	}
 private:
 	inline NumberExpression() {}; //私有构造函数，只有对象池能访问

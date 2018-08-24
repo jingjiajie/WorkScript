@@ -27,26 +27,28 @@ Expression* const FunctionInvocationExpression::evaluate(Context *const& context
 		throw std::move(UninvocableException(str.c_str()));
 	}
 	TempExpression<ParameterExpression> evaluatedParams(this->parameters, this->parameters->evaluate(context));
-	//将所有参数设为TRANSFER
+	//将所有小于TRANSFER的参数暂时提升为TRANSFER
 	auto oriParamLevels = new StorageLevel[evaluatedParams->getCount()];
 	for (size_t i = 0; i < evaluatedParams->getCount(); ++i) {
 		oriParamLevels[i] = evaluatedParams->getItem(i)->getStorageLevel();
-		evaluatedParams->getItem(i)->setStorageLevel(StorageLevel::TRANSFER);
+		if (oriParamLevels[i] < StorageLevel::TRANSFER) {
+			evaluatedParams->getItem(i)->setStorageLevel(StorageLevel::TRANSFER);
+		}
 	}
 	//开始调用
 	auto ret = ((FunctionExpression* const&)evaluatedLeft)->invoke(evaluatedParams);
-	//恢复非返回值的各个参数的存储级别
+	//恢复各个参数的存储级别。若有参数高于TRANSFER级别，则不进行恢复。
 	for (size_t i = 0; i < evaluatedParams->getCount(); ++i) {
-		if (evaluatedParams->getItem(i) == ret)continue;
+		if (evaluatedParams->getItem(i)->getStorageLevel() > StorageLevel::TRANSFER)continue;
 		evaluatedParams->getItem(i)->setStorageLevel(oriParamLevels[i]);
 	}
 	delete oriParamLevels;
 
 	if (ret != nullptr) {
-		evaluatedParams.releaseTemp(); //先释放参数列表，此时如果参数列表中包含返回值(>=TRANSFER级)，不会被释放
-		if (ret->getStorageLevel() == StorageLevel::TRANSFER) {
-			ret->setStorageLevel(StorageLevel::TEMP);
-		}
+		StorageLevel retLevel = ret->getStorageLevel();
+		ret->setStorageLevel(StorageLevel::TRANSFER);
+		evaluatedParams.releaseTemp(); //先释放参数列表，此时如果参数列表中包含返回值，不会被释放
+		ret->setStorageLevel(retLevel);
 		return ret;
 	}
 	else {

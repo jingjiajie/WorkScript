@@ -13,8 +13,8 @@ enum class StorageLevel : unsigned char {
 	TEMP = 0,
 	LOCAL = 1,
 	TRANSFER = 2,
-	EXTERN = 3,
-	LITERAL = 4
+	LITERAL = 3,
+	EXTERN = 4,
 };
 
 class Expression

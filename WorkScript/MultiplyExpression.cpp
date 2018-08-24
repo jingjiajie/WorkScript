@@ -75,7 +75,7 @@ TypeExpression* const MultiplyExpression::getType(Context *const& context) const
 StringExpression *const MultiplyExpression::toString(Context *const& context)
 {
 	static StringExpression sign("*", StorageLevel::EXTERN);
-	return BinaryTermExpression::toString(context, &sign);
+	return BinaryExpression::toString(context, &sign);
 }
 
 NumberExpression * MultiplyExpression::numberMultiplyNumber(Context *const &context, NumberExpression* const&left, NumberExpression* const&right) const

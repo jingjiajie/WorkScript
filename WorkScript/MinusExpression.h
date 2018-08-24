@@ -1,15 +1,15 @@
 #pragma once
-#include "BinaryTermExpression.h"
+#include "BinaryExpression.h"
 
 class StringExpression;
 class NumberExpression;
 
 class MinusExpression :
-	public BinaryTermExpression
+	public BinaryExpression
 {
 public:
 	inline MinusExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
-		:BinaryTermExpression(left, right, level) 
+		:BinaryExpression(left, right, level) 
 	{
 
 	}

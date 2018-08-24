@@ -20,5 +20,8 @@ protected:
 	std::vector<Expression*> expressions;
 	size_t localVariableCount = 0;
 
+	void pushAssignmentExpression(const char *const &varName,Expression *const &value);
+
+	void initConstants();
 	void initPrintExpression();
 };

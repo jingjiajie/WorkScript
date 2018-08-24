@@ -1,20 +1,20 @@
 #pragma once
-#include "BinaryTermExpression.h"
+#include "BinaryExpression.h"
 
 class NumberExpression;
 class StringExpression;
 
 class PlusExpression :
-	public BinaryTermExpression
+	public BinaryExpression
 {
 public:
 	inline PlusExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
-		:BinaryTermExpression(left,right,level) 
+		:BinaryExpression(left,right,level) 
 	{
 
 	}
 	inline PlusExpression(const StorageLevel level = StorageLevel::TEMP)
-		:BinaryTermExpression(level) 
+		:BinaryExpression(level) 
 	{
 
 	}

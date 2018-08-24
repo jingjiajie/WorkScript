@@ -15,7 +15,9 @@ public:
 	antlrcpp::Any visitFunctionExpression(WorkScriptParser::FunctionExpressionContext*) override;
 	antlrcpp::Any visitFunctionInvocationExpression(WorkScriptParser::FunctionInvocationExpressionContext*) override;
 	antlrcpp::Any visitProgram(WorkScriptParser::ProgramContext*) override;
+	antlrcpp::Any visitAssignmentOrEqualsExpression(WorkScriptParser::AssignmentOrEqualsExpressionContext*)override;
 	antlrcpp::Any visitAssignmentExpression(WorkScriptParser::AssignmentExpressionContext*)override;
+	antlrcpp::Any visitEqualsExpression(WorkScriptParser::EqualsExpressionContext*)override;
 	antlrcpp::Any visitParameterExpression(WorkScriptParser::ParameterExpressionContext*) override;
 	//antlrcpp::Any visitMemberEvaluateExpression(WorkScriptParser::MemberEvaluateExpressionContext*) override;
 	antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext*) override;
@@ -27,4 +29,5 @@ public:
 	virtual ~WorkScriptVisitorImpl();
 private:
 	Program *program;
+	bool assignable = true;
 };

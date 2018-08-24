@@ -34,15 +34,6 @@
     <Filter Include="DataStructures\Exceptions\Sources">
       <UniqueIdentifier>{17608f06-93a1-40c1-befb-2d1504149714}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Runner">
-      <UniqueIdentifier>{a1260af9-bb26-4725-a207-e8b5bdc96136}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Runner\Headers">
-      <UniqueIdentifier>{c9b6ab29-c0c0-43a8-b030-c083b16edff9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Runner\Sources">
-      <UniqueIdentifier>{810d3da8-5f19-46fb-8416-c5e033f840e0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DataStructures\Program">
       <UniqueIdentifier>{ff5a9918-380a-4167-8fcc-ddf9e3572147}</UniqueIdentifier>
     </Filter>
@@ -63,6 +54,15 @@
     </Filter>
     <Filter Include="DataStructures\ExpressionWrappers">
       <UniqueIdentifier>{27443959-80b3-445b-9c43-0f4591e5f6a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Parser">
+      <UniqueIdentifier>{a1260af9-bb26-4725-a207-e8b5bdc96136}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Parser\Headers">
+      <UniqueIdentifier>{c9b6ab29-c0c0-43a8-b030-c083b16edff9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Parser\Sources">
+      <UniqueIdentifier>{810d3da8-5f19-46fb-8416-c5e033f840e0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -91,7 +91,7 @@
       <Filter>Generated</Filter>
     </ClInclude>
     <ClInclude Include="WorkScriptVisitorImpl.h">
-      <Filter>Runner\Headers</Filter>
+      <Filter>Parser\Headers</Filter>
     </ClInclude>
     <ClInclude Include="VariableExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
@@ -141,14 +141,8 @@
     <ClInclude Include="FunctionInvocationExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="BinaryTermExpression.h">
-      <Filter>DataStructures\Expressions\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Program.h">
       <Filter>DataStructures\Program\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="EqualExpression.h">
-      <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="ListExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
@@ -182,6 +176,30 @@
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="ParameterExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="EqualsExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="IllegalValueException.h">
+      <Filter>DataStructures\Exceptions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="UncomparableException.h">
+      <Filter>DataStructures\Exceptions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="CompareExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="LessThanExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="LessThanEqualExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GreaterThanEqualExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -259,17 +277,11 @@
     <ClCompile Include="GreaterThanExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="BinaryTermExpression.cpp">
-      <Filter>DataStructures\Expressions\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="FunctionInvocationExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="Program.cpp">
       <Filter>DataStructures\Program\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="EqualExpression.cpp">
-      <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="ListExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
@@ -284,7 +296,7 @@
       <Filter>DataStructures\CompileContext\Sources</Filter>
     </ClCompile>
     <ClCompile Include="WorkScriptVisitorImpl.cpp">
-      <Filter>Runner\Sources</Filter>
+      <Filter>Parser\Sources</Filter>
     </ClCompile>
     <ClCompile Include="UnassignableExpection.cpp">
       <Filter>DataStructures\Exceptions\Sources</Filter>
@@ -296,6 +308,30 @@
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="ParameterExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="EqualsExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="IllegalValueException.cpp">
+      <Filter>DataStructures\Exceptions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="BinaryExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="UncomparableException.cpp">
+      <Filter>DataStructures\Exceptions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="CompareExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="LessThanEqualExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="GreaterThanEqualExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="LessThanExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
   </ItemGroup>

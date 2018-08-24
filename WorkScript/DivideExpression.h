@@ -1,18 +1,18 @@
 #pragma once
-#include "BinaryTermExpression.h"
+#include "BinaryExpression.h"
 #include "NumberExpression.h"
 
 class DivideExpression :
-	public BinaryTermExpression
+	public BinaryExpression
 {
 public:
 	inline DivideExpression(const StorageLevel level = StorageLevel::TEMP)
-		:BinaryTermExpression(level)
+		:BinaryExpression(level)
 	{
 	}
 
 	inline DivideExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
-		:BinaryTermExpression(left,right,level)
+		:BinaryExpression(left,right,level)
 	{
 
 	}

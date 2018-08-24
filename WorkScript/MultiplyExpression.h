@@ -1,18 +1,18 @@
 #pragma once
 #include "NumberExpression.h"
 #include "StringExpression.h"
-#include "BinaryTermExpression.h"
+#include "BinaryExpression.h"
 class MultiplyExpression :
-	public BinaryTermExpression
+	public BinaryExpression
 {
 public:
 	inline MultiplyExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
-		:BinaryTermExpression(left, right, level) 
+		:BinaryExpression(left, right, level) 
 	{
 
 	}
 	MultiplyExpression(const StorageLevel level = StorageLevel::TEMP)
-		:BinaryTermExpression(level) 
+		:BinaryExpression(level) 
 	{
 
 	}

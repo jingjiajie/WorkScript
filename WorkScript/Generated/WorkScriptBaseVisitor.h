@@ -47,6 +47,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitAssignmentOrEqualsExpression(WorkScriptParser::AssignmentOrEqualsExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitAssignmentExpression(WorkScriptParser::AssignmentExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -71,6 +75,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitEqualsExpression(WorkScriptParser::EqualsExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitParameterExpression(WorkScriptParser::ParameterExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -79,7 +87,23 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitFunctionDeclarationExpression(WorkScriptParser::FunctionDeclarationExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitFunctionImplementationExpression(WorkScriptParser::FunctionImplementationExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitFunctionConstraintExpression(WorkScriptParser::FunctionConstraintExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitBlockExpression(WorkScriptParser::BlockExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitIdentifier(WorkScriptParser::IdentifierContext *ctx) override {
     return visitChildren(ctx);
   }
 

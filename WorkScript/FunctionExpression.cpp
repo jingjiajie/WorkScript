@@ -161,7 +161,7 @@ bool FunctionExpression::Overload::match(ParameterExpression* const &params,Cont
 	//验证约束是否符合，若有不符合则匹配失败
 	for (size_t i = 0; i < this->constraintCount;++i) {
 		auto res = this->constraints[i]->evaluate(context);
-		if (!res->equals(context, &BooleanExpression::YES))
+		if (!res->equals(context, &BooleanExpression::VAL_YES))
 		{
 			res->releaseTemp();
 			return false;

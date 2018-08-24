@@ -7,7 +7,7 @@ class BooleanExpression :
 {
 	friend class ObjectPool<BooleanExpression>;
 public:
-	inline static BooleanExpression *const newInstance(const bool &value, const StorageLevel level = StorageLevel::TEMP)
+	inline static BooleanExpression *const newInstance(const unsigned char value, const StorageLevel level = StorageLevel::TEMP)
 	{
 		auto newInstance = BooleanExpression::pool.get();
 		newInstance->value = value;
@@ -28,29 +28,29 @@ public:
 		return &TypeExpression::BOOLEAN_EXPRESSION;
 	}
 
-	inline const bool getValue() const {
+	inline const unsigned char getValue() const {
 		return this->value;
 	}
 
-	inline void setValue(const bool &value) {
+	inline void setValue(unsigned char &value) {
 		this->value = value;
 	}
 
 protected:
-	bool value;
+	unsigned char value;
 
 	virtual void release() override	
 	{
 		BooleanExpression::pool.push(this);
 	}
 public:
-	static BooleanExpression YES, NO;
-	static StringExpression STR_YES, STR_NO;
+	static BooleanExpression VAL_YES, VAL_NO, VAL_TRUE, VAL_FALSE;
+	static StringExpression STR_TRUE, STR_FALSE, STR_YES, STR_NO;
 	static ObjectPool<BooleanExpression> pool;
 
 private:
 	inline BooleanExpression() {}
-	inline BooleanExpression(const bool &value, const StorageLevel level = StorageLevel::TEMP)
+	inline BooleanExpression(const unsigned char value, const StorageLevel level = StorageLevel::TEMP)
 	{
 		this->value = value;
 		this->setStorageLevel(level);

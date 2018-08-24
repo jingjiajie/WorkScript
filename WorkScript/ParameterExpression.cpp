@@ -17,7 +17,7 @@ TypeExpression * const ParameterExpression::getType(Context * const & context) c
 
 StringExpression * const ParameterExpression::toString(Context * const & context)
 {
-	static StringExpression comma(",",StorageLevel::EXTERN);
+	static StringExpression comma("",StorageLevel::EXTERN);
 	size_t itemCount = this->count;
 	//如果有0项，直接返回空字符串就行了
 	if (itemCount == 0) {

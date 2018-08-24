@@ -16,11 +16,12 @@ TypeExpression TypeExpression::VARIABLE_EXPRESSION("VariableExpression", &EXPRES
 TypeExpression TypeExpression::FUNCTION_EXPRESSION("FunctionExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::FUNCTION_INVOCATION_EXPRESSION("FunctionInvocationExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::PARAMETER_EXPRESSION("ParameterExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::GREATER_THAN_EXPRESSION("GreaterThanExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::GREATER_THAN_EQUAL_EXPRESSION("GreaterThanEqualExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::LESS_THAN_EXPRESSION("LessThanExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::LESS_THAN_EQUAL_EXPRESSION("LessThanEqualExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::EQUAL_EXPRESSION("EqualExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::COMPARE_EXPRESSION("CompareExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::GREATER_THAN_EXPRESSION("GreaterThanExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::GREATER_THAN_EQUAL_EXPRESSION("GreaterThanEqualExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::LESS_THAN_EXPRESSION("LessThanExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::LESS_THAN_EQUAL_EXPRESSION("LessThanEqualExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::EQUALS_EXPRESSION("EqualsExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::PLUS_EXPRESSION("PlusExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::MINUS_EXPRESSION("MinusExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::MULTIPLY_EXPRESSION("MultiplyExpression", &EXPRESSION, StorageLevel::EXTERN);
