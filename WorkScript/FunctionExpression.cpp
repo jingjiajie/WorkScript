@@ -8,6 +8,7 @@
 #include "ParameterExpression.h"
 #include "Context.h"
 #include "TempExpression.h"
+#include "WorkScriptException.h"
 #include "Program.h"
 
 using namespace std;
@@ -167,14 +168,17 @@ bool FunctionExpression::Overload::match(ParameterExpression* const &params,Cont
 		}
 	}
 	//验证约束是否符合，若有不符合则匹配失败
-	for (size_t i = 0; i < this->constraintCount;++i) {
-		auto res = this->constraints[i]->evaluate(context);
-		if (!res->equals(context, &BooleanExpression::VAL_YES))
-		{
-			res->releaseTemp();
-			return false;
+	try {
+		for (size_t i = 0; i < this->constraintCount; ++i) {
+			TempExpression<Expression> res(this->constraints[i], this->constraints[i]->evaluate(context));
+			if (!res->equals(context, &BooleanExpression::VAL_YES))
+			{
+				return false;
+			}
 		}
-		res->releaseTemp();
+	}
+	catch (const WorkScriptException&) {
+		return false;
 	}
 	return true;
 }
