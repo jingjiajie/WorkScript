@@ -15,7 +15,7 @@ TypeExpression * const LessThanExpression::getType(Context * const & context) co
 StringExpression * const LessThanExpression::toString(Context * const & context)
 {
 	static StringExpression sign(">",StorageLevel::EXTERN);
-	return BinaryExpression::toString(context, &sign);
+	return BinaryOperatorExpression::toString(context, &sign);
 }
 
 BooleanExpression * const LessThanExpression::numberCompareNumber(Context * context, NumberExpression * const &left, NumberExpression * const &right) const

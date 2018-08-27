@@ -12,6 +12,7 @@ public:
 	virtual ~CompileContext();
 
 	VariableInfo getVariableInfo(const std::string &varName);
+	VariableInfo getLocalVariableInfo(const std::string &varName);
 	VariableInfo addLocalVariable(const std::string &varName);
 	const size_t getLocalVariableCount() const;
 private:

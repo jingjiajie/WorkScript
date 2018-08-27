@@ -46,5 +46,5 @@ TypeExpression * const AssignmentExpression::getType(Context * const & context) 
 StringExpression * const AssignmentExpression::toString(Context * const & context)
 {
 	static StringExpression assign(" = ", StorageLevel::EXTERN);
-	return BinaryExpression::toString(context, &assign);
+	return BinaryOperatorExpression::toString(context, &assign);
 }

@@ -184,9 +184,6 @@
     <ClInclude Include="IllegalValueException.h">
       <Filter>DataStructures\Exceptions\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="BinaryExpression.h">
-      <Filter>DataStructures\Expressions\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="UncomparableException.h">
       <Filter>DataStructures\Exceptions\Headers</Filter>
     </ClInclude>
@@ -200,6 +197,18 @@
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="GreaterThanEqualExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryOperatorExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="UnaryOperatorExpression.h">
+      <Filter>DataStructures\Expressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="UncalculatableException.h">
+      <Filter>DataStructures\Exceptions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="NegativeExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -316,9 +325,6 @@
     <ClCompile Include="IllegalValueException.cpp">
       <Filter>DataStructures\Exceptions\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="BinaryExpression.cpp">
-      <Filter>DataStructures\Expressions\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="UncomparableException.cpp">
       <Filter>DataStructures\Exceptions\Sources</Filter>
     </ClCompile>
@@ -332,6 +338,18 @@
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="LessThanExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="BinaryOperatorExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="UnaryOperatorExpression.cpp">
+      <Filter>DataStructures\Expressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="UncalculatableException.cpp">
+      <Filter>DataStructures\Exceptions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="NegativeExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
   </ItemGroup>

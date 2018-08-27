@@ -23,6 +23,7 @@
 #include "GreaterThanEqualExpression.h"
 #include "LessThanEqualExpression.h"
 #include "LessThanExpression.h"
+#include "NegativeExpression.h"
 
 #define FORBID_ASSIGN \
 this->assignable = false; 
@@ -50,6 +51,9 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 	int len = sscanf(text.c_str(), "%lf", &value);
 	if (len == 0) {
 		throw new exception(("无法识别的数字：" + text).c_str());
+	}
+	if (ctx->MINUS()) {
+		value = -value;
 	}
 	auto lpExpr = NumberExpression::newInstance(value, StorageLevel::LITERAL);
 	auto wrapper = ExpressionWrapper(lpExpr);
@@ -258,12 +262,21 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideExpression(WorkScriptPar
 	const ExpressionWrapper &rightExpressionWrapper = ctx->expression()[1]->accept(this);
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	RESTORE_ASSIGNABLE
-		if (ctx->MULTIPLY()) {
+		//乘号可以省略
+		if (ctx->MULTIPLY() || (ctx->MULTIPLY() == nullptr && ctx->DIVIDE() == nullptr)) {
 			return ExpressionWrapper(new MultiplyExpression(leftExpression, rightExpression, StorageLevel::LITERAL));
 		}
-		else { //MINUS
+		else { //DIVIDE
 			return ExpressionWrapper(new DivideExpression(leftExpression, rightExpression, StorageLevel::LITERAL));
 		}
+}
+
+antlrcpp::Any WorkScriptVisitorImpl::visitNonSignMultiplyExpression(WorkScriptParser::NonSignMultiplyExpressionContext *ctx)
+{
+	ExpressionWrapper leftWrapper = ctx->numberExpression()->accept(this);
+	ExpressionWrapper rightWrapper = ctx->variableExpression()->accept(this);
+	auto expr = new MultiplyExpression(leftWrapper.getExpression(), rightWrapper.getExpression(), StorageLevel::LITERAL);
+	return ExpressionWrapper(expr);
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *ctx)
@@ -309,6 +322,18 @@ antlrcpp::Any WorkScriptVisitorImpl::visitListExpression(WorkScriptParser::ListE
 	}
 	RESTORE_ASSIGNABLE
 	return ExpressionWrapper(expr);
+}
+
+antlrcpp::Any WorkScriptVisitorImpl::visitNegativeExpression(WorkScriptParser::NegativeExpressionContext *ctx)
+{
+	ExpressionWrapper wrapper = ctx->expression()->accept(this);
+	auto expr = new NegativeExpression(wrapper.getExpression(), StorageLevel::LITERAL);
+	return ExpressionWrapper(expr);
+}
+
+antlrcpp::Any WorkScriptVisitorImpl::visitPositiveExpression(WorkScriptParser::PositiveExpressionContext *ctx)
+{
+	return ctx->expression()->accept(this);
 }
 
 WorkScriptVisitorImpl::WorkScriptVisitorImpl(Program *lpProgram)

@@ -26,6 +26,7 @@ TypeExpression TypeExpression::PLUS_EXPRESSION("PlusExpression", &EXPRESSION, St
 TypeExpression TypeExpression::MINUS_EXPRESSION("MinusExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::MULTIPLY_EXPRESSION("MultiplyExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::DIVIDE_EXPRESSION("DivideExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::NEGATIVE_EXPRESSION("NegativeExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::EXECUTE_CPP_CODE_EXPRESSION("ExecuteCppCodeExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::PRINT_EXPRESSION("PrintExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::THIS_EXPRESSION("ThisExpression", &EXPRESSION, StorageLevel::EXTERN);

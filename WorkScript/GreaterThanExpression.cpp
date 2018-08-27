@@ -51,7 +51,7 @@ TypeExpression* const GreaterThanExpression::getType(Context *const& context) co
 StringExpression *const GreaterThanExpression::toString(Context *const& context)
 {
 	static StringExpression greaterThan(">",StorageLevel::EXTERN);
-	return BinaryExpression::toString(context, &greaterThan);
+	return BinaryOperatorExpression::toString(context, &greaterThan);
 }
 
 BooleanExpression* const GreaterThanExpression::numberCompareNumber(Context *context, NumberExpression* const &left, NumberExpression* const &right)const

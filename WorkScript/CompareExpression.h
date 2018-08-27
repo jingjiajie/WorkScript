@@ -1,22 +1,22 @@
 #pragma once
-#include "BinaryExpression.h"
+#include "BinaryOperatorExpression.h"
 
 class BooleanExpression;
 class NumberExpression;
 class VariableExpression;
 
 class CompareExpression :
-	public BinaryExpression
+	public BinaryOperatorExpression
 {
 public:
 	inline CompareExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
-		:BinaryExpression(left, right, level)
+		:BinaryOperatorExpression(left, right, level)
 	{
 
 	}
 
 	inline CompareExpression(const StorageLevel level = StorageLevel::TEMP)
-		: BinaryExpression(level)
+		: BinaryOperatorExpression(level)
 	{
 
 	}

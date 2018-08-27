@@ -24,9 +24,9 @@ public:
 	virtual ~Expression();
 	//需要实现的接口函数
 	virtual Expression* const evaluate(Context *const& context) = 0;
-	virtual void compile(CompileContext *const& context) = 0;
 	virtual TypeExpression* const getType(Context *const& context) const = 0;
 	virtual StringExpression *const toString(Context *const& context) = 0;
+	virtual void compile(CompileContext *const& context) = 0;
 	virtual bool equals(Context *const &context, Expression* const&) const = 0;
 
 	//已经实现的非虚函数

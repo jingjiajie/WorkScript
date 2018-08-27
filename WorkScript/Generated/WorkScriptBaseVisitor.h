@@ -27,19 +27,19 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitStringExpression_(WorkScriptParser::StringExpression_Context *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitFunctionInvocationExpression(WorkScriptParser::FunctionInvocationExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitNumberExpression(WorkScriptParser::NumberExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual antlrcpp::Any visitCompareExpression(WorkScriptParser::CompareExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitVariableExpression_(WorkScriptParser::VariableExpression_Context *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -48,6 +48,10 @@ public:
   }
 
   virtual antlrcpp::Any visitAssignmentOrEqualsExpression(WorkScriptParser::AssignmentOrEqualsExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitNumberExpression_(WorkScriptParser::NumberExpression_Context *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -63,7 +67,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitPositiveExpression(WorkScriptParser::PositiveExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -71,7 +75,15 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitNonSignMultiplyExpression(WorkScriptParser::NonSignMultiplyExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitNegativeExpression(WorkScriptParser::NegativeExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -80,6 +92,18 @@ public:
   }
 
   virtual antlrcpp::Any visitParameterExpression(WorkScriptParser::ParameterExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitNumberExpression(WorkScriptParser::NumberExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 

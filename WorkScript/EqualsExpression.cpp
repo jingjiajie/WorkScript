@@ -19,7 +19,7 @@ TypeExpression* const EqualsExpression::getType(Context *const& context) const
 StringExpression *const EqualsExpression::toString(Context *const& context)
 {
 	static StringExpression equal("==", StorageLevel::EXTERN);
-	return BinaryExpression::toString(context, &equal);
+	return BinaryOperatorExpression::toString(context, &equal);
 }
 
 BooleanExpression * const EqualsExpression::numberCompareNumber(Context * context, NumberExpression * const &left, NumberExpression * const &right) const

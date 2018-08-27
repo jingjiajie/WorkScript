@@ -22,9 +22,12 @@ public:
 	//antlrcpp::Any visitMemberEvaluateExpression(WorkScriptParser::MemberEvaluateExpressionContext*) override;
 	antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext*) override;
 	antlrcpp::Any visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext*) override;
+	antlrcpp::Any visitNonSignMultiplyExpression(WorkScriptParser::NonSignMultiplyExpressionContext*)override;
 	antlrcpp::Any visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext*)override;
 	antlrcpp::Any visitCompareExpression(WorkScriptParser::CompareExpressionContext*)override;
 	antlrcpp::Any visitListExpression(WorkScriptParser::ListExpressionContext*)override;
+	antlrcpp::Any visitNegativeExpression(WorkScriptParser::NegativeExpressionContext*)override;
+	antlrcpp::Any visitPositiveExpression(WorkScriptParser::PositiveExpressionContext*)override;
 	WorkScriptVisitorImpl(Program*);
 	virtual ~WorkScriptVisitorImpl();
 private:

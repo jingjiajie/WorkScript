@@ -146,14 +146,22 @@ bool FunctionExpression::Overload::match(ParameterExpression* const &params,Cont
 		if (myParamCount != targetParamCount)return false;
 	}
 
-	//逐个匹配参数
+	//逐个匹配参数。如果存在同名参数，则后一个同名参数必须和之前的值相等，否则匹配失败
 	for (size_t i = 0; i < myParamCount; ++i) {
 		//如果是最后一个变量，则视情况匹配
 		if (i == myParamCount - 1 && i < targetParamCount - 1 && this->allowLastMatchRest) {
 			auto restParamList = new ParameterExpression(params->getItems() + i,targetParamCount - myParamCount + 1);
 			context->setLocalVariable(myParamOffsets[i], restParamList);
+			Expression *prev = nullptr;
+			if ((prev = context->getLocalVariable(myParamOffsets[i])) != nullptr) {
+				if (!prev->equals(context, restParamList))return false;
+			}
 		}
 		else {
+			Expression *prev = nullptr;
+			if ((prev = context->getLocalVariable(myParamOffsets[i])) != nullptr) {
+				if (!prev->equals(context, params->getItems()[i]))return false;
+			}
 			//不出意外的话，传入的参数应该都是EXTERN级别
 			context->setLocalVariable(myParamOffsets[i], params->getItems()[i]);
 		}
@@ -193,7 +201,14 @@ void FunctionExpression::Overload::compile(CompileContext *const &context)
 	//编译参数列表
 	this->parameterLocalOffsets = new size_t[this->parameterCount]();
 	for (size_t i = 0; i < this->parameterCount; ++i) {
-		this->parameterLocalOffsets[i] = context->addLocalVariable(this->parameterNames[i]).offset;
+		string curVarName = this->parameterNames[i];
+		auto info = context->getLocalVariableInfo(curVarName);
+		if (info.found) {
+			this->parameterLocalOffsets[i] = info.offset;
+		}
+		else {
+			this->parameterLocalOffsets[i] = context->addLocalVariable(this->parameterNames[i]).offset;
+		}
 	}
 	//编译约束列表
 	for (size_t i = 0; i < this->constraintCount; ++i) {

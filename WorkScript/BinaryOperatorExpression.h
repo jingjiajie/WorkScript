@@ -3,23 +3,23 @@
 #include "StringExpression.h"
 #include "TempExpression.h"
 
-class BinaryExpression :
+class BinaryOperatorExpression :
 	public Expression
 {
 public:
-	inline BinaryExpression(const StorageLevel level = StorageLevel::TEMP) 
+	inline BinaryOperatorExpression(const StorageLevel level = StorageLevel::TEMP) 
 	{
 		this->setStorageLevel(level);
 	}
 
-	inline BinaryExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
+	inline BinaryOperatorExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
 	{
 		this->setStorageLevel(level);
 		this->setLeftExpression(left);
 		this->setRightExpression(right);
 	}
 
-	virtual ~BinaryExpression();
+	virtual ~BinaryOperatorExpression();
 
 	virtual bool equals(Context *const &context, Expression* const&) const override;
 	virtual void compile(CompileContext *const& context) override;

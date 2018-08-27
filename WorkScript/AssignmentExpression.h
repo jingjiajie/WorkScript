@@ -1,16 +1,16 @@
 #pragma once
-#include "BinaryExpression.h"
+#include "BinaryOperatorExpression.h"
 class AssignmentExpression :
-	public BinaryExpression
+	public BinaryOperatorExpression
 {
 public:
 	inline AssignmentExpression(const StorageLevel level)
-		:BinaryExpression(level)
+		:BinaryOperatorExpression(level)
 	{
 	}
 
 	inline AssignmentExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
-		: BinaryExpression(left, right, level)
+		: BinaryOperatorExpression(left, right, level)
 	{
 	}
 

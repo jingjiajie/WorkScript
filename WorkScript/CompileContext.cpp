@@ -35,6 +35,21 @@ VariableInfo CompileContext::getVariableInfo(const std::string & varName)
 	return variableInfo;
 }
 
+VariableInfo CompileContext::getLocalVariableInfo(const std::string & varName)
+{
+	VariableInfo variableInfo;
+	auto it = this->variableOffsets.find(varName);
+	if (it != this->variableOffsets.end()) {
+		variableInfo.found = true;
+		variableInfo.upLevel = 0;
+		variableInfo.offset = this->variableOffsets[varName];
+	}
+	else {
+		variableInfo.found = false;
+	}
+	return variableInfo;
+}
+
 VariableInfo CompileContext::addLocalVariable(const std::string & varName)
 {
 	VariableInfo variableInfo;

@@ -307,7 +307,7 @@
   <ItemGroup>
     <ClInclude Include="AccessDeniedException.h" />
     <ClInclude Include="AssignmentExpression.h" />
-    <ClInclude Include="BinaryExpression.h" />
+    <ClInclude Include="BinaryOperatorExpression.h" />
     <ClInclude Include="BooleanExpression.h" />
     <ClInclude Include="CompareExpression.h" />
     <ClInclude Include="CompileContext.h" />
@@ -331,6 +331,7 @@
     <ClInclude Include="MemberEvaluateExpression.h" />
     <ClInclude Include="MinusExpression.h" />
     <ClInclude Include="MultiplyExpression.h" />
+    <ClInclude Include="NegativeExpression.h" />
     <ClInclude Include="NumberExpression.h" />
     <ClInclude Include="ObjectPool.h" />
     <ClInclude Include="ParameterExpression.h" />
@@ -343,7 +344,9 @@
     <ClInclude Include="TempExpression.h" />
     <ClInclude Include="TypeExpression.h" />
     <ClInclude Include="TypeMemberExpression.h" />
+    <ClInclude Include="UnaryOperatorExpression.h" />
     <ClInclude Include="UnassignableExpection.h" />
+    <ClInclude Include="UncalculatableException.h" />
     <ClInclude Include="UncomparableException.h" />
     <ClInclude Include="UnimplementedException.h" />
     <ClInclude Include="UninvocableException.h" />
@@ -355,7 +358,7 @@
   <ItemGroup>
     <ClCompile Include="AccessDeniedException.cpp" />
     <ClCompile Include="AssignmentExpression.cpp" />
-    <ClCompile Include="BinaryExpression.cpp" />
+    <ClCompile Include="BinaryOperatorExpression.cpp" />
     <ClCompile Include="BooleanExpression.cpp" />
     <ClCompile Include="CompareExpression.cpp" />
     <ClCompile Include="CompileContext.cpp" />
@@ -379,6 +382,7 @@
     <ClCompile Include="MemberEvaluateExpression.cpp" />
     <ClCompile Include="MinusExpression.cpp" />
     <ClCompile Include="MultiplyExpression.cpp" />
+    <ClCompile Include="NegativeExpression.cpp" />
     <ClCompile Include="NumberExpression.cpp" />
     <ClCompile Include="ParameterExpression.cpp" />
     <ClCompile Include="PlusExpression.cpp" />
@@ -387,7 +391,9 @@
     <ClCompile Include="StringExpression.cpp" />
     <ClCompile Include="TypeExpression.cpp" />
     <ClCompile Include="TypeMemberExpression.cpp" />
+    <ClCompile Include="UnaryOperatorExpression.cpp" />
     <ClCompile Include="UnassignableExpection.cpp" />
+    <ClCompile Include="UncalculatableException.cpp" />
     <ClCompile Include="UncomparableException.cpp" />
     <ClCompile Include="UnimplementedException.cpp" />
     <ClCompile Include="UninvocableException.cpp" />

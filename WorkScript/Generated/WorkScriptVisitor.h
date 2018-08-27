@@ -25,17 +25,19 @@ public:
 
     virtual antlrcpp::Any visitListExpression(WorkScriptParser::ListExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitStringExpression_(WorkScriptParser::StringExpression_Context *context) = 0;
+
     virtual antlrcpp::Any visitFunctionInvocationExpression(WorkScriptParser::FunctionInvocationExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitNumberExpression(WorkScriptParser::NumberExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitVariableExpression(WorkScriptParser::VariableExpressionContext *context) = 0;
-
     virtual antlrcpp::Any visitCompareExpression(WorkScriptParser::CompareExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitVariableExpression_(WorkScriptParser::VariableExpression_Context *context) = 0;
 
     virtual antlrcpp::Any visitMethodInvocationExpression(WorkScriptParser::MethodInvocationExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitAssignmentOrEqualsExpression(WorkScriptParser::AssignmentOrEqualsExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitNumberExpression_(WorkScriptParser::NumberExpression_Context *context) = 0;
 
     virtual antlrcpp::Any visitAssignmentExpression(WorkScriptParser::AssignmentExpressionContext *context) = 0;
 
@@ -43,15 +45,25 @@ public:
 
     virtual antlrcpp::Any visitMemberEvaluateExpression(WorkScriptParser::MemberEvaluateExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitPositiveExpression(WorkScriptParser::PositiveExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionExpression_(WorkScriptParser::FunctionExpression_Context *context) = 0;
 
+    virtual antlrcpp::Any visitNonSignMultiplyExpression(WorkScriptParser::NonSignMultiplyExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitNegativeExpression(WorkScriptParser::NegativeExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitEqualsExpression(WorkScriptParser::EqualsExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitParameterExpression(WorkScriptParser::ParameterExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitNumberExpression(WorkScriptParser::NumberExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitVariableExpression(WorkScriptParser::VariableExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *context) = 0;
 

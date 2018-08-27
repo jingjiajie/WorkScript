@@ -83,7 +83,7 @@ TypeExpression* const MinusExpression::getType(Context *const& context) const
 StringExpression *const MinusExpression::toString(Context *const& context)
 {
 	static StringExpression sign("-", StorageLevel::EXTERN);
-	return BinaryExpression::toString(context, &sign);
+	return BinaryOperatorExpression::toString(context, &sign);
 }
 
 NumberExpression * MinusExpression::numberMinusNumber(NumberExpression* const&left, NumberExpression* const&right) const
