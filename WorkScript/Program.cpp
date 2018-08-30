@@ -15,7 +15,6 @@ using namespace std;
 
 Program::Program()
 {
-	setlocale(LC_CTYPE, "");
 	this->initConstants();
 	this->initPrintExpression();
 }
@@ -93,7 +92,7 @@ void Program::initPrintExpression()
 		auto value = context->getLocalVariable(0);
 		TempExpression<StringExpression> strExpr(value, value->toString(context));
 		wprintf(L"%ls", strExpr->getValue());
-		return &BooleanExpression::VAL_YES;
+		return &BooleanExpression::VAL_OK;
 	}));
 	printFunc->addOverload(overload);
 	this->pushExpression(printFunc);

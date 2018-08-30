@@ -44,21 +44,23 @@ void SyntaxErrorListener::syntaxError(Recognizer * recognizer,
 	const std::string & msg,
 	std::exception_ptr e)
 {
-	stringstream ss, ssCode;
-	ssCode << offendingSymbol->getInputStream()->toString();
-	string lineData;
+	wstringstream ss, ssCode;
+	wstring woffendingText = boost::locale::conv::utf_to_utf<wchar_t>(offendingSymbol->getInputStream()->toString());
+	wstring wmsg = boost::locale::conv::to_utf<wchar_t>(msg,LOCAL_BOOST_ENCODING);
+	ssCode << woffendingText;
+	wstring lineData;
 	for (int i = 0; i < line; i++) {
 		getline(ssCode, lineData);
 	}
 	string word = offendingSymbol->getText();
 	ss << endl;
-	ss << lineData << "\t" << msg << endl;
+	ss << lineData << L"\tÆäÖÐ" << wmsg << endl;
 	for (auto i = 0; i < charPositionInLine; ++i) {
-		ss << " ";
+		ss << L" ";
 	}
 	for (auto i = 0; i < word.length(); ++i)
 	{
-		ss << "~";
+		ss << L"~";
 	}
-	throw std::move(SyntaxErrorException(line, charPositionInLine + 1, boost::locale::conv::to_utf<wchar_t>(ss.str(), "UTF-8").c_str()));
+	throw SyntaxErrorException(line, charPositionInLine + 1, ss.str().c_str());
 }
