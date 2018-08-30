@@ -4,20 +4,31 @@
 #include "Context.h"
 #include "Program.h"
 #include "IllegalValueException.h"
-
+#include <boost/locale.hpp>
 using namespace std;
 
 ObjectPool<BooleanExpression> BooleanExpression::pool(1024);
 
-BooleanExpression BooleanExpression::VAL_FALSE(0, StorageLevel::EXTERN);
+//真值
 BooleanExpression BooleanExpression::VAL_TRUE(1, StorageLevel::EXTERN);
-BooleanExpression BooleanExpression::VAL_NO(2, StorageLevel::EXTERN);
 BooleanExpression BooleanExpression::VAL_YES(3, StorageLevel::EXTERN);
+BooleanExpression BooleanExpression::VAL_OK(5, StorageLevel::EXTERN);
+BooleanExpression BooleanExpression::VAL_GOOD(7, StorageLevel::EXTERN);
 
-StringExpression BooleanExpression::STR_FALSE("false", StorageLevel::EXTERN);
-StringExpression BooleanExpression::STR_TRUE("true", StorageLevel::EXTERN);
-StringExpression BooleanExpression::STR_NO("no", StorageLevel::EXTERN);
-StringExpression BooleanExpression::STR_YES("yes", StorageLevel::EXTERN);
+StringExpression BooleanExpression::STR_TRUE(L"true", StorageLevel::EXTERN);
+StringExpression BooleanExpression::STR_YES(L"yes", StorageLevel::EXTERN);
+StringExpression BooleanExpression::STR_OK(L"ok", StorageLevel::EXTERN);
+StringExpression BooleanExpression::STR_GOOD(L"good", StorageLevel::EXTERN);
+
+//假值
+BooleanExpression BooleanExpression::VAL_FALSE(0, StorageLevel::EXTERN);
+BooleanExpression BooleanExpression::VAL_NO(2, StorageLevel::EXTERN);
+BooleanExpression BooleanExpression::VAL_BAD(4, StorageLevel::EXTERN);
+
+StringExpression BooleanExpression::STR_FALSE(L"false", StorageLevel::EXTERN);
+StringExpression BooleanExpression::STR_NO(L"no", StorageLevel::EXTERN);
+StringExpression BooleanExpression::STR_BAD(L"bad", StorageLevel::EXTERN);
+
 
 BooleanExpression::~BooleanExpression()
 {
@@ -53,11 +64,15 @@ bool BooleanExpression::equals(Context *const &context, Expression* const& targe
 StringExpression * const BooleanExpression::toString(Context * const & context)
 {
 	switch (this->value) {
-	case 0:return &BooleanExpression::STR_FALSE;
 	case 1:return &BooleanExpression::STR_TRUE;
-	case 2:return &BooleanExpression::STR_NO;
 	case 3:return &BooleanExpression::STR_YES;
+	case 5:return &BooleanExpression::STR_OK;
+	case 7:return &BooleanExpression::STR_GOOD;
+
+	case 0:return &BooleanExpression::STR_FALSE;
+	case 2:return &BooleanExpression::STR_NO;
+	case 4:return &BooleanExpression::STR_BAD;
 	default:
-		throw IllegalValueException((to_string(this->value) + "不是合法的布尔值！").c_str());
+		throw IllegalValueException((to_wstring(this->value) + L"不是合法的布尔值！").c_str());
 	}
 }

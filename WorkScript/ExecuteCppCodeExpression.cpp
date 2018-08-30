@@ -33,7 +33,7 @@ bool ExecuteCppCodeExpression::equals(Context *const &context, Expression* const
 
 StringExpression *const ExecuteCppCodeExpression::toString(Context *const& context)
 {
-	static StringExpression str = StringExpression("(Native Code)", StorageLevel::EXTERN);
+	static StringExpression str = StringExpression(L"(Native Code)", StorageLevel::EXTERN);
 	return &str;
 }
 

@@ -3,6 +3,7 @@
 #include "StringExpression.h"
 #include "NumberExpression.h"
 #include "UncalculatableException.h"
+#include <boost/locale.hpp>
 
 using namespace std;
 
@@ -18,7 +19,7 @@ Expression * const NegativeExpression::evaluate(Context * const & context)
 	}
 	else {
 		TempExpression<StringExpression> str(evaluatedSub,evaluatedSub->toString(context));
-		throw std::move(UncalculatableException((string(str->getValue()) + "无法取负！").c_str()));
+		throw std::move(UncalculatableException((wstring(str->getValue()) + L"无法取负！").c_str()));
 	}
 }
 
@@ -29,6 +30,6 @@ TypeExpression * const NegativeExpression::getType(Context * const & context) co
 
 StringExpression * const NegativeExpression::toString(Context * const & context)
 {
-	static StringExpression sign("-",StorageLevel::EXTERN);
+	static StringExpression sign(L"-",StorageLevel::EXTERN);
 	return UnaryOperatorExpression::toString(context, &sign);
 }

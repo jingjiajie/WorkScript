@@ -10,7 +10,7 @@ public:
 
 	}
 
-	inline UncomparableException(const char *const message)
+	inline UncomparableException(const wchar_t *const message)
 		: WorkScriptException(message)
 	{
 

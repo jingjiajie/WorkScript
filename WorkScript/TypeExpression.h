@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string.h>
+#include <wchar.h>
 #include "Expression.h"
 
 //class TypeMemberExpression;
@@ -8,14 +9,14 @@
 class TypeExpression : public Expression
 {
 public:
-	inline TypeExpression(const char *const &name, TypeExpression* const &baseType, const std::vector<TypeExpression *>& genericTypes, const StorageLevel level = StorageLevel::TEMP)
+	inline TypeExpression(const wchar_t *const &name, TypeExpression* const &baseType, const std::vector<TypeExpression *>& genericTypes, const StorageLevel level = StorageLevel::TEMP)
 		:TypeExpression(name, baseType,level)
 	{
 		this->_isGenericType = true;
 		this->setGenericTypes(genericTypes);
 	}
 
-	inline TypeExpression(const char *const &name, TypeExpression* const &baseType, const StorageLevel level = StorageLevel::TEMP)
+	inline TypeExpression(const wchar_t *const &name, TypeExpression* const &baseType, const StorageLevel level = StorageLevel::TEMP)
 	{
 		this->setBaseType(baseType);
 		this->setName(name);
@@ -35,16 +36,16 @@ public:
 	}
 
 	//类名
-	inline const char *const getName() const
+	inline const wchar_t *const getName() const
 	{
 		return this->name;
 	}
 
-	inline void setName(const char *const &name)
+	inline void setName(const wchar_t *const &name)
 	{
 		if (this->name)delete[]this->name;
-		this->name = new char[strlen(name) + 1];
-		strcpy(this->name, name);
+		this->name = new wchar_t[wcslen(name) + 1];
+		wcscpy(this->name, name);
 	}
 	//基类
 	bool isSubTypeOf(Context *const &context, TypeExpression* const&) const;
@@ -61,7 +62,7 @@ public:
 	//TypeMemberExpression* const matchStaticMemberExpression(Expression* const &matchExpression, ExpressionBind *outExpressionBind) const;
 
 private:
-	char *name = nullptr;
+	wchar_t *name = nullptr;
 	TypeExpression * baseType;
 	bool _isGenericType = false;
 	std::vector<TypeExpression *> genericTypes;

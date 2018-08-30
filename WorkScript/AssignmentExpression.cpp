@@ -4,7 +4,9 @@
 #include "UnassignableExpection.h"
 #include "PointerExpression.h"
 #include "TempExpression.h"
+#include "VariableExpression.h"
 
+#include <boost/locale.hpp>
 #include <string>
 
 AssignmentExpression::~AssignmentExpression()
@@ -45,6 +47,14 @@ TypeExpression * const AssignmentExpression::getType(Context * const & context) 
 
 StringExpression * const AssignmentExpression::toString(Context * const & context)
 {
-	static StringExpression assign(" = ", StorageLevel::EXTERN);
+	static StringExpression assign(L" = ", StorageLevel::EXTERN);
 	return BinaryOperatorExpression::toString(context, &assign);
+}
+
+AssignmentExpression * const AssignmentExpression::evaluateParamAssignment(Context * const & context)
+{
+	auto leftVar = (VariableExpression *const)this->leftExpression;
+	auto evaluatedRight = this->rightExpression->evaluate(context);
+	auto newMe = new AssignmentExpression(leftVar,evaluatedRight);
+	return newMe;
 }

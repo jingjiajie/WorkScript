@@ -16,7 +16,7 @@ CompileContext::~CompileContext()
 {
 }
 
-VariableInfo CompileContext::getVariableInfo(const std::string & varName)
+VariableInfo CompileContext::getVariableInfo(const wchar_t *const & varName)
 {
 	VariableInfo variableInfo;
 	auto it = this->variableOffsets.find(varName);
@@ -35,7 +35,7 @@ VariableInfo CompileContext::getVariableInfo(const std::string & varName)
 	return variableInfo;
 }
 
-VariableInfo CompileContext::getLocalVariableInfo(const std::string & varName)
+VariableInfo CompileContext::getLocalVariableInfo(const wchar_t *const & varName)
 {
 	VariableInfo variableInfo;
 	auto it = this->variableOffsets.find(varName);
@@ -50,7 +50,7 @@ VariableInfo CompileContext::getLocalVariableInfo(const std::string & varName)
 	return variableInfo;
 }
 
-VariableInfo CompileContext::addLocalVariable(const std::string & varName)
+VariableInfo CompileContext::addLocalVariable(const wchar_t *const & varName)
 {
 	VariableInfo variableInfo;
 	variableInfo.found = true;

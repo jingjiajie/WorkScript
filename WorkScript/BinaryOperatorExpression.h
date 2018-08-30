@@ -28,6 +28,12 @@ public:
 	{
 		return this->leftExpression;
 	}
+	inline Expression* const popLeftExpression()
+	{
+		auto expr = this->leftExpression;
+		this->leftExpression = nullptr;
+		return expr;
+	}
 	inline void setLeftExpression(Expression* const &left)
 	{
 		this->leftExpression = left;
@@ -35,6 +41,12 @@ public:
 	inline Expression* const getRightExpression() const
 	{
 		return this->rightExpression;
+	}
+	inline Expression* const popRightExpression()
+	{
+		auto expr = this->rightExpression;
+		this->rightExpression = nullptr;
+		return expr;
 	}
 	inline void setRightExpression(Expression* const &right)
 	{

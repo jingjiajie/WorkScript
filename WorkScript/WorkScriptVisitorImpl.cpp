@@ -2,6 +2,7 @@
 #include <type_traits>
 #include <string>
 #include <vector>
+#include <boost/locale.hpp>
 #include "WorkScriptVisitorImpl.h"
 #include "StringExpression.h"
 #include "NumberExpression.h"
@@ -63,15 +64,16 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 antlrcpp::Any WorkScriptVisitorImpl::visitStringExpression(WorkScriptParser::StringExpressionContext *ctx)
 {
 	string textWithQuotationMark = ctx->STRING()->getText();
-	string text = textWithQuotationMark.substr(1, textWithQuotationMark.length() - 2);
-	auto lpExpr = StringExpression::newInstance(text.c_str(), StorageLevel::LITERAL);
+	wstring wtext = boost::locale::conv::to_utf<wchar_t>(textWithQuotationMark, "UTF-8");
+	wtext = wtext.substr(1, wtext.length() - 2);
+	auto lpExpr = StringExpression::newInstance(wtext.c_str(), StorageLevel::LITERAL);
 	return ExpressionWrapper(lpExpr);
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx)
 {
 	string varName = ctx->identifier()->getText();
-	return ExpressionWrapper(new VariableExpression(varName.c_str(), StorageLevel::LITERAL));
+	return ExpressionWrapper(new VariableExpression(boost::locale::conv::to_utf<wchar_t>(varName,"UTF-8").c_str(), StorageLevel::LITERAL));
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *ctx)
@@ -99,28 +101,40 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	}
 	FORBID_ASSIGN
 
-	vector<string> paramVarNames;
-	vector<Expression *> vecConstraints; //函数的限制，由字面声明和语法糖编译两部分组成
+	//函数的参数和限制
 	ExpressionWrapper paramsWrapper = ctx->functionDeclarationExpression()->parameterExpression()->accept(this);
-	auto params = (ParameterExpression *const&)(paramsWrapper.getExpression());
-	//首先是语法糖编译
-	for (size_t i = 0; i < params->getCount(); ++i) {
-		if (params->getItem(i)->getType(nullptr)->equals(nullptr, &TypeExpression::VARIABLE_EXPRESSION)) {
-			paramVarNames.push_back(((VariableExpression *const)params->getItem(i))->getName());
+	auto paramExpr = (ParameterExpression *const&)(paramsWrapper.getExpression());
+	size_t paramCount = paramExpr->getCount();
+	ParameterInfo *paramInfos = new ParameterInfo[paramCount]();
+	vector<Expression *> vecConstraints; //函数的限制，由字面声明和语法糖编译两部分组成
+	//首先是语法糖编译，包括约束和默认值
+	for (size_t i = 0; i < paramCount; ++i) {
+		if (paramExpr->getItem(i)->getType(nullptr)->equals(nullptr, &TypeExpression::VARIABLE_EXPRESSION)) {
+			paramInfos[i].setParameterName(((VariableExpression *const)paramExpr->getItem(i))->getName());
 		}
-		else if (params->getItem(i)->getType(nullptr)->isSubTypeOf(nullptr, &TypeExpression::COMPARE_EXPRESSION)) {
-			VariableExpression *leftVar = ((CompareExpression*)params->getItem(i))->getLeftVariable();
+		else if (paramExpr->getItem(i)->getType(nullptr)->isSubTypeOf(nullptr, &TypeExpression::COMPARE_EXPRESSION)) {
+			VariableExpression *leftVar = ((CompareExpression*)paramExpr->getItem(i))->getLeftVariable();
 			if (leftVar == nullptr) {
-				throw std::move(WorkScriptException("函数参数约束左部必须为变量！"));
+				throw std::move(WorkScriptException(L"函数参数约束左部必须为变量！"));
 			}
-			vecConstraints.push_back(params->getItem(i));
-			paramVarNames.push_back(leftVar->getName());
-		}else {
-			string tmpVarName = "_" + to_string(i);
-			paramVarNames.push_back(tmpVarName);
+			vecConstraints.push_back(paramExpr->popItem(i));
+			paramInfos[i].setParameterName(leftVar->getName());
+		}
+		else if (paramExpr->getItem(i)->getType(nullptr)->isSubTypeOf(nullptr, &TypeExpression::ASSIGNMENT_EXPRESSION)) {
+			AssignmentExpression *assignmentExpr = (AssignmentExpression *)paramExpr->getItem(i);
+			auto leftExpr = assignmentExpr->getLeftExpression();
+			if (!leftExpr->getType(nullptr)->equals(nullptr, &TypeExpression::VARIABLE_EXPRESSION)){
+				throw std::move(WorkScriptException(L"参数默认值左部必须为参数名！"));
+			}
+			auto leftVar = (VariableExpression*)leftExpr;
+			paramInfos[i].setParameterName(leftVar->getName());
+			paramInfos[i].setDefaultValue(assignmentExpr->popRightExpression());
+		}else{
+			wstring tmpVarName = L"_" + to_wstring(i);
+			paramInfos[i].setParameterName(tmpVarName.c_str());
 			EqualsExpression * constraint = new EqualsExpression(StorageLevel::LITERAL);
 			constraint->setLeftExpression(new VariableExpression(tmpVarName.c_str(), StorageLevel::LITERAL));
-			constraint->setRightExpression(params->getItem(i));
+			constraint->setRightExpression(paramExpr->popItem(i));
 			vecConstraints.push_back(constraint);
 		}
 	}
@@ -138,18 +152,20 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	}
 
 	FunctionExpression * funcExpr = new FunctionExpression(StorageLevel::LITERAL);
-	funcExpr->setName(funcName.c_str());
+	funcExpr->setName(boost::locale::conv::to_utf<wchar_t>(funcName, "UTF-8").c_str());
 
 	Expression **constraints = new Expression*[vecConstraints.size()];
 	for (size_t i = 0; i < vecConstraints.size(); ++i) {
 		constraints[i] = vecConstraints[i];
 	}
 
-	auto overload = new FunctionExpression::Overload;
-	overload->setParameterNames(paramVarNames);
+	auto overload = new Overload;
+	overload->setParameterInfos(paramInfos,paramCount);
 	overload->setConstraints(constraints, vecConstraints.size());
 	overload->setImplements(impls, implCount);
 	funcExpr->addOverload(overload);
+
+	paramExpr->releaseLiteral();
 	RESTORE_ASSIGNABLE
 	return ExpressionWrapper(funcExpr);
 }

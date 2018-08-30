@@ -14,7 +14,7 @@ TypeExpression * const LessThanEqualExpression::getType(Context * const & contex
 
 StringExpression * const LessThanEqualExpression::toString(Context * const & context)
 {
-	static StringExpression sign("<=",StorageLevel::EXTERN);
+	static StringExpression sign(L"<=",StorageLevel::EXTERN);
 	return BinaryOperatorExpression::toString(context, &sign);
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "Defines.h"
 #include "WorkScriptException.h"
 #include "TypeInfo.h"
 #include "CompileContext.h"
@@ -30,6 +31,11 @@ public:
 	virtual bool equals(Context *const &context, Expression* const&) const = 0;
 
 	//已经实现的非虚函数
+	inline void upgradeStorageLevel(const StorageLevel level)
+	{
+		if (this->storageLevel < level)this->storageLevel = level;
+	}
+
 	inline StorageLevel getStorageLevel() const
 	{
 		return this->storageLevel;

@@ -84,3 +84,9 @@ void Context::setCurrentExpression(Expression* const &expr)
 		this->currentExpression = expr;
 	}
 }
+
+void Context::setLocalVariable(size_t offset, Expression * const & value)
+{
+	value->upgradeStorageLevel(StorageLevel::LOCAL);
+	this->localVariables[offset] = value;
+}

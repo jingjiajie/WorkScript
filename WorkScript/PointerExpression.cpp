@@ -23,7 +23,7 @@ TypeExpression * const PointerExpression::getType(Context * const & context) con
 
 StringExpression * const PointerExpression::toString(Context * const & context)
 {
-	static StringExpression str("PointerExpression",StorageLevel::EXTERN);
+	static StringExpression str(L"PointerExpression",StorageLevel::EXTERN);
 	return &str;
 }
 

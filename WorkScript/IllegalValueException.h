@@ -11,7 +11,7 @@ public:
 
 	}
 
-	inline IllegalValueException(const char *const message)
+	inline IllegalValueException(const wchar_t *const message)
 		: WorkScriptException(message)
 	{
 

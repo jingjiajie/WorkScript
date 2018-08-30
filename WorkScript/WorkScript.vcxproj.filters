@@ -211,6 +211,12 @@
     <ClInclude Include="NegativeExpression.h">
       <Filter>DataStructures\Expressions\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="SyntaxErrorListener.h" />
+    <ClInclude Include="SyntaxErrorException.h">
+      <Filter>DataStructures\Exceptions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SyntaxErrorStrategy.h" />
+    <ClInclude Include="Defines.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Context.cpp">
@@ -352,5 +358,10 @@
     <ClCompile Include="NegativeExpression.cpp">
       <Filter>DataStructures\Expressions\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="SyntaxErrorListener.cpp" />
+    <ClCompile Include="SyntaxErrorException.cpp">
+      <Filter>DataStructures\Exceptions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="SyntaxErrorStrategy.cpp" />
   </ItemGroup>
 </Project>

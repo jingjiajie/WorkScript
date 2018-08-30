@@ -1,5 +1,6 @@
 #pragma once
 #include <string.h>
+#include <wchar.h>
 #include "Expression.h"
 #include "VariableInfo.h"
 
@@ -9,7 +10,7 @@ class VariableExpression :
 	public Expression
 {
 public:
-	inline VariableExpression(const char *const &name, const StorageLevel level = StorageLevel::TEMP)
+	inline VariableExpression(const wchar_t *const &name, const StorageLevel level = StorageLevel::TEMP)
 	{
 		this->setName(name);
 		this->setStorageLevel(level);
@@ -24,19 +25,19 @@ public:
 	virtual StringExpression *const toString(Context *const& context) override;
 	virtual void compile(CompileContext *const& context) override;
 
-	inline const char *const & getName() const 
+	inline const wchar_t *const & getName() const 
 	{
 		return this->name;
 	}
 
-	inline void setName(const char *const &name) 
+	inline void setName(const wchar_t *const &name) 
 	{
 		if (this->name)delete[]this->name;
-		this->name = new char[strlen(name) + 1];
-		strcpy(this->name, name);
+		this->name = new wchar_t[wcslen(name) + 1];
+		wcscpy(this->name, name);
 	}
 protected:
 	VariableInfo variableInfo;
-	char * name = nullptr;
+	wchar_t * name = nullptr;
 };
 

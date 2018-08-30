@@ -50,7 +50,7 @@ TypeExpression* const GreaterThanExpression::getType(Context *const& context) co
 
 StringExpression *const GreaterThanExpression::toString(Context *const& context)
 {
-	static StringExpression greaterThan(">",StorageLevel::EXTERN);
+	static StringExpression greaterThan(L">",StorageLevel::EXTERN);
 	return BinaryOperatorExpression::toString(context, &greaterThan);
 }
 

@@ -14,7 +14,7 @@ TypeExpression * const LessThanExpression::getType(Context * const & context) co
 
 StringExpression * const LessThanExpression::toString(Context * const & context)
 {
-	static StringExpression sign(">",StorageLevel::EXTERN);
+	static StringExpression sign(L">",StorageLevel::EXTERN);
 	return BinaryOperatorExpression::toString(context, &sign);
 }
 

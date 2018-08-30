@@ -1,12 +1,16 @@
 #include "ParameterExpression.h"
 #include "TypeExpression.h"
 #include "StringExpression.h"
+#include "AssignmentExpression.h"
 
 ParameterExpression::~ParameterExpression()
 {
 	for (size_t i = 0; i < count; ++i)
 	{
-		this->items[i]->release(this->storageLevel);
+		if (this->items[i])
+		{
+			this->items[i]->release(this->storageLevel);
+		}
 	}
 }
 
@@ -17,11 +21,11 @@ TypeExpression * const ParameterExpression::getType(Context * const & context) c
 
 StringExpression * const ParameterExpression::toString(Context * const & context)
 {
-	static StringExpression comma("",StorageLevel::EXTERN);
+	static StringExpression comma(L",",StorageLevel::EXTERN);
 	size_t itemCount = this->count;
 	//如果有0项，直接返回空字符串就行了
 	if (itemCount == 0) {
-		return StringExpression::newInstance("");
+		return StringExpression::newInstance(L"");
 	}
 	//否则返回逗号分隔的各项
 	size_t strCount = itemCount * 2 - 1;
@@ -48,11 +52,17 @@ void ParameterExpression::compile(CompileContext * const & context)
 
 Expression * const ParameterExpression::evaluate(Context * const & context)
 {
+	//在参数表达式中如果遇到赋值语句，不可以真的赋值，而是直接返回赋值语句。
 	if (this->getStorageLevel() == StorageLevel::LITERAL)
 	{
 		Expression **evaluatedItems = new Expression *[this->count];
 		for (size_t i = 0; i < this->count; ++i) {
-			evaluatedItems[i] = this->items[i]->evaluate(context);
+			if (this->items[i]->getType(context)->equals(context, &TypeExpression::ASSIGNMENT_EXPRESSION)) {
+				evaluatedItems[i] = ((AssignmentExpression *)this->items[i])->evaluateParamAssignment(context);
+			}
+			else {
+				evaluatedItems[i] = this->items[i]->evaluate(context);
+			}
 		}
 		auto newMe = new ParameterExpression(evaluatedItems, this->count);
 		return newMe;

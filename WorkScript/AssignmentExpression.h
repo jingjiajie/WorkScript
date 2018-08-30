@@ -19,5 +19,7 @@ public:
 	virtual Expression* const evaluate(Context *const& context) override;
 	virtual TypeExpression* const getType(Context *const& context) const override;
 	virtual StringExpression *const toString(Context *const& context) override;
+
+	virtual AssignmentExpression *const evaluateParamAssignment(Context *const &context);
 };
 

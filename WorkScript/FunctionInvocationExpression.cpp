@@ -8,6 +8,7 @@
 #include "StringExpression.h"
 #include "TempExpression.h"
 #include <sstream>
+#include <boost/locale.hpp>
 
 using namespace std;
 
@@ -22,8 +23,8 @@ Expression* const FunctionInvocationExpression::evaluate(Context *const& context
 	TempExpression<Expression> evaluatedLeft(this->leftExpression, this->leftExpression->evaluate(context));
 	if (!evaluatedLeft->getType(context)->equals(context, &TypeExpression::FUNCTION_EXPRESSION)) {
 		TempExpression<StringExpression> leftStrExpr(evaluatedLeft, evaluatedLeft->toString(context));
-		string leftName(leftStrExpr->getValue());
-		string str = (leftName + "不是函数！");
+		wstring leftName(leftStrExpr->getValue());
+		wstring str = (leftName + L"不是函数！");
 		throw std::move(UninvocableException(str.c_str()));
 	}
 	TempExpression<ParameterExpression> evaluatedParams(this->parameters, this->parameters->evaluate(context));
@@ -78,12 +79,12 @@ TypeExpression* const FunctionInvocationExpression::getType(Context *const& cont
 
 StringExpression *const FunctionInvocationExpression::toString(Context *const& context)
 {
-	stringstream ss;
-	ss << this->leftExpression->toString(context);
-	ss << "(";
-	ss << this->parameters->toString(context)->getValue();
-	ss << ")";
-	return StringExpression::newInstance(ss.str().c_str());
+	static StringExpression leftParenthese(L"(", StorageLevel::EXTERN);
+	static StringExpression rightParenthese(L")", StorageLevel::EXTERN);
+	TempExpression<StringExpression> leftStr(this->leftExpression, this->leftExpression->toString(context));
+	TempExpression<StringExpression> paramStr(this->parameters, this->parameters->toString(context));
+	StringExpression *strs[] = { leftStr,&leftParenthese,paramStr,&rightParenthese };
+	return StringExpression::combine(strs, 4);
 }
 
 void FunctionInvocationExpression::compile(CompileContext *const &context)

@@ -1,7 +1,7 @@
 #include "CompareExpression.h"
 #include "BooleanExpression.h"
 #include "UncomparableException.h"
-
+#include <boost/locale.hpp>
 #include <string>
 
 using namespace std;
@@ -29,6 +29,5 @@ BooleanExpression * const CompareExpression::expressionCompareExpression(Context
 {
 	TempExpression<StringExpression> leftStrExpr(left, left->toString(context));
 	TempExpression<StringExpression> rightStrExpr(right, right->toString(context));
-
-	throw UncomparableException((string(leftStrExpr->getValue()) + " 和 " + rightStrExpr->getValue() + "无法比较！").c_str());
+	throw UncomparableException((wstring(leftStrExpr->getValue()) + L" 和 " + rightStrExpr->getValue() + L"无法比较！").c_str());
 }

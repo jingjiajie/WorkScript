@@ -37,9 +37,7 @@ public:
 		return this->localVariables[offset];
 	}
 
-	inline void setLocalVariable(size_t offset, Expression* const &value) {
-		this->localVariables[offset] = value;
-	}
+	void setLocalVariable(size_t offset, Expression* const &value);
 
 	inline Program * const getProgram() const {
 		return this->program;
@@ -54,6 +52,7 @@ public:
 	{
 		this->assignLeft = assignLeft;
 	}
+
 protected:
 	Context * baseContext = nullptr;
 	Program *program = nullptr;

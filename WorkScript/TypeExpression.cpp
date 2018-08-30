@@ -6,36 +6,36 @@
 #include "TypeMemberExpression.h"
 #include "StringExpression.h"
 
-TypeExpression TypeExpression::OBJECT("Object", nullptr, StorageLevel::EXTERN);
-TypeExpression TypeExpression::EXPRESSION("Expression", &OBJECT, StorageLevel::EXTERN);
-TypeExpression TypeExpression::TYPE_EXPRESSION("TypeExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::TYPE_MEMBER_EXPRESSION("TypeMemberExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::ASSIGNMENT_EXPRESSION("AssignmentExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::POINTER_EXPRESSION("PointerExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::VARIABLE_EXPRESSION("VariableExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::FUNCTION_EXPRESSION("FunctionExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::FUNCTION_INVOCATION_EXPRESSION("FunctionInvocationExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::PARAMETER_EXPRESSION("ParameterExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::COMPARE_EXPRESSION("CompareExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::GREATER_THAN_EXPRESSION("GreaterThanExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::GREATER_THAN_EQUAL_EXPRESSION("GreaterThanEqualExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::LESS_THAN_EXPRESSION("LessThanExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::LESS_THAN_EQUAL_EXPRESSION("LessThanEqualExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::EQUALS_EXPRESSION("EqualsExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::PLUS_EXPRESSION("PlusExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::MINUS_EXPRESSION("MinusExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::MULTIPLY_EXPRESSION("MultiplyExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::DIVIDE_EXPRESSION("DivideExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::NEGATIVE_EXPRESSION("NegativeExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::EXECUTE_CPP_CODE_EXPRESSION("ExecuteCppCodeExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::PRINT_EXPRESSION("PrintExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::THIS_EXPRESSION("ThisExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::MEMBER_EVALUATE_EXPRESSION("MemberEvaluateExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::GET_TYPE_EXPRESSION("GetTypeExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::STRING_EXPRESSION("StringExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::NUMBER_EXPRESSION("NumberExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::BOOLEAN_EXPRESSION("BooleanExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::LIST_EXPRESSION("ListExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::OBJECT(L"Object", nullptr, StorageLevel::EXTERN);
+TypeExpression TypeExpression::EXPRESSION(L"Expression", &OBJECT, StorageLevel::EXTERN);
+TypeExpression TypeExpression::TYPE_EXPRESSION(L"TypeExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::TYPE_MEMBER_EXPRESSION(L"TypeMemberExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::ASSIGNMENT_EXPRESSION(L"AssignmentExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::POINTER_EXPRESSION(L"PointerExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::VARIABLE_EXPRESSION(L"VariableExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::FUNCTION_EXPRESSION(L"FunctionExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::FUNCTION_INVOCATION_EXPRESSION(L"FunctionInvocationExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::PARAMETER_EXPRESSION(L"ParameterExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::COMPARE_EXPRESSION(L"CompareExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::GREATER_THAN_EXPRESSION(L"GreaterThanExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::GREATER_THAN_EQUAL_EXPRESSION(L"GreaterThanEqualExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::LESS_THAN_EXPRESSION(L"LessThanExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::LESS_THAN_EQUAL_EXPRESSION(L"LessThanEqualExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::EQUALS_EXPRESSION(L"EqualsExpression", &COMPARE_EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::PLUS_EXPRESSION(L"PlusExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::MINUS_EXPRESSION(L"MinusExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::MULTIPLY_EXPRESSION(L"MultiplyExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::DIVIDE_EXPRESSION(L"DivideExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::NEGATIVE_EXPRESSION(L"NegativeExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::EXECUTE_CPP_CODE_EXPRESSION(L"ExecuteCppCodeExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::PRINT_EXPRESSION(L"PrintExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::THIS_EXPRESSION(L"ThisExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::MEMBER_EVALUATE_EXPRESSION(L"MemberEvaluateExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::GET_TYPE_EXPRESSION(L"GetTypeExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::STRING_EXPRESSION(L"StringExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::NUMBER_EXPRESSION(L"NumberExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::BOOLEAN_EXPRESSION(L"BooleanExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::LIST_EXPRESSION(L"ListExpression", &EXPRESSION, StorageLevel::EXTERN);
 
 TypeExpression::~TypeExpression()
 {

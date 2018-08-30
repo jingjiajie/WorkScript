@@ -36,6 +36,12 @@ public:
 		this->flat(nullptr);
 	}
 
+	inline Expression *const popItem(const size_t &index) {
+		auto expr = this->items[index];
+		this->items[index] = nullptr;
+		return expr;
+	}
+
 	inline const size_t getCount() const {
 		return this->count;
 	}

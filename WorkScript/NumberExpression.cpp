@@ -38,12 +38,12 @@ bool NumberExpression::equals(Context *const &context, Expression* const& target
 StringExpression *const NumberExpression::toString(Context *const& context)
 {
 	double number = this->value;
-	string numberStr;
+	wstring numberStr;
 	if (fabs(number - (int)number) < 1e-8) {
-		numberStr = to_string((int)number);
+		numberStr = to_wstring((int)number);
 	}
 	else { //如果是小数，删除末尾0
-		numberStr = to_string(number);
+		numberStr = to_wstring(number);
 		size_t lastZeroCount = 0;
 		for (size_t i = numberStr.size() - 1; i >= 0; i--) {
 			if (numberStr[i] == '0') {

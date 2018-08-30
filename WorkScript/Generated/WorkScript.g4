@@ -1,6 +1,6 @@
 grammar WorkScript;
 
-program: (expression (NEWLINE | EOF) | NEWLINE)* EOF?;
+program: (NEWLINE | expression NEWLINE?)* EOF;
 
 expression:
 	LEFT_PARENTHESE expression RIGHT_PARENTHESE											# ParentheseExpression

@@ -21,7 +21,7 @@ TypeExpression* const ListExpression::getType(Context *const& context) const
 
 StringExpression *const ListExpression::toString(Context *const& context)
 {
-	static StringExpression leftBracket("[", StorageLevel::EXTERN),rightBracket("]", StorageLevel::EXTERN),comma(", ", StorageLevel::EXTERN);
+	static StringExpression leftBracket(L"[", StorageLevel::EXTERN),rightBracket(L"]", StorageLevel::EXTERN),comma(L", ", StorageLevel::EXTERN);
 	size_t itemCount = this->count;
 	size_t strCount = itemCount == 0 ? 2 : itemCount * 2 + 1;
 	StringExpression **strExprs = new StringExpression*[strCount];

@@ -7,13 +7,15 @@
 #include "VariableExpression.h"
 #include "StringExpression.h"
 #include "AssignmentExpression.h"
-#include <Windows.h>
+#include <locale.h>
 #include <time.h>
+#include <wchar.h>
 
 using namespace std;
 
 Program::Program()
 {
+	setlocale(LC_CTYPE, "");
 	this->initConstants();
 	this->initPrintExpression();
 }
@@ -61,7 +63,7 @@ const std::vector<Expression*>& Program::getExpressions() const
 	return  this->expressions;
 }
 
-void Program::pushAssignmentExpression(const char * const & varName, Expression * const & value)
+void Program::pushAssignmentExpression(const wchar_t * const & varName, Expression * const & value)
 {
 	auto expr = new AssignmentExpression(new VariableExpression(varName, StorageLevel::LITERAL), value, StorageLevel::LITERAL);
 	this->pushExpression(expr);
@@ -69,30 +71,28 @@ void Program::pushAssignmentExpression(const char * const & varName, Expression 
 
 void Program::initConstants()
 {
-	this->pushAssignmentExpression("yes", &BooleanExpression::VAL_YES);
-	this->pushAssignmentExpression("no", &BooleanExpression::VAL_NO);
-	this->pushAssignmentExpression("true", &BooleanExpression::VAL_TRUE);
-	this->pushAssignmentExpression("false", &BooleanExpression::VAL_FALSE);
+	this->pushAssignmentExpression(L"true", &BooleanExpression::VAL_TRUE);
+	this->pushAssignmentExpression(L"yes", &BooleanExpression::VAL_YES);
+	this->pushAssignmentExpression(L"ok", &BooleanExpression::VAL_OK);
+	this->pushAssignmentExpression(L"good", &BooleanExpression::VAL_GOOD);
+
+	this->pushAssignmentExpression(L"false", &BooleanExpression::VAL_FALSE);
+	this->pushAssignmentExpression(L"no", &BooleanExpression::VAL_NO);
+	this->pushAssignmentExpression(L"bad", &BooleanExpression::VAL_BAD);
 }
 
 void Program::initPrintExpression()
 {
 	FunctionExpression * printFunc = new FunctionExpression(StorageLevel::LITERAL);
-	printFunc->setName("print");
-	auto overload = new FunctionExpression::Overload;
-	overload->setParameterNames({ "x" });
+	printFunc->setName(L"print");
+	auto overload = new Overload;
+	ParameterInfo *paramInfos = new ParameterInfo[1];
+	paramInfos[0].setParameterName(L"x");
+	overload->setParameterInfos(paramInfos, 1);
 	overload->setImplement(new ExecuteCppCodeExpression([overload](Context *const& context)->Expression * {
 		auto value = context->getLocalVariable(0);
 		TempExpression<StringExpression> strExpr(value, value->toString(context));
-		//转换为Unicode
-		int len = MultiByteToWideChar(CP_UTF8, 0, strExpr->getValue(), -1, nullptr, 0);
-		wchar_t *unicodeStr = new wchar_t[len + 1];
-		MultiByteToWideChar(CP_UTF8, 0, strExpr->getValue(), -1, unicodeStr, len);
-		//转换为本地编码
-		len = WideCharToMultiByte(CP_ACP, 0, unicodeStr, -1, nullptr, 0, nullptr, nullptr);
-		char *localStr = new char[len + 1];
-		WideCharToMultiByte(CP_ACP, 0, unicodeStr, -1, localStr, len, nullptr, nullptr);
-		cout << localStr;
+		wprintf(L"%ls", strExpr->getValue());
 		return &BooleanExpression::VAL_YES;
 	}));
 	printFunc->addOverload(overload);

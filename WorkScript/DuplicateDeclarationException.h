@@ -10,7 +10,7 @@ public:
 
 	}
 
-	inline DuplicateDeclarationException(const char *const message)
+	inline DuplicateDeclarationException(const wchar_t *const message)
 		:WorkScriptException(message)
 	{
 

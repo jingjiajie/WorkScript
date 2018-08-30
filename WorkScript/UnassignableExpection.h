@@ -10,7 +10,7 @@ public:
 
 	}
 
-	inline UnassignableExpection(const char *const message)
+	inline UnassignableExpection(const wchar_t *const message)
 		:WorkScriptException(message)
 	{
 

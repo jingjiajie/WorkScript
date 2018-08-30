@@ -14,7 +14,7 @@ TypeExpression * const GreaterThanEqualExpression::getType(Context * const & con
 
 StringExpression * const GreaterThanEqualExpression::toString(Context * const & context)
 {
-	static StringExpression sign(">=",StorageLevel::EXTERN);
+	static StringExpression sign(L">=",StorageLevel::EXTERN);
 	return BinaryOperatorExpression::toString(context, &sign);
 }
 

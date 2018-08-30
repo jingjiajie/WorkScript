@@ -138,11 +138,13 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(PlatformTarget)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</IntDir>
+    <LibraryPath>C:\local\boost_1_68_0\lib64-msvc-14.1;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(PlatformTarget)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</IntDir>
+    <LibraryPath>C:\local\boost_1_68_0\lib64-msvc-14.1;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -158,11 +160,13 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(PlatformTarget)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</IntDir>
+    <LibraryPath>C:\local\boost_1_68_0\lib64-msvc-14.1;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(PlatformTarget)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</IntDir>
+    <LibraryPath>C:\local\boost_1_68_0\lib64-msvc-14.1;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">
     <ClCompile>
@@ -172,8 +176,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -188,7 +193,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>ANTLR4CPP_STATIC;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -205,7 +210,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -218,9 +224,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ANTLR4CPP_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOOST_LIB_DIAGNOSTIC;ANTLR4CPP_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -229,7 +236,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -237,6 +244,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -255,7 +264,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>ANTLR4CPP_STATIC;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
@@ -268,7 +277,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -276,7 +285,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -287,7 +297,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -295,7 +305,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>ANTLR4CPP_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -311,6 +322,7 @@
     <ClInclude Include="BooleanExpression.h" />
     <ClInclude Include="CompareExpression.h" />
     <ClInclude Include="CompileContext.h" />
+    <ClInclude Include="Defines.h" />
     <ClInclude Include="DivideExpression.h" />
     <ClInclude Include="DuplicateDeclarationException.h" />
     <ClInclude Include="EqualsExpression.h" />
@@ -341,6 +353,9 @@
     <ClInclude Include="PointerExpression.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="StringExpression.h" />
+    <ClInclude Include="SyntaxErrorException.h" />
+    <ClInclude Include="SyntaxErrorListener.h" />
+    <ClInclude Include="SyntaxErrorStrategy.h" />
     <ClInclude Include="TempExpression.h" />
     <ClInclude Include="TypeExpression.h" />
     <ClInclude Include="TypeMemberExpression.h" />
@@ -389,6 +404,9 @@
     <ClCompile Include="PointerExpression.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="StringExpression.cpp" />
+    <ClCompile Include="SyntaxErrorException.cpp" />
+    <ClCompile Include="SyntaxErrorListener.cpp" />
+    <ClCompile Include="SyntaxErrorStrategy.cpp" />
     <ClCompile Include="TypeExpression.cpp" />
     <ClCompile Include="TypeMemberExpression.cpp" />
     <ClCompile Include="UnaryOperatorExpression.cpp" />

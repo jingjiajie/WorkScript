@@ -2,6 +2,9 @@
 #include <exception>
 #include <string.h>
 #include <utility>
+#include <boost/locale.hpp>
+
+#include "Defines.h"
 
 class WorkScriptException : public std::exception
 {
@@ -12,12 +15,9 @@ public:
 		tmp.message = nullptr;
 	}
 
-	inline WorkScriptException(const WorkScriptException &tmp)
-	{
-		this->setMessage(tmp.message);
-	}
+	inline WorkScriptException(const WorkScriptException &tmp) = delete;
 
-	inline WorkScriptException(const char *const &lpszMsg)
+	inline WorkScriptException(const wchar_t *const &lpszMsg)
 	{
 		this->setMessage(lpszMsg);
 	}
@@ -29,10 +29,11 @@ public:
 		return this->message;
 	}
 
-	inline void setMessage(const char *const &lpszMsg)
+	inline void setMessage(const wchar_t *const &lpszMsg)
 	{
-		auto buff = new char[strlen(lpszMsg) + 1];
-		strcpy(buff, lpszMsg);
+		auto str = boost::locale::conv::from_utf(lpszMsg, LOCAL_BOOST_ENCODING);
+		auto buff = new char[str.length() + 1];
+		strcpy(buff, str.c_str());
 		this->message = buff;
 	}
 protected:

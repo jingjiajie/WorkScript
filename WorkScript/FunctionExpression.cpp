@@ -36,7 +36,7 @@ Expression* const FunctionExpression::evaluate(Context *const &context)
 	}
 	else { //如果本层找到了同名函数，则合并重载
 		if (!varExpr->getType(context)->equals(context, &TypeExpression::FUNCTION_EXPRESSION)) {
-			throw std::move(DuplicateDeclarationException((string(this->name) + "已经被声明过，请勿重复声明！").c_str()));
+			throw std::move(DuplicateDeclarationException((wstring(this->name) + L"已经被声明过，请勿重复声明！").c_str()));
 		}
 		auto funcExpr = (FunctionExpression* const&)varExpr;
 		for (auto &overload : this->overloads) {
@@ -54,7 +54,7 @@ bool FunctionExpression::equals(Context *const &context, Expression* const& targ
 
 StringExpression *const FunctionExpression::toString(Context *const &context)
 {
-	return StringExpression::newInstance("FunctionDeclaration");
+	return StringExpression::newInstance(L"FunctionDeclaration");
 	//stringstream ss;
 	//ss << this->functionName;
 	//for (size_t i = 0; i < this->parameters.size(); ++i) {
@@ -105,7 +105,7 @@ Expression* const FunctionExpression::invoke(ParameterExpression *const &params)
 		}
 		auto expr = targetContext->getLocalVariable(baseFunctionVariableInfo.offset);
 		if (!expr->getType(targetContext)->equals(targetContext, &TypeExpression::FUNCTION_EXPRESSION)) {
-			throw DuplicateDeclarationException((string(this->name) + "已经被声明，请勿重复声明！").c_str());
+			throw DuplicateDeclarationException((wstring(this->name) + L"已经被声明，请勿重复声明！").c_str());
 		}
 		auto funcExpr = (FunctionExpression* const&)expr;
 		return funcExpr->invoke(params);
@@ -115,56 +115,36 @@ Expression* const FunctionExpression::invoke(ParameterExpression *const &params)
 	}
 }
 
-FunctionExpression::Overload::~Overload()
-{
-	if (this->parameterLocalOffsets) {
-		delete[]parameterLocalOffsets;
-	}
-	if (this->constraints) {
-		for (size_t i = 0; i < this->constraintCount; ++i) {
-			this->constraints[i]->releaseLiteral();
-		}
-		delete[]this->constraints;
-	}
-
-	for (size_t i = 0; i < this->implementCount; ++i)
-	{
-		if (this->implements[i]) this->implements[i]->releaseLiteral();
-	}
-	delete[]this->implements;
-}
-
-bool FunctionExpression::Overload::match(ParameterExpression* const &params,Context *const &context) const
+bool Overload::match(ParameterExpression* const &params,Context *const &context) const
 {
 	size_t targetParamCount = params->getCount();
-	auto myParamOffsets = this->parameterLocalOffsets;
 	size_t myParamCount = this->parameterCount;
-	//根据是否允许最后变量匹配剩余所有参数，以及参数个数，预先否决不可能的匹配
-	if (this->allowLastMatchRest) {
-		if (myParamCount > targetParamCount)return false;
-	}
-	else {
-		if (myParamCount != targetParamCount)return false;
-	}
 
 	//逐个匹配参数。如果存在同名参数，则后一个同名参数必须和之前的值相等，否则匹配失败
+	//如果目标参数不够，看看参数有没有设定默认值
 	for (size_t i = 0; i < myParamCount; ++i) {
-		//如果是最后一个变量，则视情况匹配
-		if (i == myParamCount - 1 && i < targetParamCount - 1 && this->allowLastMatchRest) {
+		//如果当前形参已经超过实参个数，则判断是否有默认值
+		if (i + 1 > targetParamCount) { //注意，这里只能i+1，不能右边-1，因为size_t无符号
+			Expression *defaultValue = this->parameters[i].getDefaultValue();
+			if (!defaultValue)return false;
+			context->setLocalVariable(this->parameters[i].getOffset(), defaultValue->evaluate(context));
+		}
+		//如果是最后一个变量，且开启了贪婪匹配，则匹配多项
+		else if (i == myParamCount - 1 && i < targetParamCount - 1 && this->allowLastMatchRest) {
 			auto restParamList = new ParameterExpression(params->getItems() + i,targetParamCount - myParamCount + 1);
-			context->setLocalVariable(myParamOffsets[i], restParamList);
+			context->setLocalVariable(this->parameters[i].getOffset(), restParamList);
 			Expression *prev = nullptr;
-			if ((prev = context->getLocalVariable(myParamOffsets[i])) != nullptr) {
+			if ((prev = context->getLocalVariable(this->parameters[i].getOffset())) != nullptr) {
 				if (!prev->equals(context, restParamList))return false;
 			}
 		}
 		else {
 			Expression *prev = nullptr;
-			if ((prev = context->getLocalVariable(myParamOffsets[i])) != nullptr) {
+			if ((prev = context->getLocalVariable(this->parameters[i].getOffset())) != nullptr) {
 				if (!prev->equals(context, params->getItems()[i]))return false;
 			}
 			//不出意外的话，传入的参数应该都是EXTERN级别
-			context->setLocalVariable(myParamOffsets[i], params->getItems()[i]);
+			context->setLocalVariable(this->parameters[i].getOffset(), params->getItems()[i]);
 		}
 	}
 	//验证约束是否符合，若有不符合则匹配失败
@@ -183,7 +163,7 @@ bool FunctionExpression::Overload::match(ParameterExpression* const &params,Cont
 	return true;
 }
 
-Expression* const FunctionExpression::Overload::invoke(Context *const &context) const
+Expression* const Overload::invoke(Context *const &context) const
 {
 	Expression *ret = nullptr;
 	for (size_t i = 0; i < this->implementCount; ++i)
@@ -200,18 +180,17 @@ Expression* const FunctionExpression::Overload::invoke(Context *const &context) 
 	return ret;
 }
 
-void FunctionExpression::Overload::compile(CompileContext *const &context)
+void Overload::compile(CompileContext *const &context)
 {
 	//编译参数列表
-	this->parameterLocalOffsets = new size_t[this->parameterCount]();
 	for (size_t i = 0; i < this->parameterCount; ++i) {
-		string curVarName = this->parameterNames[i];
+		auto curVarName = this->parameters[i].getParameterName();
 		auto info = context->getLocalVariableInfo(curVarName);
 		if (info.found) {
-			this->parameterLocalOffsets[i] = info.offset;
+			this->parameters[i].setOffset(info.offset);
 		}
 		else {
-			this->parameterLocalOffsets[i] = context->addLocalVariable(this->parameterNames[i]).offset;
+			this->parameters[i].setOffset(context->addLocalVariable(this->parameters[i].getParameterName()).offset);
 		}
 	}
 	//编译约束列表

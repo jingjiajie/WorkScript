@@ -67,7 +67,7 @@ OK:
 
 StringExpression * const DivideExpression::toString(Context * const & context)
 {
-	static StringExpression divisionSign("/", StorageLevel::EXTERN);
+	static StringExpression divisionSign(L"/", StorageLevel::EXTERN);
 	return BinaryOperatorExpression::toString(context, &divisionSign);
 }
 

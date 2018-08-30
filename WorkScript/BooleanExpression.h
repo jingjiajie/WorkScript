@@ -44,8 +44,8 @@ protected:
 		BooleanExpression::pool.push(this);
 	}
 public:
-	static BooleanExpression VAL_YES, VAL_NO, VAL_TRUE, VAL_FALSE;
-	static StringExpression STR_TRUE, STR_FALSE, STR_YES, STR_NO;
+	static BooleanExpression  VAL_TRUE, VAL_YES, VAL_OK, VAL_GOOD, VAL_FALSE, VAL_NO, VAL_BAD;
+	static StringExpression STR_TRUE, STR_YES, STR_OK, STR_GOOD, STR_FALSE, STR_NO, STR_BAD;
 	static ObjectPool<BooleanExpression> pool;
 
 private:

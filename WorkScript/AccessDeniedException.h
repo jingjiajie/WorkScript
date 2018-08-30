@@ -10,7 +10,7 @@ public:
 
 	}
 
-	inline AccessDeniedException(const char *const message)
+	inline AccessDeniedException(const wchar_t *const message)
 		:WorkScriptException(message)
 	{
 

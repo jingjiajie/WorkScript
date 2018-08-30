@@ -10,7 +10,7 @@ class StringExpression :
 {
 	friend class ObjectPool<StringExpression>;
 public:
-	inline StringExpression(const char *const &value, const StorageLevel level = StorageLevel::TEMP)
+	inline StringExpression(const wchar_t *const &value, const StorageLevel level = StorageLevel::TEMP)
 	{
 		this->setValue(value);
 		this->setStorageLevel(level);
@@ -23,7 +23,7 @@ public:
 		return newInstance;
 	}
 
-	inline static StringExpression *const newInstance(const char *const &value, const StorageLevel level = StorageLevel::TEMP)
+	inline static StringExpression *const newInstance(const wchar_t *const &value, const StorageLevel level = StorageLevel::TEMP)
 	{
 		auto newInstance = StringExpression::pool.get();
 		newInstance->setValue(value);
@@ -54,7 +54,12 @@ public:
 			return false;
 		}
 		else {
-			return strcmp(((StringExpression *const&)targetExpression)->getValue(), this->value) == 0;
+			auto targetStrExpr = ((StringExpression *const&)targetExpression);
+			if (this->getLength() != targetStrExpr->getLength())return false;
+			for (size_t i = 0; i < targetStrExpr->getLength(); ++i) {
+				if (this->value[i] != targetStrExpr->value[i])return false;
+			}
+			return true;
 		}
 	}
 
@@ -73,17 +78,17 @@ public:
 		return &TypeExpression::STRING_EXPRESSION;
 	}
 
-	inline char *const getValue() const 
+	inline wchar_t *const getValue() const 
 	{
 		return this->value;
 	}
 
-	inline void setValue(const char *const &value) 
+	inline void setValue(const wchar_t *const &value) 
 	{
 		if (this->value)delete[]this->value;
-		this->length = strlen(value);
-		this->value = new char[length + 1];
-		strcpy(this->value,value);
+		this->length = wcslen(value);
+		this->value = new wchar_t[length + 1];
+		wcscpy(this->value,value);
 	}
 
 	inline size_t getLength() const
@@ -93,7 +98,7 @@ public:
 protected:
 	static ObjectPool<StringExpression> pool;
 
-	char *value = nullptr;
+	wchar_t *value = nullptr;
 	size_t length = 0;
 private:
 	inline StringExpression() {}

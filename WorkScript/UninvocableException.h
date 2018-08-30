@@ -10,7 +10,7 @@ public:
 
 	}
 
-	inline UninvocableException(const char *const message)
+	inline UninvocableException(const wchar_t *const message)
 		:WorkScriptException(message)
 	{
 

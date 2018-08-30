@@ -17,9 +17,9 @@ StringExpression *const StringExpression::combine(const StringExpression *const 
 		totalLength += stringExpressions[i]->getLength();
 	}
 
-	char *buff = new char[totalLength + 1];
+	wchar_t *buff = new wchar_t[totalLength + 1];
 	for (size_t i = 0, curPos = 0; i < count; curPos += stringExpressions[i]->getLength(), ++i) {
-		strcpy(buff + curPos, stringExpressions[i]->getValue());
+		wcscpy(buff + curPos, stringExpressions[i]->getValue());
 	}
 	if (newInstance->value)delete[]newInstance->value;
 	newInstance->value = buff;

@@ -10,12 +10,12 @@ public:
 	}
 
 	inline UnimplementedException()
-		:WorkScriptException("方法未实现！")
+		:WorkScriptException(L"方法未实现！")
 	{
 
 	}
 
-	inline UnimplementedException(const char *const message)
+	inline UnimplementedException(const wchar_t *const message)
 		:WorkScriptException(message)
 	{
 

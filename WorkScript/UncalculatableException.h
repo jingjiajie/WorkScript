@@ -10,7 +10,7 @@ public:
 
 	}
 
-	inline UncalculatableException(const char *const message)
+	inline UncalculatableException(const wchar_t *const message)
 		: WorkScriptException(message)
 	{
 
