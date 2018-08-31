@@ -2,8 +2,9 @@
 #include "BinaryOperatorExpression.h"
 
 class BooleanExpression;
-class NumberExpression;
+class DoubleExpression;
 class VariableExpression;
+class NumberExpression;
 
 class CompareExpression :
 	public BinaryOperatorExpression

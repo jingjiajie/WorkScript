@@ -22,6 +22,15 @@ public:
 		this->setName(name);
 		this->setStorageLevel(level);
 	}
+
+	inline TypeExpression(const wchar_t *const &name, TypeExpression* const &baseType,const unsigned char typeID = TYPEID_CUSTOM, const StorageLevel level = StorageLevel::TEMP)
+	{
+		this->setBaseType(baseType);
+		this->setName(name);
+		this->setStorageLevel(level);
+		this->setTypeID(typeID);
+	}
+
 	virtual ~TypeExpression();
 	//继承成员
 	virtual Expression* const evaluate(Context *const& context) override;
@@ -47,6 +56,14 @@ public:
 		this->name = new wchar_t[wcslen(name) + 1];
 		wcscpy(this->name, name);
 	}
+
+	inline const unsigned char getTypeID()const {
+		return this->typeID;
+	}
+
+	inline void setTypeID(const unsigned char typeID) {
+		this->typeID = typeID;
+	}
 	//基类
 	bool isSubTypeOf(Context *const &context, TypeExpression* const&) const;
 	TypeExpression* const & getBaseType() const;
@@ -65,17 +82,25 @@ private:
 	wchar_t *name = nullptr;
 	TypeExpression * baseType;
 	bool _isGenericType = false;
+	unsigned char typeID = TYPEID_CUSTOM;
 	std::vector<TypeExpression *> genericTypes;
 	//std::vector<TypeMemberExpression *> memberExpressions;
 
 public:
+	enum TypeID{
+		TYPEID_BYTE = 0,
+		TYPEID_INTEGER,
+		TYPEID_DOUBLE,
+		TYPEID_CUSTOM
+	};
+
 	static TypeExpression 
 		OBJECT,
 		EXPRESSION,
 		TYPE_EXPRESSION,
 		TYPE_MEMBER_EXPRESSION,
 		ASSIGNMENT_EXPRESSION,
-		POINTER_EXPRESSION,
+		EXPRESSION_POINTER_EXPRESSION,
 		FUNCTION_EXPRESSION,
 		FUNCTION_INVOCATION_EXPRESSION,
 		PARAMETER_EXPRESSION,
@@ -98,6 +123,9 @@ public:
 		VARIABLE_EXPRESSION,
 		STRING_EXPRESSION,
 		NUMBER_EXPRESSION,
+		DOUBLE_EXPRESSION,
+		INTEGER_EXPRESSION,
+		BYTE_EXPRESSION,
 		BOOLEAN_EXPRESSION,
 		LIST_EXPRESSION
 		;

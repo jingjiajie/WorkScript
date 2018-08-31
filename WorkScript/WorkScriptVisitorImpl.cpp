@@ -3,9 +3,11 @@
 #include <string>
 #include <vector>
 #include <boost/locale.hpp>
+#include <math.h>
+#include <limits.h>
 #include "WorkScriptVisitorImpl.h"
 #include "StringExpression.h"
-#include "NumberExpression.h"
+#include "DoubleExpression.h"
 #include "ExpressionWrapper.h"
 #include "TypeExpression.h"
 #include "PlusExpression.h"
@@ -25,6 +27,8 @@
 #include "LessThanEqualExpression.h"
 #include "LessThanExpression.h"
 #include "NegativeExpression.h"
+#include "IntegerExpression.h"
+#include "ByteExpression.h"
 
 #define FORBID_ASSIGN \
 this->assignable = false; 
@@ -56,7 +60,20 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 	if (ctx->MINUS()) {
 		value = -value;
 	}
-	auto lpExpr = NumberExpression::newInstance(value, StorageLevel::LITERAL);
+	Expression *lpExpr = nullptr;
+	double decimalPart = value - (int)value;
+	//根据实际数值，判断是double,integer还是byte
+	if (decimalPart < -1e-8 || decimalPart > 1e-8) { //是Double
+		lpExpr = DoubleExpression::newInstance(value, StorageLevel::LITERAL);
+	}
+	else { //是整数
+		//if (value < 0 || value > UCHAR_MAX) { //是Integer
+			lpExpr = IntegerExpression::newInstance(value, StorageLevel::LITERAL);
+		//}
+		//else { //是Byte
+		//	lpExpr = ByteExpression::newInstance(value, StorageLevel::LITERAL);
+		//}
+	}
 	auto wrapper = ExpressionWrapper(lpExpr);
 	return wrapper;
 }

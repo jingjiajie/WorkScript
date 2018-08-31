@@ -1,6 +1,6 @@
 #pragma once
 #include "BinaryOperatorExpression.h"
-#include "NumberExpression.h"
+#include "DoubleExpression.h"
 
 class DivideExpression :
 	public BinaryOperatorExpression

@@ -1,7 +1,7 @@
 #include "LessThanEqualExpression.h"
 #include "StringExpression.h"
 #include "BooleanExpression.h"
-#include "NumberExpression.h"
+#include "DoubleExpression.h"
 
 LessThanEqualExpression::~LessThanEqualExpression()
 {
@@ -20,5 +20,5 @@ StringExpression * const LessThanEqualExpression::toString(Context * const & con
 
 BooleanExpression * const LessThanEqualExpression::numberCompareNumber(Context * context, NumberExpression * const &left, NumberExpression * const &right) const
 {
-	return BooleanExpression::newInstance(left->getValue() <= right->getValue());
+	return left->lessThanEquals(right);
 }

@@ -2,7 +2,7 @@
 #include <memory>
 #include "TypeExpression.h"
 #include "BooleanExpression.h"
-#include "NumberExpression.h"
+#include "DoubleExpression.h"
 #include "CompareExpression.h"
 
 class GreaterThanExpression :

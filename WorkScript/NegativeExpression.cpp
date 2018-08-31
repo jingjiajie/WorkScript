@@ -1,7 +1,7 @@
 #include "NegativeExpression.h"
 #include "TypeExpression.h"
 #include "StringExpression.h"
-#include "NumberExpression.h"
+#include "DoubleExpression.h"
 #include "UncalculatableException.h"
 #include <boost/locale.hpp>
 
@@ -15,7 +15,7 @@ Expression * const NegativeExpression::evaluate(Context * const & context)
 {
 	TempExpression<Expression> evaluatedSub(this->subExpression, this->subExpression->evaluate(context));
 	if (evaluatedSub->getType(context)->equals(context, &TypeExpression::NUMBER_EXPRESSION)) {
-		return NumberExpression::newInstance(-1 * ((NumberExpression*)evaluatedSub.getExpression())->getValue());
+		return DoubleExpression::newInstance(-1 * ((DoubleExpression*)evaluatedSub.getExpression())->getValue());
 	}
 	else {
 		TempExpression<StringExpression> str(evaluatedSub,evaluatedSub->toString(context));

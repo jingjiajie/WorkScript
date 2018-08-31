@@ -17,7 +17,7 @@ Expression * const CompareExpression::evaluate(Context * const & context)
 	auto numberType = &TypeExpression::NUMBER_EXPRESSION;
 	TempExpression<TypeExpression> leftType(evaluatedLeft, evaluatedLeft->getType(context));
 	TempExpression<TypeExpression> rightType(evaluatedRight, evaluatedRight->getType(context));
-	if (leftType->equals(context, numberType) && rightType->equals(context, numberType)) {
+	if (leftType->isSubTypeOf(context, numberType) && rightType->isSubTypeOf(context, numberType)) {
 		return this->numberCompareNumber(context, (NumberExpression *const&)(evaluatedLeft), (NumberExpression *const&)(evaluatedRight));
 	}
 	else {

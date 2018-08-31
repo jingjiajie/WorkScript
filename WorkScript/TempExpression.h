@@ -5,7 +5,7 @@ template<typename TExpr = Expression>
 class TempExpression
 {
 public:
-	explicit inline TempExpression(Expression *generator,Expression *const &expr)
+	explicit inline TempExpression(const Expression *generator,Expression *const &expr)
 	{
 		this->expression = (TExpr *)expr;
 		this->generator = generator;
@@ -47,7 +47,7 @@ public:
 	TempExpression & operator =(const TempExpression &) = delete;
 private:
 	TExpr * expression;
-	Expression *generator;
+	const Expression *generator;
 	bool noRelease = false;
 
 	inline void release()

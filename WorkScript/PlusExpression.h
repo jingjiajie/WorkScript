@@ -1,7 +1,7 @@
 #pragma once
 #include "BinaryOperatorExpression.h"
 
-class NumberExpression;
+class DoubleExpression;
 class StringExpression;
 
 class PlusExpression :
@@ -26,7 +26,7 @@ public:
 	virtual StringExpression *const toString(Context *const& context) override;
 
 private:
-	NumberExpression * numberPlusNumber(Context *const &context, NumberExpression* const&,NumberExpression* const&) const;
+	NumberExpression * numberPlusNumber(Context *const &context, NumberExpression* const&, NumberExpression* const&) const;
 	StringExpression * exprPlusExpr(Context *const &context, Expression* const&, Expression* const&) const;
 };
 

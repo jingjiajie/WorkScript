@@ -2,7 +2,7 @@
 #include "Context.h"
 #include "TypeExpression.h"
 #include "StringExpression.h"
-#include "PointerExpression.h"
+#include "ExpressionPointerExpression.h"
 
 using namespace std;
 
@@ -19,9 +19,8 @@ Expression* const VariableExpression::evaluate(Context *const& context)
 	}
 	if (context->getAssignLeft() == true)
 	{
-		auto ptr = new PointerExpression(StorageLevel::TEMP);
-		ptr->setTargetContext(targetContext);
-		ptr->setOffset(this->variableInfo.offset);
+		auto ptr = new ExpressionPointerExpression(StorageLevel::TEMP);
+		ptr->setTargetAddress(targetContext->getLocalVariableAddress(this->variableInfo.offset));
 		return ptr;
 	}
 	else {

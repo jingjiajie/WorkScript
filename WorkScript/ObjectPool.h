@@ -44,3 +44,16 @@ public:
 	size_t count;
 	size_t maxCount;
 };
+
+#define OBJECT_POOL_MEMBER_DECL(type) \
+friend class ObjectPool<type>; \
+static ObjectPool<type> _pool; \
+
+#define OBJECT_POOL_MEMBER_IMPL(type,maxSize) \
+ObjectPool<type> type::_pool(maxSize); \
+
+#define OBJECT_POOL_GET \
+_pool.get()
+
+#define OBJECT_POOL_PUSH(lpObj) \
+_pool.push(lpObj)

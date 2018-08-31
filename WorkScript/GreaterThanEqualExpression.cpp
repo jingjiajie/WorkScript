@@ -1,7 +1,7 @@
 #include "GreaterThanEqualExpression.h"
 #include "StringExpression.h"
 #include "BooleanExpression.h"
-#include "NumberExpression.h"
+#include "DoubleExpression.h"
 
 GreaterThanEqualExpression::~GreaterThanEqualExpression()
 {
@@ -20,5 +20,5 @@ StringExpression * const GreaterThanEqualExpression::toString(Context * const & 
 
 BooleanExpression * const GreaterThanEqualExpression::numberCompareNumber(Context * context, NumberExpression * const &left, NumberExpression * const &right) const
 {
-	return BooleanExpression::newInstance(left->getValue() >= right->getValue());
+	return left->greaterThanEquals(right);
 }

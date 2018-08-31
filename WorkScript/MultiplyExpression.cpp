@@ -2,7 +2,7 @@
 #include "MultiplyExpression.h"
 #include "TypeExpression.h"
 #include "StringExpression.h"
-#include "NumberExpression.h"
+#include "DoubleExpression.h"
 #include "Context.h"
 #include "VariableExpression.h"
 #include "DivideExpression.h"
@@ -22,16 +22,14 @@ Expression* const MultiplyExpression::evaluate(Context *const& context)
 	auto numberType = &TypeExpression::NUMBER_EXPRESSION;
 	auto stringType = &TypeExpression::STRING_EXPRESSION;
 
-	if (evaluatedLeftExpr->getType(context)->equals(context, numberType)) {
-		if (evaluatedRightExpr->getType(context)->equals(context, numberType)) {
-			return this->numberMultiplyNumber(context, (NumberExpression *const&)(evaluatedLeftExpr), (NumberExpression *const&)(evaluatedRightExpr));
-		}
+	if (evaluatedLeftExpr->getType(context)->isSubTypeOf(context, numberType) && evaluatedRightExpr->getType(context)->isSubTypeOf(context, numberType)) {
+			return this->numberMultiplyNumber(context, (DoubleExpression *const&)(evaluatedLeftExpr), (DoubleExpression *const&)(evaluatedRightExpr));
 	}
-	else if (evaluatedLeftExpr->getType(context)->equals(context, stringType)) {
-		if (evaluatedRightExpr->getType(context)->equals(context, numberType)) {
-			return this->stringMultiplyNumber(context, (StringExpression *const&)(evaluatedLeftExpr), (NumberExpression *const&)(evaluatedRightExpr));
-		}
-	}
+	//else if (evaluatedLeftExpr->getType(context)->equals(context, stringType)) {
+	//	if (evaluatedRightExpr->getType(context)->equals(context, numberType)) {
+	//		return this->stringMultiplyNumber(context, (StringExpression *const&)(evaluatedLeftExpr), (DoubleExpression *const&)(evaluatedRightExpr));
+	//	}
+	//}
 	auto newMe = new MultiplyExpression(evaluatedLeftExpr, evaluatedRightExpr);
 	return newMe;
 }
@@ -80,17 +78,17 @@ StringExpression *const MultiplyExpression::toString(Context *const& context)
 
 NumberExpression * MultiplyExpression::numberMultiplyNumber(Context *const &context, NumberExpression* const&left, NumberExpression* const&right) const
 {
-	return NumberExpression::newInstance(left->getValue() * right->getValue());
+	return left->multiply(right);
 }
 
-StringExpression * MultiplyExpression::stringMultiplyNumber(Context *const &context, StringExpression* const&left, NumberExpression* const&right) const
-{
-	auto oriString = left->getValue();
-	double times = right->getValue();
-	wstringstream ss;
-	for (int i = 0; i < times; ++i) {
-		ss << oriString;
-	}
-	wstring resultStr = ss.str();
-	return StringExpression::newInstance(resultStr.c_str());
-}
+//StringExpression * MultiplyExpression::stringMultiplyNumber(Context *const &context, StringExpression* const&left, DoubleExpression* const&right) const
+//{
+//	auto oriString = left->getValue();
+//	double times = right->getValue();
+//	wstringstream ss;
+//	for (int i = 0; i < times; ++i) {
+//		ss << oriString;
+//	}
+//	wstring resultStr = ss.str();
+//	return StringExpression::newInstance(resultStr.c_str());
+//}

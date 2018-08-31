@@ -3,6 +3,8 @@
 #include "StringExpression.h"
 #include "TempExpression.h"
 
+class NumberExpression;
+
 class BinaryOperatorExpression :
 	public Expression
 {

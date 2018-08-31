@@ -11,7 +11,7 @@ TypeExpression TypeExpression::EXPRESSION(L"Expression", &OBJECT, StorageLevel::
 TypeExpression TypeExpression::TYPE_EXPRESSION(L"TypeExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::TYPE_MEMBER_EXPRESSION(L"TypeMemberExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::ASSIGNMENT_EXPRESSION(L"AssignmentExpression", &EXPRESSION, StorageLevel::EXTERN);
-TypeExpression TypeExpression::POINTER_EXPRESSION(L"PointerExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::EXPRESSION_POINTER_EXPRESSION(L"ExpressionPointerExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::VARIABLE_EXPRESSION(L"VariableExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::FUNCTION_EXPRESSION(L"FunctionExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::FUNCTION_INVOCATION_EXPRESSION(L"FunctionInvocationExpression", &EXPRESSION, StorageLevel::EXTERN);
@@ -34,6 +34,9 @@ TypeExpression TypeExpression::MEMBER_EVALUATE_EXPRESSION(L"MemberEvaluateExpres
 TypeExpression TypeExpression::GET_TYPE_EXPRESSION(L"GetTypeExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::STRING_EXPRESSION(L"StringExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::NUMBER_EXPRESSION(L"NumberExpression", &EXPRESSION, StorageLevel::EXTERN);
+TypeExpression TypeExpression::DOUBLE_EXPRESSION(L"DoubleExpression", &NUMBER_EXPRESSION, TypeExpression::TYPEID_DOUBLE, StorageLevel::EXTERN);
+TypeExpression TypeExpression::INTEGER_EXPRESSION(L"IntegerExpression", &NUMBER_EXPRESSION, TypeExpression::TYPEID_INTEGER, StorageLevel::EXTERN);
+TypeExpression TypeExpression::BYTE_EXPRESSION(L"ByteExpression", &NUMBER_EXPRESSION,TypeExpression::TYPEID_BYTE, StorageLevel::EXTERN);
 TypeExpression TypeExpression::BOOLEAN_EXPRESSION(L"BooleanExpression", &EXPRESSION, StorageLevel::EXTERN);
 TypeExpression TypeExpression::LIST_EXPRESSION(L"ListExpression", &EXPRESSION, StorageLevel::EXTERN);
 

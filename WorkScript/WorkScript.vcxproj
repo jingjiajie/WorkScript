@@ -318,8 +318,10 @@
   <ItemGroup>
     <ClInclude Include="AccessDeniedException.h" />
     <ClInclude Include="AssignmentExpression.h" />
+    <ClInclude Include="AutoMakeNumberExpression.hpp" />
     <ClInclude Include="BinaryOperatorExpression.h" />
     <ClInclude Include="BooleanExpression.h" />
+    <ClInclude Include="ByteExpression.h" />
     <ClInclude Include="CompareExpression.h" />
     <ClInclude Include="CompileContext.h" />
     <ClInclude Include="Defines.h" />
@@ -332,6 +334,7 @@
     <ClInclude Include="FunctionInvocationExpression.h" />
     <ClInclude Include="GreaterThanEqualExpression.h" />
     <ClInclude Include="IllegalValueException.h" />
+    <ClInclude Include="IntegerExpression.h" />
     <ClInclude Include="LessThanEqualExpression.h" />
     <ClInclude Include="LessThanExpression.h" />
     <ClInclude Include="ListExpression.h" />
@@ -344,12 +347,15 @@
     <ClInclude Include="MinusExpression.h" />
     <ClInclude Include="MultiplyExpression.h" />
     <ClInclude Include="NegativeExpression.h" />
+    <ClInclude Include="DoubleExpression.h" />
     <ClInclude Include="NumberExpression.h" />
     <ClInclude Include="ObjectPool.h" />
+    <ClInclude Include="OperatorWrappers.hpp" />
     <ClInclude Include="ParameterExpression.h" />
     <ClInclude Include="PlusExpression.h" />
     <ClInclude Include="Context.h" />
     <ClInclude Include="Expression.h" />
+    <ClInclude Include="ExpressionPointerExpression.h" />
     <ClInclude Include="PointerExpression.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="StringExpression.h" />
@@ -375,6 +381,7 @@
     <ClCompile Include="AssignmentExpression.cpp" />
     <ClCompile Include="BinaryOperatorExpression.cpp" />
     <ClCompile Include="BooleanExpression.cpp" />
+    <ClCompile Include="ByteExpression.cpp" />
     <ClCompile Include="CompareExpression.cpp" />
     <ClCompile Include="CompileContext.cpp" />
     <ClCompile Include="DivideExpression.cpp" />
@@ -386,6 +393,7 @@
     <ClCompile Include="FunctionInvocationExpression.cpp" />
     <ClCompile Include="GreaterThanEqualExpression.cpp" />
     <ClCompile Include="IllegalValueException.cpp" />
+    <ClCompile Include="IntegerExpression.cpp" />
     <ClCompile Include="LessThanEqualExpression.cpp" />
     <ClCompile Include="LessThanExpression.cpp" />
     <ClCompile Include="ListExpression.cpp" />
@@ -398,9 +406,11 @@
     <ClCompile Include="MinusExpression.cpp" />
     <ClCompile Include="MultiplyExpression.cpp" />
     <ClCompile Include="NegativeExpression.cpp" />
+    <ClCompile Include="DoubleExpression.cpp" />
     <ClCompile Include="NumberExpression.cpp" />
     <ClCompile Include="ParameterExpression.cpp" />
     <ClCompile Include="PlusExpression.cpp" />
+    <ClCompile Include="ExpressionPointerExpression.cpp" />
     <ClCompile Include="PointerExpression.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="StringExpression.cpp" />

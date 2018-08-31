@@ -1,5 +1,5 @@
 #pragma once
-#include "NumberExpression.h"
+#include "DoubleExpression.h"
 #include "StringExpression.h"
 #include "BinaryOperatorExpression.h"
 class MultiplyExpression :
@@ -25,6 +25,6 @@ public:
 
 private:
 	NumberExpression * numberMultiplyNumber(Context *const &context, NumberExpression* const&, NumberExpression* const&) const;
-	StringExpression * stringMultiplyNumber(Context *const &context, StringExpression* const&, NumberExpression* const&) const;
+	//StringExpression * stringMultiplyNumber(Context *const &context, StringExpression* const&, NumberExpression* const&) const;
 };
 

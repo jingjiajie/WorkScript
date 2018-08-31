@@ -24,8 +24,8 @@ GreaterThanExpression::~GreaterThanExpression()
 //	//如果自己的右部是数字类型，且匹配的表达式也是数字，则如果大于，将自己的左部匹配目标表达式
 //	else if(evaluatedRight->getType(context)->equals(numberType) && matchExpression->getType(context)->equals(numberType))
 //	{
-//		auto matchNumberExpression = (NumberExpression *const&)(matchExpression);
-//		auto myNumberRight = (NumberExpression *const&)(evaluatedRight);
+//		auto matchNumberExpression = (DoubleExpression *const&)(matchExpression);
+//		auto myNumberRight = (DoubleExpression *const&)(evaluatedRight);
 //		if (matchNumberExpression->getValue() > myNumberRight->getValue()) {
 //			return evaluatedLeft->match(matchExpression, context);
 //		}
@@ -33,8 +33,8 @@ GreaterThanExpression::~GreaterThanExpression()
 //	}
 //	else if (evaluatedLeft->getType(context)->equals(numberType) && matchExpression->getType(context)->equals(numberType))
 //	{
-//		auto matchNumberExpression = (NumberExpression *const&)(matchExpression);
-//		auto myNumberExpr = (NumberExpression *const&)(evaluatedLeft);
+//		auto matchNumberExpression = (DoubleExpression *const&)(matchExpression);
+//		auto myNumberExpr = (DoubleExpression *const&)(evaluatedLeft);
 //		if (matchNumberExpression->getValue() < myNumberExpr->getValue()) {
 //			return evaluatedRight->match(matchExpression, context);
 //		}
@@ -56,5 +56,5 @@ StringExpression *const GreaterThanExpression::toString(Context *const& context)
 
 BooleanExpression* const GreaterThanExpression::numberCompareNumber(Context *context, NumberExpression* const &left, NumberExpression* const &right)const
 {
-	return BooleanExpression::newInstance(left->getValue() > right->getValue());
+	return left->greaterThan(right);
 }

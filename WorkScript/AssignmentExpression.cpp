@@ -2,7 +2,7 @@
 #include "StringExpression.h"
 #include "Context.h"
 #include "UnassignableExpection.h"
-#include "PointerExpression.h"
+#include "ExpressionPointerExpression.h"
 #include "TempExpression.h"
 #include "VariableExpression.h"
 
@@ -20,14 +20,14 @@ Expression * const AssignmentExpression::evaluate(Context * const & context)
 	TempExpression<Expression> evaluatedLeft(this->leftExpression, this->leftExpression->evaluate(context));
 
 	context->setAssignLeft(false);
-	if (!evaluatedLeft->getType(context)->equals(context, &TypeExpression::POINTER_EXPRESSION))
+	if (!evaluatedLeft->getType(context)->equals(context, &TypeExpression::EXPRESSION_POINTER_EXPRESSION))
 	{
 		TempExpression<StringExpression> leftStr(evaluatedLeft, evaluatedLeft->toString(context));
 		UnassignableExpection ex(leftStr->getValue());
 		context->release();
 		throw std::move(ex);
 	}
-	auto leftPointer = (const PointerExpression *const)evaluatedLeft.getExpression();
+	auto leftPointer = (ExpressionPointerExpression *const)evaluatedLeft.getExpression();
 	auto evaluatedRight = this->rightExpression->evaluate(context);
 	//如果右值级别小于LOCAL，则提升为LOCAL
 	if (evaluatedRight->getStorageLevel() < StorageLevel::LOCAL) {
@@ -36,7 +36,7 @@ Expression * const AssignmentExpression::evaluate(Context * const & context)
 	else if (evaluatedRight->getStorageLevel() == StorageLevel::LOCAL) {
 		evaluatedRight->setStorageLevel(StorageLevel::EXTERN);
 	}
-	leftPointer->getTargetContext()->setLocalVariable(leftPointer->getOffset(), evaluatedRight);
+	leftPointer->setTargetValue(evaluatedRight);
 	return evaluatedRight;
 }
 

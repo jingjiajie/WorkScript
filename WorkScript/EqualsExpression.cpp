@@ -3,7 +3,7 @@
 #include "BooleanExpression.h"
 #include "Program.h"
 #include "StringExpression.h"
-#include "NumberExpression.h"
+#include "DoubleExpression.h"
 
 using namespace std;
 
@@ -24,7 +24,7 @@ StringExpression *const EqualsExpression::toString(Context *const& context)
 
 BooleanExpression * const EqualsExpression::numberCompareNumber(Context * context, NumberExpression * const &left, NumberExpression * const &right) const
 {
-	return BooleanExpression::newInstance(left->equals(context, right));
+	return left->equals(right);
 }
 
 BooleanExpression * const EqualsExpression::expressionCompareExpression(Context * context, Expression * const &left, Expression * const &right) const

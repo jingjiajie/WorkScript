@@ -2,6 +2,7 @@
 #include "BinaryOperatorExpression.h"
 
 class StringExpression;
+class DoubleExpression;
 class NumberExpression;
 
 class MinusExpression :
@@ -22,7 +23,6 @@ public:
 
 private:
 	NumberExpression * numberMinusNumber(NumberExpression* const&, NumberExpression* const&) const;
-	StringExpression * stringMinusNumber(StringExpression* const&, NumberExpression* const&) const;
 	//StringExpression * stringMinusString(StringExpression* const&, StringExpression* const&) const;
 };
 

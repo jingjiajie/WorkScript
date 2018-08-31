@@ -33,8 +33,12 @@ public:
 		delete this;
 	}
 
-	inline Expression* const getLocalVariable(size_t offset) const {
+	inline Expression* const getLocalVariable(const size_t &offset) const {
 		return this->localVariables[offset];
+	}
+
+	inline Expression **const getLocalVariableAddress(const size_t &offset) const {
+		return &this->localVariables[offset];
 	}
 
 	void setLocalVariable(size_t offset, Expression* const &value);
