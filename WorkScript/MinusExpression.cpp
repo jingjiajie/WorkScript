@@ -13,27 +13,27 @@ MinusExpression::~MinusExpression()
 {
 }
 
-Expression* const MinusExpression::evaluate(Context *const& context)
-{
-	TempExpression<Expression> evaluatedLeftExpr(this->leftExpression, this->leftExpression->evaluate(context));
-	TempExpression<Expression> evaluatedRightExpr(this->rightExpression, this->rightExpression->evaluate(context));
-	auto leftType = evaluatedLeftExpr->getType(context);
-	auto rightType = evaluatedRightExpr->getType(context);
-	//开始做减法运算。
-	auto numberType = &TypeExpression::NUMBER_EXPRESSION;
-	auto stringType = &TypeExpression::STRING_EXPRESSION;
-
-	if (leftType->isSubTypeOf(context, numberType) && rightType->isSubTypeOf(context, numberType)) {
-		return this->numberMinusNumber((NumberExpression* const&)evaluatedLeftExpr, (NumberExpression* const&)evaluatedRightExpr);
-	}
-	//else if (leftType->equals(context, stringType) && rightType->equals(context, numberType)) {
-	//	ret = this->stringMinusNumber((StringExpression* const&)evaluatedLeftExpr, (NumberExpression* const&)evaluatedRightExpr);
-	//	goto OK;
-	//}
-	else {
-		return new MinusExpression(evaluatedLeftExpr, evaluatedRightExpr);
-	}
-}
+//Expression* const MinusExpression::evaluate(Context *const& context)
+//{
+//	TempExpression<Expression> evaluatedLeftExpr(this->leftExpression, this->leftExpression->evaluate(context));
+//	TempExpression<Expression> evaluatedRightExpr(this->rightExpression, this->rightExpression->evaluate(context));
+//	auto leftType = evaluatedLeftExpr->getType(context);
+//	auto rightType = evaluatedRightExpr->getType(context);
+//	//开始做减法运算。
+//	auto numberType = &TypeExpression::NUMBER_EXPRESSION;
+//	auto stringType = &TypeExpression::STRING_EXPRESSION;
+//
+//	if (leftType->isSubTypeOf(context, numberType) && rightType->isSubTypeOf(context, numberType)) {
+//		return ((NumberExpression* const)evaluatedLeftExpr)->minus((NumberExpression* const)evaluatedRightExpr);
+//	}
+//	//else if (leftType->equals(context, stringType) && rightType->equals(context, numberType)) {
+//	//	ret = this->stringMinusNumber((StringExpression* const&)evaluatedLeftExpr, (NumberExpression* const&)evaluatedRightExpr);
+//	//	goto OK;
+//	//}
+//	else {
+//		return new MinusExpression(evaluatedLeftExpr, evaluatedRightExpr);
+//	}
+//}
 
 //bool MinusExpression::match(Expression* const& matchExpression, Context *const& context) const
 //{
@@ -72,7 +72,7 @@ StringExpression *const MinusExpression::toString(Context *const& context)
 	return BinaryOperatorExpression::toString(context, &sign);
 }
 
-NumberExpression * MinusExpression::numberMinusNumber(NumberExpression* const&left, NumberExpression* const&right) const
+NumberExpression * const MinusExpression::numberCalcNumber(Context * const context, NumberExpression * const & left, NumberExpression * const & right) const
 {
 	return left->minus(right);
 }

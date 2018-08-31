@@ -43,10 +43,10 @@ public:
 	inline void setValue(const unsigned char &value) {
 		this->value = value;
 	}
+protected:
+	unsigned char value;
 
 	virtual void release()override {
 		OBJECT_POOL_PUSH(this);
 	}
-protected:
-	unsigned char value;
 };

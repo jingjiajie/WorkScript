@@ -8,17 +8,17 @@ expression:
 	| LEFT_BRACKET (expression (COMMA expression)*)? RIGHT_BRACKET						# ListExpression
 	| expression POINT identifier LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE	#
 		MethodInvocationExpression
-	| expression POINT identifier				# MemberEvaluateExpression
-	| functionExpression						# FunctionExpression_
-	| expression (MULTIPLY | DIVIDE) expression	# MultiplyDivideExpression
-	| numberExpression variableExpression		# NonSignMultiplyExpression
-	| expression (PLUS | MINUS) expression		# PlusMinusExpression
-	| numberExpression							# NumberExpression_
-	| MINUS expression							# NegativeExpression
-	| PLUS expression							# PositiveExpression
-	| expression ASSIGN expression				# AssignmentExpression
-	| expression DOUBLE_EQUAL expression		# EqualsExpression
-	| expression EQUALS expression				# AssignmentOrEqualsExpression
+	| expression POINT identifier							# MemberEvaluateExpression
+	| functionExpression									# FunctionExpression_
+	| expression (MULTIPLY | DIVIDE | MODULUS) expression	# MultiplyDivideModulusExpression
+	| numberExpression variableExpression					# NonSignMultiplyExpression
+	| expression (PLUS | MINUS) expression					# PlusMinusExpression
+	| numberExpression										# NumberExpression_
+	| MINUS expression										# NegativeExpression
+	| PLUS expression										# PositiveExpression
+	| expression ASSIGN expression							# AssignmentExpression
+	| expression DOUBLE_EQUAL expression					# EqualsExpression
+	| expression EQUALS expression							# AssignmentOrEqualsExpression
 	| expression (
 		GREATER_THAN
 		| GREATER_THAN_EQUAL
@@ -82,6 +82,7 @@ PLUS: '+';
 MINUS: '-';
 MULTIPLY: '*';
 DIVIDE: '/';
+MODULUS: '%';
 GREATER_THAN: '>';
 GREATER_THAN_EQUAL: '>=';
 LESS_THAN: '<';

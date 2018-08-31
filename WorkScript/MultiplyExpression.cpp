@@ -14,25 +14,25 @@ MultiplyExpression::~MultiplyExpression()
 {
 }
 
-Expression* const MultiplyExpression::evaluate(Context *const& context)
-{
-	auto evaluatedLeftExpr = this->leftExpression->evaluate(context);
-	auto evaluatedRightExpr = this->rightExpression->evaluate(context);
-	//开始做乘法运算。
-	auto numberType = &TypeExpression::NUMBER_EXPRESSION;
-	auto stringType = &TypeExpression::STRING_EXPRESSION;
-
-	if (evaluatedLeftExpr->getType(context)->isSubTypeOf(context, numberType) && evaluatedRightExpr->getType(context)->isSubTypeOf(context, numberType)) {
-			return this->numberMultiplyNumber(context, (DoubleExpression *const&)(evaluatedLeftExpr), (DoubleExpression *const&)(evaluatedRightExpr));
-	}
-	//else if (evaluatedLeftExpr->getType(context)->equals(context, stringType)) {
-	//	if (evaluatedRightExpr->getType(context)->equals(context, numberType)) {
-	//		return this->stringMultiplyNumber(context, (StringExpression *const&)(evaluatedLeftExpr), (DoubleExpression *const&)(evaluatedRightExpr));
-	//	}
-	//}
-	auto newMe = new MultiplyExpression(evaluatedLeftExpr, evaluatedRightExpr);
-	return newMe;
-}
+//Expression* const MultiplyExpression::evaluate(Context *const& context)
+//{
+//	auto evaluatedLeftExpr = this->leftExpression->evaluate(context);
+//	auto evaluatedRightExpr = this->rightExpression->evaluate(context);
+//	//开始做乘法运算。
+//	auto numberType = &TypeExpression::NUMBER_EXPRESSION;
+//	auto stringType = &TypeExpression::STRING_EXPRESSION;
+//
+//	if (evaluatedLeftExpr->getType(context)->isSubTypeOf(context, numberType) && evaluatedRightExpr->getType(context)->isSubTypeOf(context, numberType)) {
+//			return this->numberMultiplyNumber(context, (DoubleExpression *const&)(evaluatedLeftExpr), (DoubleExpression *const&)(evaluatedRightExpr));
+//	}
+//	//else if (evaluatedLeftExpr->getType(context)->equals(context, stringType)) {
+//	//	if (evaluatedRightExpr->getType(context)->equals(context, numberType)) {
+//	//		return this->stringMultiplyNumber(context, (StringExpression *const&)(evaluatedLeftExpr), (DoubleExpression *const&)(evaluatedRightExpr));
+//	//	}
+//	//}
+//	auto newMe = new MultiplyExpression(evaluatedLeftExpr, evaluatedRightExpr);
+//	return newMe;
+//}
 //
 //bool MultiplyExpression::match(Expression* const& matchExpression, Context *const& context) const
 //{
@@ -76,7 +76,7 @@ StringExpression *const MultiplyExpression::toString(Context *const& context)
 	return BinaryOperatorExpression::toString(context, &sign);
 }
 
-NumberExpression * MultiplyExpression::numberMultiplyNumber(Context *const &context, NumberExpression* const&left, NumberExpression* const&right) const
+NumberExpression * const MultiplyExpression::numberCalcNumber(Context *const context, NumberExpression* const &left, NumberExpression* const &right)const
 {
 	return left->multiply(right);
 }

@@ -28,6 +28,7 @@
 #include "LessThanExpression.h"
 #include "NegativeExpression.h"
 #include "IntegerExpression.h"
+#include "ModulusExpression.h"
 #include "ByteExpression.h"
 
 #define FORBID_ASSIGN \
@@ -129,8 +130,8 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 		if (paramExpr->getItem(i)->getType(nullptr)->equals(nullptr, &TypeExpression::VARIABLE_EXPRESSION)) {
 			paramInfos[i].setParameterName(((VariableExpression *const)paramExpr->getItem(i))->getName());
 		}
-		else if (paramExpr->getItem(i)->getType(nullptr)->isSubTypeOf(nullptr, &TypeExpression::COMPARE_EXPRESSION)) {
-			VariableExpression *leftVar = ((CompareExpression*)paramExpr->getItem(i))->getLeftVariable();
+		else if (paramExpr->getItem(i)->getType(nullptr)->isSubTypeOf(nullptr, &TypeExpression::BINARY_COMPARE_EXPRESSION)) {
+			VariableExpression *leftVar = ((BinaryCompareExpression*)paramExpr->getItem(i))->getLeftVariable();
 			if (leftVar == nullptr) {
 				throw std::move(WorkScriptException(L"函数参数约束左部必须为变量！"));
 			}
@@ -287,7 +288,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitPlusMinusExpression(WorkScriptParser::
 	}
 }
 
-antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideExpression(WorkScriptParser::MultiplyDivideExpressionContext *ctx)
+antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideModulusExpression(WorkScriptParser::MultiplyDivideModulusExpressionContext *ctx)
 {
 	STORE_FORBID_ASSIGN
 		const ExpressionWrapper &leftExpressionWrapper = ctx->expression()[0]->accept(this);
@@ -295,12 +296,14 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideExpression(WorkScriptPar
 	const ExpressionWrapper &rightExpressionWrapper = ctx->expression()[1]->accept(this);
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	RESTORE_ASSIGNABLE
-		//乘号可以省略
-		if (ctx->MULTIPLY() || (ctx->MULTIPLY() == nullptr && ctx->DIVIDE() == nullptr)) {
-			return ExpressionWrapper(new MultiplyExpression(leftExpression, rightExpression, StorageLevel::LITERAL));
-		}
-		else { //DIVIDE
+		if (ctx->DIVIDE()) { //DIVIDE
 			return ExpressionWrapper(new DivideExpression(leftExpression, rightExpression, StorageLevel::LITERAL));
+		}
+		else if (ctx->MODULUS()) {
+			return ExpressionWrapper(new ModulusExpression(leftExpression,rightExpression));
+		}//乘号可以省略
+		else{
+			return ExpressionWrapper(new MultiplyExpression(leftExpression, rightExpression, StorageLevel::LITERAL));
 		}
 }
 

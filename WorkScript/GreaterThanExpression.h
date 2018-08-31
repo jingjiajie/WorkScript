@@ -3,14 +3,14 @@
 #include "TypeExpression.h"
 #include "BooleanExpression.h"
 #include "DoubleExpression.h"
-#include "CompareExpression.h"
+#include "BinaryCompareExpression.h"
 
 class GreaterThanExpression :
-	public CompareExpression
+	public BinaryCompareExpression
 {
 public:
 	inline GreaterThanExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
-		:CompareExpression(left,right,level)
+		:BinaryCompareExpression(left,right,level)
 	{
 	}
 	virtual ~GreaterThanExpression();

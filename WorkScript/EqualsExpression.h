@@ -1,17 +1,17 @@
 #pragma once
-#include "CompareExpression.h"
+#include "BinaryCompareExpression.h"
 class EqualsExpression :
-	public CompareExpression
+	public BinaryCompareExpression
 {
 public:
 	inline EqualsExpression(const StorageLevel level = StorageLevel::TEMP)
-		:CompareExpression(level)
+		:BinaryCompareExpression(level)
 	{
 
 	}
 
 	inline EqualsExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
-		: CompareExpression(left,right,level)
+		: BinaryCompareExpression(left,right,level)
 	{
 
 	}

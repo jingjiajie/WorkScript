@@ -130,6 +130,15 @@
     <Filter Include="DataStructures\Expressions\Base\Sources">
       <UniqueIdentifier>{4637c28a-a4ab-410d-857e-cfc51fcb7c10}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DataStructures\Pointer">
+      <UniqueIdentifier>{0a87b41b-5146-4b5a-a6b7-2f41616638e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataStructures\Pointer\Headers">
+      <UniqueIdentifier>{d95a389f-2e72-44a6-b936-f358f542aea1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataStructures\Pointer\Sources">
+      <UniqueIdentifier>{9a0f100e-c00e-4468-a9b9-2ea9c06cd1dd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Context.h">
@@ -204,9 +213,6 @@
       <Filter>DataStructures\Expressions\BinaryOperatorExpressions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="BinaryOperatorExpression.h">
-      <Filter>DataStructures\Expressions\BinaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="CompareExpression.h">
       <Filter>DataStructures\Expressions\BinaryOperatorExpressions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="GreaterThanEqualExpression.h">
@@ -300,14 +306,32 @@
     <ClInclude Include="ByteExpression.h">
       <Filter>DataStructures\Expressions\ValueExpressions\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="AutoMakeNumberExpression.hpp">
-      <Filter>DataStructures\Expressions\ValueExpressions\Headers</Filter>
+    <ClInclude Include="BytePointerExpression.h">
+      <Filter>DataStructures\Expressions\PointerExpressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DoublePointerExpression.h">
+      <Filter>DataStructures\Expressions\PointerExpressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="IntegerPointerExpression.h">
+      <Filter>DataStructures\Expressions\PointerExpressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryCompareExpression.h">
+      <Filter>DataStructures\Expressions\BinaryOperatorExpressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryCalculateExpression.h">
+      <Filter>DataStructures\Expressions\BinaryOperatorExpressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ModulusExpression.h">
+      <Filter>DataStructures\Expressions\BinaryOperatorExpressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Pointer.h">
+      <Filter>DataStructures\Pointer\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="EnablePointer.h">
+      <Filter>DataStructures\Pointer\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Context.cpp">
-      <Filter>DataStructures\Context\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="Expression.cpp">
       <Filter>DataStructures\Expressions\Base\Sources</Filter>
     </ClCompile>
@@ -464,6 +488,21 @@
     </ClCompile>
     <ClCompile Include="NumberExpression.cpp">
       <Filter>DataStructures\Expressions\ValueExpressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="DoublePointerExpression.cpp">
+      <Filter>DataStructures\Expressions\PointerExpressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="IntegerPointerExpression.cpp">
+      <Filter>DataStructures\Expressions\PointerExpressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="BytePointerExpression.cpp">
+      <Filter>DataStructures\Expressions\PointerExpressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="BinaryCalculateExpression.cpp">
+      <Filter>DataStructures\Expressions\BinaryOperatorExpressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ModulusExpression.cpp">
+      <Filter>DataStructures\Expressions\BinaryOperatorExpressions\Sources</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

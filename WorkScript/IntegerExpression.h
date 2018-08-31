@@ -45,5 +45,9 @@ public:
 	}
 protected:
 	int value;
+
+	virtual void release()override {
+		OBJECT_POOL_PUSH(this);
+	}
 };
 

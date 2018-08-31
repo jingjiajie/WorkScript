@@ -230,6 +230,36 @@ antlrcpp::Any WorkScriptParser::StringExpression_Context::accept(tree::ParseTree
   else
     return visitor->visitChildren(this);
 }
+//----------------- MultiplyDivideModulusExpressionContext ------------------------------------------------------------------
+
+std::vector<WorkScriptParser::ExpressionContext *> WorkScriptParser::MultiplyDivideModulusExpressionContext::expression() {
+  return getRuleContexts<WorkScriptParser::ExpressionContext>();
+}
+
+WorkScriptParser::ExpressionContext* WorkScriptParser::MultiplyDivideModulusExpressionContext::expression(size_t i) {
+  return getRuleContext<WorkScriptParser::ExpressionContext>(i);
+}
+
+tree::TerminalNode* WorkScriptParser::MultiplyDivideModulusExpressionContext::MULTIPLY() {
+  return getToken(WorkScriptParser::MULTIPLY, 0);
+}
+
+tree::TerminalNode* WorkScriptParser::MultiplyDivideModulusExpressionContext::DIVIDE() {
+  return getToken(WorkScriptParser::DIVIDE, 0);
+}
+
+tree::TerminalNode* WorkScriptParser::MultiplyDivideModulusExpressionContext::MODULUS() {
+  return getToken(WorkScriptParser::MODULUS, 0);
+}
+
+WorkScriptParser::MultiplyDivideModulusExpressionContext::MultiplyDivideModulusExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+antlrcpp::Any WorkScriptParser::MultiplyDivideModulusExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<WorkScriptVisitor*>(visitor))
+    return parserVisitor->visitMultiplyDivideModulusExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
 //----------------- FunctionInvocationExpressionContext ------------------------------------------------------------------
 
 WorkScriptParser::ExpressionContext* WorkScriptParser::FunctionInvocationExpressionContext::expression() {
@@ -393,32 +423,6 @@ WorkScriptParser::AssignmentExpressionContext::AssignmentExpressionContext(Expre
 antlrcpp::Any WorkScriptParser::AssignmentExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<WorkScriptVisitor*>(visitor))
     return parserVisitor->visitAssignmentExpression(this);
-  else
-    return visitor->visitChildren(this);
-}
-//----------------- MultiplyDivideExpressionContext ------------------------------------------------------------------
-
-std::vector<WorkScriptParser::ExpressionContext *> WorkScriptParser::MultiplyDivideExpressionContext::expression() {
-  return getRuleContexts<WorkScriptParser::ExpressionContext>();
-}
-
-WorkScriptParser::ExpressionContext* WorkScriptParser::MultiplyDivideExpressionContext::expression(size_t i) {
-  return getRuleContext<WorkScriptParser::ExpressionContext>(i);
-}
-
-tree::TerminalNode* WorkScriptParser::MultiplyDivideExpressionContext::MULTIPLY() {
-  return getToken(WorkScriptParser::MULTIPLY, 0);
-}
-
-tree::TerminalNode* WorkScriptParser::MultiplyDivideExpressionContext::DIVIDE() {
-  return getToken(WorkScriptParser::DIVIDE, 0);
-}
-
-WorkScriptParser::MultiplyDivideExpressionContext::MultiplyDivideExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
-
-antlrcpp::Any WorkScriptParser::MultiplyDivideExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
-  if (auto parserVisitor = dynamic_cast<WorkScriptVisitor*>(visitor))
-    return parserVisitor->visitMultiplyDivideExpression(this);
   else
     return visitor->visitChildren(this);
 }
@@ -720,7 +724,7 @@ WorkScriptParser::ExpressionContext* WorkScriptParser::expression(int precedence
         _errHandler->sync(this);
         switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 6, _ctx)) {
         case 1: {
-          auto newContext = _tracker.createInstance<MultiplyDivideExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
+          auto newContext = _tracker.createInstance<MultiplyDivideModulusExpressionContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
           _localctx = newContext;
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(66);
@@ -728,9 +732,10 @@ WorkScriptParser::ExpressionContext* WorkScriptParser::expression(int precedence
           if (!(precpred(_ctx, 12))) throw FailedPredicateException(this, "precpred(_ctx, 12)");
           setState(67);
           _la = _input->LA(1);
-          if (!(_la == WorkScriptParser::MULTIPLY
-
-          || _la == WorkScriptParser::DIVIDE)) {
+          if (!((((_la & ~ 0x3fULL) == 0) &&
+            ((1ULL << _la) & ((1ULL << WorkScriptParser::MULTIPLY)
+            | (1ULL << WorkScriptParser::DIVIDE)
+            | (1ULL << WorkScriptParser::MODULUS))) != 0))) {
           _errHandler->recoverInline(this);
           }
           else {
@@ -1818,16 +1823,16 @@ std::vector<std::string> WorkScriptParser::_ruleNames = {
 
 std::vector<std::string> WorkScriptParser::_literalNames = {
   "", "'when'", "", "", "", "'.'", "','", "", "'('", "')'", "'{'", "'}'", 
-  "'['", "']'", "'=='", "'='", "':='", "'+'", "'-'", "'*'", "'/'", "'>'", 
-  "'>='", "'<'", "'<='"
+  "'['", "']'", "'=='", "'='", "':='", "'+'", "'-'", "'*'", "'/'", "'%'", 
+  "'>'", "'>='", "'<'", "'<='"
 };
 
 std::vector<std::string> WorkScriptParser::_symbolicNames = {
   "", "WHEN", "IDENTIFIER", "NUMBER", "STRING", "POINT", "COMMA", "NEWLINE", 
   "LEFT_PARENTHESE", "RIGHT_PARENTHESE", "LEFT_BRACE", "RIGHT_BRACE", "LEFT_BRACKET", 
   "RIGHT_BRACKET", "DOUBLE_EQUAL", "EQUALS", "ASSIGN", "PLUS", "MINUS", 
-  "MULTIPLY", "DIVIDE", "GREATER_THAN", "GREATER_THAN_EQUAL", "LESS_THAN", 
-  "LESS_THAN_EQUAL", "WS"
+  "MULTIPLY", "DIVIDE", "MODULUS", "GREATER_THAN", "GREATER_THAN_EQUAL", 
+  "LESS_THAN", "LESS_THAN_EQUAL", "WS"
 };
 
 dfa::Vocabulary WorkScriptParser::_vocabulary(_literalNames, _symbolicNames);
@@ -1850,7 +1855,7 @@ WorkScriptParser::Initializer::Initializer() {
 
   _serializedATN = {
     0x3, 0x608b, 0xa72a, 0x8133, 0xb9ed, 0x417c, 0x3be7, 0x7786, 0x5964, 
-    0x3, 0x1b, 0xf7, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 0x9, 
+    0x3, 0x1c, 0xf7, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 0x9, 
     0x4, 0x4, 0x5, 0x9, 0x5, 0x4, 0x6, 0x9, 0x6, 0x4, 0x7, 0x9, 0x7, 0x4, 
     0x8, 0x9, 0x8, 0x4, 0x9, 0x9, 0x9, 0x4, 0xa, 0x9, 0xa, 0x4, 0xb, 0x9, 
     0xb, 0x4, 0xc, 0x9, 0xc, 0x4, 0xd, 0x9, 0xd, 0x3, 0x2, 0x3, 0x2, 0x3, 
@@ -1890,7 +1895,7 @@ WorkScriptParser::Initializer::Initializer() {
     0x7, 0xc, 0xee, 0xa, 0xc, 0xc, 0xc, 0xe, 0xc, 0xf1, 0xb, 0xc, 0x3, 0xc, 
     0x3, 0xc, 0x3, 0xd, 0x3, 0xd, 0x3, 0xd, 0x2, 0x3, 0x4, 0xe, 0x2, 0x4, 
     0x6, 0x8, 0xa, 0xc, 0xe, 0x10, 0x12, 0x14, 0x16, 0x18, 0x2, 0x6, 0x3, 
-    0x2, 0x15, 0x16, 0x3, 0x2, 0x13, 0x14, 0x3, 0x2, 0x17, 0x1a, 0x3, 0x2, 
+    0x2, 0x15, 0x17, 0x3, 0x2, 0x13, 0x14, 0x3, 0x2, 0x18, 0x1b, 0x3, 0x2, 
     0x3, 0x4, 0x2, 0x118, 0x2, 0x21, 0x3, 0x2, 0x2, 0x2, 0x4, 0x42, 0x3, 
     0x2, 0x2, 0x2, 0x6, 0x72, 0x3, 0x2, 0x2, 0x2, 0x8, 0x75, 0x3, 0x2, 0x2, 
     0x2, 0xa, 0x79, 0x3, 0x2, 0x2, 0x2, 0xc, 0x7b, 0x3, 0x2, 0x2, 0x2, 0xe, 

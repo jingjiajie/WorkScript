@@ -1,11 +1,11 @@
 #pragma once
-#include "CompareExpression.h"
+#include "BinaryCompareExpression.h"
 class GreaterThanEqualExpression :
-	public CompareExpression
+	public BinaryCompareExpression
 {
 public:
 	inline GreaterThanEqualExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
-		:CompareExpression(left, right, level)
+		:BinaryCompareExpression(left, right, level)
 	{
 
 	}

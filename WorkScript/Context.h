@@ -1,32 +1,68 @@
 #pragma once
-
+#include "Expression.h"
 #include <iostream>
 #include <vector>
 #include <unordered_map>
 #include <functional>
 
-class Expression;
 class TypeExpression;
 class FunctionExpression;
 class FunctionInvocationExpression;
 class Expression;
 class Program;
 
-class Context
+class Context final
 {
 public:
-	Context(Program *program,size_t localVariableCount);
-	Context(Context *baseContext, size_t localVariableCount);
-	virtual ~Context();
+	inline Context(Program *p, size_t maxLocalVariableCount = 0)
+		:program(p)
+	{
+		this->releaseAndResetLocalVariableCount(maxLocalVariableCount);
+	}
 
-	//void addType(TypeExpression* const&);
-	//TypeExpression* const findType(const std::string &typeName,bool isGenericType, const std::vector<TypeExpression *> &genericTypes = std::vector<TypeExpression *>());
+	inline Context(Context *base, size_t maxLocalVariableCount = 0)
+		:baseContext(base),program(base->program)
+	{
+		this->releaseAndResetLocalVariableCount(maxLocalVariableCount);
+	}
 
-	Context * const& getBaseContext() const;
-	void setBaseContext(Context *const);
+	inline ~Context()
+	{
+		for (size_t i = 0; i < this->maxLocalVariableCount; ++i) {
+			if (this->localVariables[i]) this->localVariables[i]->releaseLocal();
+		}
+		delete[]this->localVariables;
+	}
 
-	Expression* const getCurrentExpression() const;
-	void setCurrentExpression(Expression* const &);
+	inline Context * const& getBaseContext() const
+	{
+		return this->baseContext;
+	}
+
+	void setBaseContext(Context *const ctx)
+	{
+		this->baseContext = ctx;
+	}
+
+	inline Expression* const getCurrentExpression() const
+	{
+		if (this->baseContext != nullptr) {
+			return this->baseContext->getCurrentExpression();
+		}
+		else {
+			return this->currentExpression;
+		}
+	}
+
+	inline void setCurrentExpression(Expression* const expr)
+	{
+		if (this->baseContext != nullptr) {
+			this->baseContext->setCurrentExpression(expr);
+		}
+		else {
+			this->currentExpression = expr;
+		}
+	}
 
 	inline void release()
 	{
@@ -41,7 +77,32 @@ public:
 		return &this->localVariables[offset];
 	}
 
-	void setLocalVariable(size_t offset, Expression* const &value);
+	inline void setLocalVariable(size_t offset, Expression* const &value)
+	{
+		value->upgradeStorageLevel(StorageLevel::LOCAL);
+		this->localVariables[offset] = value;
+	}
+
+	inline void releaseAndResetLocalVariableCount(const size_t &count)
+	{
+		for (size_t i = 0; i < this->maxLocalVariableCount; ++i)
+		{
+			if (this->localVariables[i]) {
+				this->localVariables[i]->releaseLocal();
+			}
+		}
+		if (this->maxLocalVariableCount >= count) {
+			this->maxLocalVariableCount = count;
+			for (size_t i = 0; i < count; ++i) {
+				this->localVariables[i] = nullptr;
+			}
+		}
+		else {
+			if(this->localVariables) delete[]this->localVariables;
+			this->localVariables = new Expression*[count]();
+			this->maxLocalVariableCount = count;
+		}
+	}
 
 	inline Program * const getProgram() const {
 		return this->program;
@@ -60,9 +121,8 @@ public:
 protected:
 	Context * baseContext = nullptr;
 	Program *program = nullptr;
-	//std::vector<TypeExpression *> types;
-	Expression **localVariables;
-	size_t localVariableCount = 0;
-	bool assignLeft = false;
+	Expression **localVariables = nullptr;
 	Expression * currentExpression;
+	size_t maxLocalVariableCount = 0;
+	bool assignLeft = false;
 };

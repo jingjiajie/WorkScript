@@ -5,10 +5,9 @@ template<typename TExpr = Expression>
 class TempExpression
 {
 public:
-	explicit inline TempExpression(const Expression *generator,Expression *const &expr)
+	explicit inline TempExpression(const Expression *generator,Expression *const expr)
+		:expression((TExpr *)expr),generator(generator)
 	{
-		this->expression = (TExpr *)expr;
-		this->generator = generator;
 	}
 
 	inline ~TempExpression()
@@ -26,9 +25,10 @@ public:
 		return this->expression;
 	}
 
-	inline operator TExpr*() 
+	template<typename R>
+	inline operator R*() 
 	{
-		return this->expression;
+		return (R*)this->expression;
 	}
 
 	inline void setNoRelease()

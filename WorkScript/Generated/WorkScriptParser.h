@@ -16,8 +16,8 @@ public:
     NEWLINE = 7, LEFT_PARENTHESE = 8, RIGHT_PARENTHESE = 9, LEFT_BRACE = 10, 
     RIGHT_BRACE = 11, LEFT_BRACKET = 12, RIGHT_BRACKET = 13, DOUBLE_EQUAL = 14, 
     EQUALS = 15, ASSIGN = 16, PLUS = 17, MINUS = 18, MULTIPLY = 19, DIVIDE = 20, 
-    GREATER_THAN = 21, GREATER_THAN_EQUAL = 22, LESS_THAN = 23, LESS_THAN_EQUAL = 24, 
-    WS = 25
+    MODULUS = 21, GREATER_THAN = 22, GREATER_THAN_EQUAL = 23, LESS_THAN = 24, 
+    LESS_THAN_EQUAL = 25, WS = 26
   };
 
   enum {
@@ -110,6 +110,18 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  MultiplyDivideModulusExpressionContext : public ExpressionContext {
+  public:
+    MultiplyDivideModulusExpressionContext(ExpressionContext *ctx);
+
+    std::vector<ExpressionContext *> expression();
+    ExpressionContext* expression(size_t i);
+    antlr4::tree::TerminalNode *MULTIPLY();
+    antlr4::tree::TerminalNode *DIVIDE();
+    antlr4::tree::TerminalNode *MODULUS();
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  FunctionInvocationExpressionContext : public ExpressionContext {
   public:
     FunctionInvocationExpressionContext(ExpressionContext *ctx);
@@ -180,17 +192,6 @@ public:
     std::vector<ExpressionContext *> expression();
     ExpressionContext* expression(size_t i);
     antlr4::tree::TerminalNode *ASSIGN();
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  MultiplyDivideExpressionContext : public ExpressionContext {
-  public:
-    MultiplyDivideExpressionContext(ExpressionContext *ctx);
-
-    std::vector<ExpressionContext *> expression();
-    ExpressionContext* expression(size_t i);
-    antlr4::tree::TerminalNode *MULTIPLY();
-    antlr4::tree::TerminalNode *DIVIDE();
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 

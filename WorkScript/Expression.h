@@ -5,9 +5,8 @@
 #include "TypeInfo.h"
 #include "CompileContext.h"
 
-class Expression;
-class TypeExpression;
 class Context;
+class TypeExpression;
 class StringExpression;
 
 enum class StorageLevel : unsigned char {

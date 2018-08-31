@@ -15,23 +15,23 @@ PlusExpression::~PlusExpression()
 {
 }
 
-Expression* const PlusExpression::evaluate(Context *const& context)
-{
-	TempExpression<Expression> evaluatedLeftExpr(this->leftExpression, this->leftExpression->evaluate(context));
-	TempExpression<Expression> evaluatedRightExpr(this->rightExpression, this->rightExpression->evaluate(context));
-	auto leftType = evaluatedLeftExpr->getType(context);
-	auto rightType = evaluatedRightExpr->getType(context);
-	//开始做加法运算。
-	auto numberType = &TypeExpression::NUMBER_EXPRESSION;
-	auto stringType = &TypeExpression::STRING_EXPRESSION;
-
-	if (leftType->isSubTypeOf(context, numberType) && rightType->isSubTypeOf(context, numberType)) {
-		return this->numberPlusNumber(context, (NumberExpression *const&)(evaluatedLeftExpr), (NumberExpression *const&)(evaluatedRightExpr));
-	}
-	else {
-		return this->exprPlusExpr(context, evaluatedLeftExpr, evaluatedRightExpr);
-	}
-}
+//Expression* const PlusExpression::evaluate(Context *const& context)
+//{
+//	TempExpression<Expression> evaluatedLeftExpr(this->leftExpression, this->leftExpression->evaluate(context));
+//	TempExpression<Expression> evaluatedRightExpr(this->rightExpression, this->rightExpression->evaluate(context));
+//	auto leftType = evaluatedLeftExpr->getType(context);
+//	auto rightType = evaluatedRightExpr->getType(context);
+//	//开始做加法运算。
+//	auto numberType = &TypeExpression::NUMBER_EXPRESSION;
+//	auto stringType = &TypeExpression::STRING_EXPRESSION;
+//
+//	if (leftType->isSubTypeOf(context, numberType) && rightType->isSubTypeOf(context, numberType)) {
+//		return ((NumberExpression *const)evaluatedLeftExpr)->plus((NumberExpression *const)evaluatedRightExpr);
+//	}
+//	else {
+//		return this->exprPlusExpr(context, evaluatedLeftExpr, evaluatedRightExpr);
+//	}
+//}
 
 //bool PlusExpression::match(Expression* const& matchExpression, Context *const& context) const
 //{
@@ -78,16 +78,16 @@ StringExpression *const PlusExpression::toString(Context *const& context)
 	return BinaryOperatorExpression::toString(context, &sign);
 }
 
-NumberExpression * PlusExpression::numberPlusNumber(Context *const &context, NumberExpression* const&left, NumberExpression* const&right) const
+NumberExpression * const PlusExpression::numberCalcNumber(Context * const context, NumberExpression * const & left, NumberExpression * const & right) const
 {
 	return left->plus(right);
 }
 
-StringExpression * PlusExpression::exprPlusExpr(Context *const &context, Expression* const&left, Expression* const&right) const
-{
-	TempExpression<StringExpression> leftEvaluatedString(left, left->toString(context));
-	TempExpression<StringExpression> rightEvaluatedString(right, right->toString(context));
-	StringExpression *exprs[] = { leftEvaluatedString,rightEvaluatedString };
-	auto result = StringExpression::combine(exprs, 2);
-	return result;
-}
+//StringExpression * PlusExpression::exprPlusExpr(Context *const &context, Expression* const&left, Expression* const&right) const
+//{
+//	TempExpression<StringExpression> leftEvaluatedString(left, left->toString(context));
+//	TempExpression<StringExpression> rightEvaluatedString(right, right->toString(context));
+//	StringExpression *exprs[] = { leftEvaluatedString,rightEvaluatedString };
+//	auto result = StringExpression::combine(exprs, 2);
+//	return result;
+//}

@@ -91,8 +91,9 @@ void FunctionExpression::compile(CompileContext *const &context)
 
 Expression* const FunctionExpression::invoke(ParameterExpression *const &params) const
 {
+	Context subContext(this->declareContext);
 	for (auto &overload : this->overloads) {
-		Context subContext(this->declareContext, overload->getLocalVariableCount());
+		subContext.releaseAndResetLocalVariableCount(overload->getLocalVariableCount());
 		if (overload->match(params, &subContext)) {
 			auto ret = overload->invoke(&subContext);
 			return ret;

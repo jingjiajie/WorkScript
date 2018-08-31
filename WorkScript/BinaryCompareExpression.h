@@ -6,22 +6,22 @@ class DoubleExpression;
 class VariableExpression;
 class NumberExpression;
 
-class CompareExpression :
+class BinaryCompareExpression :
 	public BinaryOperatorExpression
 {
 public:
-	inline CompareExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
+	inline BinaryCompareExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
 		:BinaryOperatorExpression(left, right, level)
 	{
 
 	}
 
-	inline CompareExpression(const StorageLevel level = StorageLevel::TEMP)
+	inline BinaryCompareExpression(const StorageLevel level = StorageLevel::TEMP)
 		: BinaryOperatorExpression(level)
 	{
 
 	}
-	virtual ~CompareExpression();
+	virtual ~BinaryCompareExpression();
 
 	virtual Expression* const evaluate(Context *const& context) override;
 	
