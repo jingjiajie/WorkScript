@@ -1,14 +1,32 @@
 #pragma once
 #include "Expression.h"
-#include "Expression.h"
 
 class ExpressionWrapper
 {
 public:
-	ExpressionWrapper();
-	ExpressionWrapper(Expression* const &expression);
-	Expression* const & getExpression() const;
-	void setExpression(Expression* const & expression);
+	inline ExpressionWrapper() {}
+
+	inline ExpressionWrapper(const Pointer<Expression> &expr) noexcept
+		:expression(expr)
+	{
+
+	}
+
+	inline ExpressionWrapper(const ExpressionWrapper &wrapper) noexcept
+		:expression(wrapper.expression)
+	{
+
+	}
+
+	inline const Pointer<Expression> getExpression() const
+	{
+		return this->expression;
+	}
+
+	void setExpression(const Pointer<Expression> & expression)
+	{
+		this->expression = expression;
+	}
 protected:
-	Expression * expression;
+	Pointer<Expression> expression;
 };

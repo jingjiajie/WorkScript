@@ -1,68 +1,55 @@
 #pragma once
 #include "Expression.h"
 #include "StringExpression.h"
-#include "TempExpression.h"
-
 class NumberExpression;
 
 class BinaryOperatorExpression :
 	public Expression
 {
 public:
-	inline BinaryOperatorExpression(const StorageLevel level = StorageLevel::TEMP) 
+	inline BinaryOperatorExpression() 
 	{
-		this->setStorageLevel(level);
+		
 	}
 
-	inline BinaryOperatorExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
+	inline BinaryOperatorExpression(const Pointer<Expression> &left, const Pointer<Expression> &right)
 	{
-		this->setStorageLevel(level);
 		this->setLeftExpression(left);
 		this->setRightExpression(right);
 	}
 
 	virtual ~BinaryOperatorExpression();
 
-	virtual bool equals(Context *const &context, Expression* const&) const override;
+	virtual bool equals(Context *const &context, const Pointer<Expression> &) const override;
 	virtual void compile(CompileContext *const& context) override;
 
-	inline Expression* const getLeftExpression() const
+	inline const Pointer<Expression> getLeftExpression() const
 	{
 		return this->leftExpression;
 	}
-	inline Expression* const popLeftExpression()
-	{
-		auto expr = this->leftExpression;
-		this->leftExpression = nullptr;
-		return expr;
-	}
-	inline void setLeftExpression(Expression* const &left)
+
+	inline void setLeftExpression(const Pointer<Expression> &left)
 	{
 		this->leftExpression = left;
 	}
-	inline Expression* const getRightExpression() const
+	inline const Pointer<Expression> getRightExpression() const
 	{
 		return this->rightExpression;
 	}
-	inline Expression* const popRightExpression()
-	{
-		auto expr = this->rightExpression;
-		this->rightExpression = nullptr;
-		return expr;
-	}
-	inline void setRightExpression(Expression* const &right)
+
+	inline void setRightExpression(const Pointer<Expression> &right)
 	{
 		this->rightExpression = right;
 	}
 protected:
-	Expression * leftExpression;
-	Expression * rightExpression;
+	Pointer<Expression> leftExpression;
+	Pointer<Expression> rightExpression;
 
-	inline StringExpression * const toString(Context *const &context, StringExpression *const &middleStr)
+	inline const Pointer<StringExpression> toString(Context *const &context, const Pointer<StringExpression> &middleStr)
 	{
-		TempExpression<StringExpression> left(this->leftExpression, this->leftExpression->toString(context));
-		TempExpression<StringExpression> right(this->rightExpression, this->rightExpression->toString(context));
-		StringExpression *exprs[] = { left,middleStr,right };
+		Pointer<StringExpression> left =  this->leftExpression->toString(context);
+		Pointer<StringExpression> right =  this->rightExpression->toString(context);
+		Pointer<StringExpression> exprs[] = { left,middleStr,right };
 		auto result = StringExpression::combine(exprs, 3);
 		return result;
 	}

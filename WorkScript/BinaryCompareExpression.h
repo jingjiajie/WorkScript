@@ -10,32 +10,32 @@ class BinaryCompareExpression :
 	public BinaryOperatorExpression
 {
 public:
-	inline BinaryCompareExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
-		:BinaryOperatorExpression(left, right, level)
+	inline BinaryCompareExpression(const Pointer<Expression> &left, const Pointer<Expression> &right)
+		:BinaryOperatorExpression(left, right)
 	{
 
 	}
 
-	inline BinaryCompareExpression(const StorageLevel level = StorageLevel::TEMP)
-		: BinaryOperatorExpression(level)
+	inline BinaryCompareExpression()
+		: BinaryOperatorExpression()
 	{
 
 	}
 	virtual ~BinaryCompareExpression();
 
-	virtual Expression* const evaluate(Context *const& context) override;
+	virtual const Pointer<Expression> evaluate(Context *const& context) override;
 	
-	inline VariableExpression *const getLeftVariable() const 
+	inline const Pointer<VariableExpression> getLeftVariable() const 
 	{
-		if (this->leftExpression->getType(nullptr)->equals(nullptr, &TypeExpression::VARIABLE_EXPRESSION)) {
-			return (VariableExpression *&)this->leftExpression;
+		if (this->leftExpression->getType(nullptr)->equals(nullptr, TypeExpression::VARIABLE_EXPRESSION)) {
+			return (Pointer<VariableExpression>&)this->leftExpression;
 		}
 		else {
 			return nullptr;
 		}
 	}
 protected:
-	virtual BooleanExpression * const numberCompareNumber(Context *context, NumberExpression* const &left, NumberExpression* const &right)const = 0;
-	virtual BooleanExpression * const expressionCompareExpression(Context *context, Expression* const &left, Expression* const &right)const;
+	virtual const Pointer<BooleanExpression> numberCompareNumber(Context *context, const Pointer<NumberExpression> &left, const Pointer<NumberExpression> &right)const = 0;
+	virtual const Pointer<BooleanExpression> expressionCompareExpression(Context *context, const Pointer<Expression> &left, const Pointer<Expression> &right)const;
 };
 

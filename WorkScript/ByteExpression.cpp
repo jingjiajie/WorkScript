@@ -5,39 +5,39 @@
 #include "OperatorWrappers.hpp"
 #include "StringExpression.h"
 
-OBJECT_POOL_MEMBER_IMPL(ByteExpression,1024);
+OBJECT_POOL_MEMBER_IMPL(ByteExpression,64);
 
 #define BYTE_COMPARE_FUNCTION_IMPL(funcName, signWrapper) \
-BooleanExpression *const ByteExpression::funcName(Expression * const & targetExpression) const \
+const Pointer<BooleanExpression> ByteExpression::funcName(const Pointer<Expression> & targetExpression) const \
 { \
 	bool result = false; \
 	switch (targetExpression->getType(nullptr)->getTypeID()) { \
 		case TypeExpression::TYPEID_DOUBLE: \
-			result = signWrapper(this->value, ((DoubleExpression*)targetExpression)->getValue()); \
+			result = signWrapper(this->value, ((Pointer<DoubleExpression>)targetExpression)->getValue()); \
 			break; \
 		case TypeExpression::TYPEID_INTEGER: \
-			result = signWrapper(this->value, ((IntegerExpression*)targetExpression)->getValue()); \
+			result = signWrapper(this->value, ((Pointer<IntegerExpression>)targetExpression)->getValue()); \
 			break; \
 		case TypeExpression::TYPEID_BYTE: \
-			result = signWrapper(this->value, ((ByteExpression*)targetExpression)->getValue()); \
+			result = signWrapper(this->value, ((Pointer<ByteExpression>)targetExpression)->getValue()); \
 			break; \
 	} \
 	return BooleanExpression::newInstance(result); \
 } \
 
 #define BYTE_CALCULATE_FUNCTION_IMPL(funcName, signWrapper) \
-NumberExpression *const ByteExpression::funcName(Expression* const& targetExpression) const \
+const Pointer<NumberExpression> ByteExpression::funcName(const Pointer<Expression> & targetExpression) const \
 { \
-	NumberExpression *result = nullptr; \
+	Pointer<NumberExpression>result = nullptr; \
 	switch (targetExpression->getType(nullptr)->getTypeID()) { \
 	case TypeExpression::TYPEID_DOUBLE: \
-		result = DoubleExpression::newInstance(signWrapper(this->value, ((DoubleExpression*)targetExpression)->getValue())); \
+		result = DoubleExpression::newInstance(signWrapper(this->value, ((Pointer<DoubleExpression>)targetExpression)->getValue())); \
 		break; \
 	case TypeExpression::TYPEID_INTEGER: \
-		result = IntegerExpression::newInstance(signWrapper(this->value, ((IntegerExpression*)targetExpression)->getValue())); \
+		result = IntegerExpression::newInstance(signWrapper(this->value, ((Pointer<IntegerExpression>)targetExpression)->getValue())); \
 		break; \
 	case TypeExpression::TYPEID_BYTE: \
-		result = ByteExpression::newInstance(signWrapper(this->value, ((ByteExpression*)targetExpression)->getValue())); \
+		result = ByteExpression::newInstance(signWrapper(this->value, ((Pointer<ByteExpression>)targetExpression)->getValue())); \
 		break; \
 	} \
 	return result; \
@@ -59,12 +59,12 @@ ByteExpression::~ByteExpression()
 {
 }
 
-Expression * const ByteExpression::evaluate(Context * const & context)
+const Pointer<Expression> ByteExpression::evaluate(Context * const & context)
 {
-	return this->storageLevel == StorageLevel::LITERAL ? newInstance(this->value) : this;
+	return this;
 }
 
-StringExpression * const ByteExpression::toString(Context * const & context)
+const Pointer<StringExpression> ByteExpression::toString(Context * const & context)
 {
 	wchar_t buff[4];
 	swprintf(buff,4, L"%d", this->value);

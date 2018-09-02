@@ -6,21 +6,20 @@ class ExecuteCppCodeExpression :
 	public Expression
 {
 public:
-	inline ExecuteCppCodeExpression(const std::function<Expression* const(Context*)> &evaluateFunction, const StorageLevel level = StorageLevel::TEMP)
+	inline ExecuteCppCodeExpression(const std::function<const Pointer<Expression>(Context*)> &evaluateFunction)
 	{
-		this->setStorageLevel(level);
 		this->evaluateFunction = evaluateFunction;
 	}
 	virtual ~ExecuteCppCodeExpression();
 
- virtual Expression* const evaluate(Context *const& context) override;
-	//virtual bool match(Expression* const &matchExpression, Context *const& context) const override;
-	virtual TypeExpression* const getType(Context *const& context) const override;
-	virtual bool equals(Context *const &context, Expression* const& targetExpression) const;
-	virtual StringExpression *const toString(Context *const& context) override;
+ virtual const Pointer<Expression> evaluate(Context *const& context) override;
+	//virtual bool match(const Pointer<Expression> &matchExpression, Context *const& context) const override;
+	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
+	virtual bool equals(Context *const &context, const Pointer<Expression> & targetExpression) const;
+	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 	virtual void compile(CompileContext *const& context) override;
 
 protected:
-	std::function<Expression* const(Context*)> evaluateFunction;
+	std::function<const Pointer<Expression>(Context*)> evaluateFunction;
 };
 

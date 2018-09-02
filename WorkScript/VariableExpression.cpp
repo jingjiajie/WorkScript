@@ -11,7 +11,7 @@ VariableExpression::~VariableExpression()
 	if (this->name)delete[]this->name;
 }
 
-Expression* const VariableExpression::evaluate(Context *const& context)
+const Pointer<Expression> VariableExpression::evaluate(Context *const& context)
 {
 	Context *targetContext = context;
 	for (int i = 0; i < this->variableInfo.upLevel; ++i) {
@@ -19,7 +19,7 @@ Expression* const VariableExpression::evaluate(Context *const& context)
 	}
 	if (context->getAssignLeft() == true)
 	{
-		auto ptr = new ExpressionPointerExpression(StorageLevel::TEMP);
+		auto ptr = new ExpressionPointerExpression();
 		ptr->setTargetAddress(targetContext->getLocalVariableAddress(this->variableInfo.offset));
 		return ptr;
 	}
@@ -35,7 +35,7 @@ Expression* const VariableExpression::evaluate(Context *const& context)
 }
 
 //
-//bool VariableExpression::match(Expression* const& matchExpression,Context *const &context) const
+//bool VariableExpression::match(const Pointer<Expression> & matchExpression,Context *const &context) const
 //{
 //	//如果同名变量已经被绑定，且本次绑定的值和同名变量绑定的值不相等，则匹配失败
 //	auto evaluateResult = this->evaluate(context);
@@ -54,21 +54,21 @@ Expression* const VariableExpression::evaluate(Context *const& context)
 //	return false;
 //}
 
-TypeExpression* const VariableExpression::getType(Context *const& context) const
+const Pointer<TypeExpression> VariableExpression::getType(Context *const& context) const
 {
-	return &TypeExpression::VARIABLE_EXPRESSION;
+	return TypeExpression::VARIABLE_EXPRESSION;
 }
 
-bool VariableExpression::equals(Context *const &context, Expression* const& targetExpression) const
+bool VariableExpression::equals(Context *const &context, const Pointer<Expression> & targetExpression) const
 {
 	if (!targetExpression->getType(context)->equals(context, this->getType(context))) {
 		return false;
 	}
-	auto targetVariableExpr = (VariableExpression *const&)(targetExpression);
+	auto targetVariableExpr = (const Pointer<VariableExpression> &)(targetExpression);
 	return targetVariableExpr->name == this->name;
 }
 
-StringExpression *const VariableExpression::toString(Context *const& context)
+const Pointer<StringExpression> VariableExpression::toString(Context *const& context)
 {
 	return StringExpression::newInstance(this->name);
 }

@@ -19,7 +19,7 @@ public:
 		this->setParameterName(name);
 	}
 
-	inline ParameterInfo(const wchar_t *const &name,Expression *const &defaultValue) {
+	inline ParameterInfo(const wchar_t *const &name,const Pointer<Expression> &defaultValue) {
 		this->setParameterName(name);
 		this->setDefaultValue(defaultValue);
 	}
@@ -57,17 +57,17 @@ public:
 		this->offset = offset;
 	}
 
-	inline Expression *const getDefaultValue()const	{
+	inline const Pointer<Expression> getDefaultValue()const	{
 		return this->defaultValue;
 	}
 
-	inline void setDefaultValue(Expression *const &value) {
+	inline void setDefaultValue(const Pointer<Expression> &value) {
 		this->defaultValue = value;
 	}
 
 private:
 	wchar_t *parameterName = nullptr;
-	Expression *defaultValue = nullptr;
+	Pointer<Expression> defaultValue = nullptr;
 	size_t offset;
 };
 
@@ -81,21 +81,14 @@ public:
 		}
 
 		if (this->constraints) {
-			for (size_t i = 0; i < this->constraintCount; ++i) {
-				this->constraints[i]->releaseLiteral();
-			}
 			delete[]this->constraints;
 		}
 
-		for (size_t i = 0; i < this->implementCount; ++i)
-		{
-			if (this->implements[i]) this->implements[i]->releaseLiteral();
-		}
 		delete[]this->implements;
 	}
 
-	virtual bool match(ParameterExpression* const &params, Context *const& context) const;
-	virtual Expression* const invoke(Context *const& context) const;
+	virtual bool match(const Pointer<ParameterExpression> &params, Context *const& context) const;
+	virtual const Pointer<Expression> invoke(Context *const& context) const;
 	virtual void compile(CompileContext *const& context);
 
 	inline const ParameterInfo *const getParameterInfos() const
@@ -112,12 +105,12 @@ public:
 		this->parameters = params;
 	}
 
-	inline Expression **const getConstraints() const
+	inline Pointer<Expression> *const getConstraints() const
 	{
 		return this->constraints;
 	}
 
-	inline void setConstraints(Expression **const &constraints, const size_t &count)
+	inline void setConstraints(Pointer<Expression> *const &constraints, const size_t &count)
 	{
 		this->constraintCount = count;
 		this->constraints = constraints;
@@ -133,21 +126,21 @@ public:
 		this->allowLastMatchRest = allowLastMatchRest;
 	}
 
-	inline Expression** const getImplements() const
+	inline Pointer<Expression> *const getImplements() const
 	{
 		return this->implements;
 	}
 
-	inline void setImplements(Expression** const &impls, const size_t &count)
+	inline void setImplements(Pointer<Expression> *const &impls, const size_t &count)
 	{
 		this->implementCount = count;
 		this->implements = impls;
 	}
 
-	inline void setImplement(Expression *impl)
+	inline void setImplement(Pointer<Expression> impl)
 	{
 		this->implementCount = 1;
-		this->implements = new Expression*[1]{ impl };
+		this->implements = new Pointer<Expression>[1]{ impl };
 	}
 
 	inline const size_t getLocalVariableCount() const
@@ -164,9 +157,9 @@ protected:
 	ParameterInfo *parameters = nullptr;
 	size_t parameterCount = 0;
 
-	Expression **constraints = nullptr;
+	Pointer<Expression> *constraints = nullptr;
 	size_t constraintCount = 0;
-	Expression **implements = nullptr;
+	Pointer<Expression> *implements = nullptr;
 	size_t implementCount = 0;
 
 	size_t localVariableCount = 0; //编译时存储局部变量个数，用于运行时分配局部变量空间
@@ -177,19 +170,19 @@ class FunctionExpression :
 	public Expression
 {
 public:
-	inline FunctionExpression(const StorageLevel level = StorageLevel::TEMP)
+	inline FunctionExpression()
 	{
-		this->setStorageLevel(level);
+		
 	}
 	virtual ~FunctionExpression();
 
-	virtual TypeExpression* const getType(Context *const& context) const override;
-	virtual Expression* const evaluate(Context *const& context) override;
-	virtual bool equals(Context *const &context, Expression* const& targetExpression) const;
-	virtual StringExpression *const toString(Context *const& context) override;
+	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
+	virtual const Pointer<Expression> evaluate(Context *const& context) override;
+	virtual bool equals(Context *const &context, const Pointer<Expression>& targetExpression) const;
+	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 	virtual void compile(CompileContext *const& context) override;
 
-	virtual Expression* const invoke(ParameterExpression *const &params) const;
+	virtual const Pointer<Expression> invoke(const Pointer<ParameterExpression> &params) const;
 
 	inline const wchar_t *const getName()const
 	{

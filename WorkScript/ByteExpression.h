@@ -9,31 +9,30 @@ class ByteExpression :
 public:
 	virtual ~ByteExpression();
 
-	inline static ByteExpression *const newInstance(const unsigned char &value, const StorageLevel level = StorageLevel::TEMP)
+	inline static const Pointer<ByteExpression> newInstance(const unsigned char &value)
 	{
 		auto newInstance = OBJECT_POOL_GET;
-		newInstance->setStorageLevel(level);
 		newInstance->value = value;
 		return newInstance;
 	}
 
 
-	virtual Expression* const evaluate(Context *const& context) override;
-	virtual StringExpression *const toString(Context *const& context) override;
+	virtual const Pointer<Expression> evaluate(Context *const& context) override;
+	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 
-	virtual BooleanExpression *const equals(Expression* const& targetExpression) const;
-	virtual BooleanExpression *const greaterThan(Expression* const& targetExpression) const override;
-	virtual BooleanExpression *const greaterThanEquals(Expression* const& targetExpression) const override;
-	virtual BooleanExpression *const lessThan(Expression* const& targetExpression) const override;
-	virtual BooleanExpression *const lessThanEquals(Expression* const& targetExpression) const override;
-	virtual NumberExpression *const plus(Expression* const& targetExpression) const override;
-	virtual NumberExpression *const minus(Expression* const& targetExpression) const override;
-	virtual NumberExpression *const multiply(Expression* const& targetExpression) const override;
-	virtual NumberExpression *const divide(Expression* const& targetExpression) const override;
-	virtual NumberExpression *const modulus(Expression* const& targetExpression) const override;
+	virtual const Pointer<BooleanExpression> equals(const Pointer<Expression> & targetExpression) const;
+	virtual const Pointer<BooleanExpression> greaterThan(const Pointer<Expression> & targetExpression) const override;
+	virtual const Pointer<BooleanExpression> greaterThanEquals(const Pointer<Expression> & targetExpression) const override;
+	virtual const Pointer<BooleanExpression> lessThan(const Pointer<Expression> & targetExpression) const override;
+	virtual const Pointer<BooleanExpression> lessThanEquals(const Pointer<Expression> & targetExpression) const override;
+	virtual const Pointer<NumberExpression> plus(const Pointer<Expression> & targetExpression) const override;
+	virtual const Pointer<NumberExpression> minus(const Pointer<Expression> & targetExpression) const override;
+	virtual const Pointer<NumberExpression> multiply(const Pointer<Expression> & targetExpression) const override;
+	virtual const Pointer<NumberExpression> divide(const Pointer<Expression> & targetExpression) const override;
+	virtual const Pointer<NumberExpression> modulus(const Pointer<Expression> & targetExpression) const override;
 	
-	inline virtual TypeExpression* const getType(Context *const& context) const override {
-		return &TypeExpression::BYTE_EXPRESSION;
+	inline virtual const Pointer<TypeExpression> getType(Context *const& context) const override {
+		return TypeExpression::BYTE_EXPRESSION;
 	}
 
 	inline const unsigned char getValue() const {

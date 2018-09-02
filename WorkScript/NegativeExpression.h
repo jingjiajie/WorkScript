@@ -4,22 +4,22 @@ class NegativeExpression :
 	public UnaryOperatorExpression
 {
 public:
-	inline NegativeExpression(Expression* const &subExpression, const StorageLevel level = StorageLevel::TEMP)
-		:UnaryOperatorExpression(subExpression,level)
+	inline NegativeExpression(const Pointer<Expression> &subExpression)
+		:UnaryOperatorExpression(subExpression)
 	{
 
 	}
 
-	inline NegativeExpression(const StorageLevel level = StorageLevel::TEMP)
-		: UnaryOperatorExpression(level)
+	inline NegativeExpression()
+		: UnaryOperatorExpression()
 	{
 
 	}
 
 	virtual ~NegativeExpression();
 
-	virtual Expression* const evaluate(Context *const& context);
-	virtual TypeExpression* const getType(Context *const& context) const;
-	virtual StringExpression *const toString(Context *const& context);
+	virtual const Pointer<Expression> evaluate(Context *const& context);
+	virtual const Pointer<TypeExpression> getType(Context *const& context) const;
+	virtual const Pointer<StringExpression> toString(Context *const& context);
 };
 

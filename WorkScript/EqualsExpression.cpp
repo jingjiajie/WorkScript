@@ -11,23 +11,23 @@ EqualsExpression::~EqualsExpression()
 {
 }
 
-TypeExpression* const EqualsExpression::getType(Context *const& context) const
+const Pointer<TypeExpression> EqualsExpression::getType(Context *const& context) const
 {
-	return &TypeExpression::EQUALS_EXPRESSION;
+	return TypeExpression::EQUALS_EXPRESSION;
 }
 
-StringExpression *const EqualsExpression::toString(Context *const& context)
+const Pointer<StringExpression> EqualsExpression::toString(Context *const& context)
 {
-	static StringExpression equal(L"==", StorageLevel::EXTERN);
-	return BinaryOperatorExpression::toString(context, &equal);
+	static Pointer<StringExpression> equal(new StringExpression(L"==", ReleaseStrategy::DELETE));
+	return BinaryOperatorExpression::toString(context, equal);
 }
 
-BooleanExpression * const EqualsExpression::numberCompareNumber(Context * context, NumberExpression * const &left, NumberExpression * const &right) const
+const Pointer<BooleanExpression> EqualsExpression::numberCompareNumber(Context * context, const Pointer<NumberExpression> &left, const Pointer<NumberExpression> &right) const
 {
 	return left->equals(right);
 }
 
-BooleanExpression * const EqualsExpression::expressionCompareExpression(Context * context, Expression * const &left, Expression * const &right) const
+const Pointer<BooleanExpression> EqualsExpression::expressionCompareExpression(Context * context, const Pointer<Expression> &left, const Pointer<Expression> &right) const
 {
 	return BooleanExpression::newInstance(left->equals(context, right));
 }

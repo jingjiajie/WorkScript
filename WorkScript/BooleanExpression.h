@@ -5,27 +5,25 @@
 class BooleanExpression :
 	public Expression
 {
-	friend class ObjectPool<BooleanExpression>;
 public:
-	inline static BooleanExpression *const newInstance(const unsigned char value, const StorageLevel level = StorageLevel::TEMP)
+	inline static const Pointer<BooleanExpression> newInstance(const unsigned char value)
 	{
-		auto newInstance = BooleanExpression::pool.get();
+		auto newInstance = OBJECT_POOL_GET;
 		newInstance->value = value;
-		newInstance->setStorageLevel(level);
 		return newInstance;
 	}
 
 	virtual ~BooleanExpression();
 
-	virtual Expression* const evaluate(Context *const& context) override;
-	//virtual bool match(Expression* const &matchExpression, Context *const& context) const override;
-	virtual bool equals(Context *const &context, Expression* const& targetExpression) const override;
-	virtual StringExpression *const toString(Context *const& context) override;
+	virtual const Pointer<Expression> evaluate(Context *const& context) override;
+	//virtual bool match(const Pointer<Expression> &matchExpression, Context *const& context) const override;
+	virtual bool equals(Context *const &context, const Pointer<Expression> & targetExpression) const override;
+	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 
 	inline virtual void compile(CompileContext *const& context) override{}
 
-	inline virtual TypeExpression* const getType(Context *const& context) const override {
-		return &TypeExpression::BOOLEAN_EXPRESSION;
+	inline virtual const Pointer<TypeExpression> getType(Context *const& context) const override {
+		return TypeExpression::BOOLEAN_EXPRESSION;
 	}
 
 	inline const unsigned char getValue() const {
@@ -41,19 +39,19 @@ protected:
 
 	virtual void release() override	
 	{
-		BooleanExpression::pool.push(this);
+		OBJECT_POOL_PUSH(this);
 	}
 public:
-	static BooleanExpression  VAL_TRUE, VAL_YES, VAL_OK, VAL_GOOD, VAL_FALSE, VAL_NO, VAL_BAD;
-	static StringExpression STR_TRUE, STR_YES, STR_OK, STR_GOOD, STR_FALSE, STR_NO, STR_BAD;
-	static ObjectPool<BooleanExpression> pool;
+	static Pointer<BooleanExpression> VAL_TRUE, VAL_YES, VAL_OK, VAL_GOOD, VAL_FALSE, VAL_NO, VAL_BAD;
+	static Pointer<StringExpression> STR_TRUE, STR_YES, STR_OK, STR_GOOD, STR_FALSE, STR_NO, STR_BAD;
+	OBJECT_POOL_MEMBER_DECL(BooleanExpression);
 
 private:
 	inline BooleanExpression() {}
-	inline BooleanExpression(const unsigned char value, const StorageLevel level = StorageLevel::TEMP)
+	inline BooleanExpression(const unsigned char value,ReleaseStrategy releaseStrategy = ReleaseStrategy::CALL_RELEASE)
 	{
 		this->value = value;
-		this->setStorageLevel(level);
+		this->releaseStrategy = releaseStrategy;
 	}
 };
 

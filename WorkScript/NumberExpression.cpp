@@ -1,6 +1,5 @@
 #include "NumberExpression.h"
 #include "BooleanExpression.h"
-#include "TempExpression.h"
 
 NumberExpression::~NumberExpression()
 {
@@ -11,8 +10,8 @@ void NumberExpression::compile(CompileContext * const & context)
 	return;
 }
 
-bool NumberExpression::equals(Context * const & context, Expression * const & targetExpression) const
+bool NumberExpression::equals(Context * const & context, const Pointer<Expression> & targetExpression) const
 {
-	TempExpression<BooleanExpression> res(this, this->equals(targetExpression));
+	Pointer<BooleanExpression> res =  this->equals(targetExpression);
 	return res->getValue();
 }

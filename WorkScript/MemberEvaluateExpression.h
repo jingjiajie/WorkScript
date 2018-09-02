@@ -5,22 +5,22 @@
 //	public Expression
 //{
 //public:
-//	MemberEvaluateExpression(Expression* const &objExpr, Expression* const &memberExpr);
+//	MemberEvaluateExpression(const Pointer<Expression> &objExpr, const Pointer<Expression> &memberExpr);
 //	virtual ~MemberEvaluateExpression();
 //
-// virtual Expression* const evaluate(Context *const& context) override;
-//	//virtual bool match(Expression* const &matchExpression, Context *const& context) const override;
-//	virtual bool equals(Context *const &context, Expression* const& targetExpression) const;
-//	virtual TypeExpression* const getType(Context *const& context) const override;
-//	virtual StringExpression *const toString(Context *const& context) override;
+// virtual const Pointer<Expression> evaluate(Context *const& context) override;
+//	//virtual bool match(const Pointer<Expression> &matchExpression, Context *const& context) const override;
+//	virtual bool equals(Context *const &context, const Pointer<Expression> & targetExpression) const;
+//	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
+//	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 //
-//	Expression* const getObjectExpression() const;
-//	void setObjectExpression(Expression* const&);
-//	Expression* const getMemberExpression() const;
-//	void setMemberExpression(Expression* const&);
+//	const Pointer<Expression> getObjectExpression() const;
+//	void setObjectExpression(const Pointer<Expression> &);
+//	const Pointer<Expression> getMemberExpression() const;
+//	void setMemberExpression(const Pointer<Expression> &);
 //
 //protected:
-//	Expression * objectExpression;
-//	Expression * memberExpression;
+//	Pointer<Expression>  objectExpression;
+//	Pointer<Expression>  memberExpression;
 //};
 //

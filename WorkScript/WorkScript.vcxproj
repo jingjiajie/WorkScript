@@ -369,7 +369,6 @@
     <ClInclude Include="SyntaxErrorException.h" />
     <ClInclude Include="SyntaxErrorListener.h" />
     <ClInclude Include="SyntaxErrorStrategy.h" />
-    <ClInclude Include="TempExpression.h" />
     <ClInclude Include="TypeExpression.h" />
     <ClInclude Include="TypeMemberExpression.h" />
     <ClInclude Include="UnaryOperatorExpression.h" />

@@ -7,18 +7,18 @@ LessThanExpression::~LessThanExpression()
 {
 }
 
-TypeExpression * const LessThanExpression::getType(Context * const & context) const
+const Pointer<TypeExpression> LessThanExpression::getType(Context * const & context) const
 {
-	return &TypeExpression::LESS_THAN_EXPRESSION;
+	return TypeExpression::LESS_THAN_EXPRESSION;
 }
 
-StringExpression * const LessThanExpression::toString(Context * const & context)
+const Pointer<StringExpression> LessThanExpression::toString(Context * const & context)
 {
-	static StringExpression sign(L">",StorageLevel::EXTERN);
-	return BinaryOperatorExpression::toString(context, &sign);
+	static Pointer<StringExpression> sign = new StringExpression(L">", ReleaseStrategy::DELETE);
+	return BinaryOperatorExpression::toString(context, sign);
 }
 
-BooleanExpression * const LessThanExpression::numberCompareNumber(Context * context, NumberExpression * const &left, NumberExpression * const &right) const
+const Pointer<BooleanExpression> LessThanExpression::numberCompareNumber(Context * context, const Pointer<NumberExpression> &left, const Pointer<NumberExpression> &right) const
 {
 	return left->lessThan(right);
 }

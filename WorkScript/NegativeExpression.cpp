@@ -11,25 +11,25 @@ NegativeExpression::~NegativeExpression()
 {
 }
 
-Expression * const NegativeExpression::evaluate(Context * const & context)
+const Pointer<Expression> NegativeExpression::evaluate(Context * const & context)
 {
-	TempExpression<Expression> evaluatedSub(this->subExpression, this->subExpression->evaluate(context));
-	if (evaluatedSub->getType(context)->equals(context, &TypeExpression::NUMBER_EXPRESSION)) {
-		return DoubleExpression::newInstance(-1 * ((DoubleExpression*)evaluatedSub.getExpression())->getValue());
+	Pointer<Expression> evaluatedSub =  this->subExpression->evaluate(context);
+	if (evaluatedSub->getType(context)->equals(context, TypeExpression::NUMBER_EXPRESSION)) {
+		return DoubleExpression::newInstance(-1 * ((Pointer<DoubleExpression>)evaluatedSub)->getValue());
 	}
 	else {
-		TempExpression<StringExpression> str(evaluatedSub,evaluatedSub->toString(context));
+		Pointer<StringExpression> str = evaluatedSub->toString(context);
 		throw std::move(UncalculatableException((wstring(str->getValue()) + L"无法取负！").c_str()));
 	}
 }
 
-TypeExpression * const NegativeExpression::getType(Context * const & context) const
+const Pointer<TypeExpression> NegativeExpression::getType(Context * const & context) const
 {
-	return &TypeExpression::NEGATIVE_EXPRESSION;
+	return TypeExpression::NEGATIVE_EXPRESSION;
 }
 
-StringExpression * const NegativeExpression::toString(Context * const & context)
+const Pointer<StringExpression> NegativeExpression::toString(Context * const & context)
 {
-	static StringExpression sign(L"-",StorageLevel::EXTERN);
-	return UnaryOperatorExpression::toString(context, &sign);
+	static Pointer<StringExpression> sign = new StringExpression(L"-", ReleaseStrategy::DELETE);
+	return UnaryOperatorExpression::toString(context, sign);
 }

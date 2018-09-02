@@ -10,22 +10,22 @@ GreaterThanExpression::~GreaterThanExpression()
 }
 
 //
-//bool GreaterThanExpression::match(Expression* const& matchExpression, Context *const& context) const
+//bool GreaterThanExpression::match(const Pointer<Expression> & matchExpression, Context *const& context) const
 //{
 //	auto evaluatedLeft = this->leftExpression->evaluate(context);
 //	auto evaluatedRight = this->rightExpression->evaluate(context);
-//	auto numberType = &TypeExpression::NUMBER_EXPRESSION;
+//	auto numberType = TypeExpression::NUMBER_EXPRESSION;
 //	//如果匹配大于表达式，则左右匹配
 //	if (matchExpression->getType(context)->equals(this->getType(context))) {
-//		auto matchGreaterThanExpression = (GreaterThanExpression *const&)(matchExpression);
+//		auto matchGreaterThanExpression = (const Pointer<GreaterThanExpression> &)(matchExpression);
 //		return evaluatedLeft->match(matchGreaterThanExpression->leftExpression, context)
 //			&& evaluatedRight->match(matchGreaterThanExpression->rightExpression, context);
 //	}
 //	//如果自己的右部是数字类型，且匹配的表达式也是数字，则如果大于，将自己的左部匹配目标表达式
 //	else if(evaluatedRight->getType(context)->equals(numberType) && matchExpression->getType(context)->equals(numberType))
 //	{
-//		auto matchNumberExpression = (DoubleExpression *const&)(matchExpression);
-//		auto myNumberRight = (DoubleExpression *const&)(evaluatedRight);
+//		auto matchNumberExpression = (const Pointer<DoubleExpression> &)(matchExpression);
+//		auto myNumberRight = (const Pointer<DoubleExpression> &)(evaluatedRight);
 //		if (matchNumberExpression->getValue() > myNumberRight->getValue()) {
 //			return evaluatedLeft->match(matchExpression, context);
 //		}
@@ -33,8 +33,8 @@ GreaterThanExpression::~GreaterThanExpression()
 //	}
 //	else if (evaluatedLeft->getType(context)->equals(numberType) && matchExpression->getType(context)->equals(numberType))
 //	{
-//		auto matchNumberExpression = (DoubleExpression *const&)(matchExpression);
-//		auto myNumberExpr = (DoubleExpression *const&)(evaluatedLeft);
+//		auto matchNumberExpression = (const Pointer<DoubleExpression> &)(matchExpression);
+//		auto myNumberExpr = (const Pointer<DoubleExpression> &)(evaluatedLeft);
 //		if (matchNumberExpression->getValue() < myNumberExpr->getValue()) {
 //			return evaluatedRight->match(matchExpression, context);
 //		}
@@ -43,18 +43,18 @@ GreaterThanExpression::~GreaterThanExpression()
 //	return false;
 //}
 
-TypeExpression* const GreaterThanExpression::getType(Context *const& context) const
+const Pointer<TypeExpression> GreaterThanExpression::getType(Context *const& context) const
 {
-	return &TypeExpression::GREATER_THAN_EXPRESSION;
+	return TypeExpression::GREATER_THAN_EXPRESSION;
 }
 
-StringExpression *const GreaterThanExpression::toString(Context *const& context)
+const Pointer<StringExpression> GreaterThanExpression::toString(Context *const& context)
 {
-	static StringExpression greaterThan(L">",StorageLevel::EXTERN);
-	return BinaryOperatorExpression::toString(context, &greaterThan);
+	static Pointer<StringExpression> greaterThan = new StringExpression(L">", ReleaseStrategy::DELETE);
+	return BinaryOperatorExpression::toString(context, greaterThan);
 }
 
-BooleanExpression* const GreaterThanExpression::numberCompareNumber(Context *context, NumberExpression* const &left, NumberExpression* const &right)const
+const Pointer<BooleanExpression> GreaterThanExpression::numberCompareNumber(Context *context, const Pointer<NumberExpression> &left, const Pointer<NumberExpression> &right)const
 {
 	return left->greaterThan(right);
 }

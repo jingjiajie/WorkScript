@@ -17,20 +17,17 @@ public:
 	inline Context(Program *p, size_t maxLocalVariableCount = 0)
 		:program(p)
 	{
-		this->releaseAndResetLocalVariableCount(maxLocalVariableCount);
+		this->resetLocalVariableCount(maxLocalVariableCount);
 	}
 
 	inline Context(Context *base, size_t maxLocalVariableCount = 0)
 		:baseContext(base),program(base->program)
 	{
-		this->releaseAndResetLocalVariableCount(maxLocalVariableCount);
+		this->resetLocalVariableCount(maxLocalVariableCount);
 	}
 
 	inline ~Context()
 	{
-		for (size_t i = 0; i < this->maxLocalVariableCount; ++i) {
-			if (this->localVariables[i]) this->localVariables[i]->releaseLocal();
-		}
 		delete[]this->localVariables;
 	}
 
@@ -44,62 +41,52 @@ public:
 		this->baseContext = ctx;
 	}
 
-	inline Expression* const getCurrentExpression() const
-	{
-		if (this->baseContext != nullptr) {
-			return this->baseContext->getCurrentExpression();
-		}
-		else {
-			return this->currentExpression;
-		}
-	}
+	//inline const Pointer<Expression> getCurrentExpression() const
+	//{
+	//	if (this->baseContext != nullptr) {
+	//		return this->baseContext->getCurrentExpression();
+	//	}
+	//	else {
+	//		return this->currentExpression;
+	//	}
+	//}
 
-	inline void setCurrentExpression(Expression* const expr)
-	{
-		if (this->baseContext != nullptr) {
-			this->baseContext->setCurrentExpression(expr);
-		}
-		else {
-			this->currentExpression = expr;
-		}
-	}
+	//inline void setCurrentExpression(const Pointer<Expression> expr)
+	//{
+	//	if (this->baseContext != nullptr) {
+	//		this->baseContext->setCurrentExpression(expr);
+	//	}
+	//	else {
+	//		this->currentExpression = expr;
+	//	}
+	//}
 
 	inline void release()
 	{
 		delete this;
 	}
 
-	inline Expression* const getLocalVariable(const size_t &offset) const {
+	inline const Pointer<Expression> getLocalVariable(const size_t &offset) const {
 		return this->localVariables[offset];
 	}
 
-	inline Expression **const getLocalVariableAddress(const size_t &offset) const {
+	inline Pointer<Expression> *const getLocalVariableAddress(const size_t &offset) const {
 		return &this->localVariables[offset];
 	}
 
-	inline void setLocalVariable(size_t offset, Expression* const &value)
+	inline void setLocalVariable(size_t offset, const Pointer<Expression> &value)
 	{
-		value->upgradeStorageLevel(StorageLevel::LOCAL);
 		this->localVariables[offset] = value;
 	}
 
-	inline void releaseAndResetLocalVariableCount(const size_t &count)
+	inline void resetLocalVariableCount(const size_t &count)
 	{
-		for (size_t i = 0; i < this->maxLocalVariableCount; ++i)
-		{
-			if (this->localVariables[i]) {
-				this->localVariables[i]->releaseLocal();
-			}
-		}
 		if (this->maxLocalVariableCount >= count) {
 			this->maxLocalVariableCount = count;
-			for (size_t i = 0; i < count; ++i) {
-				this->localVariables[i] = nullptr;
-			}
 		}
 		else {
 			if(this->localVariables) delete[]this->localVariables;
-			this->localVariables = new Expression*[count]();
+			this->localVariables = new Pointer<Expression>[count];
 			this->maxLocalVariableCount = count;
 		}
 	}
@@ -121,8 +108,7 @@ public:
 protected:
 	Context * baseContext = nullptr;
 	Program *program = nullptr;
-	Expression **localVariables = nullptr;
-	Expression * currentExpression;
+	Pointer<Expression> *localVariables = nullptr;
 	size_t maxLocalVariableCount = 0;
 	bool assignLeft = false;
 };

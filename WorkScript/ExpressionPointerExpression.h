@@ -4,43 +4,43 @@ class ExpressionPointerExpression :
 	public PointerExpression
 {
 public:
-	inline ExpressionPointerExpression(const StorageLevel level)
-		:PointerExpression(level)
+	inline ExpressionPointerExpression()
+		:PointerExpression()
 	{
 	}
 
-	inline ExpressionPointerExpression(Expression **const addr, const StorageLevel level)
-		: PointerExpression(level)
+	inline ExpressionPointerExpression(Pointer<Expression> *const addr)
+		: PointerExpression()
 	{
 		this->setTargetAddress(addr);
 	}
 	virtual ~ExpressionPointerExpression();
 
-	virtual TypeExpression* const getType(Context *const& context) const override;
-	virtual StringExpression *const toString(Context *const& context)override;
-	virtual bool equals(Context *const &context, Expression* const&) const override;
+	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
+	virtual const Pointer<StringExpression> toString(Context *const& context)override;
+	virtual bool equals(Context *const &context, const Pointer<Expression>&) const override;
 
-	inline Expression **const getTargetAddress()const
+	inline Pointer<Expression> *const getTargetAddress()const
 	{
 		return this->ptr;
 	}
 
-	inline void setTargetAddress(Expression **const addr)
+	inline void setTargetAddress(Pointer<Expression> *const addr)
 	{
 		this->ptr = addr;
 	}
 
-	inline Expression *const getTargetValue() const
+	inline const Pointer<Expression> getTargetValue() const
 	{
 		return *this->ptr;
 	}
 
-	inline void setTargetValue(Expression *const &ptr)
+	inline void setTargetValue(const Pointer<Expression> &ptr)
 	{
 		*this->ptr = ptr;
 	}
 
 protected:
-	Expression * *ptr = nullptr;
+	Pointer<Expression>  *ptr = nullptr;
 };
 

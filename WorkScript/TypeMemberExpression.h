@@ -13,27 +13,27 @@
 //	public Expression
 //{
 //public:
-//	TypeMemberExpression(TypeExpression* const &belongType,
+//	TypeMemberExpression(const Pointer<TypeExpression> &belongType,
 //		const Authority &authority,
-//		Expression* const &expression);
+//		const Pointer<Expression> &expression);
 //	virtual ~TypeMemberExpression();
 //
-//	virtual TypeExpression* const getType(Context *const& context) const override;
-//	//virtual bool equals(Expression* const& targetExpression) const override;
-//	virtual StringExpression *const toString(Context *const& context) override;
+//	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
+//	//virtual bool equals(const Pointer<Expression> & targetExpression) const override;
+//	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 //	virtual void compile(CompileContext *const& context) override;
 //
-//	TypeExpression* const getBelongType() const;
-//	void setBelongType(TypeExpression* const&);
-//	Expression* const getExpression() const;
-//	void setExpression(Expression* const&);
+//	const Pointer<TypeExpression> getBelongType() const;
+//	void setBelongType(const Pointer<TypeExpression> &);
+//	const Pointer<Expression> getExpression() const;
+//	void setExpression(const Pointer<Expression> &);
 //	const Authority getAuthority() const;
 //	void setAuthority(const Authority &);
 //protected:
-//	bool canAccess(Context *const &context, TypeExpression* const &accessType) const;
+//	bool canAccess(Context *const &context, const Pointer<TypeExpression> &accessType) const;
 //
-//	TypeExpression* belongType;
+//	Pointer<TypeExpression> belongType;
 //	Authority authority;
-//	Expression * expression;
+//	Pointer<Expression>  expression;
 //};
 //

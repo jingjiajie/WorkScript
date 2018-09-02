@@ -4,8 +4,8 @@ class BytePointerExpression :
 	public PointerExpression
 {
 public:
-	inline BytePointerExpression(const StorageLevel level = StorageLevel::TEMP)
-		:PointerExpression(level)
+	inline BytePointerExpression()
+		:PointerExpression()
 	{
 	}
 	virtual ~BytePointerExpression();

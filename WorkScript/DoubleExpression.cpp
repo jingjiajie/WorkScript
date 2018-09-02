@@ -12,39 +12,39 @@
 
 using namespace std;
 
-OBJECT_POOL_MEMBER_IMPL(DoubleExpression, 1024);
+OBJECT_POOL_MEMBER_IMPL(DoubleExpression, 64);
 
 #define DOUBLE_COMPARE_FUNCTION_IMPL(funcName, signWrapper) \
-BooleanExpression *const DoubleExpression::funcName(Expression * const & targetExpression) const \
+const Pointer<BooleanExpression> DoubleExpression::funcName(const Pointer<Expression> & targetExpression) const \
 { \
 	bool result = false; \
 	switch (targetExpression->getType(nullptr)->getTypeID()) { \
 		case TypeExpression::TYPEID_DOUBLE: \
-			result = signWrapper(this->value, ((DoubleExpression*)targetExpression)->getValue()); \
+			result = signWrapper(this->value, ((Pointer<DoubleExpression>)targetExpression)->getValue()); \
 			break; \
 		case TypeExpression::TYPEID_INTEGER: \
-			result = signWrapper(this->value, ((IntegerExpression*)targetExpression)->getValue()); \
+			result = signWrapper(this->value, ((Pointer<IntegerExpression>)targetExpression)->getValue()); \
 			break; \
 		case TypeExpression::TYPEID_BYTE: \
-			result = signWrapper(this->value, ((ByteExpression*)targetExpression)->getValue()); \
+			result = signWrapper(this->value, ((Pointer<ByteExpression>)targetExpression)->getValue()); \
 			break; \
 	} \
 	return BooleanExpression::newInstance(result); \
 } \
 
 #define DOUBLE_CALCULATE_FUNCTION_IMPL(funcName, signWrapper) \
-NumberExpression *const DoubleExpression::funcName(Expression* const& targetExpression) const \
+const Pointer<NumberExpression> DoubleExpression::funcName(const Pointer<Expression> & targetExpression) const \
 { \
-	NumberExpression *result = nullptr; \
+	Pointer<NumberExpression>result = nullptr; \
 	switch (targetExpression->getType(nullptr)->getTypeID()) { \
 	case TypeExpression::TYPEID_DOUBLE: \
-		result = DoubleExpression::newInstance(signWrapper(this->value, ((DoubleExpression*)targetExpression)->getValue())); \
+		result = DoubleExpression::newInstance(signWrapper(this->value, ((Pointer<DoubleExpression>)targetExpression)->getValue())); \
 		break; \
 	case TypeExpression::TYPEID_INTEGER: \
-		result = DoubleExpression::newInstance(signWrapper(this->value, ((IntegerExpression*)targetExpression)->getValue())); \
+		result = DoubleExpression::newInstance(signWrapper(this->value, ((Pointer<IntegerExpression>)targetExpression)->getValue())); \
 		break; \
 	case TypeExpression::TYPEID_BYTE: \
-		result = DoubleExpression::newInstance(signWrapper(this->value, ((ByteExpression*)targetExpression)->getValue())); \
+		result = DoubleExpression::newInstance(signWrapper(this->value, ((Pointer<ByteExpression>)targetExpression)->getValue())); \
 		break; \
 	} \
 	return result; \
@@ -68,12 +68,12 @@ DoubleExpression::~DoubleExpression()
 
 }
 
-Expression* const DoubleExpression::evaluate(Context *const& context)
+const Pointer<Expression> DoubleExpression::evaluate(Context *const& context)
 {
-	return this->storageLevel == StorageLevel::LITERAL ? newInstance(this->value) : this;
+	return this;
 }
 
-//bool DoubleExpression::match(Expression* const& matchExpression, Context *const& context) const
+//bool DoubleExpression::match(const Pointer<Expression> & matchExpression, Context *const& context) const
 //{
 //	//如果类型不同，匹配失败
 //	if (!matchExpression->getType(context)->equals(this->getType(context))) {
@@ -84,7 +84,7 @@ Expression* const DoubleExpression::evaluate(Context *const& context)
 //	return matchValueExpression->getValue() == this->getValue();
 //}
 
-StringExpression *const DoubleExpression::toString(Context *const& context)
+const Pointer<StringExpression> DoubleExpression::toString(Context *const& context)
 {
 	double number = this->value;
 	wstring numberStr;

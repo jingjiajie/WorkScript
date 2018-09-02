@@ -6,18 +6,18 @@ ModulusExpression::~ModulusExpression()
 {
 }
 
-StringExpression * const ModulusExpression::toString(Context * const & context)
+const Pointer<StringExpression> ModulusExpression::toString(Context * const & context)
 {
-	static StringExpression mod(L"%",StorageLevel::EXTERN);
-	return BinaryOperatorExpression::toString(context, &mod);
+	static Pointer<StringExpression> mod(new StringExpression(L"%", ReleaseStrategy::DELETE));
+	return BinaryOperatorExpression::toString(context, mod);
 }
 
-TypeExpression * const ModulusExpression::getType(Context * const & context) const
+const Pointer<TypeExpression> ModulusExpression::getType(Context * const & context) const
 {
-	return &TypeExpression::MODULUS_EXPRESSION;
+	return TypeExpression::MODULUS_EXPRESSION;
 }
 
-NumberExpression * const ModulusExpression::numberCalcNumber(Context * const context, NumberExpression * const & left, NumberExpression * const & right) const
+const Pointer<NumberExpression> ModulusExpression::numberCalcNumber(Context * const context, const Pointer<NumberExpression> & left, const Pointer<NumberExpression> & right) const
 {
 	return left->modulus(right);
 }

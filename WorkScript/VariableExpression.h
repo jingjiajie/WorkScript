@@ -10,19 +10,19 @@ class VariableExpression :
 	public Expression
 {
 public:
-	inline VariableExpression(const wchar_t *const &name, const StorageLevel level = StorageLevel::TEMP)
+	inline VariableExpression(const wchar_t *const &name)
 	{
 		this->setName(name);
-		this->setStorageLevel(level);
+		
 	}
 
 	virtual ~VariableExpression();
 
-	virtual Expression* const evaluate(Context *const& context) override;
-	//virtual bool match(Expression* const &matchExpression, Context *const& context) const override;
-	virtual TypeExpression* const getType(Context *const& context) const override;
-	virtual bool equals(Context *const &context, Expression* const& targetExpression) const override;
-	virtual StringExpression *const toString(Context *const& context) override;
+	virtual const Pointer<Expression> evaluate(Context *const& context) override;
+	//virtual bool match(const Pointer<Expression> &matchExpression, Context *const& context) const override;
+	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
+	virtual bool equals(Context *const &context, const Pointer<Expression> & targetExpression) const override;
+	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 	virtual void compile(CompileContext *const& context) override;
 
 	inline const wchar_t *const & getName() const 

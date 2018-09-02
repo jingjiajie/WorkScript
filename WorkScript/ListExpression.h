@@ -8,25 +8,25 @@ class ListExpression :
 	public Expression
 {
 public:
-	inline ListExpression(const StorageLevel level = StorageLevel::TEMP)
+	inline ListExpression()
 	{
-		this->setStorageLevel(level);
+		
 	}
 	virtual ~ListExpression();
 
-	virtual TypeExpression* const getType(Context *const& context) const;
-	virtual StringExpression *const toString(Context *const& context);
+	virtual const Pointer<TypeExpression> getType(Context *const& context) const;
+	virtual const Pointer<StringExpression> toString(Context *const& context);
 	virtual void compile(CompileContext *const& context) override;
 
-	virtual Expression* const evaluate(Context *const &context) override;
-	virtual bool equals(Context *const &context,Expression* const&) const override;
+	virtual const Pointer<Expression> evaluate(Context *const &context) override;
+	virtual bool equals(Context *const &context,const Pointer<Expression> &) const override;
 	
-	inline Expression* const getItem(size_t offset) const
+	inline const Pointer<Expression> getItem(size_t offset) const
 	{
 		return this->items[offset];
 	}
 
-	inline const size_t addItem(Expression* const& termExpression)
+	inline const size_t addItem(const Pointer<Expression> & termExpression)
 	{
 		this->items[count] = termExpression;
 		count++;
@@ -39,6 +39,6 @@ public:
 
 private:
 	//TODO 静态大小不可以的，要改成动态大小！
-	Expression * items[10];
+	Pointer<Expression> *items = new Pointer<Expression>[10];
 	size_t count = 0;
 };

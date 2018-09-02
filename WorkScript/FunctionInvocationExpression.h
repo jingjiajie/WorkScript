@@ -8,41 +8,41 @@ class FunctionInvocationExpression :
 	public Expression
 {
 public:
-	inline FunctionInvocationExpression(const StorageLevel level = StorageLevel::TEMP)
+	inline FunctionInvocationExpression()
 	{
-		this->setStorageLevel(level);
+		
 	}
 	virtual ~FunctionInvocationExpression();
 
-	virtual Expression* const evaluate(Context *const& context) override;
-	virtual bool equals(Context *const &context,Expression* const&) const override;
+	virtual const Pointer<Expression> evaluate(Context *const& context) override;
+	virtual bool equals(Context *const &context,const Pointer<Expression> &) const override;
 
-	virtual TypeExpression* const getType(Context *const& context) const override;
-	virtual StringExpression *const toString(Context *const& context) override;
+	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
+	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 	virtual void compile(CompileContext *const& context) override;
 
-	inline Expression* const getLeftExpression() const
+	inline const Pointer<Expression> getLeftExpression() const
 	{
 		return this->leftExpression;
 	}
 
-	inline void setLeftExpression(Expression* const &left)
+	inline void setLeftExpression(const Pointer<Expression> &left)
 	{
 		this->leftExpression = left;
 	}
 
-	inline ParameterExpression* const getParameters() const
+	inline const Pointer<ParameterExpression> getParameters() const
 	{
 		return this->parameters;
 	}
 
-	inline void setParameters(ParameterExpression* const& parameters)
+	inline void setParameters(const Pointer<ParameterExpression> & parameters)
 	{
 		this->parameters = parameters;
 	}
 
 protected:
-	Expression * leftExpression = nullptr;
-	ParameterExpression * parameters = nullptr;
+	Pointer<Expression> leftExpression = nullptr;
+	Pointer<ParameterExpression> parameters = nullptr;
 };
 

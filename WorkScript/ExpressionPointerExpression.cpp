@@ -6,20 +6,20 @@ ExpressionPointerExpression::~ExpressionPointerExpression()
 {
 }
 
-TypeExpression * const ExpressionPointerExpression::getType(Context * const & context) const
+const Pointer<TypeExpression> ExpressionPointerExpression::getType(Context * const & context) const
 {
-	return &TypeExpression::EXPRESSION_POINTER_EXPRESSION;
+	return TypeExpression::EXPRESSION_POINTER_EXPRESSION;
 }
 
-StringExpression * const ExpressionPointerExpression::toString(Context * const & context)
+const Pointer<StringExpression> ExpressionPointerExpression::toString(Context * const & context)
 {
-	static StringExpression str(L"ExpressionPointerExpression",StorageLevel::EXTERN);
-	return &str;
+	static Pointer<StringExpression> str = new StringExpression(L"ExpressionPointerExpression", ReleaseStrategy::DELETE);
+	return str;
 }
 
-bool ExpressionPointerExpression::equals(Context * const & context, Expression * const &target) const
+bool ExpressionPointerExpression::equals(Context * const & context, const Pointer<Expression> &target) const
 {
-	if (!target->getType(context)->equals(context,&TypeExpression::EXPRESSION_POINTER_EXPRESSION))return false;
-	auto targetPointerExpr = (ExpressionPointerExpression *const &)target;
+	if (!target->getType(context)->equals(context,TypeExpression::EXPRESSION_POINTER_EXPRESSION))return false;
+	auto targetPointerExpr = (const Pointer<ExpressionPointerExpression> &)target;
 	return this->ptr == targetPointerExpr->ptr;
 }

@@ -4,7 +4,7 @@ PointerExpression::~PointerExpression()
 {
 }
 
-Expression * const PointerExpression::evaluate(Context * const & context)
+const Pointer<Expression> PointerExpression::evaluate(Context * const & context)
 {
 	return this->getTargetValue();
 }

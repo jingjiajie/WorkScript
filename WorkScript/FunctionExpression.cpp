@@ -7,7 +7,6 @@
 #include "StringExpression.h"
 #include "ParameterExpression.h"
 #include "Context.h"
-#include "TempExpression.h"
 #include "WorkScriptException.h"
 #include "Program.h"
 
@@ -21,24 +20,24 @@ FunctionExpression::~FunctionExpression()
 	if (this->name)delete[]this->name;
 }
 
-TypeExpression* const FunctionExpression::getType(Context *const& context) const
+const Pointer<TypeExpression> FunctionExpression::getType(Context *const& context) const
 {
-	return &TypeExpression::FUNCTION_EXPRESSION;
+	return TypeExpression::FUNCTION_EXPRESSION;
 }
 
-Expression* const FunctionExpression::evaluate(Context *const &context)
+const Pointer<Expression> FunctionExpression::evaluate(Context *const &context)
 {
 	this->declareContext = context;
 	auto varExpr = context->getLocalVariable(this->functionVariableInfo.offset);
 	if (varExpr == nullptr) { //如果本层变量没有搜索到，搜索是否存在父级的函数声明。无论是否存在父级，都不进行合并
-		context->setLocalVariable(this->functionVariableInfo.offset, (Expression* const&)this);
-		return (Expression* const&)this;
+		context->setLocalVariable(this->functionVariableInfo.offset, (const Pointer<Expression>&)this);
+		return (const Pointer<Expression>)this;
 	}
 	else { //如果本层找到了同名函数，则合并重载
-		if (!varExpr->getType(context)->equals(context, &TypeExpression::FUNCTION_EXPRESSION)) {
+		if (!varExpr->getType(context)->equals(context, TypeExpression::FUNCTION_EXPRESSION)) {
 			throw std::move(DuplicateDeclarationException((wstring(this->name) + L"已经被声明过，请勿重复声明！").c_str()));
 		}
-		auto funcExpr = (FunctionExpression* const&)varExpr;
+		auto funcExpr = (const Pointer<FunctionExpression>&)varExpr;
 		for (auto &overload : this->overloads) {
 			funcExpr->addOverload(overload);
 		}
@@ -47,12 +46,12 @@ Expression* const FunctionExpression::evaluate(Context *const &context)
 	}
 }
 
-bool FunctionExpression::equals(Context *const &context, Expression* const& targetExpression) const
+bool FunctionExpression::equals(Context *const &context, const Pointer<Expression>& targetExpression) const
 {
 	return targetExpression == this;
 }
 
-StringExpression *const FunctionExpression::toString(Context *const &context)
+const Pointer<StringExpression> FunctionExpression::toString(Context *const &context)
 {
 	return StringExpression::newInstance(L"FunctionDeclaration");
 	//stringstream ss;
@@ -89,11 +88,11 @@ void FunctionExpression::compile(CompileContext *const &context)
 	}
 }
 
-Expression* const FunctionExpression::invoke(ParameterExpression *const &params) const
+const Pointer<Expression> FunctionExpression::invoke(const Pointer<ParameterExpression> &params) const
 {
 	Context subContext(this->declareContext);
 	for (auto &overload : this->overloads) {
-		subContext.releaseAndResetLocalVariableCount(overload->getLocalVariableCount());
+		subContext.resetLocalVariableCount(overload->getLocalVariableCount());
 		if (overload->match(params, &subContext)) {
 			auto ret = overload->invoke(&subContext);
 			return ret;
@@ -105,10 +104,10 @@ Expression* const FunctionExpression::invoke(ParameterExpression *const &params)
 			targetContext = targetContext->getBaseContext();
 		}
 		auto expr = targetContext->getLocalVariable(baseFunctionVariableInfo.offset);
-		if (!expr->getType(targetContext)->equals(targetContext, &TypeExpression::FUNCTION_EXPRESSION)) {
+		if (!expr->getType(targetContext)->equals(targetContext, TypeExpression::FUNCTION_EXPRESSION)) {
 			throw DuplicateDeclarationException((wstring(this->name) + L"已经被声明，请勿重复声明！").c_str());
 		}
-		auto funcExpr = (FunctionExpression* const&)expr;
+		auto funcExpr = (const Pointer<FunctionExpression>&)expr;
 		return funcExpr->invoke(params);
 	}
 	else {
@@ -116,7 +115,7 @@ Expression* const FunctionExpression::invoke(ParameterExpression *const &params)
 	}
 }
 
-bool Overload::match(ParameterExpression* const &params,Context *const &context) const
+bool Overload::match(const Pointer<ParameterExpression> &params,Context *const &context) const
 {
 	size_t targetParamCount = params->getCount();
 	size_t myParamCount = this->parameterCount;
@@ -126,7 +125,7 @@ bool Overload::match(ParameterExpression* const &params,Context *const &context)
 	for (size_t i = 0; i < myParamCount; ++i) {
 		//如果当前形参已经超过实参个数，则判断是否有默认值
 		if (i + 1 > targetParamCount) { //注意，这里只能i+1，不能右边-1，因为size_t无符号
-			Expression *defaultValue = this->parameters[i].getDefaultValue();
+			Pointer<Expression>defaultValue = this->parameters[i].getDefaultValue();
 			if (!defaultValue)return false;
 			context->setLocalVariable(this->parameters[i].getOffset(), defaultValue->evaluate(context));
 		}
@@ -134,13 +133,13 @@ bool Overload::match(ParameterExpression* const &params,Context *const &context)
 		else if (i == myParamCount - 1 && i < targetParamCount - 1 && this->allowLastMatchRest) {
 			auto restParamList = new ParameterExpression(params->getItems() + i,targetParamCount - myParamCount + 1);
 			context->setLocalVariable(this->parameters[i].getOffset(), restParamList);
-			Expression *prev = nullptr;
+			Pointer<Expression> prev = nullptr;
 			if ((prev = context->getLocalVariable(this->parameters[i].getOffset())) != nullptr) {
 				if (!prev->equals(context, restParamList))return false;
 			}
 		}
 		else {
-			Expression *prev = nullptr;
+			Pointer<Expression> prev = nullptr;
 			if ((prev = context->getLocalVariable(this->parameters[i].getOffset())) != nullptr) {
 				if (!prev->equals(context, params->getItems()[i]))return false;
 			}
@@ -151,8 +150,8 @@ bool Overload::match(ParameterExpression* const &params,Context *const &context)
 	//验证约束是否符合，若有不符合则匹配失败
 	try {
 		for (size_t i = 0; i < this->constraintCount; ++i) {
-			TempExpression<Expression> res(this->constraints[i], this->constraints[i]->evaluate(context));
-			if (!res->equals(context, &BooleanExpression::VAL_YES))
+			Pointer<Expression> res =  this->constraints[i]->evaluate(context);
+			if (!res->equals(context, BooleanExpression::VAL_YES))
 			{
 				return false;
 			}
@@ -164,18 +163,15 @@ bool Overload::match(ParameterExpression* const &params,Context *const &context)
 	return true;
 }
 
-Expression* const Overload::invoke(Context *const &context) const
+const Pointer<Expression> Overload::invoke(Context *const &context) const
 {
-	Expression *ret = nullptr;
+	Pointer<Expression> ret = nullptr;
 	for (size_t i = 0; i < this->implementCount; ++i)
 	{
-		TempExpression<Expression> res(this->implements[i], this->implements[i]->evaluate(context));
+		Pointer<Expression> res =  this->implements[i]->evaluate(context);
 		//最后一条语句的结果视为返回值
 		if (i == this->implementCount - 1) {
 			ret = res;
-			if (ret->getStorageLevel() < StorageLevel::TRANSFER) {
-				ret->setStorageLevel(StorageLevel::TRANSFER); //返回值提升为TRANSFER，防止局部栈帧销毁时释放
-			}
 		}
 	}
 	return ret;

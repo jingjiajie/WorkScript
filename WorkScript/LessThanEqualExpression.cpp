@@ -7,18 +7,18 @@ LessThanEqualExpression::~LessThanEqualExpression()
 {
 }
 
-TypeExpression * const LessThanEqualExpression::getType(Context * const & context) const
+const Pointer<TypeExpression> LessThanEqualExpression::getType(Context * const & context) const
 {
-	return &TypeExpression::LESS_THAN_EQUAL_EXPRESSION;
+	return TypeExpression::LESS_THAN_EQUAL_EXPRESSION;
 }
 
-StringExpression * const LessThanEqualExpression::toString(Context * const & context)
+const Pointer<StringExpression> LessThanEqualExpression::toString(Context * const & context)
 {
-	static StringExpression sign(L"<=",StorageLevel::EXTERN);
-	return BinaryOperatorExpression::toString(context, &sign);
+	static Pointer<StringExpression> sign = new StringExpression(L"<=", ReleaseStrategy::DELETE);
+	return BinaryOperatorExpression::toString(context, sign);
 }
 
-BooleanExpression * const LessThanEqualExpression::numberCompareNumber(Context * context, NumberExpression * const &left, NumberExpression * const &right) const
+const Pointer<BooleanExpression> LessThanEqualExpression::numberCompareNumber(Context * context, const Pointer<NumberExpression> &left, const Pointer<NumberExpression> &right) const
 {
 	return left->lessThanEquals(right);
 }

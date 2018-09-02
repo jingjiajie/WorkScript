@@ -11,30 +11,30 @@ ExecuteCppCodeExpression::~ExecuteCppCodeExpression()
 {
 }
 
-Expression* const ExecuteCppCodeExpression::evaluate(Context *const& context)
+const Pointer<Expression> ExecuteCppCodeExpression::evaluate(Context *const& context)
 {
 	return this->evaluateFunction(context);
 }
 
-//bool ExecuteCppCodeExpression::match(Expression* const& matchExpression, Context *const& context) const
+//bool ExecuteCppCodeExpression::match(const Pointer<Expression> & matchExpression, Context *const& context) const
 //{
 //	throw UnimplementedException();
 //}
 
-TypeExpression* const ExecuteCppCodeExpression::getType(Context *const& context) const
+const Pointer<TypeExpression> ExecuteCppCodeExpression::getType(Context *const& context) const
 {
-	return &TypeExpression::EXECUTE_CPP_CODE_EXPRESSION;
+	return TypeExpression::EXECUTE_CPP_CODE_EXPRESSION;
 }
 
-bool ExecuteCppCodeExpression::equals(Context *const &context, Expression* const& targetExpression) const
+bool ExecuteCppCodeExpression::equals(Context *const &context, const Pointer<Expression> & targetExpression) const
 {
 	return false;
 }
 
-StringExpression *const ExecuteCppCodeExpression::toString(Context *const& context)
+const Pointer<StringExpression> ExecuteCppCodeExpression::toString(Context *const& context)
 {
-	static StringExpression str = StringExpression(L"(Native Code)", StorageLevel::EXTERN);
-	return &str;
+	static Pointer<StringExpression> str = new StringExpression(L"(Native Code)", ReleaseStrategy::DELETE);
+	return str;
 }
 
 void ExecuteCppCodeExpression::compile(CompileContext *const &context)

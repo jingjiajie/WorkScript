@@ -4,23 +4,23 @@ class ModulusExpression :
 	public BinaryCalculateExpression
 {
 public:
-	inline ModulusExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
-		:BinaryCalculateExpression(left, right, level)
+	inline ModulusExpression(const Pointer<Expression> &left, const Pointer<Expression> &right)
+		:BinaryCalculateExpression(left, right)
 	{
 
 	}
 
-	inline ModulusExpression(const StorageLevel level = StorageLevel::TEMP)
-		: BinaryCalculateExpression(level)
+	inline ModulusExpression()
+		: BinaryCalculateExpression()
 	{
 
 	}
 
 	virtual ~ModulusExpression();
 
-	virtual StringExpression *const toString(Context *const& context) override;
-	virtual TypeExpression* const getType(Context *const& context) const override;
+	virtual const Pointer<StringExpression> toString(Context *const& context) override;
+	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
 
 protected:
-	virtual NumberExpression * const numberCalcNumber(Context *const context, NumberExpression* const &left, NumberExpression* const &right)const;
+	virtual const Pointer<NumberExpression> numberCalcNumber(Context *const context, const Pointer<NumberExpression> &left, const Pointer<NumberExpression> &right)const;
 };

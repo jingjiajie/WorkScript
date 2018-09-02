@@ -6,16 +6,14 @@ using namespace std;
 
 BinaryOperatorExpression::~BinaryOperatorExpression()
 {
-	if (this->leftExpression) this->leftExpression->releaseLiteral();
-	if (this->rightExpression) this->rightExpression->releaseLiteral();
 }
 
-bool BinaryOperatorExpression::equals(Context *const &context, Expression* const &targetExpression) const
+bool BinaryOperatorExpression::equals(Context *const &context, const Pointer<Expression> &targetExpression) const
 {
 	if (!targetExpression->getType(context)->equals(context,this->getType(context))) {
 		return false;
 	}
-	auto targetExpressionOfMyType = (BinaryOperatorExpression *const&)targetExpression;
+	auto targetExpressionOfMyType = (const Pointer<BinaryOperatorExpression> &)targetExpression;
 
 	return this->leftExpression->equals(context, targetExpressionOfMyType->leftExpression) 
 		&& this->rightExpression->equals(context, targetExpressionOfMyType->rightExpression);

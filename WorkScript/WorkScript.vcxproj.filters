@@ -190,9 +190,6 @@
     <ClInclude Include="UnassignableExpection.h">
       <Filter>DataStructures\Exceptions\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="TempExpression.h">
-      <Filter>DataStructures\ExpressionWrappers</Filter>
-    </ClInclude>
     <ClInclude Include="ExpressionWrapper.h">
       <Filter>DataStructures\ExpressionWrappers</Filter>
     </ClInclude>

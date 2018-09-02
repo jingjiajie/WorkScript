@@ -8,23 +8,22 @@ class NumberExpression :
 	public Expression
 {
 public:
-	inline NumberExpression(const StorageLevel level) {
-		this->setStorageLevel(level);
+	inline NumberExpression() {
+		
 	}
-	inline NumberExpression() {}
 	virtual ~NumberExpression();
 
 	virtual void compile(CompileContext *const& context) override;
 
-	virtual bool equals(Context *const &context, Expression* const& targetExpression) const override;
-	virtual BooleanExpression *const equals(Expression* const& targetExpression) const = 0;
-	virtual BooleanExpression *const greaterThan(Expression* const& targetExpression) const = 0;
-	virtual BooleanExpression *const greaterThanEquals(Expression* const& targetExpression) const = 0;
-	virtual BooleanExpression *const lessThan(Expression* const& targetExpression) const = 0;
-	virtual BooleanExpression *const lessThanEquals(Expression* const& targetExpression) const = 0;
-	virtual NumberExpression *const plus(Expression* const& targetExpression) const = 0;
-	virtual NumberExpression *const minus(Expression* const& targetExpression) const = 0;
-	virtual NumberExpression *const multiply(Expression* const& targetExpression) const = 0;
-	virtual NumberExpression *const divide(Expression* const& targetExpression) const = 0;
-	virtual NumberExpression *const modulus(Expression* const& targetExpression) const = 0;
+	virtual bool equals(Context *const &context, const Pointer<Expression> & targetExpression) const override;
+	virtual const Pointer<BooleanExpression> equals(const Pointer<Expression> & targetExpression) const = 0;
+	virtual const Pointer<BooleanExpression> greaterThan(const Pointer<Expression> & targetExpression) const = 0;
+	virtual const Pointer<BooleanExpression> greaterThanEquals(const Pointer<Expression> & targetExpression) const = 0;
+	virtual const Pointer<BooleanExpression> lessThan(const Pointer<Expression> & targetExpression) const = 0;
+	virtual const Pointer<BooleanExpression> lessThanEquals(const Pointer<Expression> & targetExpression) const = 0;
+	virtual const Pointer<NumberExpression> plus(const Pointer<Expression> & targetExpression) const = 0;
+	virtual const Pointer<NumberExpression> minus(const Pointer<Expression> & targetExpression) const = 0;
+	virtual const Pointer<NumberExpression> multiply(const Pointer<Expression> & targetExpression) const = 0;
+	virtual const Pointer<NumberExpression> divide(const Pointer<Expression> & targetExpression) const = 0;
+	virtual const Pointer<NumberExpression> modulus(const Pointer<Expression> & targetExpression) const = 0;
 };

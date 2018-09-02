@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
+#include "Expression.h"
 
-class Expression;
 class Context;
 
 class Program
@@ -13,14 +13,14 @@ public:
 	void execute();
 	void compile();
 
-	void pushExpression(Expression* const &);
-	const std::vector<Expression*>& getExpressions() const;
+	void pushExpression(const Pointer<Expression> &);
+	const std::vector<Pointer<Expression>>& getExpressions() const;
 
 protected:
-	std::vector<Expression*> expressions;
+	std::vector<Pointer<Expression>> expressions;
 	size_t localVariableCount = 0;
 
-	void pushAssignmentExpression(const wchar_t *const &varName,Expression *const &value);
+	void pushAssignmentExpression(const wchar_t *const &varName,const Pointer<Expression> &value);
 
 	void initConstants();
 	void initPrintExpression();

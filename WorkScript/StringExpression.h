@@ -8,44 +8,41 @@
 class StringExpression :
 	public Expression
 {
-	friend class ObjectPool<StringExpression>;
 public:
-	inline StringExpression(const wchar_t *const &value, const StorageLevel level = StorageLevel::TEMP)
+	inline StringExpression(const wchar_t *const &value,const ReleaseStrategy releaseStrategy)
 	{
 		this->setValue(value);
-		this->setStorageLevel(level);
+		this->releaseStrategy = releaseStrategy;
 	}
 
-	inline static StringExpression *const newInstance(const StorageLevel level = StorageLevel::TEMP)
+	inline static const Pointer<StringExpression> newInstance()
 	{
-		auto newInstance = StringExpression::pool.get();
-		newInstance->setStorageLevel(level);
+		auto newInstance = OBJECT_POOL_GET;
 		return newInstance;
 	}
 
-	inline static StringExpression *const newInstance(const wchar_t *const &value, const StorageLevel level = StorageLevel::TEMP)
+	inline static const Pointer<StringExpression> newInstance(const wchar_t *const &value)
 	{
-		auto newInstance = StringExpression::pool.get();
+		auto newInstance = OBJECT_POOL_GET;
 		newInstance->setValue(value);
-		newInstance->setStorageLevel(level);
 		return newInstance;
 	}
 
-	static StringExpression *const combine(const StringExpression *const *const &stringExpressions,const size_t &count, const StorageLevel level = StorageLevel::TEMP);
+	static const Pointer<StringExpression> combine(const Pointer<StringExpression> *const &stringExpressions,const size_t &count);
 
 	inline virtual ~StringExpression()
 	{
 		if (this->value) delete[] this->value;
 	}
 
-	inline virtual StringExpression* const evaluate(Context *const& context) override 
+	inline virtual const Pointer<Expression> evaluate(Context *const& context) override 
 	{
-		return this->getStorageLevel() == StorageLevel::LITERAL ? StringExpression::newInstance(this->value) : this;
+		return this;
 	}
 
-//	virtual bool match(Expression* const &matchExpression, Context *const& context) const override;
+//	virtual bool match(const Pointer<Expression> &matchExpression, Context *const& context) const override;
 
-	inline virtual bool equals(Context *const &context, Expression* const& targetExpression) const
+	inline virtual bool equals(Context *const &context, const Pointer<Expression> & targetExpression) const
 	{
 		if (targetExpression == this) {
 			return true;
@@ -54,7 +51,7 @@ public:
 			return false;
 		}
 		else {
-			auto targetStrExpr = ((StringExpression *const&)targetExpression);
+			auto targetStrExpr = ((const Pointer<StringExpression> &)targetExpression);
 			if (this->getLength() != targetStrExpr->getLength())return false;
 			for (size_t i = 0; i < targetStrExpr->getLength(); ++i) {
 				if (this->value[i] != targetStrExpr->value[i])return false;
@@ -63,7 +60,7 @@ public:
 		}
 	}
 
-	inline virtual StringExpression *const toString(Context *const& context) override
+	inline virtual const Pointer<StringExpression> toString(Context *const& context) override
 	{
 		return this->evaluate(context);
 	}
@@ -73,9 +70,9 @@ public:
 		return;
 	}
 
-	inline virtual TypeExpression* const getType(Context *const& context) const override 
+	inline virtual const Pointer<TypeExpression> getType(Context *const& context) const override 
 	{
-		return &TypeExpression::STRING_EXPRESSION;
+		return TypeExpression::STRING_EXPRESSION;
 	}
 
 	inline wchar_t *const getValue() const 
@@ -96,7 +93,7 @@ public:
 		return this->length;
 	}
 protected:
-	static ObjectPool<StringExpression> pool;
+	OBJECT_POOL_MEMBER_DECL(StringExpression);
 
 	wchar_t *value = nullptr;
 	size_t length = 0;

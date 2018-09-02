@@ -6,12 +6,11 @@
 
 using namespace std;
 
-ObjectPool<StringExpression> StringExpression::pool(1024);
+OBJECT_POOL_MEMBER_IMPL(StringExpression,64);
 
-StringExpression *const StringExpression::combine(const StringExpression *const *const &stringExpressions, const size_t &count, const StorageLevel level)
+const Pointer<StringExpression> StringExpression::combine(const Pointer<StringExpression> *const &stringExpressions, const size_t &count)
 {
-	auto newInstance = StringExpression::pool.get();
-	newInstance->setStorageLevel(level);
+	auto newInstance = OBJECT_POOL_GET;
 	size_t totalLength = 0;
 	for (size_t i = 0; i < count; ++i) {
 		totalLength += stringExpressions[i]->getLength();
@@ -29,12 +28,12 @@ StringExpression *const StringExpression::combine(const StringExpression *const 
 
 void StringExpression::release()
 {
-	StringExpression::pool.push(this);
+	OBJECT_POOL_PUSH(this);
 	//printf("push string %p\n", this);
 }
 
 //
-//bool StringExpression::match(Expression* const& matchExpression, Context *const& context) const
+//bool StringExpression::match(const Pointer<Expression> & matchExpression, Context *const& context) const
 //{
 //	//如果类型不同，匹配失败
 //	if (!matchExpression->getType(context)->equals(this->getType(context))) {

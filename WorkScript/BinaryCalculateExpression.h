@@ -4,24 +4,24 @@ class BinaryCalculateExpression :
 	public BinaryOperatorExpression
 {
 public:
-	inline BinaryCalculateExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
-		:BinaryOperatorExpression(left, right, level)
+	inline BinaryCalculateExpression(const Pointer<Expression> &left, const Pointer<Expression> &right)
+		:BinaryOperatorExpression(left, right)
 	{
 
 	}
 
-	inline BinaryCalculateExpression(const StorageLevel level = StorageLevel::TEMP)
-		: BinaryOperatorExpression(level)
+	inline BinaryCalculateExpression()
+		: BinaryOperatorExpression()
 	{
 
 	}
 	virtual ~BinaryCalculateExpression();
 
-	virtual Expression* const evaluate(Context *const& context) override;
-	virtual StringExpression *const toString(Context *const& context) override = 0;
+	virtual const Pointer<Expression> evaluate(Context *const& context) override;
+	virtual const Pointer<StringExpression> toString(Context *const& context) override = 0;
 
 protected:
-	virtual NumberExpression * const numberCalcNumber(Context *const context, NumberExpression* const &left, NumberExpression* const &right)const = 0;
-	virtual Expression * const expressionCalcExpression(Context *context, Expression* const &left, Expression* const &right);
+	virtual const Pointer<NumberExpression> numberCalcNumber(Context *const context, const Pointer<NumberExpression> &left, const Pointer<NumberExpression> &right)const = 0;
+	virtual const Pointer<Expression> expressionCalcExpression(Context *context, const Pointer<Expression> &left, const Pointer<Expression> &right);
 };
 

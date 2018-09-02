@@ -4,16 +4,16 @@ class PointerExpression :
 	public Expression
 {
 public:
-	inline PointerExpression(const StorageLevel level)
+	inline PointerExpression()
 	{
-		this->setStorageLevel(level);
+		
 	}
 	virtual ~PointerExpression();
 
-	virtual Expression *const getTargetValue() const = 0;
-	virtual void setTargetValue(Expression *const &ptr) = 0;
+	virtual const Pointer<Expression> getTargetValue() const = 0;
+	virtual void setTargetValue(const Pointer<Expression> &ptr) = 0;
 
-	virtual Expression* const evaluate(Context *const& context)override;
+	virtual const Pointer<Expression> evaluate(Context *const& context)override;
 	virtual void compile(CompileContext *const& context)override;
 };
 

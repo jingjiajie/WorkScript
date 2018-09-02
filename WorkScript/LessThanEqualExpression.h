@@ -4,17 +4,17 @@ class LessThanEqualExpression :
 	public BinaryCompareExpression
 {
 public:
-	inline LessThanEqualExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
-		:BinaryCompareExpression(left, right, level)
+	inline LessThanEqualExpression(const Pointer<Expression> &left, const Pointer<Expression> &right)
+		:BinaryCompareExpression(left, right)
 	{
 
 	}
 	virtual ~LessThanEqualExpression();
 
-	virtual TypeExpression* const getType(Context *const& context) const override;
-	virtual StringExpression *const toString(Context *const& context) override;
+	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
+	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 
 protected:
-	virtual BooleanExpression* const numberCompareNumber(Context *context, NumberExpression* const&, NumberExpression* const&)const override;
+	virtual const Pointer<BooleanExpression> numberCompareNumber(Context *context, const Pointer<NumberExpression> &, const Pointer<NumberExpression> &)const override;
 };
 

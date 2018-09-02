@@ -4,8 +4,8 @@ class DoublePointerExpression :
 	public PointerExpression
 {
 public:
-	inline DoublePointerExpression(const StorageLevel level = StorageLevel::TEMP)
-		:PointerExpression(level)
+	inline DoublePointerExpression()
+		:PointerExpression()
 	{
 
 	}

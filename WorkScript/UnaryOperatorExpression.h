@@ -1,6 +1,5 @@
 #pragma once
 #include "Expression.h"
-#include "TempExpression.h"
 #include "StringExpression.h"
 
 class UnaryOperatorExpression :
@@ -8,37 +7,37 @@ class UnaryOperatorExpression :
 {
 public:
 
-	inline UnaryOperatorExpression(const StorageLevel level = StorageLevel::TEMP)
+	inline UnaryOperatorExpression()
 	{
-		this->setStorageLevel(level);
+		
 	}
 
-	inline UnaryOperatorExpression(Expression* const &subExpression, const StorageLevel level = StorageLevel::TEMP)
+	inline UnaryOperatorExpression(const Pointer<Expression> &subExpression)
 	{
-		this->setStorageLevel(level);
+		
 		this->setSubExpression(subExpression);
 	}
 
 	virtual ~UnaryOperatorExpression();
 
-	virtual bool equals(Context *const &context, Expression* const&) const override;
+	virtual bool equals(Context *const &context, const Pointer<Expression> &) const override;
 	virtual void compile(CompileContext *const& context) override;
 
-	inline Expression* const getSubExpression() const
+	inline const Pointer<Expression> getSubExpression() const
 	{
 		return this->subExpression;
 	}
-	inline void setSubExpression(Expression* const &right)
+	inline void setSubExpression(const Pointer<Expression> &right)
 	{
 		this->subExpression = right;
 	}
 protected:
-	Expression * subExpression;
+	Pointer<Expression>  subExpression;
 
-	inline StringExpression * const toString(Context *const &context, StringExpression *const &signStr)
+	inline const Pointer<StringExpression> toString(Context *const &context, const Pointer<StringExpression> &signStr)
 	{
-		TempExpression<StringExpression> sub(this->subExpression, this->subExpression->toString(context));
-		StringExpression *exprs[] = { signStr,sub };
+		Pointer<StringExpression> sub =  this->subExpression->toString(context);
+		Pointer<StringExpression>exprs[] = { signStr,sub };
 		auto result = StringExpression::combine(exprs, 3);
 		return result;
 	}

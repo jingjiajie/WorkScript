@@ -1,5 +1,10 @@
 #pragma once
 
+enum class ReleaseStrategy : unsigned char{
+	CALL_RELEASE,
+	DELETE
+};
+
 class EnablePointer
 {
 	template<typename T>
@@ -12,6 +17,17 @@ protected:
 		delete this;
 	}
 
+	inline const ReleaseStrategy getReleaseStrategy()const
+	{
+		return this->releaseStrategy;
+	}
+
+	inline void setReleaseStrategy(const ReleaseStrategy strategy)
+	{
+		this->releaseStrategy = strategy;
+	}
+
+	ReleaseStrategy releaseStrategy = ReleaseStrategy::CALL_RELEASE;
 private:
 	inline void increaseReference()
 	{

@@ -4,22 +4,22 @@ class AssignmentExpression :
 	public BinaryOperatorExpression
 {
 public:
-	inline AssignmentExpression(const StorageLevel level)
-		:BinaryOperatorExpression(level)
+	inline AssignmentExpression()
+		:BinaryOperatorExpression()
 	{
 	}
 
-	inline AssignmentExpression(Expression* const &left, Expression* const &right, const StorageLevel level = StorageLevel::TEMP)
-		: BinaryOperatorExpression(left, right, level)
+	inline AssignmentExpression(const Pointer<Expression> &left, const Pointer<Expression> &right)
+		: BinaryOperatorExpression(left, right)
 	{
 	}
 
 	virtual ~AssignmentExpression();
 
-	virtual Expression* const evaluate(Context *const& context) override;
-	virtual TypeExpression* const getType(Context *const& context) const override;
-	virtual StringExpression *const toString(Context *const& context) override;
+	virtual const Pointer<Expression> evaluate(Context *const& context) override;
+	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
+	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 
-	virtual AssignmentExpression *const evaluateParamAssignment(Context *const &context);
+	virtual const Pointer<AssignmentExpression> evaluateParamAssignment(Context *const &context);
 };
 

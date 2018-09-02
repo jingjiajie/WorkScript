@@ -6,10 +6,10 @@ UnaryOperatorExpression::~UnaryOperatorExpression()
 {
 }
 
-bool UnaryOperatorExpression::equals(Context * const & context, Expression * const &target) const
+bool UnaryOperatorExpression::equals(Context * const & context, const Pointer<Expression> &target) const
 {
 	if (!target->getType(context)->equals(context, this->getType(context)))return false;
-	return this->subExpression->equals(context, ((UnaryOperatorExpression *)target)->subExpression);
+	return this->subExpression->equals(context, ((Pointer<UnaryOperatorExpression>)target)->subExpression);
 }
 
 void UnaryOperatorExpression::compile(CompileContext * const & context)

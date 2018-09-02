@@ -10,36 +10,36 @@
 OBJECT_POOL_MEMBER_IMPL(IntegerExpression, 1024);
 
 #define INTEGER_COMPARE_FUNCTION_IMPL(funcName, signWrapper) \
-BooleanExpression *const IntegerExpression::funcName(Expression * const & targetExpression) const \
+const Pointer<BooleanExpression> IntegerExpression::funcName(const Pointer<Expression> & targetExpression) const \
 { \
 	bool result = false; \
 	switch (targetExpression->getType(nullptr)->getTypeID()) { \
 		case TypeExpression::TYPEID_DOUBLE: \
-			result = signWrapper(this->value, ((DoubleExpression*)targetExpression)->getValue()); \
+			result = signWrapper(this->value, ((Pointer<DoubleExpression>)targetExpression)->getValue()); \
 			break; \
 		case TypeExpression::TYPEID_INTEGER: \
-			result = signWrapper(this->value, ((IntegerExpression*)targetExpression)->getValue()); \
+			result = signWrapper(this->value, ((Pointer<IntegerExpression>)targetExpression)->getValue()); \
 			break; \
 		case TypeExpression::TYPEID_BYTE: \
-			result = signWrapper(this->value, ((ByteExpression*)targetExpression)->getValue()); \
+			result = signWrapper(this->value, ((Pointer<ByteExpression>)targetExpression)->getValue()); \
 			break; \
 	} \
 	return BooleanExpression::newInstance(result); \
 } \
 
 #define INTEGER_CALCULATE_FUNCTION_IMPL(funcName, signWrapper) \
-NumberExpression *const IntegerExpression::funcName(Expression* const& targetExpression) const \
+const Pointer<NumberExpression> IntegerExpression::funcName(const Pointer<Expression> & targetExpression) const \
 { \
-	NumberExpression *result = nullptr; \
+	Pointer<NumberExpression>result = nullptr; \
 	switch (targetExpression->getType(nullptr)->getTypeID()) { \
 	case TypeExpression::TYPEID_DOUBLE: \
-		result = DoubleExpression::newInstance(signWrapper(this->value, ((DoubleExpression*)targetExpression)->getValue())); \
+		result = DoubleExpression::newInstance(signWrapper(this->value, ((Pointer<DoubleExpression>)targetExpression)->getValue())); \
 		break; \
 	case TypeExpression::TYPEID_INTEGER: \
-		result = IntegerExpression::newInstance(signWrapper(this->value, ((IntegerExpression*)targetExpression)->getValue())); \
+		result = IntegerExpression::newInstance(signWrapper(this->value, ((Pointer<IntegerExpression>)targetExpression)->getValue())); \
 		break; \
 	case TypeExpression::TYPEID_BYTE: \
-		result = IntegerExpression::newInstance(signWrapper(this->value, ((ByteExpression*)targetExpression)->getValue())); \
+		result = IntegerExpression::newInstance(signWrapper(this->value, ((Pointer<ByteExpression>)targetExpression)->getValue())); \
 		break; \
 	} \
 	return result; \
@@ -62,12 +62,12 @@ IntegerExpression::~IntegerExpression()
 {
 }
 
-Expression * const IntegerExpression::evaluate(Context * const & context)
+const Pointer<Expression> IntegerExpression::evaluate(Context * const & context)
 {
-	return this->storageLevel == StorageLevel::LITERAL ? newInstance(this->value) : this;
+	return this;
 }
 
-StringExpression * const IntegerExpression::toString(Context * const & context)
+const Pointer<StringExpression> IntegerExpression::toString(Context * const & context)
 {
 	wchar_t buff[32];
 	swprintf(buff,32, L"%d", this->value);

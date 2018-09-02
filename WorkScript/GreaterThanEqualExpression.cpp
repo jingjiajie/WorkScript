@@ -7,18 +7,18 @@ GreaterThanEqualExpression::~GreaterThanEqualExpression()
 {
 }
 
-TypeExpression * const GreaterThanEqualExpression::getType(Context * const & context) const
+const Pointer<TypeExpression> GreaterThanEqualExpression::getType(Context * const & context) const
 {
-	return &TypeExpression::GREATER_THAN_EQUAL_EXPRESSION;
+	return TypeExpression::GREATER_THAN_EQUAL_EXPRESSION;
 }
 
-StringExpression * const GreaterThanEqualExpression::toString(Context * const & context)
+const Pointer<StringExpression> GreaterThanEqualExpression::toString(Context * const & context)
 {
-	static StringExpression sign(L">=",StorageLevel::EXTERN);
-	return BinaryOperatorExpression::toString(context, &sign);
+	static Pointer<StringExpression> sign = new StringExpression(L">=", ReleaseStrategy::DELETE);
+	return BinaryOperatorExpression::toString(context, sign);
 }
 
-BooleanExpression * const GreaterThanEqualExpression::numberCompareNumber(Context * context, NumberExpression * const &left, NumberExpression * const &right) const
+const Pointer<BooleanExpression> GreaterThanEqualExpression::numberCompareNumber(Context * context, const Pointer<NumberExpression> &left, const Pointer<NumberExpression> &right) const
 {
 	return left->greaterThanEquals(right);
 }

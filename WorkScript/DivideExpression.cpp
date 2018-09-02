@@ -14,27 +14,27 @@ DivideExpression::~DivideExpression()
 {
 }
 
-//Expression* const DivideExpression::evaluate(Context *const& context)
+//const Pointer<Expression> DivideExpression::evaluate(Context *const& context)
 //{
-//	TempExpression<Expression> evaluatedLeftExpr(this->leftExpression, this->leftExpression->evaluate(context));
-//	TempExpression<Expression> evaluatedRightExpr(this->rightExpression, this->rightExpression->evaluate(context));
-//	Expression *ret;
+//	Pointer<Expression> evaluatedLeftExpr =  this->leftExpression->evaluate(context);
+//	Pointer<Expression> evaluatedRightExpr =  this->rightExpression->evaluate(context);
+//	Pointer<Expression> ret;
 //	//开始做除法运算。
-//	auto numberType = &TypeExpression::NUMBER_EXPRESSION;
-//	auto stringType = &TypeExpression::STRING_EXPRESSION;
+//	auto numberType = TypeExpression::NUMBER_EXPRESSION;
+//	auto stringType = TypeExpression::STRING_EXPRESSION;
 //
 //	if (evaluatedLeftExpr->getType(context)->isSubTypeOf(context, numberType) && evaluatedRightExpr->getType(context)->isSubTypeOf(context, numberType)) {
-//		ret = this->numberDivideNumber((DoubleExpression *const&)(evaluatedLeftExpr), (DoubleExpression *const&)(evaluatedRightExpr));
+//		ret = this->numberDivideNumber((const Pointer<DoubleExpression> &)(evaluatedLeftExpr), (const Pointer<DoubleExpression> &)(evaluatedRightExpr));
 //	}
 //
 //	ret = new DivideExpression(evaluatedLeftExpr, evaluatedRightExpr); //newMe
 //	return ret;
 //}
 
-//bool DivideExpression::match(Expression* const& matchExpression, Context *const& context) const
+//bool DivideExpression::match(const Pointer<Expression> & matchExpression, Context *const& context) const
 //
 //	if (matchExpression->getType(context)->equals(this->getType(context))) {
-//		auto matchDivideExpression = (DivideExpression *const&)(matchExpression);
+//		auto matchDivideExpression = (const Pointer<DivideExpression> &)(matchExpression);
 //		return this->leftExpression->match(matchDivideExpression->leftExpression, context)
 //			&& this->rightExpression->match(matchDivideExpression->rightExpression, context);
 //	}
@@ -46,10 +46,10 @@ DivideExpression::~DivideExpression()
 //		//且自己的左右表达式中只有一个是变量
 //		if (evaluatedLeft->getType(context)->equals(variableType) && !evaluatedRight->getType(context)->equals(variableType))
 //		{
-//			return (VariableExpression *const&)(evaluatedLeft)->match(MultiplyExpression *(new MultiplyExpression(evaluatedRight, matchExpression)), context);
+//			return (const Pointer<VariableExpression> &)(evaluatedLeft)->match(Pointer<MultiplyExpression>(new MultiplyExpression(evaluatedRight, matchExpression)), context);
 //		}
 //		else if (!evaluatedLeft->getType(context)->equals(variableType) && evaluatedRight->getType(context)->equals(variableType)) {
-//			return (VariableExpression *const&)(evaluatedRight)->match(DivideExpression *(new DivideExpression(evaluatedLeft, matchExpression)), context);
+//			return (const Pointer<VariableExpression> &)(evaluatedRight)->match(Pointer<DivideExpression>(new DivideExpression(evaluatedLeft, matchExpression)), context);
 //		}
 //		else {
 //			return false;
@@ -57,13 +57,13 @@ DivideExpression::~DivideExpression()
 //	}
 //}
 
-StringExpression * const DivideExpression::toString(Context * const & context)
+const Pointer<StringExpression> DivideExpression::toString(Context * const & context)
 {
-	static StringExpression divisionSign(L"/", StorageLevel::EXTERN);
-	return BinaryOperatorExpression::toString(context, &divisionSign);
+	static Pointer<StringExpression> divisionSign(new StringExpression(L"/", ReleaseStrategy::DELETE));
+	return BinaryOperatorExpression::toString(context, divisionSign);
 }
 
-NumberExpression * const DivideExpression::numberCalcNumber(Context * const context, NumberExpression * const & left, NumberExpression * const & right) const
+const Pointer<NumberExpression> DivideExpression::numberCalcNumber(Context * const context, const Pointer<NumberExpression> & left, const Pointer<NumberExpression> & right) const
 {
 	return left->divide(right);
 }

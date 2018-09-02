@@ -10,21 +10,21 @@ BinaryCompareExpression::~BinaryCompareExpression()
 {
 }
 
-Expression * const BinaryCompareExpression::evaluate(Context * const & context)
+const Pointer<Expression> BinaryCompareExpression::evaluate(Context * const & context)
 {
-	TempExpression<Expression> evaluatedLeft(this->leftExpression, this->leftExpression->evaluate(context));
-	TempExpression<Expression> evaluatedRight(this->rightExpression, this->rightExpression->evaluate(context));
-	if (evaluatedLeft->getType(nullptr)->isSubTypeOf(context, &TypeExpression::NUMBER_EXPRESSION) && evaluatedRight->getType(nullptr)->isSubTypeOf(context, &TypeExpression::NUMBER_EXPRESSION)) {
-		return this->numberCompareNumber(context, (NumberExpression *const&)(evaluatedLeft), (NumberExpression *const&)(evaluatedRight));
+	Pointer<Expression> evaluatedLeft =  this->leftExpression->evaluate(context);
+	Pointer<Expression> evaluatedRight =  this->rightExpression->evaluate(context);
+	if (evaluatedLeft->getType(nullptr)->isSubTypeOf(context, TypeExpression::NUMBER_EXPRESSION) && evaluatedRight->getType(nullptr)->isSubTypeOf(context, TypeExpression::NUMBER_EXPRESSION)) {
+		return this->numberCompareNumber(context, (const Pointer<NumberExpression> &)(evaluatedLeft), (const Pointer<NumberExpression> &)(evaluatedRight));
 	}
 	else {
 		return this->expressionCompareExpression(context, evaluatedLeft, evaluatedRight);
 	}
 }
 
-BooleanExpression * const BinaryCompareExpression::expressionCompareExpression(Context *context, Expression * const &left, Expression * const &right) const
+const Pointer<BooleanExpression> BinaryCompareExpression::expressionCompareExpression(Context *context, const Pointer<Expression> &left, const Pointer<Expression> &right) const
 {
-	TempExpression<StringExpression> leftStrExpr(left, left->toString(context));
-	TempExpression<StringExpression> rightStrExpr(right, right->toString(context));
+	Pointer<StringExpression> leftStrExpr =  left->toString(context);
+	Pointer<StringExpression> rightStrExpr =  right->toString(context);
 	throw UncomparableException((wstring(leftStrExpr->getValue()) + L" 和 " + rightStrExpr->getValue() + L"无法比较！").c_str());
 }

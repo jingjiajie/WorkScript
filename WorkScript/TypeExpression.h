@@ -9,37 +9,24 @@
 class TypeExpression : public Expression
 {
 public:
-	inline TypeExpression(const wchar_t *const &name, TypeExpression* const &baseType, const std::vector<TypeExpression *>& genericTypes, const StorageLevel level = StorageLevel::TEMP)
-		:TypeExpression(name, baseType,level)
-	{
-		this->_isGenericType = true;
-		this->setGenericTypes(genericTypes);
-	}
 
-	inline TypeExpression(const wchar_t *const &name, TypeExpression* const &baseType, const StorageLevel level = StorageLevel::TEMP)
+	inline TypeExpression(const wchar_t *const &name, const Pointer<TypeExpression> &baseType,const unsigned char typeID = TYPEID_CUSTOM)
 	{
 		this->setBaseType(baseType);
 		this->setName(name);
-		this->setStorageLevel(level);
-	}
-
-	inline TypeExpression(const wchar_t *const &name, TypeExpression* const &baseType,const unsigned char typeID = TYPEID_CUSTOM, const StorageLevel level = StorageLevel::TEMP)
-	{
-		this->setBaseType(baseType);
-		this->setName(name);
-		this->setStorageLevel(level);
+		
 		this->setTypeID(typeID);
 	}
 
 	virtual ~TypeExpression();
 	//继承成员
-	virtual Expression* const evaluate(Context *const& context) override;
-	//virtual bool match(Expression* const &matchExpression, Context *newContext) const override;
-	virtual TypeExpression* const getType(Context *const& context) const override;
-	virtual StringExpression *const toString(Context *const& context) override;
+	virtual const Pointer<Expression> evaluate(Context *const& context) override;
+	//virtual bool match(const Pointer<Expression> &matchExpression, Context *newContext) const override;
+	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
+	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 	virtual void compile(CompileContext *const& context) override;
 
-	inline virtual bool equals(Context *const &context, Expression* const &target) const override
+	inline virtual bool equals(Context *const &context, const Pointer<Expression> &target) const override
 	{
 		return target == this;
 	}
@@ -65,26 +52,19 @@ public:
 		this->typeID = typeID;
 	}
 	//基类
-	bool isSubTypeOf(Context *const &context, TypeExpression* const&) const;
-	TypeExpression* const & getBaseType() const;
-	void setBaseType(TypeExpression* const &);
-	//泛型
-	const std::vector<TypeExpression *>& getGenericTypes() const;
-	void setGenericTypes(const std::vector<TypeExpression *>&);
-	void addGenericType(TypeExpression* const &typeInfo);
-	bool isGenericType() const;
+	bool isSubTypeOf(Context *const &context, const Pointer<TypeExpression>&) const;
+	const Pointer<TypeExpression> & getBaseType() const;
+	void setBaseType(const Pointer<TypeExpression> &);
 	////成员表达式
-	//const std::vector<TypeMemberExpression *> getMemberExpressions() const;
-	//void addMemberExpression(TypeMemberExpression* const &memberExpression);
-	//TypeMemberExpression* const matchStaticMemberExpression(Expression* const &matchExpression, ExpressionBind *outExpressionBind) const;
+	//const std::vector<Pointer<TypeMemberExpression>> getMemberExpressions() const;
+	//void addMemberExpression(const Pointer<TypeMemberExpression> &memberExpression);
+	//const Pointer<TypeMemberExpression> matchStaticMemberExpression(const Pointer<Expression> &matchExpression, ExpressionBind *outExpressionBind) const;
 
 private:
 	wchar_t *name = nullptr;
-	TypeExpression * baseType;
-	bool _isGenericType = false;
+	Pointer<TypeExpression> baseType;
 	unsigned char typeID = TYPEID_CUSTOM;
-	std::vector<TypeExpression *> genericTypes;
-	//std::vector<TypeMemberExpression *> memberExpressions;
+	//std::vector<Pointer<TypeMemberExpression>> memberExpressions;
 
 public:
 	enum TypeID{
@@ -94,7 +74,7 @@ public:
 		TYPEID_CUSTOM
 	};
 
-	static TypeExpression 
+	static Pointer<TypeExpression>
 		OBJECT,
 		EXPRESSION,
 		TYPE_EXPRESSION,

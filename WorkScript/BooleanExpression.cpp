@@ -7,39 +7,39 @@
 #include <boost/locale.hpp>
 using namespace std;
 
-ObjectPool<BooleanExpression> BooleanExpression::pool(1024);
+OBJECT_POOL_MEMBER_IMPL(BooleanExpression, 64);
 
 //真值
-BooleanExpression BooleanExpression::VAL_TRUE(1, StorageLevel::EXTERN);
-BooleanExpression BooleanExpression::VAL_YES(3, StorageLevel::EXTERN);
-BooleanExpression BooleanExpression::VAL_OK(5, StorageLevel::EXTERN);
-BooleanExpression BooleanExpression::VAL_GOOD(7, StorageLevel::EXTERN);
+Pointer<BooleanExpression> BooleanExpression::VAL_TRUE(new BooleanExpression(1, ReleaseStrategy::DELETE));
+Pointer<BooleanExpression> BooleanExpression::VAL_YES(new BooleanExpression(3, ReleaseStrategy::DELETE));
+Pointer<BooleanExpression> BooleanExpression::VAL_OK(new BooleanExpression(5, ReleaseStrategy::DELETE));
+Pointer<BooleanExpression> BooleanExpression::VAL_GOOD(new BooleanExpression(7, ReleaseStrategy::DELETE));
 
-StringExpression BooleanExpression::STR_TRUE(L"true", StorageLevel::EXTERN);
-StringExpression BooleanExpression::STR_YES(L"yes", StorageLevel::EXTERN);
-StringExpression BooleanExpression::STR_OK(L"ok", StorageLevel::EXTERN);
-StringExpression BooleanExpression::STR_GOOD(L"good", StorageLevel::EXTERN);
+Pointer<StringExpression> BooleanExpression::STR_TRUE(new StringExpression(L"true", ReleaseStrategy::DELETE));
+Pointer<StringExpression> BooleanExpression::STR_YES(new StringExpression(L"yes", ReleaseStrategy::DELETE));
+Pointer<StringExpression> BooleanExpression::STR_OK(new StringExpression(L"ok", ReleaseStrategy::DELETE));
+Pointer<StringExpression> BooleanExpression::STR_GOOD(new StringExpression(L"good", ReleaseStrategy::DELETE));
 
 //假值
-BooleanExpression BooleanExpression::VAL_FALSE(0, StorageLevel::EXTERN);
-BooleanExpression BooleanExpression::VAL_NO(2, StorageLevel::EXTERN);
-BooleanExpression BooleanExpression::VAL_BAD(4, StorageLevel::EXTERN);
+Pointer<BooleanExpression> BooleanExpression::VAL_FALSE(new BooleanExpression(0, ReleaseStrategy::DELETE));
+Pointer<BooleanExpression> BooleanExpression::VAL_NO(new BooleanExpression(2, ReleaseStrategy::DELETE));
+Pointer<BooleanExpression> BooleanExpression::VAL_BAD(new BooleanExpression(4, ReleaseStrategy::DELETE));
 
-StringExpression BooleanExpression::STR_FALSE(L"false", StorageLevel::EXTERN);
-StringExpression BooleanExpression::STR_NO(L"no", StorageLevel::EXTERN);
-StringExpression BooleanExpression::STR_BAD(L"bad", StorageLevel::EXTERN);
+Pointer<StringExpression> BooleanExpression::STR_FALSE(new StringExpression(L"false", ReleaseStrategy::DELETE));
+Pointer<StringExpression> BooleanExpression::STR_NO(new StringExpression(L"no", ReleaseStrategy::DELETE));
+Pointer<StringExpression> BooleanExpression::STR_BAD(new StringExpression(L"bad", ReleaseStrategy::DELETE));
 
 
 BooleanExpression::~BooleanExpression()
 {
 }
 
-Expression* const BooleanExpression::evaluate(Context *const& context)
+const Pointer<Expression> BooleanExpression::evaluate(Context *const& context)
 {
-	return this->storageLevel == StorageLevel::LITERAL ? BooleanExpression::newInstance(this->value) : this;
+	return this;
 }
 
-//bool BooleanExpression::match(Expression* const& matchExpression,Context *const &context) const
+//bool BooleanExpression::match(const Pointer<Expression> & matchExpression,Context *const &context) const
 //{
 //	//如果类型不同，匹配失败
 //	if (!matchExpression->getType(context)->equals(this->getType(context))) {
@@ -50,28 +50,28 @@ Expression* const BooleanExpression::evaluate(Context *const& context)
 //	return matchValueExpression->getValue() == this->getValue();
 //}
 
-bool BooleanExpression::equals(Context *const &context, Expression* const& targetExpression) const
+bool BooleanExpression::equals(Context *const &context, const Pointer<Expression> & targetExpression) const
 {
 	if (targetExpression == this)return true;
 	if (!targetExpression->getType(context)->equals(context, this->getType(context))) {
 		return false;
 	}
-	auto targetExpressionOfMyType = (BooleanExpression *const&)targetExpression;
+	auto targetExpressionOfMyType = (const Pointer<BooleanExpression> &)targetExpression;
 	//偶数为假，奇数为真
 	return targetExpressionOfMyType->value % 2 == this->value % 2;
 }
 
-StringExpression * const BooleanExpression::toString(Context * const & context)
+const Pointer<StringExpression> BooleanExpression::toString(Context * const & context)
 {
 	switch (this->value) {
-	case 1:return &BooleanExpression::STR_TRUE;
-	case 3:return &BooleanExpression::STR_YES;
-	case 5:return &BooleanExpression::STR_OK;
-	case 7:return &BooleanExpression::STR_GOOD;
+	case 1:return BooleanExpression::STR_TRUE;
+	case 3:return BooleanExpression::STR_YES;
+	case 5:return BooleanExpression::STR_OK;
+	case 7:return BooleanExpression::STR_GOOD;
 
-	case 0:return &BooleanExpression::STR_FALSE;
-	case 2:return &BooleanExpression::STR_NO;
-	case 4:return &BooleanExpression::STR_BAD;
+	case 0:return BooleanExpression::STR_FALSE;
+	case 2:return BooleanExpression::STR_NO;
+	case 4:return BooleanExpression::STR_BAD;
 	default:
 		throw IllegalValueException((to_wstring(this->value) + L"不是合法的布尔值！").c_str());
 	}
