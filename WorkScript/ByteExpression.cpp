@@ -4,6 +4,10 @@
 #include "BooleanExpression.h"
 #include "OperatorWrappers.hpp"
 #include "StringExpression.h"
+#include "UncalculatableException.h"
+#include <string>
+
+using namespace std;
 
 OBJECT_POOL_MEMBER_IMPL(ByteExpression,64);
 
@@ -52,8 +56,24 @@ BYTE_COMPARE_FUNCTION_IMPL(equals, EQUALS_WRAPPER)
 BYTE_CALCULATE_FUNCTION_IMPL(plus, PLUS_WRAPPER)
 BYTE_CALCULATE_FUNCTION_IMPL(minus, MINUS_WRAPPER)
 BYTE_CALCULATE_FUNCTION_IMPL(multiply, MULTIPLY_WRAPPER)
-BYTE_CALCULATE_FUNCTION_IMPL(divide, DIVIDE_WRAPPER)
 BYTE_CALCULATE_FUNCTION_IMPL(modulus, MODULUS_WRAPPER)
+
+const Pointer<NumberExpression> ByteExpression::divide(const Pointer<Expression> & targetExpression) const
+{
+	Pointer<NumberExpression>result = nullptr;
+	switch (targetExpression->getType(nullptr)->getTypeID()) {
+	case TypeExpression::TYPEID_DOUBLE:
+		result = DoubleExpression::newInstance(DIVIDE_WRAPPER((double)this->value, ((Pointer<DoubleExpression>)targetExpression)->getValue()));
+		break;
+	case TypeExpression::TYPEID_INTEGER:
+		result = DoubleExpression::newInstance(DIVIDE_WRAPPER((double)this->value, ((Pointer<IntegerExpression>)targetExpression)->getValue()));
+		break;
+	case TypeExpression::TYPEID_BYTE:
+		result = DoubleExpression::newInstance(DIVIDE_WRAPPER((double)this->value, ((Pointer<ByteExpression>)targetExpression)->getValue()));
+		break;
+	}
+	return result;
+}
 
 ByteExpression::~ByteExpression()
 {
@@ -69,4 +89,9 @@ const Pointer<StringExpression> ByteExpression::toString(Context * const & conte
 	wchar_t buff[4];
 	swprintf(buff,4, L"%d", this->value);
 	return StringExpression::newInstance(buff);
+}
+
+const Pointer<NumberExpression> ByteExpression::negate() const
+{
+	throw std::move(UncalculatableException((to_wstring(this->getValue()) + L"无法取负！").c_str()));
 }

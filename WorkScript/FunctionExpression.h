@@ -182,7 +182,7 @@ public:
 	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 	virtual void compile(CompileContext *const& context) override;
 
-	virtual const Pointer<Expression> invoke(const Pointer<ParameterExpression> &params) const;
+	virtual const Pointer<Expression> invoke(const Pointer<ParameterExpression> params) const;
 
 	inline const wchar_t *const getName()const
 	{
@@ -192,8 +192,13 @@ public:
 	inline void setName(const wchar_t *const &funcName)
 	{
 		if (this->name)delete[]this->name;
-		this->name = new wchar_t[wcslen(funcName) + 1];
-		wcscpy(this->name, funcName);
+		if (funcName == nullptr) {
+			this->name = nullptr;
+		}
+		else {
+			this->name = new wchar_t[wcslen(funcName) + 1];
+			wcscpy(this->name, funcName);
+		}
 	}
 
 	inline 	const std::vector<Overload *> getOverloads()const

@@ -106,3 +106,8 @@ const Pointer<StringExpression> DoubleExpression::toString(Context *const& conte
 	}
 	return StringExpression::newInstance(numberStr.c_str());
 }
+
+const Pointer<NumberExpression> DoubleExpression::negate() const
+{
+	return DoubleExpression::newInstance(-this->value);
+}

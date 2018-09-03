@@ -54,8 +54,24 @@ INTEGER_COMPARE_FUNCTION_IMPL(equals, EQUALS_WRAPPER)
 INTEGER_CALCULATE_FUNCTION_IMPL(plus, PLUS_WRAPPER)
 INTEGER_CALCULATE_FUNCTION_IMPL(minus, MINUS_WRAPPER)
 INTEGER_CALCULATE_FUNCTION_IMPL(multiply, MULTIPLY_WRAPPER)
-INTEGER_CALCULATE_FUNCTION_IMPL(divide, DIVIDE_WRAPPER)
 INTEGER_CALCULATE_FUNCTION_IMPL(modulus, MODULUS_WRAPPER)
+
+const Pointer<NumberExpression> IntegerExpression::divide(const Pointer<Expression> & targetExpression) const 
+{ 
+	Pointer<NumberExpression>result = nullptr; 
+	switch (targetExpression->getType(nullptr)->getTypeID()) { 
+	case TypeExpression::TYPEID_DOUBLE: 
+		result = DoubleExpression::newInstance(DIVIDE_WRAPPER((double)this->value, ((Pointer<DoubleExpression>)targetExpression)->getValue())); 
+		break; 
+	case TypeExpression::TYPEID_INTEGER: 
+		result = DoubleExpression::newInstance(DIVIDE_WRAPPER((double)this->value, ((Pointer<IntegerExpression>)targetExpression)->getValue()));
+		break; 
+	case TypeExpression::TYPEID_BYTE: 
+		result = DoubleExpression::newInstance(DIVIDE_WRAPPER((double)this->value, ((Pointer<ByteExpression>)targetExpression)->getValue()));
+		break; 
+	} 
+	return result; 
+} 
 
 
 IntegerExpression::~IntegerExpression()
@@ -72,4 +88,9 @@ const Pointer<StringExpression> IntegerExpression::toString(Context * const & co
 	wchar_t buff[32];
 	swprintf(buff,32, L"%d", this->value);
 	return StringExpression::newInstance(buff);
+}
+
+const Pointer<NumberExpression> IntegerExpression::negate() const
+{
+	return IntegerExpression::newInstance(-this->value);
 }

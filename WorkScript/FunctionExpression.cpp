@@ -28,21 +28,26 @@ const Pointer<TypeExpression> FunctionExpression::getType(Context *const& contex
 const Pointer<Expression> FunctionExpression::evaluate(Context *const &context)
 {
 	this->declareContext = context;
-	auto varExpr = context->getLocalVariable(this->functionVariableInfo.offset);
-	if (varExpr == nullptr) { //如果本层变量没有搜索到，搜索是否存在父级的函数声明。无论是否存在父级，都不进行合并
-		context->setLocalVariable(this->functionVariableInfo.offset, (const Pointer<Expression>&)this);
-		return (const Pointer<Expression>)this;
+	if (this->name != nullptr) {
+		auto varExpr = context->getLocalVariable(this->functionVariableInfo.offset);
+		if (varExpr == nullptr) { //如果本层变量没有搜索到，搜索是否存在父级的函数声明。无论是否存在父级，都不进行合并
+			context->setLocalVariable(this->functionVariableInfo.offset, (const Pointer<Expression>&)this);
+			return this;
+		}
+		else { //如果本层找到了同名函数，则合并重载
+			if (!varExpr->getType(context)->equals(context, TypeExpression::FUNCTION_EXPRESSION)) {
+				throw std::move(DuplicateDeclarationException((wstring(this->name) + L"已经被声明过，请勿重复声明！").c_str()));
+			}
+			auto funcExpr = (const Pointer<FunctionExpression>&)varExpr;
+			for (auto &overload : this->overloads) {
+				funcExpr->addOverload(overload);
+			}
+			this->overloads.clear();
+			return funcExpr;
+		}
 	}
-	else { //如果本层找到了同名函数，则合并重载
-		if (!varExpr->getType(context)->equals(context, TypeExpression::FUNCTION_EXPRESSION)) {
-			throw std::move(DuplicateDeclarationException((wstring(this->name) + L"已经被声明过，请勿重复声明！").c_str()));
-		}
-		auto funcExpr = (const Pointer<FunctionExpression>&)varExpr;
-		for (auto &overload : this->overloads) {
-			funcExpr->addOverload(overload);
-		}
-		this->overloads.clear();
-		return funcExpr;
+	else {
+		return this;
 	}
 }
 
@@ -67,28 +72,29 @@ const Pointer<StringExpression> FunctionExpression::toString(Context *const &con
 
 void FunctionExpression::compile(CompileContext *const &context)
 {
-	//函数名编译在当前作用域中
-	auto varInfo = context->getVariableInfo(this->name);
-	if (varInfo.found == true && varInfo.upLevel > 0) {
-		this->baseFunctionVariableInfo = varInfo;
-	}
-	else if(varInfo.found == true && varInfo.upLevel == 0){
-		this->baseFunctionVariableInfo.found = false;
-		this->functionVariableInfo = varInfo;
-	}
-	else {
-		this->baseFunctionVariableInfo.found = false;
-		this->functionVariableInfo = context->addLocalVariable(this->name);
+	if (this->name != nullptr) {
+		//函数名编译在当前作用域中
+		auto varInfo = context->getVariableInfo(this->name);
+		if (varInfo.found == true && varInfo.upLevel > 0) {
+			this->baseFunctionVariableInfo = varInfo;
+		}
+		else if (varInfo.found == true && varInfo.upLevel == 0) {
+			this->baseFunctionVariableInfo.found = false;
+			this->functionVariableInfo = varInfo;
+		}
+		else {
+			this->baseFunctionVariableInfo.found = false;
+			this->functionVariableInfo = context->addLocalVariable(this->name);
+		}
 	}
 	//重载（参数，约束，实现）编译在子作用域中
 	for (auto &overload : this->overloads) {
 		CompileContext subContext(context);
 		overload->compile(&subContext);
-		overload->setLocalVariableCount(subContext.getLocalVariableCount());
 	}
 }
 
-const Pointer<Expression> FunctionExpression::invoke(const Pointer<ParameterExpression> &params) const
+const Pointer<Expression> FunctionExpression::invoke(const Pointer<ParameterExpression> params) const
 {
 	Context subContext(this->declareContext);
 	for (auto &overload : this->overloads) {
@@ -131,7 +137,13 @@ bool Overload::match(const Pointer<ParameterExpression> &params,Context *const &
 		}
 		//如果是最后一个变量，且开启了贪婪匹配，则匹配多项
 		else if (i == myParamCount - 1 && i < targetParamCount - 1 && this->allowLastMatchRest) {
-			auto restParamList = new ParameterExpression(params->getItems() + i,targetParamCount - myParamCount + 1);
+			size_t restParamCount = targetParamCount - myParamCount + 1;
+			Pointer<Expression> *restParamItems = new Pointer<Expression>[restParamCount];
+			for (size_t i = 0; i < restParamCount; ++i)
+			{
+				restParamItems[i] = params->getItem(myParamCount - 1 + i);
+			}
+			auto restParamList = new ParameterExpression(restParamItems,restParamCount);
 			context->setLocalVariable(this->parameters[i].getOffset(), restParamList);
 			Pointer<Expression> prev = nullptr;
 			if ((prev = context->getLocalVariable(this->parameters[i].getOffset())) != nullptr) {
@@ -198,4 +210,5 @@ void Overload::compile(CompileContext *const &context)
 	for (size_t i = 0; i < this->implementCount; ++i) {
 		this->implements[i]->compile(context);
 	}
+	this->localVariableCount = context->getLocalVariableCount();
 }

@@ -26,4 +26,5 @@ public:
 	virtual const Pointer<NumberExpression> multiply(const Pointer<Expression> & targetExpression) const = 0;
 	virtual const Pointer<NumberExpression> divide(const Pointer<Expression> & targetExpression) const = 0;
 	virtual const Pointer<NumberExpression> modulus(const Pointer<Expression> & targetExpression) const = 0;
+	virtual const Pointer<NumberExpression> negate() const = 0;
 };

@@ -14,8 +14,8 @@ NegativeExpression::~NegativeExpression()
 const Pointer<Expression> NegativeExpression::evaluate(Context * const & context)
 {
 	Pointer<Expression> evaluatedSub =  this->subExpression->evaluate(context);
-	if (evaluatedSub->getType(context)->equals(context, TypeExpression::NUMBER_EXPRESSION)) {
-		return DoubleExpression::newInstance(-1 * ((Pointer<DoubleExpression>)evaluatedSub)->getValue());
+	if (evaluatedSub->getType(context)->isSubTypeOf(context, TypeExpression::NUMBER_EXPRESSION)) {
+		return ((Pointer<NumberExpression>)evaluatedSub)->negate();
 	}
 	else {
 		Pointer<StringExpression> str = evaluatedSub->toString(context);

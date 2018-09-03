@@ -30,7 +30,8 @@ public:
 	virtual const Pointer<NumberExpression> multiply(const Pointer<Expression> & targetExpression) const override;
 	virtual const Pointer<NumberExpression> divide(const Pointer<Expression> & targetExpression) const override;
 	virtual const Pointer<NumberExpression> modulus(const Pointer<Expression> & targetExpression) const override;
-	
+	virtual const Pointer<NumberExpression> negate() const override;
+
 	inline virtual const Pointer<TypeExpression> getType(Context *const& context) const override {
 		return TypeExpression::BYTE_EXPRESSION;
 	}

@@ -98,7 +98,6 @@ antlrcpp::Any WorkScriptVisitorImpl::visitVariableExpression(WorkScriptParser::V
 antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *ctx)
 {
 	STORE_FORBID_ASSIGN
-	string funcName = ctx->functionDeclarationExpression()->identifier()->getText();
 	//函数的实现
 	Pointer<Expression>*impls;
 	size_t implCount;
@@ -171,7 +170,14 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	}
 
 	Pointer<FunctionExpression> funcExpr = new FunctionExpression();
-	funcExpr->setName(boost::locale::conv::to_utf<wchar_t>(funcName, "UTF-8").c_str());
+	auto funcNameCtx = ctx->functionDeclarationExpression()->identifier();
+	if (funcNameCtx == nullptr) {
+		funcExpr->setName(nullptr);
+	}
+	else {
+		string funcName = funcNameCtx->getText();
+		funcExpr->setName(boost::locale::conv::to_utf<wchar_t>(funcName, "UTF-8").c_str());
+	}
 
 	Pointer<Expression> *constraints = new Pointer<Expression>[vecConstraints.size()];
 	for (size_t i = 0; i < vecConstraints.size(); ++i) {
