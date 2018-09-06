@@ -3,6 +3,7 @@
 #include "TypeExpression.h"
 #include "StringExpression.h"
 #include "ExpressionPointerExpression.h"
+#include "VariableCompileInfo.h"
 
 using namespace std;
 
@@ -13,18 +14,16 @@ VariableExpression::~VariableExpression()
 
 const Pointer<Expression> VariableExpression::evaluate(Context *const& context)
 {
-	Context *targetContext = context;
-	for (int i = 0; i < this->variableInfo.upLevel; ++i) {
-		targetContext = targetContext->getBaseContext();
-	}
+	Context *targetContext = context->getBaseContext(this->targetDepth);
+
 	if (context->getAssignLeft() == true)
 	{
 		auto ptr = new ExpressionPointerExpression();
-		ptr->setTargetAddress(targetContext->getLocalVariableAddress(this->variableInfo.offset));
+		ptr->setTargetAddress(targetContext->getLocalVariableAddress(this->offset));
 		return ptr;
 	}
 	else {
-		auto value = targetContext->getLocalVariable(this->variableInfo.offset);
+		auto value = targetContext->getLocalVariable(this->offset);
 		if (!value) {
 			return this;
 		}
@@ -75,11 +74,10 @@ const Pointer<StringExpression> VariableExpression::toString(Context *const& con
 
 void VariableExpression::compile(CompileContext *const& context)
 {
-	VariableInfo info = context->getVariableInfo(this->name);
-	if (info.found) {
-		this->variableInfo = info;
+	VariableCompileInfo info;
+	if (!context->getVariableInfo(this->name, &info)) {
+		context->addLocalVariable(this->name, &info);
 	}
-	else {
-		this->variableInfo = context->addLocalVariable(this->name);
-	}
+	this->targetDepth = info.depth;
+	this->offset = info.offset;
 }

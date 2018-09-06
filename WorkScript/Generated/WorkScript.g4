@@ -26,11 +26,13 @@ expression:
 		| LESS_THAN_EQUAL
 	) expression			# CompareExpression
 	| stringExpression		# StringExpression_
+	| booleanExpression		# BooleanExpression_
 	| variableExpression	# VariableExpression_;
 
-parameterExpression: (expression (COMMA expression)*)?;
+parameterExpression: 
+		(NEWLINE* expression (NEWLINE* (NEWLINE | COMMA) NEWLINE* expression)*)? NEWLINE* COMMA? NEWLINE*;
 
-numberExpression: (PLUS | MINUS)? NUMBER;
+numberExpression: (PLUS | MINUS)? (DOUBLE | INTEGER);
 stringExpression: STRING;
 variableExpression: identifier;
 
@@ -46,8 +48,8 @@ functionDeclarationExpression:
 	identifier? LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE;
 
 functionImplementationExpression:
-	EQUALS expression
-	| NEWLINE* EQUALS? NEWLINE* blockExpression;
+	(EQUALS | RIGHT_ARROW) expression
+	| NEWLINE* (EQUALS | RIGHT_ARROW)? NEWLINE* blockExpression;
 
 functionConstraintExpression:
 	WHEN NEWLINE* (blockExpression | expression);
@@ -55,20 +57,35 @@ functionConstraintExpression:
 blockExpression:
 	LEFT_BRACE NEWLINE* ((expression NEWLINE+)* expression)? NEWLINE* RIGHT_BRACE;
 
-identifier: WHEN | IDENTIFIER;
+booleanExpression: BOOLEAN;
+
+identifier: BOOLEAN | WHEN | IDENTIFIER;
 
 WHEN: 'when';
+BOOLEAN:
+	'true'
+	| 'yes'
+	| 'ok'
+	| 'good'
+	| 'false'
+	| 'no'
+	| 'bad';
 IDENTIFIER:
 	WHEN
 	| ([a-zA-Z_] | ~[\u0000-\u00ff]) (
 		[a-zA-Z0-9_]
 		| ~[\u0000-\u00ff]
 	)*;
-NUMBER: [0-9]+ (POINT [0-9]+)?;
+DOUBLE: [0-9]+ POINT [0-9]+;
+INTEGER: [0-9]+;
 STRING: '"' ~'"'* '"' | ['] ~[']* ['];
 POINT: '.';
 COMMA: ',';
-NEWLINE: '\r\n' | '\n';
+NEWLINE:
+	'\r\n'
+	| '\n'
+	| SINGLE_LINE_COMMENT
+	| MULTILINE_COMMENT;
 LEFT_PARENTHESE: '(';
 RIGHT_PARENTHESE: ')';
 LEFT_BRACE: '{';
@@ -77,6 +94,7 @@ LEFT_BRACKET: '[';
 RIGHT_BRACKET: ']';
 DOUBLE_EQUAL: '==';
 EQUALS: '=';
+RIGHT_ARROW: '=>';
 ASSIGN: ':=';
 PLUS: '+';
 MINUS: '-';
@@ -87,5 +105,8 @@ GREATER_THAN: '>';
 GREATER_THAN_EQUAL: '>=';
 LESS_THAN: '<';
 LESS_THAN_EQUAL: '<=';
+SINGLE_LINE_COMMENT: '//' ~'\n'*;
+MULTILINE_COMMENT_IN_SINGLE_LINE: '/*' ~'\n'*? '*/' -> skip;
+MULTILINE_COMMENT: '/*' .*? '\n' .*? '*/';
 
 WS: [ \t]+ -> skip;

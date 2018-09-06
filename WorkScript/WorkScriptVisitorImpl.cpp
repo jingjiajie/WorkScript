@@ -30,6 +30,7 @@
 #include "IntegerExpression.h"
 #include "ModulusExpression.h"
 #include "ByteExpression.h"
+#include "SyntaxErrorException.h"
 
 #define FORBID_ASSIGN \
 this->assignable = false; 
@@ -52,31 +53,22 @@ using namespace std;
 
 antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::NumberExpressionContext *ctx)
 {
-	string text = ctx->NUMBER()->getText();
-	double value = 0;
-	int len = sscanf(text.c_str(), "%lf", &value);
-	if (len == 0) {
-		throw new exception(("无法识别的数字：" + text).c_str());
+	if (ctx->DOUBLE()) {
+		double value = 0;
+		int len = sscanf(ctx->DOUBLE()->getText().c_str(), "%lf", &value);
+		if (ctx->MINUS()) {
+			value = -value;
+		}
+		return ExpressionWrapper(DoubleExpression::newInstance(value));
 	}
-	if (ctx->MINUS()) {
-		value = -value;
+	else {
+		int value = 0;
+		int len = sscanf(ctx->INTEGER()->getText().c_str(), "%d", &value);
+		if (ctx->MINUS()) {
+			value = -value;
+		}
+		return ExpressionWrapper(IntegerExpression::newInstance(value));
 	}
-	Pointer<Expression>lpExpr = nullptr;
-	double decimalPart = value - (int)value;
-	//根据实际数值，判断是double,integer还是byte
-	if (decimalPart < -1e-8 || decimalPart > 1e-8) { //是Double
-		lpExpr = DoubleExpression::newInstance(value);
-	}
-	else { //是整数
-		//if (value < 0 || value > UCHAR_MAX) { //是Integer
-			lpExpr = IntegerExpression::newInstance((int)value);
-		//}
-		//else { //是Byte
-		//	lpExpr = ByteExpression::newInstance(value);
-		//}
-	}
-	auto wrapper = ExpressionWrapper(lpExpr);
-	return wrapper;
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitStringExpression(WorkScriptParser::StringExpressionContext *ctx)
@@ -86,6 +78,35 @@ antlrcpp::Any WorkScriptVisitorImpl::visitStringExpression(WorkScriptParser::Str
 	wtext = wtext.substr(1, wtext.length() - 2);
 	auto lpExpr = StringExpression::newInstance(wtext.c_str());
 	return ExpressionWrapper(lpExpr);
+}
+
+antlrcpp::Any WorkScriptVisitorImpl::visitBooleanExpression(WorkScriptParser::BooleanExpressionContext *ctx)
+{
+	string boolStr = ctx->BOOLEAN()->getText();
+	if (boolStr == "true") {
+		return ExpressionWrapper(BooleanExpression::VAL_TRUE);
+	}
+	else if (boolStr == "yes") {
+		return ExpressionWrapper(BooleanExpression::VAL_YES);
+	}
+	else if (boolStr == "ok") {
+		return ExpressionWrapper(BooleanExpression::VAL_OK);
+	}
+	else if (boolStr == "good") {
+		return ExpressionWrapper(BooleanExpression::VAL_GOOD);
+	}
+	else if (boolStr == "false") {
+		return ExpressionWrapper(BooleanExpression::VAL_FALSE);
+	}
+	else if (boolStr == "no") {
+		return ExpressionWrapper(BooleanExpression::VAL_NO);
+	}
+	else if (boolStr == "bad") {
+		return ExpressionWrapper(BooleanExpression::VAL_BAD);
+	}
+	else {
+		throw std::move(SyntaxErrorException(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1, (L"无法识别的布尔值：" + boost::locale::conv::to_utf<wchar_t>(boolStr, "UTF-8")).c_str()));
+	}
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx)
@@ -98,6 +119,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitVariableExpression(WorkScriptParser::V
 antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *ctx)
 {
 	STORE_FORBID_ASSIGN
+	ALLOW_ASSIGN
 	//函数的实现
 	Pointer<Expression>*impls;
 	size_t implCount;
@@ -108,7 +130,6 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 		impls[0] = (tmp).getExpression();
 	}
 	else {
-		ALLOW_ASSIGN
 		auto exprs = ctx->functionImplementationExpression()->blockExpression()->expression();
 		implCount = exprs.size();
 		impls = new Pointer<Expression>[implCount];
@@ -133,7 +154,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 		else if (paramExpr->getItem(i)->getType(nullptr)->isSubTypeOf(nullptr, TypeExpression::BINARY_COMPARE_EXPRESSION)) {
 			Pointer<VariableExpression>leftVar = ((Pointer<BinaryCompareExpression>)paramExpr->getItem(i))->getLeftVariable();
 			if (leftVar == nullptr) {
-				throw std::move(WorkScriptException(L"函数参数约束左部必须为变量！"));
+				throw std::move(SyntaxErrorException(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1, L"函数参数约束左部必须为变量！"));
 			}
 			vecConstraints.push_back(paramExpr->getItem(i));
 			paramInfos[i].setParameterName(leftVar->getName());
@@ -142,7 +163,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 			Pointer<AssignmentExpression>assignmentExpr = (Pointer<AssignmentExpression>)paramExpr->getItem(i);
 			auto leftExpr = assignmentExpr->getLeftExpression();
 			if (!leftExpr->getType(nullptr)->equals(nullptr, TypeExpression::VARIABLE_EXPRESSION)){
-				throw std::move(WorkScriptException(L"参数默认值左部必须为参数名！"));
+				throw std::move(SyntaxErrorException(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1, L"参数默认值左部必须为参数名！"));
 			}
 			auto leftVar = (Pointer<VariableExpression>)leftExpr;
 			paramInfos[i].setParameterName(leftVar->getName());

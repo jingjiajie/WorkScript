@@ -66,7 +66,9 @@ public:
 			this->ptr->decreaseReference();
 			if (this->ptr->references == 0)this->releaseByStrategy();
 		}
-		target.ptr->increaseReference();
+		if (target.ptr != nullptr) {
+			target.ptr->increaseReference();
+		}
 		this->ptr = target.ptr;
 		return *this;
 	}

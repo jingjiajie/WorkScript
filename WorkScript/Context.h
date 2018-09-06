@@ -23,6 +23,7 @@ public:
 	inline Context(Context *base, size_t maxLocalVariableCount = 0)
 		:baseContext(base),program(base->program)
 	{
+		this->depth = base->depth + 1;
 		this->resetLocalVariableCount(maxLocalVariableCount);
 	}
 
@@ -30,6 +31,8 @@ public:
 	{
 		delete[]this->localVariables;
 	}
+
+	Context *const getBaseContext(int depth);
 
 	inline Context * const& getBaseContext() const
 	{
@@ -69,7 +72,7 @@ public:
 	inline const Pointer<Expression> getLocalVariable(const size_t &offset) const {
 		return this->localVariables[offset];
 	}
-
+	   
 	inline Pointer<Expression> *const getLocalVariableAddress(const size_t &offset) const {
 		return &this->localVariables[offset];
 	}
@@ -83,6 +86,9 @@ public:
 	{
 		if (this->maxLocalVariableCount >= count) {
 			this->maxLocalVariableCount = count;
+			for (size_t i = 0; i < this->maxLocalVariableCount; ++i) {
+				this->localVariables[i] = nullptr;
+			}
 		}
 		else {
 			if(this->localVariables) delete[]this->localVariables;
@@ -106,9 +112,10 @@ public:
 	}
 
 protected:
-	Context * baseContext = nullptr;
+	Context *baseContext = nullptr;
 	Program *program = nullptr;
 	Pointer<Expression> *localVariables = nullptr;
 	size_t maxLocalVariableCount = 0;
+	int depth = 0;
 	bool assignLeft = false;
 };

@@ -55,7 +55,7 @@ void Program::pushExpression(const Pointer<Expression> &expr)
 
 const std::vector<Pointer<Expression>>& Program::getExpressions() const
 {
-	return  this->expressions;
+	return this->expressions;
 }
 
 void Program::pushAssignmentExpression(const wchar_t * const & varName, const Pointer<Expression> & value)
@@ -66,14 +66,7 @@ void Program::pushAssignmentExpression(const wchar_t * const & varName, const Po
 
 void Program::initConstants()
 {
-	this->pushAssignmentExpression(L"true", BooleanExpression::VAL_TRUE);
-	this->pushAssignmentExpression(L"yes", BooleanExpression::VAL_YES);
-	this->pushAssignmentExpression(L"ok", BooleanExpression::VAL_OK);
-	this->pushAssignmentExpression(L"good", BooleanExpression::VAL_GOOD);
 
-	this->pushAssignmentExpression(L"false", BooleanExpression::VAL_FALSE);
-	this->pushAssignmentExpression(L"no", BooleanExpression::VAL_NO);
-	this->pushAssignmentExpression(L"bad", BooleanExpression::VAL_BAD);
 }
 
 void Program::initPrintExpression()

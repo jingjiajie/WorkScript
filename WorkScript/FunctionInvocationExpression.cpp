@@ -2,10 +2,10 @@
 #include "ListExpression.h"
 #include "VariableExpression.h"
 #include "UninvocableException.h"
-#include "FunctionExpression.h"
 #include "Program.h"
 #include "ParameterExpression.h"
 #include "StringExpression.h"
+#include "FunctionExpression.h"
 #include <sstream>
 #include <boost/locale.hpp>
 
@@ -17,14 +17,8 @@ FunctionInvocationExpression::~FunctionInvocationExpression()
 
 const Pointer<Expression> FunctionInvocationExpression::evaluate(Context *const& context)
 {
-	Pointer<Expression> evaluatedLeft =  this->leftExpression->evaluate(context);
-	if (!evaluatedLeft->getType(context)->equals(context, TypeExpression::FUNCTION_EXPRESSION)) {
-		Pointer<StringExpression> leftStrExpr =  evaluatedLeft->toString(context);
-		wstring leftName(leftStrExpr->getValue());
-		wstring str = (leftName + L"不是函数！");
-		throw std::move(UninvocableException(str.c_str()));
-	}
-	Pointer<ParameterExpression> evaluatedParams =  this->parameters->evaluate(context);
+	Pointer<Expression> evaluatedLeft = this->getFunctionExpression(context);
+	Pointer<ParameterExpression> evaluatedParams = this->getEvaluatedParameters(context);
 
 	//开始调用
 	auto ret = ((const Pointer<FunctionExpression>)evaluatedLeft)->invoke(evaluatedParams);
@@ -40,6 +34,23 @@ bool FunctionInvocationExpression::equals(Context *const &context, const Pointer
 	if (!targetFunctionInvocationExpression->leftExpression->equals(context,this->leftExpression))return false;
 	if (!this->parameters->equals(context,targetFunctionInvocationExpression->parameters))return false;
 	return true;
+}
+
+const Pointer<FunctionExpression> FunctionInvocationExpression::getFunctionExpression(Context *const context) const
+{
+	Pointer<Expression> evaluatedLeft = this->leftExpression->evaluate(context);
+	if (!evaluatedLeft->getType(context)->equals(context, TypeExpression::FUNCTION_EXPRESSION)) {
+		Pointer<StringExpression> leftStrExpr = evaluatedLeft->toString(context);
+		wstring leftName(leftStrExpr->getValue());
+		wstring str = (leftName + L"不是函数！");
+		throw std::move(UninvocableException(str.c_str()));
+	}
+	return evaluatedLeft;
+}
+
+const Pointer<ParameterExpression> FunctionInvocationExpression::getEvaluatedParameters(Context * const context)
+{
+	return this->parameters->evaluate(context);
 }
 
 const Pointer<TypeExpression> FunctionInvocationExpression::getType(Context *const& context) const

@@ -11,6 +11,7 @@ class WorkScriptVisitorImpl :
 public:
 	antlrcpp::Any visitNumberExpression(WorkScriptParser::NumberExpressionContext*) override;
 	antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext*) override;
+	antlrcpp::Any visitBooleanExpression(WorkScriptParser::BooleanExpressionContext*)override;
 	antlrcpp::Any visitVariableExpression(WorkScriptParser::VariableExpressionContext*) override;
 	antlrcpp::Any visitFunctionExpression(WorkScriptParser::FunctionExpressionContext*) override;
 	antlrcpp::Any visitFunctionInvocationExpression(WorkScriptParser::FunctionInvocationExpressionContext*) override;

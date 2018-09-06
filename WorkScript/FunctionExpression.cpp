@@ -14,9 +14,10 @@ using namespace std;
 
 FunctionExpression::~FunctionExpression()
 {
-	for (size_t i = 0; i < this->overloads.size();++i) {
-		delete this->overloads[i];
+	for (size_t i = 0; i < this->overloads->size();++i) {
+		delete (*this->overloads)[i];
 	}
+	delete this->overloads;
 	if (this->name)delete[]this->name;
 }
 
@@ -28,21 +29,22 @@ const Pointer<TypeExpression> FunctionExpression::getType(Context *const& contex
 const Pointer<Expression> FunctionExpression::evaluate(Context *const &context)
 {
 	this->declareContext = context;
+	Context *targetContext = context->getBaseContext(this->functionVariableInfo.depth);
 	if (this->name != nullptr) {
-		auto varExpr = context->getLocalVariable(this->functionVariableInfo.offset);
+		auto varExpr = targetContext->getLocalVariable(this->functionVariableInfo.offset);
 		if (varExpr == nullptr) { //如果本层变量没有搜索到，搜索是否存在父级的函数声明。无论是否存在父级，都不进行合并
-			context->setLocalVariable(this->functionVariableInfo.offset, (const Pointer<Expression>&)this);
+			targetContext->setLocalVariable(this->functionVariableInfo.offset, (const Pointer<Expression>&)this);
 			return this;
 		}
 		else { //如果本层找到了同名函数，则合并重载
-			if (!varExpr->getType(context)->equals(context, TypeExpression::FUNCTION_EXPRESSION)) {
+			if (!varExpr->getType(nullptr)->equals(nullptr, TypeExpression::FUNCTION_EXPRESSION)) {
 				throw std::move(DuplicateDeclarationException((wstring(this->name) + L"已经被声明过，请勿重复声明！").c_str()));
 			}
 			auto funcExpr = (const Pointer<FunctionExpression>&)varExpr;
-			for (auto &overload : this->overloads) {
+			for (auto &overload : *this->overloads) {
 				funcExpr->addOverload(overload);
 			}
-			this->overloads.clear();
+			this->overloads->clear();
 			return funcExpr;
 		}
 	}
@@ -74,50 +76,49 @@ void FunctionExpression::compile(CompileContext *const &context)
 {
 	if (this->name != nullptr) {
 		//函数名编译在当前作用域中
-		auto varInfo = context->getVariableInfo(this->name);
-		if (varInfo.found == true && varInfo.upLevel > 0) {
-			this->baseFunctionVariableInfo = varInfo;
+		if (!context->getLocalVariableInfo(this->name, &this->functionVariableInfo)) {
+			context->addLocalVariable(this->name, &this->functionVariableInfo);
 		}
-		else if (varInfo.found == true && varInfo.upLevel == 0) {
-			this->baseFunctionVariableInfo.found = false;
-			this->functionVariableInfo = varInfo;
-		}
-		else {
-			this->baseFunctionVariableInfo.found = false;
-			this->functionVariableInfo = context->addLocalVariable(this->name);
-		}
+		this->hasBaseFunction = context->getBaseVariableInfo(this->name, &this->baseFunctionVariableInfo);
 	}
 	//重载（参数，约束，实现）编译在子作用域中
-	for (auto &overload : this->overloads) {
+	for (auto &overload : *this->overloads) {
 		CompileContext subContext(context);
 		overload->compile(&subContext);
 	}
 }
 
-const Pointer<Expression> FunctionExpression::invoke(const Pointer<ParameterExpression> params) const
+Overload *const FunctionExpression::getMatchedOverload(const Pointer<ParameterExpression>& params, Context *const context) const
+{
+	for (auto &overload : *this->overloads) {
+		context->resetLocalVariableCount(overload->getLocalVariableCount());
+		if (overload->match(params, context)) {
+			return overload;
+		}
+	}
+	return nullptr;
+}
+
+const Pointer<Expression> FunctionExpression::invoke(const Pointer<ParameterExpression> &params) const
 {
 	Context subContext(this->declareContext);
-	for (auto &overload : this->overloads) {
-		subContext.resetLocalVariableCount(overload->getLocalVariableCount());
-		if (overload->match(params, &subContext)) {
-			auto ret = overload->invoke(&subContext);
-			return ret;
-		}
-	}
-	if (this->baseFunctionVariableInfo.found) {
-		Context *targetContext = this->declareContext;
-		for (int i = 0; i < this->baseFunctionVariableInfo.upLevel; ++i) {
-			targetContext = targetContext->getBaseContext();
-		}
-		auto expr = targetContext->getLocalVariable(baseFunctionVariableInfo.offset);
-		if (!expr->getType(targetContext)->equals(targetContext, TypeExpression::FUNCTION_EXPRESSION)) {
-			throw DuplicateDeclarationException((wstring(this->name) + L"已经被声明，请勿重复声明！").c_str());
-		}
-		auto funcExpr = (const Pointer<FunctionExpression>&)expr;
-		return funcExpr->invoke(params);
+	Overload *matchedOverload = this->getMatchedOverload(params, &subContext);
+	if (matchedOverload != nullptr) {
+		return matchedOverload->invoke(&subContext);
 	}
 	else {
-		return nullptr;
+		if (this->hasBaseFunction) {
+			Context *targetContext = this->declareContext->getBaseContext(this->baseFunctionVariableInfo.depth);
+			auto expr = targetContext->getLocalVariable(baseFunctionVariableInfo.offset);
+			if (!expr->getType(targetContext)->equals(targetContext, TypeExpression::FUNCTION_EXPRESSION)) {
+				throw DuplicateDeclarationException((wstring(this->name) + L"已经被声明，请勿重复声明！").c_str());
+			}
+			auto funcExpr = (const Pointer<FunctionExpression>&)expr;
+			return funcExpr->invoke(params);
+		}
+		else {
+			return nullptr;
+		}
 	}
 }
 
@@ -155,7 +156,6 @@ bool Overload::match(const Pointer<ParameterExpression> &params,Context *const &
 			if ((prev = context->getLocalVariable(this->parameters[i].getOffset())) != nullptr) {
 				if (!prev->equals(context, params->getItems()[i]))return false;
 			}
-			//不出意外的话，传入的参数应该都是EXTERN级别
 			context->setLocalVariable(this->parameters[i].getOffset(), params->getItems()[i]);
 		}
 	}
@@ -175,31 +175,51 @@ bool Overload::match(const Pointer<ParameterExpression> &params,Context *const &
 	return true;
 }
 
-const Pointer<Expression> Overload::invoke(Context *const &context) const
+const Pointer<Expression> Overload::invoke(Context *context) const
 {
-	Pointer<Expression> ret = nullptr;
-	for (size_t i = 0; i < this->implementCount; ++i)
+	Context *targetContext = context;
+	INVOKE_START:
+	for (size_t i = 0; i < this->implementCount-1; ++i)
 	{
-		Pointer<Expression> res =  this->implements[i]->evaluate(context);
-		//最后一条语句的结果视为返回值
-		if (i == this->implementCount - 1) {
-			ret = res;
+		this->implements[i]->evaluate(targetContext);
+	}
+	//最后一条语句的结果视为返回值
+	Pointer<Expression> lastImpl = this->implements[implementCount - 1];
+	if (lastImpl->getType(nullptr)->equals(nullptr, TypeExpression::FUNCTION_INVOCATION_EXPRESSION)) {
+		auto invocation = ((Pointer<FunctionInvocationExpression>)lastImpl);
+		auto func = invocation->getFunctionExpression(targetContext);
+		auto params = invocation->getEvaluatedParameters(targetContext);
+		//创建新的Context以供调用
+		if (func != this->functionExpression)
+		{
+			targetContext = new Context(func->getDeclareContext());
+		}
+		//getMatchedOverload()已经将匹配的实参写入到context中。
+		Overload *matchedOverload = func->getMatchedOverload(params, targetContext);
+		if (matchedOverload == this) {	//尾递归优化
+			goto INVOKE_START;
+		}
+		else {
+			return matchedOverload->invoke(targetContext);
 		}
 	}
-	return ret;
+	else {
+		return lastImpl->evaluate(targetContext);
+	}
 }
 
 void Overload::compile(CompileContext *const &context)
 {
 	//编译参数列表
+	VariableCompileInfo info;
 	for (size_t i = 0; i < this->parameterCount; ++i) {
 		auto curVarName = this->parameters[i].getParameterName();
-		auto info = context->getLocalVariableInfo(curVarName);
-		if (info.found) {
+		if (context->getLocalVariableInfo(curVarName, &info)) {
 			this->parameters[i].setOffset(info.offset);
 		}
 		else {
-			this->parameters[i].setOffset(context->addLocalVariable(this->parameters[i].getParameterName()).offset);
+			context->addLocalVariable(this->parameters[i].getParameterName(),&info);
+			this->parameters[i].setOffset(info.offset);
 		}
 	}
 	//编译约束列表

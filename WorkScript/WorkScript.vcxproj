@@ -378,7 +378,7 @@
     <ClInclude Include="UnimplementedException.h" />
     <ClInclude Include="UninvocableException.h" />
     <ClInclude Include="VariableExpression.h" />
-    <ClInclude Include="VariableInfo.h" />
+    <ClInclude Include="VariableCompileInfo.h" />
     <ClInclude Include="WorkScriptException.h" />
     <ClInclude Include="WorkScriptVisitorImpl.h" />
   </ItemGroup>
@@ -392,6 +392,7 @@
     <ClCompile Include="BytePointerExpression.cpp" />
     <ClCompile Include="CompareExpression.cpp" />
     <ClCompile Include="CompileContext.cpp" />
+    <ClCompile Include="Context.cpp" />
     <ClCompile Include="DivideExpression.cpp" />
     <ClCompile Include="DoublePointerExpression.cpp" />
     <ClCompile Include="DuplicateDeclarationException.cpp" />

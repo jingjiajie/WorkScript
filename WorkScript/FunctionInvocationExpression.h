@@ -2,7 +2,9 @@
 #include "Expression.h"
 #include "TypeExpression.h"
 
+class FunctionExpression;
 class ParameterExpression;
+class Overload;
 
 class FunctionInvocationExpression :
 	public Expression
@@ -16,7 +18,8 @@ public:
 
 	virtual const Pointer<Expression> evaluate(Context *const& context) override;
 	virtual bool equals(Context *const &context,const Pointer<Expression> &) const override;
-
+	const Pointer<FunctionExpression> getFunctionExpression(Context *const context) const;
+	const Pointer<ParameterExpression> getEvaluatedParameters(Context *const context);
 	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
 	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 	virtual void compile(CompileContext *const& context) override;

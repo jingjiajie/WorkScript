@@ -183,9 +183,6 @@
     <ClInclude Include="CompileContext.h">
       <Filter>DataStructures\CompileContext\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="VariableInfo.h">
-      <Filter>DataStructures\CompileContext\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="ObjectPool.h" />
     <ClInclude Include="UnassignableExpection.h">
       <Filter>DataStructures\Exceptions\Headers</Filter>
@@ -326,6 +323,9 @@
     </ClInclude>
     <ClInclude Include="EnablePointer.h">
       <Filter>DataStructures\Pointer\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="VariableCompileInfo.h">
+      <Filter>DataStructures\CompileContext\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -501,5 +501,6 @@
     <ClCompile Include="ModulusExpression.cpp">
       <Filter>DataStructures\Expressions\BinaryOperatorExpressions\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="Context.cpp" />
   </ItemGroup>
 </Project>

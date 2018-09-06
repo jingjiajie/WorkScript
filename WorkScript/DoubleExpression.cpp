@@ -87,23 +87,24 @@ const Pointer<Expression> DoubleExpression::evaluate(Context *const& context)
 const Pointer<StringExpression> DoubleExpression::toString(Context *const& context)
 {
 	double number = this->value;
-	wstring numberStr;
-	if (fabs(number - (int)number) < 1e-8) {
-		numberStr = to_wstring((int)number);
-	}
-	else { //如果是小数，删除末尾0
-		numberStr = to_wstring(number);
-		size_t lastZeroCount = 0;
-		for (size_t i = numberStr.size() - 1; i >= 0; i--) {
-			if (numberStr[i] == '0') {
-				lastZeroCount++;
-			}
-			else {
-				break;
-			}
+	wchar_t buff[32];
+	swprintf(buff, 32, L"%.20lf", number);
+	wstring numberStr = buff;
+	//如果是小数，删除末尾0，如果小数点后全是0，删除小数点
+	size_t removeCharCount = 0;
+	for (size_t i = numberStr.size() - 1; i >= 0; i--) {
+		if (numberStr[i] == '0') {
+			removeCharCount++;
 		}
-		numberStr = numberStr.substr(0, numberStr.size() - lastZeroCount);
+		else if (numberStr[i] == '.') {
+			removeCharCount++;
+			break;
+		}
+		else {
+			break;
+		}
 	}
+	numberStr = numberStr.substr(0, numberStr.size() - removeCharCount);
 	return StringExpression::newInstance(numberStr.c_str());
 }
 

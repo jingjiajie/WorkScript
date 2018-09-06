@@ -9,6 +9,7 @@ CompileContext::CompileContext()
 CompileContext::CompileContext(CompileContext * baseContext)
 {
 	this->baseContext = baseContext;
+	this->depth = baseContext->depth + 1;
 }
 
 
@@ -16,51 +17,47 @@ CompileContext::~CompileContext()
 {
 }
 
-VariableInfo CompileContext::getVariableInfo(const wchar_t *const & varName)
+bool CompileContext::getVariableInfo(const wchar_t *const & varName, VariableCompileInfo *const outVariableCompileInfo)
 {
-	VariableInfo variableInfo;
-	auto it = this->variableOffsets.find(varName);
-	if (it != this->variableOffsets.end()) {
-		variableInfo.found = true;
-		variableInfo.upLevel = 0;
-		variableInfo.offset = this->variableOffsets[varName];
-	}
-	else if (this->baseContext != nullptr) {
-		variableInfo = this->baseContext->getVariableInfo(varName);
-		variableInfo.upLevel++;
+	if (this->getLocalVariableInfo(varName, outVariableCompileInfo)) {
+		return true;
 	}
 	else {
-		variableInfo.found = false;
+		return this->getBaseVariableInfo(varName, outVariableCompileInfo);
 	}
-	return variableInfo;
 }
 
-VariableInfo CompileContext::getLocalVariableInfo(const wchar_t *const & varName)
+bool CompileContext::getBaseVariableInfo(const wchar_t * const & varName, VariableCompileInfo * const outVariableCompileInfo)
 {
-	VariableInfo variableInfo;
-	auto it = this->variableOffsets.find(varName);
-	if (it != this->variableOffsets.end()) {
-		variableInfo.found = true;
-		variableInfo.upLevel = 0;
-		variableInfo.offset = this->variableOffsets[varName];
+	if (this->baseContext == nullptr) {
+		return false;
 	}
 	else {
-		variableInfo.found = false;
+		return this->baseContext->getVariableInfo(varName,outVariableCompileInfo);
 	}
-	return variableInfo;
 }
 
-VariableInfo CompileContext::addLocalVariable(const wchar_t *const & varName)
+bool CompileContext::getLocalVariableInfo(const wchar_t *const & varName, VariableCompileInfo *const outVariableCompileInfo)
 {
-	VariableInfo variableInfo;
-	variableInfo.found = true;
-	variableInfo.offset = this->localVariables;
-	variableInfo.upLevel = 0;
+	auto it = this->variableOffsets.find(varName);
+	if (it != this->variableOffsets.end()) {
+		outVariableCompileInfo->depth = this->depth;
+		outVariableCompileInfo->offset = this->variableOffsets[varName];
+		return true;
+	}
+	else {
+		return false;
+	}
+}
 
-	this->variableOffsets[varName] = variableInfo.offset;
+void CompileContext::addLocalVariable(const wchar_t *const & varName, VariableCompileInfo *const outVariableCompileInfo)
+{
+	outVariableCompileInfo->offset = this->localVariables;
+	outVariableCompileInfo->depth = this->depth;
+
+	this->variableOffsets[varName] = outVariableCompileInfo->offset;
 
 	this->localVariables++;
-	return variableInfo;
 }
 
 const size_t CompileContext::getLocalVariableCount() const

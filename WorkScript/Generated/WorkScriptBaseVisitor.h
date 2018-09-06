@@ -51,6 +51,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitBooleanExpression_(WorkScriptParser::BooleanExpression_Context *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitAssignmentOrEqualsExpression(WorkScriptParser::AssignmentOrEqualsExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -124,6 +128,10 @@ public:
   }
 
   virtual antlrcpp::Any visitBlockExpression(WorkScriptParser::BlockExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitBooleanExpression(WorkScriptParser::BooleanExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 

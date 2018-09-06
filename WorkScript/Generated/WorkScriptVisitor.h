@@ -37,6 +37,8 @@ public:
 
     virtual antlrcpp::Any visitMethodInvocationExpression(WorkScriptParser::MethodInvocationExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitBooleanExpression_(WorkScriptParser::BooleanExpression_Context *context) = 0;
+
     virtual antlrcpp::Any visitAssignmentOrEqualsExpression(WorkScriptParser::AssignmentOrEqualsExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitNumberExpression_(WorkScriptParser::NumberExpression_Context *context) = 0;
@@ -74,6 +76,8 @@ public:
     virtual antlrcpp::Any visitFunctionConstraintExpression(WorkScriptParser::FunctionConstraintExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitBlockExpression(WorkScriptParser::BlockExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitBooleanExpression(WorkScriptParser::BooleanExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitIdentifier(WorkScriptParser::IdentifierContext *context) = 0;
 

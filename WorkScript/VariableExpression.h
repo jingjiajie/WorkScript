@@ -2,7 +2,6 @@
 #include <string.h>
 #include <wchar.h>
 #include "Expression.h"
-#include "VariableInfo.h"
 
 class Context;
 
@@ -13,7 +12,6 @@ public:
 	inline VariableExpression(const wchar_t *const &name)
 	{
 		this->setName(name);
-		
 	}
 
 	virtual ~VariableExpression();
@@ -37,7 +35,8 @@ public:
 		wcscpy(this->name, name);
 	}
 protected:
-	VariableInfo variableInfo;
 	wchar_t * name = nullptr;
+	int targetDepth = 0;
+	size_t offset = 0;
 };
 

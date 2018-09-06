@@ -6,6 +6,7 @@
 #include "TypeExpression.h"
 
 class FunctionInvocationExpression;
+class FunctionExpression;
 class VariableExpression;
 class ParameterExpression;
 class Context;
@@ -88,7 +89,7 @@ public:
 	}
 
 	virtual bool match(const Pointer<ParameterExpression> &params, Context *const& context) const;
-	virtual const Pointer<Expression> invoke(Context *const& context) const;
+	virtual const Pointer<Expression> invoke(Context *context) const;
 	virtual void compile(CompileContext *const& context);
 
 	inline const ParameterInfo *const getParameterInfos() const
@@ -152,6 +153,16 @@ public:
 		this->localVariableCount = count;
 	}
 
+	inline FunctionExpression *getFunctionExpression()const
+	{
+		return this->functionExpression;
+	}
+
+	inline void setFunctionExpression(FunctionExpression *functionExpression)
+	{
+		this->functionExpression = functionExpression;
+	}
+
 protected:
 	bool allowLastMatchRest = true;
 	ParameterInfo *parameters = nullptr;
@@ -163,6 +174,7 @@ protected:
 	size_t implementCount = 0;
 
 	size_t localVariableCount = 0; //编译时存储局部变量个数，用于运行时分配局部变量空间
+	FunctionExpression *functionExpression = nullptr;
 };
 
 
@@ -172,7 +184,7 @@ class FunctionExpression :
 public:
 	inline FunctionExpression()
 	{
-		
+		this->overloads = new std::vector<Overload*>();
 	}
 	virtual ~FunctionExpression();
 
@@ -182,7 +194,7 @@ public:
 	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 	virtual void compile(CompileContext *const& context) override;
 
-	virtual const Pointer<Expression> invoke(const Pointer<ParameterExpression> params) const;
+	virtual const Pointer<Expression> invoke(const Pointer<ParameterExpression> &params) const;
 
 	inline const wchar_t *const getName()const
 	{
@@ -201,20 +213,33 @@ public:
 		}
 	}
 
-	inline 	const std::vector<Overload *> getOverloads()const
+	inline 	const std::vector<Overload *>* getOverloads()const
 	{
 		return this->overloads;
 	}
 
 	inline void addOverload(Overload* const &overload)
 	{
-		this->overloads.push_back(overload);
+		overload->setFunctionExpression(this);
+		this->overloads->push_back(overload);
 	}
 
+	Overload *const getMatchedOverload(const Pointer<ParameterExpression>& params, Context *const context) const;
+
+	inline Context *getDeclareContext()const
+	{
+		return this->declareContext;
+	}
+
+	inline void setDeclareContext(Context *context)
+	{
+		this->declareContext = context;
+	}
 protected:
 	Context * declareContext;
 	wchar_t *name;
-	VariableInfo functionVariableInfo;
-	std::vector<Overload *> overloads;
-	VariableInfo baseFunctionVariableInfo;
+	VariableCompileInfo functionVariableInfo;
+	std::vector<Overload *> *overloads;
+	VariableCompileInfo baseFunctionVariableInfo;
+	bool hasBaseFunction = false;
 };
