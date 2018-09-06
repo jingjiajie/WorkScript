@@ -9,7 +9,8 @@ class FunctionInvocationExpression;
 class FunctionExpression;
 class VariableExpression;
 class ParameterExpression;
-class Context;
+class StackFrame;
+class CallStack;
 
 class ParameterInfo
 {
@@ -226,17 +227,18 @@ public:
 
 	Overload *const getMatchedOverload(const Pointer<ParameterExpression>& params, Context *const context) const;
 
-	inline Context *getDeclareContext()const
+	inline StackFrame *getDeclareStackFrame()const
 	{
-		return this->declareContext;
+		return this->declareStackFrame;
 	}
 
-	inline void setDeclareContext(Context *context)
+	inline void setDeclareStackFrame(StackFrame *frame)
 	{
-		this->declareContext = context;
+		this->declareStackFrame = frame;
 	}
 protected:
-	Context * declareContext;
+	StackFrame * declareStackFrame = nullptr;
+	CallStack *declareStack = nullptr;
 	wchar_t *name;
 	VariableCompileInfo functionVariableInfo;
 	std::vector<Overload *> *overloads;

@@ -24,6 +24,11 @@ const Pointer<Expression> FunctionInvocationExpression::evaluate(Context *const&
 	auto ret = ((const Pointer<FunctionExpression>)evaluatedLeft)->invoke(evaluatedParams);
 	return ret;
 }
+//
+//const Pointer<Expression> FunctionInvocationExpression::evaluate(Context * const & context, Overload * matchedOverload)
+//{
+//	return Pointer<Expression>();
+//}
 
 bool FunctionInvocationExpression::equals(Context *const &context, const Pointer<Expression> &target) const
 {

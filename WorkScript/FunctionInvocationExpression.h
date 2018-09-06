@@ -17,6 +17,7 @@ public:
 	virtual ~FunctionInvocationExpression();
 
 	virtual const Pointer<Expression> evaluate(Context *const& context) override;
+	//virtual const Pointer<Expression> evaluate(Context *const& context, Overload *matchedOverload);
 	virtual bool equals(Context *const &context,const Pointer<Expression> &) const override;
 	const Pointer<FunctionExpression> getFunctionExpression(Context *const context) const;
 	const Pointer<ParameterExpression> getEvaluatedParameters(Context *const context);

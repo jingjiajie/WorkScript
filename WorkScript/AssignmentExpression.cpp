@@ -4,6 +4,7 @@
 #include "UnassignableExpection.h"
 #include "ExpressionPointerExpression.h"
 #include "VariableExpression.h"
+#include "CallStack.h"
 
 #include <boost/locale.hpp>
 #include <string>
@@ -21,9 +22,8 @@ const Pointer<Expression> AssignmentExpression::evaluate(Context * const & conte
 	context->setAssignLeft(false);
 	if (!evaluatedLeft->getType(context)->equals(context, TypeExpression::EXPRESSION_POINTER_EXPRESSION))
 	{
-		Pointer<StringExpression> leftStr  =  evaluatedLeft->toString(context);
+		Pointer<StringExpression> leftStr = evaluatedLeft->toString(context);
 		UnassignableExpection ex(leftStr->getValue());
-		context->release();
 		throw std::move(ex);
 	}
 	auto leftPointer = (const Pointer<ExpressionPointerExpression>)evaluatedLeft;

@@ -7,7 +7,10 @@
 #include "StringExpression.h"
 #include "ParameterExpression.h"
 #include "Context.h"
+#include "CallStack.h"
+#include "StackFrame.h"
 #include "WorkScriptException.h"
+#include "UninvocableException.h"
 #include "Program.h"
 
 using namespace std;
@@ -28,12 +31,13 @@ const Pointer<TypeExpression> FunctionExpression::getType(Context *const& contex
 
 const Pointer<Expression> FunctionExpression::evaluate(Context *const &context)
 {
-	this->declareContext = context;
-	Context *targetContext = context->getBaseContext(this->functionVariableInfo.depth);
+	this->declareStackFrame = context->getStackFrame();
+	this->declareStack = context->getCallStack();
+	StackFrame *targetFrame = this->declareStackFrame->getBaseStackFrame(this->functionVariableInfo.depth);
 	if (this->name != nullptr) {
-		auto varExpr = targetContext->getLocalVariable(this->functionVariableInfo.offset);
+		auto varExpr = targetFrame->getLocalVariable(this->functionVariableInfo.offset);
 		if (varExpr == nullptr) { //如果本层变量没有搜索到，搜索是否存在父级的函数声明。无论是否存在父级，都不进行合并
-			targetContext->setLocalVariable(this->functionVariableInfo.offset, (const Pointer<Expression>&)this);
+			targetFrame->setLocalVariable(this->functionVariableInfo.offset, (const Pointer<Expression>&)this);
 			return this;
 		}
 		else { //如果本层找到了同名函数，则合并重载
@@ -90,8 +94,9 @@ void FunctionExpression::compile(CompileContext *const &context)
 
 Overload *const FunctionExpression::getMatchedOverload(const Pointer<ParameterExpression>& params, Context *const context) const
 {
+	StackFrame *frame = context->getStackFrame();
 	for (auto &overload : *this->overloads) {
-		context->resetLocalVariableCount(overload->getLocalVariableCount());
+		frame->resetLocalVariableCount(overload->getLocalVariableCount());
 		if (overload->match(params, context)) {
 			return overload;
 		}
@@ -101,16 +106,20 @@ Overload *const FunctionExpression::getMatchedOverload(const Pointer<ParameterEx
 
 const Pointer<Expression> FunctionExpression::invoke(const Pointer<ParameterExpression> &params) const
 {
-	Context subContext(this->declareContext);
+	StackFrame *newFrame = this->declareStack->newStackFrame(this->declareStackFrame, 0);
+	Context subContext(this->declareStack, newFrame);
 	Overload *matchedOverload = this->getMatchedOverload(params, &subContext);
 	if (matchedOverload != nullptr) {
-		return matchedOverload->invoke(&subContext);
+		auto ret = matchedOverload->invoke(&subContext);
+		this->declareStack->popStackFrame();
+		return ret;
 	}
 	else {
+		this->declareStack->popStackFrame();
 		if (this->hasBaseFunction) {
-			Context *targetContext = this->declareContext->getBaseContext(this->baseFunctionVariableInfo.depth);
-			auto expr = targetContext->getLocalVariable(baseFunctionVariableInfo.offset);
-			if (!expr->getType(targetContext)->equals(targetContext, TypeExpression::FUNCTION_EXPRESSION)) {
+			StackFrame *targetFrame = this->declareStackFrame->getBaseStackFrame(this->baseFunctionVariableInfo.depth);
+			auto expr = targetFrame->getLocalVariable(baseFunctionVariableInfo.offset);
+			if (!expr->getType(nullptr)->equals(nullptr, TypeExpression::FUNCTION_EXPRESSION)) {
 				throw DuplicateDeclarationException((wstring(this->name) + L"已经被声明，请勿重复声明！").c_str());
 			}
 			auto funcExpr = (const Pointer<FunctionExpression>&)expr;
@@ -126,6 +135,7 @@ bool Overload::match(const Pointer<ParameterExpression> &params,Context *const &
 {
 	size_t targetParamCount = params->getCount();
 	size_t myParamCount = this->parameterCount;
+	StackFrame *frame = context->getStackFrame();
 
 	//逐个匹配参数。如果存在同名参数，则后一个同名参数必须和之前的值相等，否则匹配失败
 	//如果目标参数不够，看看参数有没有设定默认值
@@ -134,7 +144,7 @@ bool Overload::match(const Pointer<ParameterExpression> &params,Context *const &
 		if (i + 1 > targetParamCount) { //注意，这里只能i+1，不能右边-1，因为size_t无符号
 			Pointer<Expression>defaultValue = this->parameters[i].getDefaultValue();
 			if (!defaultValue)return false;
-			context->setLocalVariable(this->parameters[i].getOffset(), defaultValue->evaluate(context));
+			frame->setLocalVariable(this->parameters[i].getOffset(), defaultValue->evaluate(context));
 		}
 		//如果是最后一个变量，且开启了贪婪匹配，则匹配多项
 		else if (i == myParamCount - 1 && i < targetParamCount - 1 && this->allowLastMatchRest) {
@@ -145,18 +155,18 @@ bool Overload::match(const Pointer<ParameterExpression> &params,Context *const &
 				restParamItems[i] = params->getItem(myParamCount - 1 + i);
 			}
 			auto restParamList = new ParameterExpression(restParamItems,restParamCount);
-			context->setLocalVariable(this->parameters[i].getOffset(), restParamList);
+			frame->setLocalVariable(this->parameters[i].getOffset(), restParamList);
 			Pointer<Expression> prev = nullptr;
-			if ((prev = context->getLocalVariable(this->parameters[i].getOffset())) != nullptr) {
+			if ((prev = frame->getLocalVariable(this->parameters[i].getOffset())) != nullptr) {
 				if (!prev->equals(context, restParamList))return false;
 			}
 		}
 		else {
 			Pointer<Expression> prev = nullptr;
-			if ((prev = context->getLocalVariable(this->parameters[i].getOffset())) != nullptr) {
+			if ((prev = frame->getLocalVariable(this->parameters[i].getOffset())) != nullptr) {
 				if (!prev->equals(context, params->getItems()[i]))return false;
 			}
-			context->setLocalVariable(this->parameters[i].getOffset(), params->getItems()[i]);
+			frame->setLocalVariable(this->parameters[i].getOffset(), params->getItems()[i]);
 		}
 	}
 	//验证约束是否符合，若有不符合则匹配失败
@@ -177,34 +187,40 @@ bool Overload::match(const Pointer<ParameterExpression> &params,Context *const &
 
 const Pointer<Expression> Overload::invoke(Context *context) const
 {
-	Context *targetContext = context;
 	INVOKE_START:
 	for (size_t i = 0; i < this->implementCount-1; ++i)
 	{
-		this->implements[i]->evaluate(targetContext);
+		this->implements[i]->evaluate(context);
 	}
 	//最后一条语句的结果视为返回值
 	Pointer<Expression> lastImpl = this->implements[implementCount - 1];
 	if (lastImpl->getType(nullptr)->equals(nullptr, TypeExpression::FUNCTION_INVOCATION_EXPRESSION)) {
 		auto invocation = ((Pointer<FunctionInvocationExpression>)lastImpl);
-		auto func = invocation->getFunctionExpression(targetContext);
-		auto params = invocation->getEvaluatedParameters(targetContext);
-		//创建新的Context以供调用
-		if (func != this->functionExpression)
-		{
-			targetContext = new Context(func->getDeclareContext());
-		}
+		auto func = invocation->getFunctionExpression(context); //目标函数
+		auto params = invocation->getEvaluatedParameters(context); //实参
 		//getMatchedOverload()已经将匹配的实参写入到context中。
-		Overload *matchedOverload = func->getMatchedOverload(params, targetContext);
-		if (matchedOverload == this) {	//尾递归优化
+		if (func->getDeclareStackFrame() == context->getStackFrame()) {
+			StackFrame *newFrame = context->getCallStack()->newStackFrame(context->getStackFrame(), 0);
+			context->setStackFrame(newFrame);
+		}
+		else {
+			context->getStackFrame()->setBaseStackFrame(func->getDeclareStackFrame());
+		}
+		Overload *matchedOverload = func->getMatchedOverload(params, context);
+		if (matchedOverload == nullptr) {
+			throw std::move(UninvocableException((L"未找到匹配的" + wstring(func->getName()) + L"函数！").c_str()));
+		}
+		else if (matchedOverload == this) {	//尾递归优化
 			goto INVOKE_START;
 		}
 		else {
-			return matchedOverload->invoke(targetContext);
+			auto ret = matchedOverload->invoke(context);
+			//if (createdNewFrame) targetContext->getCallStack()->popStackFrame();
+			return ret;
 		}
 	}
 	else {
-		return lastImpl->evaluate(targetContext);
+		return lastImpl->evaluate(context);
 	}
 }
 

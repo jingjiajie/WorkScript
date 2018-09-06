@@ -325,6 +325,7 @@
     <ClInclude Include="ByteExpression.h" />
     <ClInclude Include="BytePointerExpression.h" />
     <ClInclude Include="BinaryCompareExpression.h" />
+    <ClInclude Include="CallStack.h" />
     <ClInclude Include="CompileContext.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="DivideExpression.h" />
@@ -365,6 +366,7 @@
     <ClInclude Include="Pointer.h" />
     <ClInclude Include="PointerExpression.h" />
     <ClInclude Include="Program.h" />
+    <ClInclude Include="StackFrame.h" />
     <ClInclude Include="StringExpression.h" />
     <ClInclude Include="SyntaxErrorException.h" />
     <ClInclude Include="SyntaxErrorListener.h" />
@@ -392,7 +394,6 @@
     <ClCompile Include="BytePointerExpression.cpp" />
     <ClCompile Include="CompareExpression.cpp" />
     <ClCompile Include="CompileContext.cpp" />
-    <ClCompile Include="Context.cpp" />
     <ClCompile Include="DivideExpression.cpp" />
     <ClCompile Include="DoublePointerExpression.cpp" />
     <ClCompile Include="DuplicateDeclarationException.cpp" />

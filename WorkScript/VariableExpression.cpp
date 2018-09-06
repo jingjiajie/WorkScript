@@ -4,6 +4,7 @@
 #include "StringExpression.h"
 #include "ExpressionPointerExpression.h"
 #include "VariableCompileInfo.h"
+#include "StackFrame.h"
 
 using namespace std;
 
@@ -14,16 +15,16 @@ VariableExpression::~VariableExpression()
 
 const Pointer<Expression> VariableExpression::evaluate(Context *const& context)
 {
-	Context *targetContext = context->getBaseContext(this->targetDepth);
+	StackFrame *targetFrame = context->getStackFrame()->getBaseStackFrame(this->targetDepth);
 
 	if (context->getAssignLeft() == true)
 	{
 		auto ptr = new ExpressionPointerExpression();
-		ptr->setTargetAddress(targetContext->getLocalVariableAddress(this->offset));
+		ptr->setTargetAddress(targetFrame->getLocalVariableAddress(this->offset));
 		return ptr;
 	}
 	else {
-		auto value = targetContext->getLocalVariable(this->offset);
+		auto value = targetFrame->getLocalVariable(this->offset);
 		if (!value) {
 			return this;
 		}

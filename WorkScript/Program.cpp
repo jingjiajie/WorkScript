@@ -7,6 +7,8 @@
 #include "VariableExpression.h"
 #include "StringExpression.h"
 #include "AssignmentExpression.h"
+#include "CallStack.h"
+#include "StackFrame.h"
 #include <locale.h>
 #include <time.h>
 #include <wchar.h>
@@ -26,14 +28,18 @@ Program::~Program()
 
 void Program::execute()
 {
-	Context context(this,this->localVariableCount);
+	CallStack stack;
 	try {
+		StackFrame *frame = stack.newStackFrame(nullptr, this->localVariableCount);
+		Context context(&stack, frame);
 		for (auto &expr : this->expressions) {
 			expr->evaluate(&context);
 		}
+		stack.popStackFrame();
 	}
 	catch (const WorkScriptException &ex)
 	{
+		stack.clearStackFrame(); //接到异常清空调用栈
 		cout << ex.what() << endl;
 	}
 	return;
@@ -78,7 +84,7 @@ void Program::initPrintExpression()
 	paramInfos[0].setParameterName(L"x");
 	overload->setParameterInfos(paramInfos, 1);
 	overload->setImplement(new ExecuteCppCodeExpression([overload](Context *const& context)->Pointer<Expression> {
-		auto value = context->getLocalVariable(0);
+		auto value = context->getStackFrame()->getLocalVariable(0);
 		Pointer<StringExpression> strExpr =  value->toString(context);
 		wprintf(L"%ls", strExpr->getValue());
 		return BooleanExpression::VAL_OK;
