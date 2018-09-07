@@ -29,8 +29,13 @@ expression:
 	| booleanExpression		# BooleanExpression_
 	| variableExpression	# VariableExpression_;
 
-parameterExpression: 
-		(NEWLINE* expression (NEWLINE* (NEWLINE | COMMA) NEWLINE* expression)*)? NEWLINE* COMMA? NEWLINE*;
+parameterExpression:
+	(
+		NEWLINE* parameterExpressionItem (
+			NEWLINE* (NEWLINE | COMMA) NEWLINE* parameterExpressionItem
+		)*
+	)? NEWLINE* COMMA? NEWLINE*;
+parameterExpressionItem: (expression | varargsExpression);
 
 numberExpression: (PLUS | MINUS)? (DOUBLE | INTEGER);
 stringExpression: STRING;
@@ -58,6 +63,8 @@ blockExpression:
 	LEFT_BRACE NEWLINE* ((expression NEWLINE+)* expression)? NEWLINE* RIGHT_BRACE;
 
 booleanExpression: BOOLEAN;
+
+varargsExpression: APOSTROPHE variableExpression;
 
 identifier: BOOLEAN | WHEN | IDENTIFIER;
 
@@ -108,5 +115,6 @@ LESS_THAN_EQUAL: '<=';
 SINGLE_LINE_COMMENT: '//' ~'\n'*;
 MULTILINE_COMMENT_IN_SINGLE_LINE: '/*' ~'\n'*? '*/' -> skip;
 MULTILINE_COMMENT: '/*' .*? '\n' .*? '*/';
+APOSTROPHE: '...';
 
 WS: [ \t]+ -> skip;

@@ -137,6 +137,11 @@ bool Overload::match(const Pointer<ParameterExpression> &params,Context *const &
 	size_t myParamCount = this->parameterCount;
 	StackFrame *frame = context->getStackFrame();
 
+	//如果不是变参函数，且实参多于形参，则直接匹配失败
+	if (targetParamCount > myParamCount && this->parameters[myParamCount - 1].isVarargs() == false) {
+		return false;
+	}
+
 	//逐个匹配参数。如果存在同名参数，则后一个同名参数必须和之前的值相等，否则匹配失败
 	//如果目标参数不够，看看参数有没有设定默认值
 	for (size_t i = 0; i < myParamCount; ++i) {
@@ -146,8 +151,11 @@ bool Overload::match(const Pointer<ParameterExpression> &params,Context *const &
 			if (!defaultValue)return false;
 			frame->setLocalVariable(this->parameters[i].getOffset(), defaultValue->evaluate(context));
 		}
-		//如果是最后一个变量，且开启了贪婪匹配，则匹配多项
-		else if (i == myParamCount - 1 && i < targetParamCount - 1 && this->allowLastMatchRest) {
+		//如果是最后一个变量，由于前面已经判断过，这里实参个数一定大于等于形参个数。
+		//如果实参多于形参，则匹配变参函数。否则普通处理
+		else if (i == myParamCount - 1 
+			&& i < targetParamCount - 1
+			&& this->parameters[i].isVarargs()) {
 			size_t restParamCount = targetParamCount - myParamCount + 1;
 			Pointer<Expression> *restParamItems = new Pointer<Expression>[restParamCount];
 			for (size_t i = 0; i < restParamCount; ++i)

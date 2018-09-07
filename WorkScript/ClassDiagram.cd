@@ -1,0 +1,459 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="WorkScriptBaseVisitor" Collapsed="true">
+    <Position X="0.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAARARKAACAEAIAABAgAgABRCBEBACAQgAgGEAABAAE=</HashCode>
+      <FileName>Generated\WorkScriptBaseVisitor.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WorkScriptLexer" Collapsed="true">
+    <Position X="66.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAEE4AAAACAAIgAkCBAAACAAQBBEgAAAAgQAAg=</HashCode>
+      <FileName>Generated\WorkScriptLexer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WorkScriptParser" Collapsed="true">
+    <Position X="68.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAACAQEEIAAAACAgIgAgKRAABKEAQBBEigggAgQABE=</HashCode>
+      <FileName>Generated\WorkScriptParser.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WorkScriptVisitor" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAARARKAACAEAIAABAgAgABRCBEBACAQgAgGEAABAAE=</HashCode>
+      <FileName>Generated\WorkScriptVisitor.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Context" Collapsed="true">
+    <Position X="70.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIgAAAACKoAIAAAAAAAIAgAAAAAAIAAAAAAA=</HashCode>
+      <FileName>Context.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AssignmentExpression" Collapsed="true">
+    <Position X="32.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAABAAAAAAAAAAABAAAAQIAAAAAABAAAAAAAAA=</HashCode>
+      <FileName>AssignmentExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BinaryCalculateExpression" Collapsed="true">
+    <Position X="39.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAABAAAAAAAAAAAABAIABAIAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>BinaryCalculateExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BinaryOperatorExpression" Collapsed="true">
+    <Position X="44" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAACIAiAAAgAABAAAAAAAgAAAACAAAAAgAAA=</HashCode>
+      <FileName>BinaryOperatorExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BinaryCompareExpression" Collapsed="true">
+    <Position X="50.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAAAAABIAAAAAAAAAAIAAAAAAAAAAAAACAE=</HashCode>
+      <FileName>BinaryCompareExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DivideExpression" Collapsed="true">
+    <Position X="35" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAAAAAQAAAAAAABAAABQAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DivideExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EqualsExpression" Collapsed="true">
+    <Position X="46.25" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAIAAAABAAAAQAAAAAAAAAAAAAACAI=</HashCode>
+      <FileName>EqualsExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GreaterThanEqualExpression" Collapsed="true">
+    <Position X="48.5" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACAAAAABAAAAQEAAAAAAAAAAAAACAA=</HashCode>
+      <FileName>GreaterThanEqualExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LessThanEqualExpression" Collapsed="true">
+    <Position X="50.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAMAAAAAAAABAAAAQAAAAAAAAAAAAAACAA=</HashCode>
+      <FileName>LessThanEqualExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LessThanExpression" Collapsed="true">
+    <Position X="53" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAABAAAAQAAAAAAAAAAAAAICCA=</HashCode>
+      <FileName>LessThanExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GreaterThanExpression" Collapsed="true">
+    <Position X="55.25" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAIBAAAAQAAAAAAAAAAAAAgCAA=</HashCode>
+      <FileName>GreaterThanExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinusExpression" Collapsed="true">
+    <Position X="39.5" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAABAAABQAAAAAAAAAAAQAQAAA=</HashCode>
+      <FileName>MinusExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ModulusExpression" Collapsed="true">
+    <Position X="41.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAABAAAABAAABQAAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>ModulusExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MultiplyExpression" Collapsed="true">
+    <Position X="44" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAAAAABAAABQAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>MultiplyExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PlusExpression" Collapsed="true">
+    <Position X="37.25" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAAAAAAAAABAAABQAAAAAAAAAQAAAAAAI=</HashCode>
+      <FileName>PlusExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NegativeExpression" Collapsed="true">
+    <Position X="8" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAAAAAAAAAABAAAAQIAAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>NegativeExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UnaryOperatorExpression" Collapsed="true">
+    <Position X="8" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAQSAAAAACAAABAAAEAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>UnaryOperatorExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BooleanExpression" Collapsed="true">
+    <Position X="12.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>FgAAQAAAAFTAACAAEQIEFAAAAUIAACAAAAAAAAAIEWA=</HashCode>
+      <FileName>BooleanExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ByteExpression" Collapsed="true">
+    <Position X="59.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAgABCAACGAAFMAFAABAQIAICQAAAAAIAAAAAA=</HashCode>
+      <FileName>ByteExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IntegerExpression" Collapsed="true">
+    <Position X="62" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAACAAAgIBCAACEAAFMABAABAQIAICQAAAAAIAAAAAA=</HashCode>
+      <FileName>IntegerExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ListExpression" Collapsed="true">
+    <Position X="28.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAQgCAAAAABIiABAAAAQIAAAAAAAAAAAAEAAA=</HashCode>
+      <FileName>ListExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DoubleExpression" Collapsed="true">
+    <Position X="64.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DoubleExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NumberExpression" Collapsed="true">
+    <Position X="62" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAgAACAAIEAAFEAAAABAQAAIAQAAAAAIQAAAAA=</HashCode>
+      <FileName>NumberExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StringExpression" Collapsed="true">
+    <Position X="3.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAQAAAABCEACAAAFIABAAAIQIAACAAAAAAAAAAAQA=</HashCode>
+      <FileName>StringExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BytePointerExpression" Collapsed="true">
+    <Position X="19.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAQBAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>BytePointerExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DoublePointerExpression" Collapsed="true">
+    <Position X="21.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DoublePointerExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IntegerPointerExpression" Collapsed="true">
+    <Position X="23.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAA=</HashCode>
+      <FileName>IntegerPointerExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExpressionPointerExpression" Collapsed="true">
+    <Position X="26" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAEAADAAAQAAAAABAAAAUAAAEAAABAAAAAAAAA=</HashCode>
+      <FileName>ExpressionPointerExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PointerExpression" Collapsed="true">
+    <Position X="22.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAABAAAQAAAAAAAAAgAIAAAAAEAAAAAAAAAA=</HashCode>
+      <FileName>PointerExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TypeExpression" Collapsed="true">
+    <Position X="30.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>YAACSBARYgSEiCAgCQAAhQgAlSotGABoEgIEMCAAAAA=</HashCode>
+      <FileName>TypeExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExecuteCppCodeExpression" Collapsed="true">
+    <Position X="57.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAACIAAAAAAAABAAAAQIAAAAAAAAAAAAIIAA=</HashCode>
+      <FileName>ExecuteCppCodeExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ParameterInfo" Collapsed="true">
+    <Position X="70.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACQAAAAWACFAEAAAAABAAAAAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>FunctionExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Overload" Collapsed="true">
+    <Position X="68.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAgQAICIAAAEAADCxAAAIEAAAgAAAAAIQIQAADAEiI=</HashCode>
+      <FileName>FunctionExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FunctionExpression" Collapsed="true">
+    <Position X="5.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BQAAQAAAAACAAAACCAAABQgBGQIEABBAgQAEAAAAIAA=</HashCode>
+      <FileName>FunctionExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FunctionInvocationExpression" Collapsed="true">
+    <Position X="10.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgQAAAAACIABAAAgAABAAAAYIAAACAACAIAACAAgA=</HashCode>
+      <FileName>FunctionInvocationExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ParameterExpression" Collapsed="true">
+    <Position X="14.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAQACQAAAQBAgABAAAAQIAAAAAAAIgAAAEAEA=</HashCode>
+      <FileName>ParameterExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VariableExpression" Collapsed="true">
+    <Position X="17" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACgQACAAACAAABAAAAABAAAAUIAAABAIAAEAAAAAAA=</HashCode>
+      <FileName>VariableExpression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Expression" Collapsed="true">
+    <Position X="33.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAECAAAAAAAAABAAAAQIAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>Expression.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AccessDeniedException" Collapsed="true">
+    <Position X="14.75" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAIAAAAAAAAA=</HashCode>
+      <FileName>AccessDeniedException.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DuplicateDeclarationException" Collapsed="true">
+    <Position X="17" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DuplicateDeclarationException.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IllegalValueException" Collapsed="true">
+    <Position X="19.25" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAABAAAA=</HashCode>
+      <FileName>IllegalValueException.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SyntaxErrorException" Collapsed="true">
+    <Position X="1.25" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAAAAAAAAAAAAAAAAEQIAIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SyntaxErrorException.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UnassignableExpection" Collapsed="true">
+    <Position X="3.5" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>UnassignableExpection.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UncalculatableException" Collapsed="true">
+    <Position X="5.75" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAACAAQAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>UncalculatableException.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UncomparableException" Collapsed="true">
+    <Position X="8" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAA=</HashCode>
+      <FileName>UncomparableException.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UnimplementedException" Collapsed="true">
+    <Position X="10.25" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>UnimplementedException.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UninvocableException" Collapsed="true">
+    <Position X="12.5" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAEAAAAAAAAAA=</HashCode>
+      <FileName>UninvocableException.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WorkScriptException" Collapsed="true">
+    <Position X="10.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAACIAAAAAgAAACAAAAAAAAAAAAAAAAAAACA=</HashCode>
+      <FileName>WorkScriptException.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Program" Collapsed="true">
+    <Position X="66.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQQAAAAAAAAAAAgAEAAAACAAAACAIAAABAAEgAAI=</HashCode>
+      <FileName>Program.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CallStack" Collapsed="true">
+    <Position X="66.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAABAAABAEAAAABAAAAQAAAAIAABQAAAAA=</HashCode>
+      <FileName>CallStack.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StackFrame" Collapsed="true">
+    <Position X="68.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgACAAAAAgAAgAIACIgAAAAAAAAgAAAAIBAACAQ=</HashCode>
+      <FileName>StackFrame.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SyntaxErrorListener" Collapsed="true">
+    <Position X="70.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAEAAAAAAAAAQAAAAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>SyntaxErrorListener.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SyntaxErrorStrategy" Collapsed="true">
+    <Position X="72" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAEIAAgAAAAAAAAAABAAAAAAAACAAAAAAAAAA=</HashCode>
+      <FileName>SyntaxErrorStrategy.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WorkScriptVisitorImpl" Collapsed="true">
+    <Position X="0.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAATABIAACAAAIABBAgAAABRCBABAQAQgAgCEAAAAAE=</HashCode>
+      <FileName>WorkScriptVisitorImpl.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EnablePointer" Collapsed="true">
+    <Position X="33.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAEIAAAAAAAAABAAAABAAAABAAAAAAEEAQAAAAAAA=</HashCode>
+      <FileName>EnablePointer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Pointer&lt;T&gt;" Collapsed="true">
+    <Position X="72" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABIAAAAEAAAEAAAAQwAABAAAAEAAAAAgAAAAAAA=</HashCode>
+      <FileName>Pointer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExpressionWrapper" Collapsed="true">
+    <Position X="72" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAMAEAA=</HashCode>
+      <FileName>ExpressionWrapper.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ObjectPool&lt;TItem&gt;" Collapsed="true">
+    <Position X="66.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAABAAAQAAAAAAAAAAAAABIAAECAAA=</HashCode>
+      <FileName>ObjectPool.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CompileContext" Collapsed="true">
+    <Position X="68.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACCIAQAACAIAEAAAAAAAAAAAACAAACAIAAAAAQ=</HashCode>
+      <FileName>CompileContext.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="VariableCompileInfo" Collapsed="true">
+    <Position X="66.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>VariableCompileInfo.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="ReleaseStrategy" Collapsed="true">
+    <Position X="66.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAEA=</HashCode>
+      <FileName>EnablePointer.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>

@@ -22,6 +22,9 @@ const Pointer<Expression> FunctionInvocationExpression::evaluate(Context *const&
 
 	//开始调用
 	auto ret = ((const Pointer<FunctionExpression>)evaluatedLeft)->invoke(evaluatedParams);
+	if (!ret) {
+		ret = this;
+	}
 	return ret;
 }
 //

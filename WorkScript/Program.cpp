@@ -82,6 +82,7 @@ void Program::initPrintExpression()
 	auto overload = new Overload;
 	ParameterInfo *paramInfos = new ParameterInfo[1];
 	paramInfos[0].setParameterName(L"x");
+	paramInfos[0].setVarargs(true);
 	overload->setParameterInfos(paramInfos, 1);
 	overload->setImplement(new ExecuteCppCodeExpression([overload](Context *const& context)->Pointer<Expression> {
 		auto value = context->getStackFrame()->getLocalVariable(0);

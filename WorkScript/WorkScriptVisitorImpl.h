@@ -29,6 +29,8 @@ public:
 	antlrcpp::Any visitListExpression(WorkScriptParser::ListExpressionContext*)override;
 	antlrcpp::Any visitNegativeExpression(WorkScriptParser::NegativeExpressionContext*)override;
 	antlrcpp::Any visitPositiveExpression(WorkScriptParser::PositiveExpressionContext*)override;
+	antlrcpp::Any visitVarargsExpression(WorkScriptParser::VarargsExpressionContext*)override;
+	antlrcpp::Any visitParameterExpressionItem(WorkScriptParser::ParameterExpressionItemContext*)override;
 	WorkScriptVisitorImpl(Program*);
 	virtual ~WorkScriptVisitorImpl();
 private:

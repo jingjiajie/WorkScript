@@ -99,6 +99,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitParameterExpressionItem(WorkScriptParser::ParameterExpressionItemContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitNumberExpression(WorkScriptParser::NumberExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -132,6 +136,10 @@ public:
   }
 
   virtual antlrcpp::Any visitBooleanExpression(WorkScriptParser::BooleanExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitVarargsExpression(WorkScriptParser::VarargsExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 

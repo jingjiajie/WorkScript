@@ -18,15 +18,16 @@ public:
     DOUBLE_EQUAL = 16, EQUALS = 17, RIGHT_ARROW = 18, ASSIGN = 19, PLUS = 20, 
     MINUS = 21, MULTIPLY = 22, DIVIDE = 23, MODULUS = 24, GREATER_THAN = 25, 
     GREATER_THAN_EQUAL = 26, LESS_THAN = 27, LESS_THAN_EQUAL = 28, SINGLE_LINE_COMMENT = 29, 
-    MULTILINE_COMMENT_IN_SINGLE_LINE = 30, MULTILINE_COMMENT = 31, WS = 32
+    MULTILINE_COMMENT_IN_SINGLE_LINE = 30, MULTILINE_COMMENT = 31, APOSTROPHE = 32, 
+    WS = 33
   };
 
   enum {
-    RuleProgram = 0, RuleExpression = 1, RuleParameterExpression = 2, RuleNumberExpression = 3, 
-    RuleStringExpression = 4, RuleVariableExpression = 5, RuleFunctionExpression = 6, 
-    RuleFunctionDeclarationExpression = 7, RuleFunctionImplementationExpression = 8, 
-    RuleFunctionConstraintExpression = 9, RuleBlockExpression = 10, RuleBooleanExpression = 11, 
-    RuleIdentifier = 12
+    RuleProgram = 0, RuleExpression = 1, RuleParameterExpression = 2, RuleParameterExpressionItem = 3, 
+    RuleNumberExpression = 4, RuleStringExpression = 5, RuleVariableExpression = 6, 
+    RuleFunctionExpression = 7, RuleFunctionDeclarationExpression = 8, RuleFunctionImplementationExpression = 9, 
+    RuleFunctionConstraintExpression = 10, RuleBlockExpression = 11, RuleBooleanExpression = 12, 
+    RuleVarargsExpression = 13, RuleIdentifier = 14
   };
 
   WorkScriptParser(antlr4::TokenStream *input);
@@ -42,6 +43,7 @@ public:
   class ProgramContext;
   class ExpressionContext;
   class ParameterExpressionContext;
+  class ParameterExpressionItemContext;
   class NumberExpressionContext;
   class StringExpressionContext;
   class VariableExpressionContext;
@@ -51,6 +53,7 @@ public:
   class FunctionConstraintExpressionContext;
   class BlockExpressionContext;
   class BooleanExpressionContext;
+  class VarargsExpressionContext;
   class IdentifierContext; 
 
   class  ProgramContext : public antlr4::ParserRuleContext {
@@ -278,8 +281,8 @@ public:
   public:
     ParameterExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<ExpressionContext *> expression();
-    ExpressionContext* expression(size_t i);
+    std::vector<ParameterExpressionItemContext *> parameterExpressionItem();
+    ParameterExpressionItemContext* parameterExpressionItem(size_t i);
     std::vector<antlr4::tree::TerminalNode *> NEWLINE();
     antlr4::tree::TerminalNode* NEWLINE(size_t i);
     std::vector<antlr4::tree::TerminalNode *> COMMA();
@@ -290,6 +293,19 @@ public:
   };
 
   ParameterExpressionContext* parameterExpression();
+
+  class  ParameterExpressionItemContext : public antlr4::ParserRuleContext {
+  public:
+    ParameterExpressionItemContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    ExpressionContext *expression();
+    VarargsExpressionContext *varargsExpression();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ParameterExpressionItemContext* parameterExpressionItem();
 
   class  NumberExpressionContext : public antlr4::ParserRuleContext {
   public:
@@ -422,6 +438,19 @@ public:
   };
 
   BooleanExpressionContext* booleanExpression();
+
+  class  VarargsExpressionContext : public antlr4::ParserRuleContext {
+  public:
+    VarargsExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *APOSTROPHE();
+    VariableExpressionContext *variableExpression();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  VarargsExpressionContext* varargsExpression();
 
   class  IdentifierContext : public antlr4::ParserRuleContext {
   public:

@@ -34,9 +34,20 @@ public:
 		this->name = new wchar_t[wcslen(name) + 1];
 		wcscpy(this->name, name);
 	}
+
+	inline bool isVarargs()
+	{
+		return this->varargs;
+	}
+
+	inline void setVarargs(bool isVarargs)
+	{
+		this->varargs = isVarargs;
+	}
 protected:
 	wchar_t * name = nullptr;
 	int targetDepth = 0;
 	size_t offset = 0;
+	bool varargs = false;
 };
 

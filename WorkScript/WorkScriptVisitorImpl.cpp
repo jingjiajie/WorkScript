@@ -30,6 +30,7 @@
 #include "IntegerExpression.h"
 #include "ModulusExpression.h"
 #include "ByteExpression.h"
+#include "Pointer.h"
 #include "SyntaxErrorException.h"
 
 #define FORBID_ASSIGN \
@@ -149,7 +150,9 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	//首先是语法糖编译，包括约束和默认值
 	for (size_t i = 0; i < paramCount; ++i) {
 		if (paramExpr->getItem(i)->getType(nullptr)->equals(nullptr, TypeExpression::VARIABLE_EXPRESSION)) {
-			paramInfos[i].setParameterName(((const Pointer<VariableExpression>)paramExpr->getItem(i))->getName());
+			Pointer<VariableExpression> varExpr = paramExpr->getItem(i);
+			paramInfos[i].setParameterName(varExpr->getName());
+			paramInfos[i].setVarargs(varExpr->isVarargs());
 		}
 		else if (paramExpr->getItem(i)->getType(nullptr)->isSubTypeOf(nullptr, TypeExpression::BINARY_COMPARE_EXPRESSION)) {
 			Pointer<VariableExpression>leftVar = ((Pointer<BinaryCompareExpression>)paramExpr->getItem(i))->getLeftVariable();
@@ -275,7 +278,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitEqualsExpression(WorkScriptParser::Equ
 antlrcpp::Any WorkScriptVisitorImpl::visitParameterExpression(WorkScriptParser::ParameterExpressionContext *ctx)
 {
 	STORE_FORBID_ASSIGN
-	auto subContext = ctx->expression();
+	auto subContext = ctx->parameterExpressionItem();
 	size_t subContextCount = subContext.size();
 	auto items = new Pointer<Expression>[subContextCount];
 	for (size_t i = 0; i < subContextCount; ++i) {
@@ -397,6 +400,24 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNegativeExpression(WorkScriptParser::N
 antlrcpp::Any WorkScriptVisitorImpl::visitPositiveExpression(WorkScriptParser::PositiveExpressionContext *ctx)
 {
 	return ctx->expression()->accept(this);
+}
+
+antlrcpp::Any WorkScriptVisitorImpl::visitVarargsExpression(WorkScriptParser::VarargsExpressionContext *ctx)
+{
+	ExpressionWrapper varWrapper = ctx->variableExpression()->accept(this);
+	Pointer<VariableExpression> varExpr = varWrapper.getExpression();
+	varExpr->setVarargs(true);
+	return varWrapper;
+}
+
+antlrcpp::Any WorkScriptVisitorImpl::visitParameterExpressionItem(WorkScriptParser::ParameterExpressionItemContext *ctx)
+{
+	if (ctx->expression()) {
+		return ctx->expression()->accept(this);
+	}
+	else {
+		return ctx->varargsExpression()->accept(this);
+	}
 }
 
 WorkScriptVisitorImpl::WorkScriptVisitorImpl(Program *lpProgram)

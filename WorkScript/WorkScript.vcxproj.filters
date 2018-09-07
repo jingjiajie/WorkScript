@@ -523,4 +523,7 @@
       <Filter>Runtime\Expressions\BinaryOperatorExpressions\Sources</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
 </Project>

@@ -67,10 +67,19 @@ public:
 		this->defaultValue = value;
 	}
 
+	inline bool isVarargs()const {
+		return this->varargs;
+	}
+
+	inline void setVarargs(bool isVarargs) {
+		this->varargs = isVarargs;
+	}
+
 private:
 	wchar_t *parameterName = nullptr;
 	Pointer<Expression> defaultValue = nullptr;
 	size_t offset;
+	bool varargs = false;
 };
 
 
@@ -118,16 +127,6 @@ public:
 		this->constraints = constraints;
 	}
 
-	inline const bool getAllowLastMatchRest()const
-	{
-		return this->allowLastMatchRest;
-	}
-
-	inline void setAllowLastMatchRest(const bool& allowLastMatchRest)
-	{
-		this->allowLastMatchRest = allowLastMatchRest;
-	}
-
 	inline Pointer<Expression> *const getImplements() const
 	{
 		return this->implements;
@@ -165,7 +164,6 @@ public:
 	}
 
 protected:
-	bool allowLastMatchRest = true;
 	ParameterInfo *parameters = nullptr;
 	size_t parameterCount = 0;
 

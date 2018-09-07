@@ -61,6 +61,8 @@ public:
 
     virtual antlrcpp::Any visitParameterExpression(WorkScriptParser::ParameterExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitParameterExpressionItem(WorkScriptParser::ParameterExpressionItemContext *context) = 0;
+
     virtual antlrcpp::Any visitNumberExpression(WorkScriptParser::NumberExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext *context) = 0;
@@ -78,6 +80,8 @@ public:
     virtual antlrcpp::Any visitBlockExpression(WorkScriptParser::BlockExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitBooleanExpression(WorkScriptParser::BooleanExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitVarargsExpression(WorkScriptParser::VarargsExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitIdentifier(WorkScriptParser::IdentifierContext *context) = 0;
 
