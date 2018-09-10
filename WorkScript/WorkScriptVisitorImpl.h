@@ -9,6 +9,7 @@ class WorkScriptVisitorImpl :
 	public WorkScriptBaseVisitor
 {
 public:
+	antlrcpp::Any visitIncludeCommand(WorkScriptParser::IncludeCommandContext*) override;
 	antlrcpp::Any visitNumberExpression(WorkScriptParser::NumberExpressionContext*) override;
 	antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext*) override;
 	antlrcpp::Any visitBooleanExpression(WorkScriptParser::BooleanExpressionContext*)override;
@@ -33,6 +34,7 @@ public:
 	antlrcpp::Any visitParameterExpressionItem(WorkScriptParser::ParameterExpressionItemContext*)override;
 	WorkScriptVisitorImpl(Program*);
 	virtual ~WorkScriptVisitorImpl();
+	void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, size_t line, size_t column)const;
 private:
 	Program *program;
 	bool assignable = true;

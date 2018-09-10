@@ -10,18 +10,19 @@ public:
 	Program();
 	virtual ~Program();
 
-	void execute();
-	void compile();
+	void execute(Context *context);
+	void compile(CompileContext *context);
 
 	void pushExpression(const Pointer<Expression> &);
 	const std::vector<Pointer<Expression>>& getExpressions() const;
 
+	void addIncludeFile(const wchar_t *filePath);
+	std::vector<std::wstring> getIncludeFiles()const;
+
 protected:
 	std::vector<Pointer<Expression>> expressions;
-	size_t localVariableCount = 0;
+	std::vector<std::wstring> includeFiles;
 
 	void pushAssignmentExpression(const wchar_t *const &varName,const Pointer<Expression> &value);
-
-	void initConstants();
-	void initPrintExpression();
+	
 };

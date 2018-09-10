@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Generated">
-      <UniqueIdentifier>{af6842cb-e3bd-4c02-b3b2-3624069e10f1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Parser">
       <UniqueIdentifier>{a1260af9-bb26-4725-a207-e8b5bdc96136}</UniqueIdentifier>
     </Filter>
@@ -109,15 +106,6 @@
     <Filter Include="Runtime\Exceptions\Sources">
       <UniqueIdentifier>{17608f06-93a1-40c1-befb-2d1504149714}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Runtime\Program">
-      <UniqueIdentifier>{ff5a9918-380a-4167-8fcc-ddf9e3572147}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Runtime\Program\Headers">
-      <UniqueIdentifier>{e88c0090-4c83-4d50-b1d6-e88d11c3ee6b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Runtime\Program\Sources">
-      <UniqueIdentifier>{2583ef7a-7374-401d-815a-be01028ac7c5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Runtime\CallStack">
       <UniqueIdentifier>{440192fa-74da-4c29-8919-ba155a1ab0eb}</UniqueIdentifier>
     </Filter>
@@ -148,6 +136,27 @@
     <Filter Include="Util\ObjectPool">
       <UniqueIdentifier>{d886f221-de0a-403a-b664-8efd115c5354}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Parser\Generated">
+      <UniqueIdentifier>{af6842cb-e3bd-4c02-b3b2-3624069e10f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Program">
+      <UniqueIdentifier>{ff5a9918-380a-4167-8fcc-ddf9e3572147}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Program\Headers">
+      <UniqueIdentifier>{e88c0090-4c83-4d50-b1d6-e88d11c3ee6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Program\Sources">
+      <UniqueIdentifier>{2583ef7a-7374-401d-815a-be01028ac7c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{f5e0a225-d77f-44ea-b8b9-3b6e6ed4e5d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Headers">
+      <UniqueIdentifier>{5453ac6c-2020-44bf-af97-ef06bdeb0768}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Sources">
+      <UniqueIdentifier>{905f2b80-33a8-4bfc-b55c-d423dbfe4fdc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Context.h">
@@ -163,16 +172,16 @@
       <Filter>Runtime\Exceptions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Generated\WorkScriptBaseVisitor.h">
-      <Filter>Generated</Filter>
+      <Filter>Parser\Generated</Filter>
     </ClInclude>
     <ClInclude Include="Generated\WorkScriptLexer.h">
-      <Filter>Generated</Filter>
+      <Filter>Parser\Generated</Filter>
     </ClInclude>
     <ClInclude Include="Generated\WorkScriptParser.h">
-      <Filter>Generated</Filter>
+      <Filter>Parser\Generated</Filter>
     </ClInclude>
     <ClInclude Include="Generated\WorkScriptVisitor.h">
-      <Filter>Generated</Filter>
+      <Filter>Parser\Generated</Filter>
     </ClInclude>
     <ClInclude Include="WorkScriptVisitorImpl.h">
       <Filter>Parser\Headers</Filter>
@@ -181,7 +190,7 @@
       <Filter>Runtime\Exceptions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Program.h">
-      <Filter>Runtime\Program\Headers</Filter>
+      <Filter>Program\Headers</Filter>
     </ClInclude>
     <ClInclude Include="DuplicateDeclarationException.h">
       <Filter>Runtime\Exceptions\Headers</Filter>
@@ -348,6 +357,12 @@
     <ClInclude Include="OperatorWrappers.hpp">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="MainProgram.h">
+      <Filter>Program\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="WorkScriptEngine.h">
+      <Filter>Engine\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expression.cpp">
@@ -361,22 +376,22 @@
       <Filter>Runtime\Exceptions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="Generated\WorkScriptBaseVisitor.cpp">
-      <Filter>Generated</Filter>
+      <Filter>Parser\Generated</Filter>
     </ClCompile>
     <ClCompile Include="Generated\WorkScriptLexer.cpp">
-      <Filter>Generated</Filter>
+      <Filter>Parser\Generated</Filter>
     </ClCompile>
     <ClCompile Include="Generated\WorkScriptParser.cpp">
-      <Filter>Generated</Filter>
+      <Filter>Parser\Generated</Filter>
     </ClCompile>
     <ClCompile Include="Generated\WorkScriptVisitor.cpp">
-      <Filter>Generated</Filter>
+      <Filter>Parser\Generated</Filter>
     </ClCompile>
     <ClCompile Include="AccessDeniedException.cpp">
       <Filter>Runtime\Exceptions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="Program.cpp">
-      <Filter>Runtime\Program\Sources</Filter>
+      <Filter>Program\Sources</Filter>
     </ClCompile>
     <ClCompile Include="DuplicateDeclarationException.cpp">
       <Filter>Runtime\Exceptions\Sources</Filter>
@@ -522,8 +537,11 @@
     <ClCompile Include="ModulusExpression.cpp">
       <Filter>Runtime\Expressions\BinaryOperatorExpressions\Sources</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <ClCompile Include="MainProgram.cpp">
+      <Filter>Program\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="WorkScriptEngine.cpp">
+      <Filter>Engine\Sources</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

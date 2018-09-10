@@ -52,6 +52,15 @@ this->assignable = oriAssignable;
 
 using namespace std;
 
+antlrcpp::Any WorkScriptVisitorImpl::visitIncludeCommand(WorkScriptParser::IncludeCommandContext *ctx)
+{
+	string utf8FileName = ctx->STRING()->getText();
+	utf8FileName = utf8FileName.substr(1, utf8FileName.size() - 2);
+	wstring wFileName = boost::locale::conv::to_utf<wchar_t>(utf8FileName, "UTF-8");
+	this->program->addIncludeFile(wFileName.c_str());
+	return nullptr;
+}
+
 antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::NumberExpressionContext *ctx)
 {
 	if (ctx->DOUBLE()) {
@@ -74,10 +83,14 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 
 antlrcpp::Any WorkScriptVisitorImpl::visitStringExpression(WorkScriptParser::StringExpressionContext *ctx)
 {
-	string textWithQuotationMark = ctx->STRING()->getText();
-	wstring wtext = boost::locale::conv::to_utf<wchar_t>(textWithQuotationMark, "UTF-8");
-	wtext = wtext.substr(1, wtext.length() - 2);
-	auto lpExpr = StringExpression::newInstance(wtext.c_str());
+	string text = ctx->STRING()->getText();
+	text = text.substr(1, text.length() - 2);
+	wstring wtext = boost::locale::conv::to_utf<wchar_t>(text, "UTF-8");
+
+	wchar_t *unescapedText = new wchar_t[wtext.length() + 1];
+	this->handleEscapeCharacters(wtext.c_str(), unescapedText, ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1);
+	auto lpExpr = StringExpression::newInstance(unescapedText);
+	delete []unescapedText;
 	return ExpressionWrapper(lpExpr);
 }
 
@@ -234,11 +247,17 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionInvocationExpression(WorkScrip
 
 antlrcpp::Any WorkScriptVisitorImpl::visitProgram(WorkScriptParser::ProgramContext *ctx)
 {
+	auto commands = ctx->command();
+	for (auto &command : commands) {
+		command->accept(this);
+	}
+
 	auto exprs = ctx->expression();
 	for (auto &expr : exprs)
 	{
 		this->assignable = true; //每次新的一行都允许赋值
-		this->program->pushExpression(((ExpressionWrapper)expr->accept(this)).getExpression());
+		auto ret = (ExpressionWrapper)expr->accept(this);
+		this->program->pushExpression(ret.getExpression());
 	}
 	return nullptr;
 }
@@ -427,4 +446,50 @@ WorkScriptVisitorImpl::WorkScriptVisitorImpl(Program *lpProgram)
 
 WorkScriptVisitorImpl::~WorkScriptVisitorImpl()
 {
+}
+
+void WorkScriptVisitorImpl::handleEscapeCharacters(const wchar_t *srcStr,wchar_t *targetStr, size_t line, size_t column)const
+{
+	enum State {
+		NORMAL,ESCAPE_START
+	};
+	State state = NORMAL;
+	size_t srcPos = 0, targetPos = 0;
+	while (srcStr[srcPos] != L'\0')
+	{
+		switch (state)
+		{
+		case NORMAL:
+			if (srcStr[srcPos] != L'\\') {
+				targetStr[targetPos] = srcStr[srcPos];
+				++srcPos;
+				++targetPos;
+			}
+			else {
+				state = ESCAPE_START;
+				++srcPos;
+			}
+			break;
+		case ESCAPE_START:
+			switch (srcStr[srcPos])
+			{
+			case L'n':
+				targetStr[targetPos] = L'\n';
+				++srcPos;
+				++targetPos;
+				state = NORMAL;
+				break;
+			case L't':
+				targetStr[targetPos] = L'\t';
+				++srcPos;
+				++targetPos;
+				state = NORMAL;
+				break;
+			default:
+				throw std::move(SyntaxErrorException(line,column,(wstring(L"不能识别的转义符：\\") + srcStr[srcPos]).c_str()));
+			}
+			break;
+		}
+	}
+	targetStr[targetPos] = L'\0';
 }

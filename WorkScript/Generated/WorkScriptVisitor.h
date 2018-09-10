@@ -21,6 +21,10 @@ public:
    */
     virtual antlrcpp::Any visitProgram(WorkScriptParser::ProgramContext *context) = 0;
 
+    virtual antlrcpp::Any visitCommand(WorkScriptParser::CommandContext *context) = 0;
+
+    virtual antlrcpp::Any visitIncludeCommand(WorkScriptParser::IncludeCommandContext *context) = 0;
+
     virtual antlrcpp::Any visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitListExpression(WorkScriptParser::ListExpressionContext *context) = 0;

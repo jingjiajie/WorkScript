@@ -1,6 +1,13 @@
 grammar WorkScript;
 
-program: (NEWLINE | expression NEWLINE?)* EOF;
+program: (NEWLINE | command NEWLINE?)* (
+		NEWLINE
+		| expression NEWLINE?
+	)* EOF;
+
+command: includeCommand;
+
+includeCommand: HASH INCLUDE STRING;
 
 expression:
 	LEFT_PARENTHESE expression RIGHT_PARENTHESE											# ParentheseExpression
@@ -66,8 +73,9 @@ booleanExpression: BOOLEAN;
 
 varargsExpression: APOSTROPHE variableExpression;
 
-identifier: BOOLEAN | WHEN | IDENTIFIER;
+identifier: BOOLEAN | WHEN | INCLUDE | IDENTIFIER;
 
+INCLUDE: 'include';
 WHEN: 'when';
 BOOLEAN:
 	'true'
@@ -108,6 +116,7 @@ MINUS: '-';
 MULTIPLY: '*';
 DIVIDE: '/';
 MODULUS: '%';
+HASH: '#';
 GREATER_THAN: '>';
 GREATER_THAN_EQUAL: '>=';
 LESS_THAN: '<';

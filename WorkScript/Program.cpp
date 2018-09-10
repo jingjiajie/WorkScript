@@ -17,8 +17,7 @@ using namespace std;
 
 Program::Program()
 {
-	this->initConstants();
-	this->initPrintExpression();
+
 }
 
 
@@ -26,32 +25,19 @@ Program::~Program()
 {
 }
 
-void Program::execute()
+void Program::execute(Context *context) //throws WorkScriptException
 {
-	CallStack stack;
-	try {
-		StackFrame *frame = stack.newStackFrame(nullptr, this->localVariableCount);
-		Context context(&stack, frame);
-		for (auto &expr : this->expressions) {
-			expr->evaluate(&context);
-		}
-		stack.popStackFrame();
-	}
-	catch (const WorkScriptException &ex)
-	{
-		stack.clearStackFrame(); //接到异常清空调用栈
-		cout << ex.what() << endl;
+	for (auto &expr : this->expressions) {
+		expr->evaluate(context);
 	}
 	return;
 }
 
-void Program::compile()
+void Program::compile(CompileContext *context)
 {
-	CompileContext context;
 	for (auto &expr : this->expressions) {
-		expr->compile(&context);
+		expr->compile(context);
 	}
-	this->localVariableCount = context.getLocalVariableCount();
 }
 
 void Program::pushExpression(const Pointer<Expression> &expr)
@@ -64,32 +50,18 @@ const std::vector<Pointer<Expression>>& Program::getExpressions() const
 	return this->expressions;
 }
 
+void Program::addIncludeFile(const wchar_t * filePath)
+{
+	this->includeFiles.push_back(filePath);
+}
+
+std::vector<std::wstring> Program::getIncludeFiles() const
+{
+	return this->includeFiles;
+}
+
 void Program::pushAssignmentExpression(const wchar_t * const & varName, const Pointer<Expression> & value)
 {
 	auto expr = new AssignmentExpression(new VariableExpression(varName), value);
 	this->pushExpression(expr);
-}
-
-void Program::initConstants()
-{
-
-}
-
-void Program::initPrintExpression()
-{
-	Pointer<FunctionExpression> printFunc = new FunctionExpression();
-	printFunc->setName(L"print");
-	auto overload = new Overload;
-	ParameterInfo *paramInfos = new ParameterInfo[1];
-	paramInfos[0].setParameterName(L"x");
-	paramInfos[0].setVarargs(true);
-	overload->setParameterInfos(paramInfos, 1);
-	overload->setImplement(new ExecuteCppCodeExpression([overload](Context *const& context)->Pointer<Expression> {
-		auto value = context->getStackFrame()->getLocalVariable(0);
-		Pointer<StringExpression> strExpr =  value->toString(context);
-		wprintf(L"%ls", strExpr->getValue());
-		return BooleanExpression::VAL_OK;
-	}));
-	printFunc->addOverload(overload);
-	this->pushExpression(printFunc);
 }

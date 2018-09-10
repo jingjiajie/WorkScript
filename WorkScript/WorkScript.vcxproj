@@ -349,6 +349,7 @@
     <ClInclude Include="Generated\WorkScriptParser.h" />
     <ClInclude Include="Generated\WorkScriptVisitor.h" />
     <ClInclude Include="GreaterThanExpression.h" />
+    <ClInclude Include="MainProgram.h" />
     <ClInclude Include="MemberEvaluateExpression.h" />
     <ClInclude Include="MinusExpression.h" />
     <ClInclude Include="ModulusExpression.h" />
@@ -381,6 +382,7 @@
     <ClInclude Include="UninvocableException.h" />
     <ClInclude Include="VariableExpression.h" />
     <ClInclude Include="VariableCompileInfo.h" />
+    <ClInclude Include="WorkScriptEngine.h" />
     <ClInclude Include="WorkScriptException.h" />
     <ClInclude Include="WorkScriptVisitorImpl.h" />
   </ItemGroup>
@@ -414,6 +416,7 @@
     <ClCompile Include="Generated\WorkScriptParser.cpp" />
     <ClCompile Include="Generated\WorkScriptVisitor.cpp" />
     <ClCompile Include="GreaterThanExpression.cpp" />
+    <ClCompile Include="MainProgram.cpp" />
     <ClCompile Include="MemberEvaluateExpression.cpp" />
     <ClCompile Include="MinusExpression.cpp" />
     <ClCompile Include="ModulusExpression.cpp" />
@@ -441,6 +444,7 @@
     <ClCompile Include="VariableExpression.cpp" />
     <ClCompile Include="WorkScript.cpp" />
     <ClCompile Include="Expression.cpp" />
+    <ClCompile Include="WorkScriptEngine.cpp" />
     <ClCompile Include="WorkScriptException.cpp" />
     <ClCompile Include="WorkScriptVisitorImpl.cpp" />
   </ItemGroup>
@@ -448,9 +452,6 @@
     <ProjectReference Include="..\Runtime\antlr4cpp-vs2015.vcxproj">
       <Project>{a9762991-1b57-4dce-90c0-ee42b96947be}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

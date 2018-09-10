@@ -23,10 +23,11 @@ public:
 		return this->expression;
 	}
 
-	void setExpression(const Pointer<Expression> & expression)
+	inline void setExpression(const Pointer<Expression> & expression)
 	{
 		this->expression = expression;
 	}
+
 protected:
 	Pointer<Expression> expression;
 };

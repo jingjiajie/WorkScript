@@ -12,22 +12,23 @@
 class  WorkScriptParser : public antlr4::Parser {
 public:
   enum {
-    WHEN = 1, BOOLEAN = 2, IDENTIFIER = 3, DOUBLE = 4, INTEGER = 5, STRING = 6, 
-    POINT = 7, COMMA = 8, NEWLINE = 9, LEFT_PARENTHESE = 10, RIGHT_PARENTHESE = 11, 
-    LEFT_BRACE = 12, RIGHT_BRACE = 13, LEFT_BRACKET = 14, RIGHT_BRACKET = 15, 
-    DOUBLE_EQUAL = 16, EQUALS = 17, RIGHT_ARROW = 18, ASSIGN = 19, PLUS = 20, 
-    MINUS = 21, MULTIPLY = 22, DIVIDE = 23, MODULUS = 24, GREATER_THAN = 25, 
-    GREATER_THAN_EQUAL = 26, LESS_THAN = 27, LESS_THAN_EQUAL = 28, SINGLE_LINE_COMMENT = 29, 
-    MULTILINE_COMMENT_IN_SINGLE_LINE = 30, MULTILINE_COMMENT = 31, APOSTROPHE = 32, 
-    WS = 33
+    INCLUDE = 1, WHEN = 2, BOOLEAN = 3, IDENTIFIER = 4, DOUBLE = 5, INTEGER = 6, 
+    STRING = 7, POINT = 8, COMMA = 9, NEWLINE = 10, LEFT_PARENTHESE = 11, 
+    RIGHT_PARENTHESE = 12, LEFT_BRACE = 13, RIGHT_BRACE = 14, LEFT_BRACKET = 15, 
+    RIGHT_BRACKET = 16, DOUBLE_EQUAL = 17, EQUALS = 18, RIGHT_ARROW = 19, 
+    ASSIGN = 20, PLUS = 21, MINUS = 22, MULTIPLY = 23, DIVIDE = 24, MODULUS = 25, 
+    HASH = 26, GREATER_THAN = 27, GREATER_THAN_EQUAL = 28, LESS_THAN = 29, 
+    LESS_THAN_EQUAL = 30, SINGLE_LINE_COMMENT = 31, MULTILINE_COMMENT_IN_SINGLE_LINE = 32, 
+    MULTILINE_COMMENT = 33, APOSTROPHE = 34, WS = 35
   };
 
   enum {
-    RuleProgram = 0, RuleExpression = 1, RuleParameterExpression = 2, RuleParameterExpressionItem = 3, 
-    RuleNumberExpression = 4, RuleStringExpression = 5, RuleVariableExpression = 6, 
-    RuleFunctionExpression = 7, RuleFunctionDeclarationExpression = 8, RuleFunctionImplementationExpression = 9, 
-    RuleFunctionConstraintExpression = 10, RuleBlockExpression = 11, RuleBooleanExpression = 12, 
-    RuleVarargsExpression = 13, RuleIdentifier = 14
+    RuleProgram = 0, RuleCommand = 1, RuleIncludeCommand = 2, RuleExpression = 3, 
+    RuleParameterExpression = 4, RuleParameterExpressionItem = 5, RuleNumberExpression = 6, 
+    RuleStringExpression = 7, RuleVariableExpression = 8, RuleFunctionExpression = 9, 
+    RuleFunctionDeclarationExpression = 10, RuleFunctionImplementationExpression = 11, 
+    RuleFunctionConstraintExpression = 12, RuleBlockExpression = 13, RuleBooleanExpression = 14, 
+    RuleVarargsExpression = 15, RuleIdentifier = 16
   };
 
   WorkScriptParser(antlr4::TokenStream *input);
@@ -41,6 +42,8 @@ public:
 
 
   class ProgramContext;
+  class CommandContext;
+  class IncludeCommandContext;
   class ExpressionContext;
   class ParameterExpressionContext;
   class ParameterExpressionItemContext;
@@ -63,6 +66,8 @@ public:
     antlr4::tree::TerminalNode *EOF();
     std::vector<antlr4::tree::TerminalNode *> NEWLINE();
     antlr4::tree::TerminalNode* NEWLINE(size_t i);
+    std::vector<CommandContext *> command();
+    CommandContext* command(size_t i);
     std::vector<ExpressionContext *> expression();
     ExpressionContext* expression(size_t i);
 
@@ -71,6 +76,32 @@ public:
   };
 
   ProgramContext* program();
+
+  class  CommandContext : public antlr4::ParserRuleContext {
+  public:
+    CommandContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    IncludeCommandContext *includeCommand();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  CommandContext* command();
+
+  class  IncludeCommandContext : public antlr4::ParserRuleContext {
+  public:
+    IncludeCommandContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *HASH();
+    antlr4::tree::TerminalNode *INCLUDE();
+    antlr4::tree::TerminalNode *STRING();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  IncludeCommandContext* includeCommand();
 
   class  ExpressionContext : public antlr4::ParserRuleContext {
   public:
@@ -458,6 +489,7 @@ public:
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *BOOLEAN();
     antlr4::tree::TerminalNode *WHEN();
+    antlr4::tree::TerminalNode *INCLUDE();
     antlr4::tree::TerminalNode *IDENTIFIER();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;

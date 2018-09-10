@@ -19,6 +19,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitCommand(WorkScriptParser::CommandContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitIncludeCommand(WorkScriptParser::IncludeCommandContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
