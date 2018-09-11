@@ -14,6 +14,7 @@
 #include "CallStack.h"
 #include "StackFrame.h"
 #include "MainProgram.h"
+#include "SyntaxErrorException.h"
 #include <boost/locale.hpp>
 #include <unordered_set>
 #include <stdio.h>
@@ -44,7 +45,13 @@ void WorkScriptEngine::run(const wchar_t * filePath)
 	while (filesToInclude.size() > 0) {
 		programs.push_back(new Program());
 		Program *curProgram = programs[programs.size() - 1];
-		this->compileFile(filesToInclude[0].c_str(), programs[programs.size() - 1], &compileContext);
+		try {
+			this->compileFile(filesToInclude[0].c_str(), programs[programs.size() - 1], &compileContext);
+		}
+		catch (const SyntaxErrorException &ex) {
+			printf("%s", ex.what());
+			return;
+		}
 		filesToInclude.erase(filesToInclude.begin());
 		//将本文件引用的其他文件加入待包含列表。如果已经包含过不要重复包含。
 		auto includeFiles = curProgram->getIncludeFiles();

@@ -88,9 +88,15 @@ antlrcpp::Any WorkScriptVisitorImpl::visitStringExpression(WorkScriptParser::Str
 	wstring wtext = boost::locale::conv::to_utf<wchar_t>(text, "UTF-8");
 
 	wchar_t *unescapedText = new wchar_t[wtext.length() + 1];
-	this->handleEscapeCharacters(wtext.c_str(), unescapedText, ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1);
+	try {
+		this->handleEscapeCharacters(wtext.c_str(), unescapedText, ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1);
+	}
+	catch(...){
+		delete[]unescapedText;
+		throw;
+	}
 	auto lpExpr = StringExpression::newInstance(unescapedText);
-	delete []unescapedText;
+	delete[]unescapedText;
 	return ExpressionWrapper(lpExpr);
 }
 
@@ -255,7 +261,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitProgram(WorkScriptParser::ProgramConte
 	auto exprs = ctx->expression();
 	for (auto &expr : exprs)
 	{
-		this->assignable = true; //每次新的一行都允许赋值
+		ALLOW_ASSIGN; //每次新的一行都允许赋值
 		auto ret = (ExpressionWrapper)expr->accept(this);
 		this->program->pushExpression(ret.getExpression());
 	}
@@ -448,47 +454,123 @@ WorkScriptVisitorImpl::~WorkScriptVisitorImpl()
 {
 }
 
-void WorkScriptVisitorImpl::handleEscapeCharacters(const wchar_t *srcStr,wchar_t *targetStr, size_t line, size_t column)const
+void WorkScriptVisitorImpl::handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, size_t line, size_t column)const
 {
+#define SINGLE_ESCAPE_CASE(escapedChar,unescapedChar) \
+		case escapedChar: \
+		targetStr[targetPos] = unescapedChar; \
+		++srcPos; \
+		++targetPos; \
+		state = NORMAL; \
+		break; 
+
+	//有限状态机解析转义符
 	enum State {
-		NORMAL,ESCAPE_START
+		NORMAL, FINISH, ESCAPE_START, ESCAPE_OCT, ESCAPE_HEX
 	};
+	size_t escapeStartPos = 0;
 	State state = NORMAL;
 	size_t srcPos = 0, targetPos = 0;
-	while (srcStr[srcPos] != L'\0')
+	while (state != FINISH)
 	{
 		switch (state)
 		{
-		case NORMAL:
-			if (srcStr[srcPos] != L'\\') {
+		case NORMAL:{
+			switch (srcStr[srcPos])
+			{
+			case L'\\':
+				state = ESCAPE_START;
+				++srcPos;
+				break;
+			case L'\0':
+				state = FINISH;
+				break;
+			default:
 				targetStr[targetPos] = srcStr[srcPos];
 				++srcPos;
 				++targetPos;
-			}
-			else {
-				state = ESCAPE_START;
-				++srcPos;
+				break;
 			}
 			break;
-		case ESCAPE_START:
+		}
+		case ESCAPE_START: {
 			switch (srcStr[srcPos])
 			{
-			case L'n':
-				targetStr[targetPos] = L'\n';
+				SINGLE_ESCAPE_CASE(L'n', L'\n');
+				SINGLE_ESCAPE_CASE(L't', L'\t');
+				SINGLE_ESCAPE_CASE(L'r', L'\r');
+				SINGLE_ESCAPE_CASE(L'0', L'\0');
+				SINGLE_ESCAPE_CASE(L'v', L'\v');
+				SINGLE_ESCAPE_CASE(L'a', L'\a');
+				SINGLE_ESCAPE_CASE(L'b', L'\b');
+				SINGLE_ESCAPE_CASE(L'f', L'\f');
+				SINGLE_ESCAPE_CASE(L'\'', L'\'');
+				SINGLE_ESCAPE_CASE(L'\"', L'\"');
+				SINGLE_ESCAPE_CASE(L'\\', L'\\');
+			case 'x':
+				state = ESCAPE_HEX;
+				escapeStartPos = srcPos;
 				++srcPos;
-				++targetPos;
-				state = NORMAL;
 				break;
-			case L't':
-				targetStr[targetPos] = L'\t';
+			case L'1':case L'2':case L'3':case L'4':case L'5':case L'6':case L'7':case L'8':case L'9':
+				state = ESCAPE_OCT;
+				escapeStartPos = srcPos;
 				++srcPos;
-				++targetPos;
-				state = NORMAL;
 				break;
+			case L'\0':
+				throw std::move(SyntaxErrorException(line, column, (L"转义符未结束：\"" + wstring(srcStr) + L"\"").c_str()));
 			default:
-				throw std::move(SyntaxErrorException(line,column,(wstring(L"不能识别的转义符：\\") + srcStr[srcPos]).c_str()));
+				throw std::move(SyntaxErrorException(line, column, (wstring(L"不能识别的转义符\"\\") + srcStr[srcPos] + L"\"").c_str()));
 			}
 			break;
+		}
+		case ESCAPE_OCT: {
+			switch (srcStr[srcPos])
+			{
+			case L'0': case L'1':case L'2':case L'3':case L'4':case L'5':case L'6':case L'7':case L'8':case L'9':
+				++srcPos;
+				break;
+			default:
+				size_t octLen = srcPos - escapeStartPos;
+				wchar_t *dstr = new wchar_t[octLen + 1];
+				for (int i = 0; i < octLen; i++) {
+					dstr[i] = srcStr[escapeStartPos + i];
+				}
+				dstr[octLen] = L'\0';
+				int octNum; //八进制数结果
+				swscanf(dstr, L"%o", &octNum);
+				delete[]dstr;
+				targetStr[targetPos] = (wchar_t)octNum;
+				++targetPos;
+				state = NORMAL;
+				break;
+			}
+		}
+		case ESCAPE_HEX: {
+			switch (srcStr[srcPos])
+			{
+			case L'0': case L'1':case L'2':case L'3':case L'4':case L'5':
+			case L'6':case L'7':case L'8':case L'9':case L'a':case L'b':
+			case L'c':case L'd':case L'e':case L'f':case L'A':case L'B':
+			case L'C':case L'D':case L'E':case L'F':
+				++srcPos;
+				break;
+			default:
+				size_t hexLen = srcPos - escapeStartPos - 1;
+				wchar_t *dstr = new wchar_t[hexLen + 1];
+				for (int i = 0; i < hexLen; i++) {
+					dstr[i] = srcStr[escapeStartPos + 1 + i];
+				}
+				dstr[hexLen] = L'\0';
+				int hexNum; //八进制数结果
+				swscanf(dstr, L"%x", &hexNum);
+				delete[]dstr;
+				targetStr[targetPos] = (wchar_t)hexNum;
+				++targetPos;
+				state = NORMAL;
+				break;
+			}
+		}
 		}
 	}
 	targetStr[targetPos] = L'\0';
