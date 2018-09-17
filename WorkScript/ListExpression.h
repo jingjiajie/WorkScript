@@ -16,7 +16,7 @@ public:
 
 	virtual const Pointer<TypeExpression> getType(Context *const& context) const;
 	virtual const Pointer<StringExpression> toString(Context *const& context);
-	virtual void compile(CompileContext *const& context) override;
+	virtual void link(LinkContext *const& context) override;
 
 	virtual const Pointer<Expression> evaluate(Context *const &context) override;
 	virtual bool equals(Context *const &context,const Pointer<Expression> &) const override;

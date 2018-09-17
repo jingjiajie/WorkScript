@@ -5,7 +5,7 @@ NumberExpression::~NumberExpression()
 {
 }
 
-void NumberExpression::compile(CompileContext * const & context)
+void NumberExpression::link(LinkContext * const & context)
 {
 	return;
 }

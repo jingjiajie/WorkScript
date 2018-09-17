@@ -8,15 +8,16 @@ class Expression;
 class StackFrame
 {
 public:
-	inline StackFrame(StackFrame *base, size_t maxLocalVariableCount = 0)
+	inline StackFrame(StackFrame *base, BLOCK_ID block, size_t localVariableCount = 0)
 	{
+		this->setBlockID(block);
 		this->setBaseStackFrame(base);
-		this->resetLocalVariableCount(maxLocalVariableCount);
+		this->resetLocalVariableCount(localVariableCount);
 	}
 
 	inline ~StackFrame()
 	{
-		if(this->localVariables) delete[]this->localVariables;
+		if (this->localVariables) delete[]this->localVariables;
 	}
 
 	inline const Pointer<Expression> getLocalVariable(const size_t &offset) const {
@@ -32,32 +33,14 @@ public:
 		this->localVariables[offset] = value;
 	}
 
-	inline void resetLocalVariableCount(const size_t &count)
+	StackFrame * const getBaseStackFrame(BLOCK_ID block)
 	{
-		if (this->maxLocalVariableCount >= count) {
-			this->maxLocalVariableCount = count;
-			for (size_t i = 0; i < this->maxLocalVariableCount; ++i) {
-				this->localVariables[i] = nullptr;
-			}
-		}
-		else {
-			if (this->localVariables) delete[]this->localVariables;
-			this->localVariables = new Pointer<Expression>[count];
-			this->maxLocalVariableCount = count;
-		}
-	}
-
-	StackFrame * const getBaseStackFrame(size_t depth)
-	{
-		if (depth > this->depth) {
-			throw WorkScriptException((std::wstring(L"内部错误：getBaseStackFrame只能获取父级栈帧。当前深度：") + std::to_wstring(this->depth) + L"目标深度：" + std::to_wstring(depth)).c_str());
-		}
 		auto target = this;
 		while (target) {
-			if (target->depth == depth)break;
+			if (target->block == block)return target;
 			else target = target->baseStackFrame;
 		}
-		return target;
+		throw std::move(WorkScriptException((std::wstring(L"内部错误：未找到栈帧：") + std::to_wstring(block)).c_str()));
 	}
 
 	inline StackFrame *getBaseStackFrame()const 
@@ -68,22 +51,30 @@ public:
 	inline void setBaseStackFrame(StackFrame *base)
 	{
 		this->baseStackFrame = base;
-		if (base)this->depth = base->depth + 1;
 	}
 
-	inline void increaseDepth()
-	{
-		++this->depth;
+	inline void setBlockID(BLOCK_ID block) {
+		this->block = block;
 	}
 
-	inline void decreaseDepth()
+	inline void resetLocalVariableCount(const size_t &count)
 	{
-		--this->depth;
+		if (this->localVariableCount >= count) {
+			this->localVariableCount = count;
+			for (size_t i = 0; i < this->localVariableCount; ++i) {
+				this->localVariables[i] = nullptr;
+			}
+		}
+		else {
+			if (this->localVariables) delete[]this->localVariables;
+			this->localVariables = new Pointer<Expression>[count];
+			this->localVariableCount = count;
+		}
 	}
 
 protected:
 	StackFrame *baseStackFrame;
-	size_t depth = 0;
+	BLOCK_ID block = 0;
 	Pointer<Expression> *localVariables = nullptr;
-	size_t maxLocalVariableCount = 0;
+	size_t localVariableCount = 0;
 };

@@ -24,7 +24,7 @@ public:
 	//virtual bool match(const Pointer<Expression> &matchExpression, Context *newContext) const override;
 	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
 	virtual const Pointer<StringExpression> toString(Context *const& context) override;
-	virtual void compile(CompileContext *const& context) override;
+	virtual void link(LinkContext *const& context) override;
 
 	inline virtual bool equals(Context *const &context, const Pointer<Expression> &target) const override
 	{

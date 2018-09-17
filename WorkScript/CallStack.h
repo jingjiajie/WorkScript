@@ -15,13 +15,13 @@ public:
 		delete[]this->frames;
 	}
 
-	inline StackFrame * newStackFrame(StackFrame *baseFrame, const size_t &localVariableCount)
+	inline StackFrame * newStackFrame(StackFrame *baseFrame, BLOCK_ID block, const size_t &localVariableCount)
 	{
 		if (this->frameCount >= this->MAX_CALL_STACK_DEPTH) {
 			//TODO StackOverflowException
 			throw L"Õ»Òç³ö";
 		}
-		auto newFrame = new StackFrame(baseFrame, localVariableCount);
+		auto newFrame = new StackFrame(baseFrame, block, localVariableCount);
 		this->frames[this->frameCount] = newFrame;
 		++this->frameCount;
 		return newFrame;

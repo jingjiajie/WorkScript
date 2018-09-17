@@ -32,10 +32,21 @@ public:
 	antlrcpp::Any visitPositiveExpression(WorkScriptParser::PositiveExpressionContext*)override;
 	antlrcpp::Any visitVarargsExpression(WorkScriptParser::VarargsExpressionContext*)override;
 	antlrcpp::Any visitParameterExpressionItem(WorkScriptParser::ParameterExpressionItemContext*)override;
-	WorkScriptVisitorImpl(Program*);
+	antlrcpp::Any visitAccessLevelExpression(WorkScriptParser::AccessLevelExpressionContext*)override;
+	WorkScriptVisitorImpl(Program* program,DOMAIN_ID domain);
 	virtual ~WorkScriptVisitorImpl();
 	void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, size_t line, size_t column)const;
+
+	DomainAccess getDomainAccess(size_t depth)const;
+	void setDomainAccess(size_t depth, DomainAccess level);
+
+	DOMAIN_ID getDomain() const;
+	void setDomain(DOMAIN_ID domain);
 private:
 	Program *program;
 	bool assignable = true;
+	bool declarable = false;
+	std::unordered_map<size_t,DomainAccess> domainAccesses;
+	DOMAIN_ID domain;
+	size_t curDepth = 0;
 };

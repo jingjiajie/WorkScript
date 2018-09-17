@@ -12,7 +12,7 @@ bool UnaryOperatorExpression::equals(Context * const & context, const Pointer<Ex
 	return this->subExpression->equals(context, ((Pointer<UnaryOperatorExpression>)target)->subExpression);
 }
 
-void UnaryOperatorExpression::compile(CompileContext * const & context)
+void UnaryOperatorExpression::link(LinkContext * const & context)
 {
-	this->subExpression->compile(context);
+	this->subExpression->link(context);
 }

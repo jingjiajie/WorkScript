@@ -25,6 +25,14 @@ Program::~Program()
 {
 }
 
+void Program::printProgram()const
+{
+	for (auto &expr : this->expressions) {
+		auto strExpr = expr->toString(nullptr);
+		wprintf(L"%s\n", strExpr->getValue());
+	}
+}
+
 void Program::execute(Context *context) //throws WorkScriptException
 {
 	for (auto &expr : this->expressions) {
@@ -33,10 +41,10 @@ void Program::execute(Context *context) //throws WorkScriptException
 	return;
 }
 
-void Program::compile(CompileContext *context)
+void Program::link(LinkContext *context)
 {
 	for (auto &expr : this->expressions) {
-		expr->compile(context);
+		expr->link(context);
 	}
 }
 

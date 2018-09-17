@@ -1,16 +1,15 @@
 grammar WorkScript;
 
-program: (NEWLINE | command NEWLINE?)* (
-		NEWLINE
-		| expression NEWLINE?
+program: (includeCommand NEWLINE? | NEWLINE)* (
+		expression NEWLINE?
+		| NEWLINE
 	)* EOF;
-
-command: includeCommand;
 
 includeCommand: HASH INCLUDE STRING;
 
 expression:
-	LEFT_PARENTHESE expression RIGHT_PARENTHESE											# ParentheseExpression
+	ACCESS_LEVEL COLON																	# AccessLevelExpression
+	| LEFT_PARENTHESE expression RIGHT_PARENTHESE										# ParentheseExpression
 	| expression LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE					# FunctionInvocationExpression
 	| LEFT_BRACKET (expression (COMMA expression)*)? RIGHT_BRACKET						# ListExpression
 	| expression POINT identifier LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE	#
@@ -73,8 +72,14 @@ booleanExpression: BOOLEAN;
 
 varargsExpression: APOSTROPHE variableExpression;
 
-identifier: BOOLEAN | WHEN | INCLUDE | IDENTIFIER;
+identifier:
+	BOOLEAN
+	| WHEN
+	| INCLUDE
+	| ACCESS_LEVEL
+	| IDENTIFIER;
 
+ACCESS_LEVEL: 'public' | 'private';
 INCLUDE: 'include';
 WHEN: 'when';
 BOOLEAN:
@@ -96,11 +101,6 @@ INTEGER: [0-9]+;
 STRING: '"' ~'"'* '"' | ['] ~[']* ['];
 POINT: '.';
 COMMA: ',';
-NEWLINE:
-	'\r\n'
-	| '\n'
-	| SINGLE_LINE_COMMENT
-	| MULTILINE_COMMENT;
 LEFT_PARENTHESE: '(';
 RIGHT_PARENTHESE: ')';
 LEFT_BRACE: '{';
@@ -111,6 +111,7 @@ DOUBLE_EQUAL: '==';
 EQUALS: '=';
 RIGHT_ARROW: '=>';
 ASSIGN: ':=';
+COLON: ':';
 PLUS: '+';
 MINUS: '-';
 MULTIPLY: '*';
@@ -121,9 +122,9 @@ GREATER_THAN: '>';
 GREATER_THAN_EQUAL: '>=';
 LESS_THAN: '<';
 LESS_THAN_EQUAL: '<=';
-SINGLE_LINE_COMMENT: '//' ~'\n'*;
-MULTILINE_COMMENT_IN_SINGLE_LINE: '/*' ~'\n'*? '*/' -> skip;
-MULTILINE_COMMENT: '/*' .*? '\n' .*? '*/';
+SINGLE_LINE_COMMENT: '//' ~'\n'* -> skip;
+MULTILINE_COMMENT: '/*' .*? '*/' -> skip;
 APOSTROPHE: '...';
+NEWLINE:'\n';
 
-WS: [ \t]+ -> skip;
+WS: [ \t\r]+ -> skip;

@@ -56,7 +56,7 @@
 //	return ss.str();
 //}
 //
-//void TypeMemberExpression::compile(CompileContext *const &context)
+//void TypeMemberExpression::link(LinkContext *const &context)
 //{
 //	return;
 //}

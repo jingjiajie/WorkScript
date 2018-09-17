@@ -3,8 +3,8 @@
 #include "TypeExpression.h"
 #include "StringExpression.h"
 #include "ExpressionPointerExpression.h"
-#include "VariableCompileInfo.h"
 #include "StackFrame.h"
+#include "LinkException.h"
 
 using namespace std;
 
@@ -15,7 +15,7 @@ VariableExpression::~VariableExpression()
 
 const Pointer<Expression> VariableExpression::evaluate(Context *const& context)
 {
-	StackFrame *targetFrame = context->getStackFrame()->getBaseStackFrame(this->targetDepth);
+	StackFrame *targetFrame = context->getStackFrame()->getBaseStackFrame(this->targetBlock);
 
 	if (context->getAssignLeft() == true)
 	{
@@ -73,12 +73,20 @@ const Pointer<StringExpression> VariableExpression::toString(Context *const& con
 	return StringExpression::newInstance(this->name);
 }
 
-void VariableExpression::compile(CompileContext *const& context)
+void VariableExpression::link(LinkContext *const& context)
 {
-	VariableCompileInfo info;
-	if (!context->getVariableInfo(this->name, &info)) {
-		context->addLocalVariable(this->name, &info);
+	SymbolTable *symbolTable = context->getSymbolTable();
+	if (context->getLinkTask() == LinkTask::SYMBOL_COLLECTING)
+	{
+		this->targetBlock = context->getBlock();
+		//必须有可声明属性，才创建符号。
+		if (this->declarable) {
+			symbolTable->setSymbolInfo(this->targetBlock, this->domain, this->domainAccess, this->name);
+		}
 	}
-	this->targetDepth = info.depth;
-	this->offset = info.offset;
+	else {
+		if (!symbolTable->getSymbolOffset(this->targetBlock, domain, this->name, &this->targetBlock, &this->offset)) {
+			throw std::move(LinkException((wstring(L"找不到符号：") + this->name).c_str()));
+		}
+	}
 }

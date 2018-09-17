@@ -37,10 +37,10 @@ const Pointer<StringExpression> ListExpression::toString(Context *const& context
 	return result;
 }
 
-void ListExpression::compile(CompileContext *const &context)
+void ListExpression::link(LinkContext *const &context)
 {
 	for (size_t i = 0; i < count; ++i) {
-		this->items[i]->compile(context);
+		this->items[i]->link(context);
 	}
 }
 

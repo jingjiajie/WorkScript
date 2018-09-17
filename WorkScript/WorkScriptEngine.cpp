@@ -15,6 +15,7 @@
 #include "StackFrame.h"
 #include "MainProgram.h"
 #include "SyntaxErrorException.h"
+#include "LinkException.h"
 #include <boost/locale.hpp>
 #include <unordered_set>
 #include <stdio.h>
@@ -37,21 +38,15 @@ void WorkScriptEngine::run(const wchar_t * filePath)
 	filesToInclude.push_back(filePath);
 	unordered_set<wstring> includedFiles;
 	includedFiles.insert(filePath);
-	CompileContext compileContext;
 
-	MainProgram systemProgram;
-	systemProgram.compile(&compileContext);
+	DOMAIN_ID curDomain = 1;
+
 	vector<Program*> programs;
 	while (filesToInclude.size() > 0) {
 		programs.push_back(new Program());
 		Program *curProgram = programs[programs.size() - 1];
-		try {
-			this->compileFile(filesToInclude[0].c_str(), programs[programs.size() - 1], &compileContext);
-		}
-		catch (const SyntaxErrorException &ex) {
-			printf("%s", ex.what());
-			return;
-		}
+		//编译文件为Program对象
+		this->parseFile(filesToInclude[0].c_str(), curProgram, curDomain);
 		filesToInclude.erase(filesToInclude.begin());
 		//将本文件引用的其他文件加入待包含列表。如果已经包含过不要重复包含。
 		auto includeFiles = curProgram->getIncludeFiles();
@@ -61,31 +56,61 @@ void WorkScriptEngine::run(const wchar_t * filePath)
 				filesToInclude.push_back(file);
 			}
 		}
+		++curDomain;
+	}
+	programs.push_back(new MainProgram);
+
+	//将所有Program对象链接到一个Program对象中
+	Program combinedProgram;
+	for (auto it = programs.rbegin(); it != programs.rend(); ++it)
+	{
+		Program *curProgram = *it;
+		this->combineProgram(&combinedProgram, curProgram);
+		delete curProgram;
 	}
 
-	//先运行各个子模块，最后运行main.ws
+	/*=====开始链接=====*/
+	SymbolTable symbolTable;
+	BLOCK_ID topBlockID = symbolTable.newBlock();
+
+	try {
+		//符号收集
+		LinkContext linkContext(&symbolTable, topBlockID, LinkTask::SYMBOL_COLLECTING);
+		combinedProgram.link(&linkContext);
+		//符号绑定
+		linkContext.setLinkTask(LinkTask::SYMBOL_BINDING);
+		combinedProgram.link(&linkContext);
+
+	}
+	catch (const LinkException &ex) {
+		//cout << "符号表信息：" << endl;
+		//symbolTable.print();
+		//cout << endl << endl;
+		cout << ex.what() << endl;
+		return;
+	}
+
+	//cout << "符号表信息：" << endl;
+	//symbolTable.print();
+	//cout << endl << endl;
+	//cout << "运行结果：" << endl;
+
 	CallStack stack;
 	try {
-		StackFrame *frame = stack.newStackFrame(nullptr, compileContext.getLocalVariableCount());
+		StackFrame *frame = stack.newStackFrame(nullptr,topBlockID, symbolTable.getTotalSymbolCount(topBlockID));
 		Context context(&stack, frame);
-		systemProgram.execute(&context);
-		for (int i = (int)programs.size()-1; i >= 0; --i) {
-			programs[i]->execute(&context);
-		}
+		combinedProgram.execute(&context);
 		stack.popStackFrame();
 	}
 	catch (const WorkScriptException &ex)
 	{
 		stack.clearStackFrame(); //接到异常清空调用栈
 		cout << ex.what() << endl;
-	}
-	//释放Programs
-	for (Program *program : programs) {
-		delete program;
+		return;
 	}
 }
 
-void WorkScriptEngine::compileFile(const wchar_t * fileName, Program * outProgram, CompileContext *outCompileContext) //throws SyntaxErrorException
+void WorkScriptEngine::parseFile(const wchar_t * fileName, Program * outProgram,size_t currentDomain) //throws SyntaxErrorException
 {
 	FILE *file = fopen(boost::locale::conv::from_utf(fileName, LOCAL_BOOST_ENCODING).c_str(), "r");
 	if (file == nullptr) {
@@ -121,10 +146,15 @@ void WorkScriptEngine::compileFile(const wchar_t * fileName, Program * outProgra
 		tree::ParseTree *tree = parser.program();
 
 		//遍历语法树，生成Program
-		WorkScriptVisitorImpl visitor(outProgram);
+		WorkScriptVisitorImpl visitor(outProgram,currentDomain);
 		visitor.visit(tree);
+	}
+}
 
-		//编译Program
-		outProgram->compile(outCompileContext);
+void WorkScriptEngine::combineProgram(Program * destnation, Program * source)
+{
+	auto exprs = source->getExpressions();
+	for (size_t i = 0; i < exprs.size(); ++i) {
+		destnation->pushExpression(exprs[i]);
 	}
 }

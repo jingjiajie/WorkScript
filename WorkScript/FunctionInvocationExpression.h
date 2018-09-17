@@ -23,7 +23,7 @@ public:
 	const Pointer<ParameterExpression> getEvaluatedParameters(Context *const context);
 	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
 	virtual const Pointer<StringExpression> toString(Context *const& context) override;
-	virtual void compile(CompileContext *const& context) override;
+	virtual void link(LinkContext *const& context) override;
 
 	inline const Pointer<Expression> getLeftExpression() const
 	{

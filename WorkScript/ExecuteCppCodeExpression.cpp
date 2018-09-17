@@ -37,7 +37,7 @@ const Pointer<StringExpression> ExecuteCppCodeExpression::toString(Context *cons
 	return str;
 }
 
-void ExecuteCppCodeExpression::compile(CompileContext *const &context)
+void ExecuteCppCodeExpression::link(LinkContext *const &context)
 {
 	return;
 }

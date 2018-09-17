@@ -1,15 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Parser">
-      <UniqueIdentifier>{a1260af9-bb26-4725-a207-e8b5bdc96136}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Parser\Headers">
-      <UniqueIdentifier>{c9b6ab29-c0c0-43a8-b030-c083b16edff9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Parser\Sources">
-      <UniqueIdentifier>{810d3da8-5f19-46fb-8416-c5e033f840e0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Runtime">
       <UniqueIdentifier>{290aa4fa-2316-4e89-8a37-a8d8bf1d7ad8}</UniqueIdentifier>
     </Filter>
@@ -121,23 +112,8 @@
     <Filter Include="Util\Pointer\Sources">
       <UniqueIdentifier>{9a0f100e-c00e-4468-a9b9-2ea9c06cd1dd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Util\ExpressionWrappers">
-      <UniqueIdentifier>{27443959-80b3-445b-9c43-0f4591e5f6a7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Compile">
-      <UniqueIdentifier>{bf27c7e7-762b-4881-82a7-622ee416dd5a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Compile\Headers">
-      <UniqueIdentifier>{07d67727-777c-4dd0-a7bc-988cedf75583}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Compile\Sources">
-      <UniqueIdentifier>{007bd1a2-ba57-4d00-96ac-bee77659d771}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Util\ObjectPool">
       <UniqueIdentifier>{d886f221-de0a-403a-b664-8efd115c5354}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Parser\Generated">
-      <UniqueIdentifier>{af6842cb-e3bd-4c02-b3b2-3624069e10f1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Program">
       <UniqueIdentifier>{ff5a9918-380a-4167-8fcc-ddf9e3572147}</UniqueIdentifier>
@@ -157,6 +133,30 @@
     <Filter Include="Engine\Sources">
       <UniqueIdentifier>{905f2b80-33a8-4bfc-b55c-d423dbfe4fdc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Link">
+      <UniqueIdentifier>{bf27c7e7-762b-4881-82a7-622ee416dd5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Link\Headers">
+      <UniqueIdentifier>{07d67727-777c-4dd0-a7bc-988cedf75583}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Link\Sources">
+      <UniqueIdentifier>{007bd1a2-ba57-4d00-96ac-bee77659d771}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Compile">
+      <UniqueIdentifier>{a1260af9-bb26-4725-a207-e8b5bdc96136}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Compile\Headers">
+      <UniqueIdentifier>{c9b6ab29-c0c0-43a8-b030-c083b16edff9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Compile\Sources">
+      <UniqueIdentifier>{810d3da8-5f19-46fb-8416-c5e033f840e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Compile\Generated">
+      <UniqueIdentifier>{af6842cb-e3bd-4c02-b3b2-3624069e10f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Compile\ExpressionWrappers">
+      <UniqueIdentifier>{27443959-80b3-445b-9c43-0f4591e5f6a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Context.h">
@@ -172,19 +172,19 @@
       <Filter>Runtime\Exceptions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Generated\WorkScriptBaseVisitor.h">
-      <Filter>Parser\Generated</Filter>
+      <Filter>Compile\Generated</Filter>
     </ClInclude>
     <ClInclude Include="Generated\WorkScriptLexer.h">
-      <Filter>Parser\Generated</Filter>
+      <Filter>Compile\Generated</Filter>
     </ClInclude>
     <ClInclude Include="Generated\WorkScriptParser.h">
-      <Filter>Parser\Generated</Filter>
+      <Filter>Compile\Generated</Filter>
     </ClInclude>
     <ClInclude Include="Generated\WorkScriptVisitor.h">
-      <Filter>Parser\Generated</Filter>
+      <Filter>Compile\Generated</Filter>
     </ClInclude>
     <ClInclude Include="WorkScriptVisitorImpl.h">
-      <Filter>Parser\Headers</Filter>
+      <Filter>Compile\Headers</Filter>
     </ClInclude>
     <ClInclude Include="AccessDeniedException.h">
       <Filter>Runtime\Exceptions\Headers</Filter>
@@ -198,14 +198,11 @@
     <ClInclude Include="UninvocableException.h">
       <Filter>Runtime\Exceptions\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="CompileContext.h">
-      <Filter>Compile\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="UnassignableExpection.h">
       <Filter>Runtime\Exceptions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="ExpressionWrapper.h">
-      <Filter>Util\ExpressionWrappers</Filter>
+      <Filter>Compile\ExpressionWrappers</Filter>
     </ClInclude>
     <ClInclude Include="IllegalValueException.h">
       <Filter>Runtime\Exceptions\Headers</Filter>
@@ -298,10 +295,10 @@
       <Filter>Runtime\Expressions\PointerExpressions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="SyntaxErrorListener.h">
-      <Filter>Parser\Headers</Filter>
+      <Filter>Compile\Headers</Filter>
     </ClInclude>
     <ClInclude Include="SyntaxErrorStrategy.h">
-      <Filter>Parser\Headers</Filter>
+      <Filter>Compile\Headers</Filter>
     </ClInclude>
     <ClInclude Include="DoubleExpression.h">
       <Filter>Runtime\Expressions\ValueExpressions\Headers</Filter>
@@ -339,9 +336,6 @@
     <ClInclude Include="EnablePointer.h">
       <Filter>Util\Pointer\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="VariableCompileInfo.h">
-      <Filter>Compile\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="CallStack.h">
       <Filter>Runtime\CallStack</Filter>
     </ClInclude>
@@ -363,6 +357,18 @@
     <ClInclude Include="WorkScriptEngine.h">
       <Filter>Engine\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="LinkContext.h">
+      <Filter>Link\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="CompileDomain.h">
+      <Filter>Compile\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SymbolTable.h">
+      <Filter>Link\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="LinkException.h">
+      <Filter>Runtime\Exceptions\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expression.cpp">
@@ -376,16 +382,16 @@
       <Filter>Runtime\Exceptions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="Generated\WorkScriptBaseVisitor.cpp">
-      <Filter>Parser\Generated</Filter>
+      <Filter>Compile\Generated</Filter>
     </ClCompile>
     <ClCompile Include="Generated\WorkScriptLexer.cpp">
-      <Filter>Parser\Generated</Filter>
+      <Filter>Compile\Generated</Filter>
     </ClCompile>
     <ClCompile Include="Generated\WorkScriptParser.cpp">
-      <Filter>Parser\Generated</Filter>
+      <Filter>Compile\Generated</Filter>
     </ClCompile>
     <ClCompile Include="Generated\WorkScriptVisitor.cpp">
-      <Filter>Parser\Generated</Filter>
+      <Filter>Compile\Generated</Filter>
     </ClCompile>
     <ClCompile Include="AccessDeniedException.cpp">
       <Filter>Runtime\Exceptions\Sources</Filter>
@@ -399,11 +405,8 @@
     <ClCompile Include="UninvocableException.cpp">
       <Filter>Runtime\Exceptions\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="CompileContext.cpp">
-      <Filter>Compile\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="WorkScriptVisitorImpl.cpp">
-      <Filter>Parser\Sources</Filter>
+      <Filter>Compile\Sources</Filter>
     </ClCompile>
     <ClCompile Include="UnassignableExpection.cpp">
       <Filter>Runtime\Exceptions\Sources</Filter>
@@ -493,7 +496,7 @@
       <Filter>Runtime\Expressions\FunctionExpressions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="ExpressionWrapper.cpp">
-      <Filter>Util\ExpressionWrappers</Filter>
+      <Filter>Compile\ExpressionWrappers</Filter>
     </ClCompile>
     <ClCompile Include="VariableExpression.cpp">
       <Filter>Runtime\Expressions\VariableExpressions\Sources</Filter>
@@ -505,10 +508,10 @@
       <Filter>Runtime\Expressions\PointerExpressions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="SyntaxErrorListener.cpp">
-      <Filter>Parser\Sources</Filter>
+      <Filter>Compile\Sources</Filter>
     </ClCompile>
     <ClCompile Include="SyntaxErrorStrategy.cpp">
-      <Filter>Parser\Sources</Filter>
+      <Filter>Compile\Sources</Filter>
     </ClCompile>
     <ClCompile Include="DoubleExpression.cpp">
       <Filter>Runtime\Expressions\ValueExpressions\Sources</Filter>
@@ -542,6 +545,12 @@
     </ClCompile>
     <ClCompile Include="WorkScriptEngine.cpp">
       <Filter>Engine\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="LinkContext.cpp">
+      <Filter>Link\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="SymbolTable.cpp">
+      <Filter>Link\Sources</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

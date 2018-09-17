@@ -326,7 +326,8 @@
     <ClInclude Include="BytePointerExpression.h" />
     <ClInclude Include="BinaryCompareExpression.h" />
     <ClInclude Include="CallStack.h" />
-    <ClInclude Include="CompileContext.h" />
+    <ClInclude Include="LinkContext.h" />
+    <ClInclude Include="CompileDomain.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="DivideExpression.h" />
     <ClInclude Include="DoublePointerExpression.h" />
@@ -343,6 +344,7 @@
     <ClInclude Include="IntegerPointerExpression.h" />
     <ClInclude Include="LessThanEqualExpression.h" />
     <ClInclude Include="LessThanExpression.h" />
+    <ClInclude Include="LinkException.h" />
     <ClInclude Include="ListExpression.h" />
     <ClInclude Include="Generated\WorkScriptBaseVisitor.h" />
     <ClInclude Include="Generated\WorkScriptLexer.h" />
@@ -369,6 +371,7 @@
     <ClInclude Include="Program.h" />
     <ClInclude Include="StackFrame.h" />
     <ClInclude Include="StringExpression.h" />
+    <ClInclude Include="SymbolTable.h" />
     <ClInclude Include="SyntaxErrorException.h" />
     <ClInclude Include="SyntaxErrorListener.h" />
     <ClInclude Include="SyntaxErrorStrategy.h" />
@@ -381,7 +384,6 @@
     <ClInclude Include="UnimplementedException.h" />
     <ClInclude Include="UninvocableException.h" />
     <ClInclude Include="VariableExpression.h" />
-    <ClInclude Include="VariableCompileInfo.h" />
     <ClInclude Include="WorkScriptEngine.h" />
     <ClInclude Include="WorkScriptException.h" />
     <ClInclude Include="WorkScriptVisitorImpl.h" />
@@ -395,7 +397,7 @@
     <ClCompile Include="ByteExpression.cpp" />
     <ClCompile Include="BytePointerExpression.cpp" />
     <ClCompile Include="CompareExpression.cpp" />
-    <ClCompile Include="CompileContext.cpp" />
+    <ClCompile Include="LinkContext.cpp" />
     <ClCompile Include="DivideExpression.cpp" />
     <ClCompile Include="DoublePointerExpression.cpp" />
     <ClCompile Include="DuplicateDeclarationException.cpp" />
@@ -430,6 +432,7 @@
     <ClCompile Include="PointerExpression.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="StringExpression.cpp" />
+    <ClCompile Include="SymbolTable.cpp" />
     <ClCompile Include="SyntaxErrorException.cpp" />
     <ClCompile Include="SyntaxErrorListener.cpp" />
     <ClCompile Include="SyntaxErrorStrategy.cpp" />

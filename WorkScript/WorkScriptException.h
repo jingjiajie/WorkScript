@@ -6,6 +6,10 @@
 
 #include "Defines.h"
 
+#define WORKSCRIPT_EXCEPTION_CONSTRUCTORS(className) \
+	inline className(className &&tmp) :WorkScriptException(std::forward<className>(tmp)) {} \
+	inline className(const wchar_t *const message) : WorkScriptException(message) {} 
+
 class WorkScriptException : public std::exception
 {
 public:

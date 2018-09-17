@@ -17,7 +17,7 @@ public:
 	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
 	virtual bool equals(Context *const &context, const Pointer<Expression> & targetExpression) const;
 	virtual const Pointer<StringExpression> toString(Context *const& context) override;
-	virtual void compile(CompileContext *const& context) override;
+	virtual void link(LinkContext *const& context) override;
 
 protected:
 	std::function<const Pointer<Expression>(Context*)> evaluateFunction;

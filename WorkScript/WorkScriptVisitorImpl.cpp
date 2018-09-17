@@ -132,30 +132,47 @@ antlrcpp::Any WorkScriptVisitorImpl::visitBooleanExpression(WorkScriptParser::Bo
 antlrcpp::Any WorkScriptVisitorImpl::visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx)
 {
 	string varName = ctx->identifier()->getText();
-	auto wrapper = ExpressionWrapper(new VariableExpression(boost::locale::conv::to_utf<wchar_t>(varName,"UTF-8").c_str()));
+	auto expr = new VariableExpression(boost::locale::conv::to_utf<wchar_t>(varName, "UTF-8").c_str());
+	expr->setDomain(this->domain);
+	expr->setDomainAccess(this->getDomainAccess(this->curDepth));
+	expr->setDeclarable(this->declarable); //等号左边的变量才可以创建声明
+	auto wrapper = ExpressionWrapper(expr);
 	return wrapper;
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *ctx)
 {
-	STORE_FORBID_ASSIGN
-	ALLOW_ASSIGN
+	STORE_FORBID_ASSIGN;
+	ALLOW_ASSIGN;
+	/*====深入下一层====*/
+	++this->curDepth;
 	//函数的实现
 	Pointer<Expression>*impls;
 	size_t implCount;
 	if (ctx->functionImplementationExpression()->expression() != nullptr) {
-		implCount = 1;
-		impls = new Pointer<Expression>[1];
-		auto tmp = (ExpressionWrapper)ctx->functionImplementationExpression()->expression()->accept(this);
-		impls[0] = (tmp).getExpression();
+		auto expr = (ExpressionWrapper)ctx->functionImplementationExpression()->expression()->accept(this);
+		if (expr.getLifeCycle() == ExpressionLifeCycle::ALL) {
+			implCount = 1;
+			impls = new Pointer<Expression>[1];
+			impls[0] = (expr).getExpression();
+		}
+		else {
+			implCount = 0;
+			impls = nullptr;
+		}
 	}
 	else {
 		auto exprs = ctx->functionImplementationExpression()->blockExpression()->expression();
-		implCount = exprs.size();
-		impls = new Pointer<Expression>[implCount];
-		for (size_t i = 0; i < implCount; ++i)
+		size_t maxImplCount = exprs.size();
+		impls = new Pointer<Expression>[maxImplCount];
+		implCount = 0;
+		for (size_t i = 0; i < maxImplCount; ++i)
 		{
-			impls[i] = ((ExpressionWrapper)exprs[i]->accept(this)).getExpression();
+			auto wrapper = (ExpressionWrapper)exprs[i]->accept(this);
+			if (wrapper.getLifeCycle() == ExpressionLifeCycle::ALL) {
+				impls[implCount] = wrapper.getExpression();
+				++implCount;
+			}
 		}
 	}
 	FORBID_ASSIGN
@@ -194,7 +211,10 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 			wstring tmpVarName = L"_" + to_wstring(i);
 			paramInfos[i].setParameterName(tmpVarName.c_str());
 			const Pointer<EqualsExpression>constraint = new EqualsExpression();
-			constraint->setLeftExpression(new VariableExpression(tmpVarName.c_str()));
+			Pointer<VariableExpression> paramVar = new VariableExpression(tmpVarName.c_str());
+			paramVar->setDomain(this->domain);
+			paramVar->setDomainAccess(DomainAccess::PUBLIC);
+			constraint->setLeftExpression(paramVar);
 			constraint->setRightExpression(paramExpr->getItem(i));
 			vecConstraints.push_back(constraint);
 		}
@@ -211,6 +231,9 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 			}
 		}
 	}
+
+	/*====恢复上一层====*/
+	--this->curDepth;
 
 	Pointer<FunctionExpression> funcExpr = new FunctionExpression();
 	auto funcNameCtx = ctx->functionDeclarationExpression()->identifier();
@@ -233,7 +256,11 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	overload->setImplements(impls, implCount);
 	funcExpr->addOverload(overload);
 
-	RESTORE_ASSIGNABLE
+	RESTORE_ASSIGNABLE;
+	funcExpr->setDomain(this->domain);
+	auto funcName = funcExpr->getName();
+	auto access = this->getDomainAccess(this->curDepth);
+	funcExpr->setDomainAccess(this->getDomainAccess(this->curDepth));
 	return ExpressionWrapper(funcExpr);
 }
 
@@ -253,8 +280,8 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionInvocationExpression(WorkScrip
 
 antlrcpp::Any WorkScriptVisitorImpl::visitProgram(WorkScriptParser::ProgramContext *ctx)
 {
-	auto commands = ctx->command();
-	for (auto &command : commands) {
+	auto includeCommands = ctx->includeCommand();
+	for (auto &command : includeCommands) {
 		command->accept(this);
 	}
 
@@ -262,22 +289,30 @@ antlrcpp::Any WorkScriptVisitorImpl::visitProgram(WorkScriptParser::ProgramConte
 	for (auto &expr : exprs)
 	{
 		ALLOW_ASSIGN; //每次新的一行都允许赋值
-		auto ret = (ExpressionWrapper)expr->accept(this);
-		this->program->pushExpression(ret.getExpression());
+		ExpressionWrapper ret = expr->accept(this);
+		if (ret.getLifeCycle() == ExpressionLifeCycle::ALL) {
+			this->program->pushExpression(ret.getExpression());
+		}
 	}
 	return nullptr;
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitAssignmentOrEqualsExpression(WorkScriptParser::AssignmentOrEqualsExpressionContext *ctx)
 {
-	STORE_FORBID_ASSIGN
-	auto left = ((ExpressionWrapper)ctx->expression()[0]->accept(this)).getExpression();
-	auto right = ((ExpressionWrapper)ctx->expression()[1]->accept(this)).getExpression();
-	RESTORE_ASSIGNABLE
 	if (this->assignable) {
+		STORE_FORBID_ASSIGN;
+		this->declarable = true;
+		auto left = ((ExpressionWrapper)ctx->expression()[0]->accept(this)).getExpression();
+		this->declarable = false;
+		auto right = ((ExpressionWrapper)ctx->expression()[1]->accept(this)).getExpression();
+		RESTORE_ASSIGNABLE;
 		return ExpressionWrapper(new AssignmentExpression(left, right));
 	}
 	else {
+		STORE_FORBID_ASSIGN;
+		auto left = ((ExpressionWrapper)ctx->expression()[0]->accept(this)).getExpression();
+		auto right = ((ExpressionWrapper)ctx->expression()[1]->accept(this)).getExpression();
+		RESTORE_ASSIGNABLE;
 		return ExpressionWrapper(new EqualsExpression(left, right));
 	}
 }
@@ -445,9 +480,24 @@ antlrcpp::Any WorkScriptVisitorImpl::visitParameterExpressionItem(WorkScriptPars
 	}
 }
 
-WorkScriptVisitorImpl::WorkScriptVisitorImpl(Program *lpProgram)
+antlrcpp::Any WorkScriptVisitorImpl::visitAccessLevelExpression(WorkScriptParser::AccessLevelExpressionContext *ctx)
+{
+	string level = ctx->ACCESS_LEVEL()->getText();
+	if (level == "public") {
+		this->setDomainAccess(this->curDepth, DomainAccess::PUBLIC);
+	}
+	else if (level == "private") {
+		this->setDomainAccess(this->curDepth, DomainAccess::PRIVATE);
+	}
+	ExpressionWrapper ret;
+	ret.setLifeCycle(ExpressionLifeCycle::COMPILE);
+	return ret;
+}
+
+WorkScriptVisitorImpl::WorkScriptVisitorImpl(Program *lpProgram, DOMAIN_ID domain)
 {
 	this->program = lpProgram;
+	this->setDomain(domain);
 }
 
 WorkScriptVisitorImpl::~WorkScriptVisitorImpl()
@@ -562,7 +612,7 @@ void WorkScriptVisitorImpl::handleEscapeCharacters(const wchar_t *srcStr, wchar_
 					dstr[i] = srcStr[escapeStartPos + 1 + i];
 				}
 				dstr[hexLen] = L'\0';
-				int hexNum; //八进制数结果
+				int hexNum; //十六进制数结果
 				swscanf(dstr, L"%x", &hexNum);
 				delete[]dstr;
 				targetStr[targetPos] = (wchar_t)hexNum;
@@ -574,4 +624,26 @@ void WorkScriptVisitorImpl::handleEscapeCharacters(const wchar_t *srcStr, wchar_
 		}
 	}
 	targetStr[targetPos] = L'\0';
+}
+
+DomainAccess WorkScriptVisitorImpl::getDomainAccess(size_t depth) const
+{
+	auto it = this->domainAccesses.find(depth);
+	if (it == this->domainAccesses.end())return DomainAccess::PUBLIC;
+	else return it->second;
+}
+
+void WorkScriptVisitorImpl::setDomainAccess(size_t depth, DomainAccess level)
+{
+	this->domainAccesses[depth] = level;
+}
+
+DOMAIN_ID WorkScriptVisitorImpl::getDomain() const
+{
+	return this->domain;
+}
+
+void WorkScriptVisitorImpl::setDomain(DOMAIN_ID domain)
+{
+	this->domain = domain;
 }

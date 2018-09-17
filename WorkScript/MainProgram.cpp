@@ -33,6 +33,8 @@ void MainProgram::initConstants()
 void MainProgram::initPrintExpression()
 {
 	Pointer<FunctionExpression> printFunc = new FunctionExpression();
+	printFunc->setDomain(0);
+	printFunc->setDomainAccess(DomainAccess::PUBLIC);
 	printFunc->setName(L"print");
 	auto overload = new Overload;
 	ParameterInfo *paramInfos = new ParameterInfo[1];

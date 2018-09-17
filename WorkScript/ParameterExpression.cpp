@@ -34,10 +34,10 @@ const Pointer<StringExpression> ParameterExpression::toString(Context * const & 
 	return result;
 }
 
-void ParameterExpression::compile(CompileContext * const & context)
+void ParameterExpression::link(LinkContext * const & context)
 {
 	for (size_t i = 0; i < count; ++i) {
-		this->items[i]->compile(context);
+		this->items[i]->link(context);
 	}
 }
 

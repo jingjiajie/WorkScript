@@ -117,7 +117,7 @@ const Pointer<StringExpression> TypeExpression::toString(Context *const& context
 	return StringExpression::newInstance(this->name);
 }
 
-void TypeExpression::compile(CompileContext *const &context)
+void TypeExpression::link(LinkContext *const &context)
 {
 	return;
 }

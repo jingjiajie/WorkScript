@@ -13,7 +13,7 @@ public:
 	}
 	virtual ~NumberExpression();
 
-	virtual void compile(CompileContext *const& context) override;
+	virtual void link(LinkContext *const& context) override;
 
 	virtual bool equals(Context *const &context, const Pointer<Expression> & targetExpression) const override;
 	virtual const Pointer<BooleanExpression> equals(const Pointer<Expression> & targetExpression) const = 0;

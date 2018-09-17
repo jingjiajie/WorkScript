@@ -14,6 +14,6 @@ public:
 	virtual void setTargetValue(const Pointer<Expression> &ptr) = 0;
 
 	virtual const Pointer<Expression> evaluate(Context *const& context)override;
-	virtual void compile(CompileContext *const& context)override;
+	virtual void link(LinkContext *const& context)override;
 };
 

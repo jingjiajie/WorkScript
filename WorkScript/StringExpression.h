@@ -65,7 +65,7 @@ public:
 		return this->evaluate(context);
 	}
 
-	inline virtual void compile(CompileContext *const& context) override 
+	inline virtual void link(LinkContext *const& context) override 
 	{
 		return;
 	}

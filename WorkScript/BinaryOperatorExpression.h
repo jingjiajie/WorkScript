@@ -21,7 +21,7 @@ public:
 	virtual ~BinaryOperatorExpression();
 
 	virtual bool equals(Context *const &context, const Pointer<Expression> &) const override;
-	virtual void compile(CompileContext *const& context) override;
+	virtual void link(LinkContext *const& context) override;
 
 	inline const Pointer<Expression> getLeftExpression() const
 	{

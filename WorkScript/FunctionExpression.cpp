@@ -33,11 +33,11 @@ const Pointer<Expression> FunctionExpression::evaluate(Context *const &context)
 {
 	this->declareStackFrame = context->getStackFrame();
 	this->declareStack = context->getCallStack();
-	StackFrame *targetFrame = this->declareStackFrame->getBaseStackFrame(this->functionVariableInfo.depth);
+	StackFrame *targetFrame = this->declareStackFrame->getBaseStackFrame(this->targetBlock);
 	if (this->name != nullptr) {
-		auto varExpr = targetFrame->getLocalVariable(this->functionVariableInfo.offset);
+		auto varExpr = targetFrame->getLocalVariable(this->offset);
 		if (varExpr == nullptr) { //如果本层变量没有搜索到，搜索是否存在父级的函数声明。无论是否存在父级，都不进行合并
-			targetFrame->setLocalVariable(this->functionVariableInfo.offset, (const Pointer<Expression>&)this);
+			targetFrame->setLocalVariable(this->offset, (const Pointer<Expression>&)this);
 			return this;
 		}
 		else { //如果本层找到了同名函数，则合并重载
@@ -64,7 +64,7 @@ bool FunctionExpression::equals(Context *const &context, const Pointer<Expressio
 
 const Pointer<StringExpression> FunctionExpression::toString(Context *const &context)
 {
-	return StringExpression::newInstance(L"FunctionDeclaration");
+	return StringExpression::newInstance((wstring(L"FunctionDeclaration(") + this->name + L")").c_str());
 	//stringstream ss;
 	//ss << this->functionName;
 	//for (size_t i = 0; i < this->parameters.size(); ++i) {
@@ -76,19 +76,32 @@ const Pointer<StringExpression> FunctionExpression::toString(Context *const &con
 	//return ss.str();
 }
 
-void FunctionExpression::compile(CompileContext *const &context)
+void FunctionExpression::link(LinkContext *const &context)
 {
-	if (this->name != nullptr) {
-		//函数名编译在当前作用域中
-		if (!context->getLocalVariableInfo(this->name, &this->functionVariableInfo)) {
-			context->addLocalVariable(this->name, &this->functionVariableInfo);
+	auto symbolTable = context->getSymbolTable();
+	if (context->getLinkTask() == LinkTask::SYMBOL_COLLECTING) {
+		this->targetBlock = context->getBlock();
+		if (this->name != nullptr) {
+			symbolTable->setSymbolInfo(this->targetBlock, this->domain, this->domainAccess, this->name, true);
 		}
-		this->hasBaseFunction = context->getBaseVariableInfo(this->name, &this->baseFunctionVariableInfo);
+		//重载（参数，约束，实现）编译在子作用域中
+		for (auto &overload : *this->overloads) {
+			BLOCK_ID subBlockID = symbolTable->newBlock(this->targetBlock);
+			LinkContext subContext(context, subBlockID);
+			overload->link(&subContext);
+		}
 	}
-	//重载（参数，约束，实现）编译在子作用域中
-	for (auto &overload : *this->overloads) {
-		CompileContext subContext(context);
-		overload->compile(&subContext);
+	else { //SYMBOL_BINDING
+		if (this->name != nullptr) {
+			//函数名编译在当前作用域中
+			symbolTable->getLocalSymbolOffset(this->targetBlock, this->domain, this->name, &this->targetBlock, &this->offset);
+			this->hasBaseFunction = symbolTable->getBaseSymbolOffset(this->targetBlock, this->domain, this->name, &this->baseFunctionBlock, &this->baseOffset);
+		}
+		//重载（参数，约束，实现）编译在子作用域中
+		for (auto &overload : *this->overloads) {
+			LinkContext subContext(context, 0); //符号绑定阶段不再新建立block
+			overload->link(&subContext);
+		}
 	}
 }
 
@@ -96,7 +109,6 @@ Overload *const FunctionExpression::getMatchedOverload(const Pointer<ParameterEx
 {
 	StackFrame *frame = context->getStackFrame();
 	for (auto &overload : *this->overloads) {
-		frame->resetLocalVariableCount(overload->getLocalVariableCount());
 		if (overload->match(params, context)) {
 			return overload;
 		}
@@ -106,7 +118,7 @@ Overload *const FunctionExpression::getMatchedOverload(const Pointer<ParameterEx
 
 const Pointer<Expression> FunctionExpression::invoke(const Pointer<ParameterExpression> &params) const
 {
-	StackFrame *newFrame = this->declareStack->newStackFrame(this->declareStackFrame, 0);
+	StackFrame *newFrame = this->declareStack->newStackFrame(this->declareStackFrame, 0, 0);
 	Context subContext(this->declareStack, newFrame);
 	Overload *matchedOverload = this->getMatchedOverload(params, &subContext);
 	if (matchedOverload != nullptr) {
@@ -117,8 +129,8 @@ const Pointer<Expression> FunctionExpression::invoke(const Pointer<ParameterExpr
 	else {
 		this->declareStack->popStackFrame();
 		if (this->hasBaseFunction) {
-			StackFrame *targetFrame = this->declareStackFrame->getBaseStackFrame(this->baseFunctionVariableInfo.depth);
-			auto expr = targetFrame->getLocalVariable(baseFunctionVariableInfo.offset);
+			StackFrame *targetFrame = this->declareStackFrame->getBaseStackFrame(this->baseFunctionBlock);
+			auto expr = targetFrame->getLocalVariable(this->baseOffset);
 			if (!expr->getType(nullptr)->equals(nullptr, TypeExpression::FUNCTION_EXPRESSION)) {
 				throw DuplicateDeclarationException((wstring(this->name) + L"已经被声明，请勿重复声明！").c_str());
 			}
@@ -141,6 +153,10 @@ bool Overload::match(const Pointer<ParameterExpression> &params,Context *const &
 	if (targetParamCount > myParamCount && this->parameters[myParamCount - 1].isVarargs() == false) {
 		return false;
 	}
+
+	//否则先初始化栈帧
+	frame->setBlockID(this->block);
+	frame->resetLocalVariableCount(this->localVariableCount);
 
 	//逐个匹配参数。如果存在同名参数，则后一个同名参数必须和之前的值相等，否则匹配失败
 	//如果目标参数不够，看看参数有没有设定默认值
@@ -208,7 +224,7 @@ const Pointer<Expression> Overload::invoke(Context *context) const
 		auto params = invocation->getEvaluatedParameters(context); //实参
 		//getMatchedOverload()已经将匹配的实参写入到context中。
 		if (func->getDeclareStackFrame() == context->getStackFrame()) {
-			StackFrame *newFrame = context->getCallStack()->newStackFrame(context->getStackFrame(), 0);
+			StackFrame *newFrame = context->getCallStack()->newStackFrame(context->getStackFrame(),this->block, 0);
 			context->setStackFrame(newFrame);
 		}
 		else {
@@ -232,27 +248,36 @@ const Pointer<Expression> Overload::invoke(Context *context) const
 	}
 }
 
-void Overload::compile(CompileContext *const &context)
+void Overload::link(LinkContext *const &context)
 {
-	//编译参数列表
-	VariableCompileInfo info;
-	for (size_t i = 0; i < this->parameterCount; ++i) {
-		auto curVarName = this->parameters[i].getParameterName();
-		if (context->getLocalVariableInfo(curVarName, &info)) {
-			this->parameters[i].setOffset(info.offset);
-		}
-		else {
-			context->addLocalVariable(this->parameters[i].getParameterName(),&info);
-			this->parameters[i].setOffset(info.offset);
+	SymbolTable *symbolTable = context->getSymbolTable();
+	if (context->getLinkTask() == LinkTask::SYMBOL_COLLECTING) {
+		this->block = context->getBlock();
+		//参数列表
+		for (size_t i = 0; i < this->parameterCount; ++i) {
+			auto curVarName = this->parameters[i].getParameterName();
+			symbolTable->setSymbolInfo(this->block, this->functionExpression->getDomain(), DomainAccess::PUBLIC, curVarName, true);
 		}
 	}
-	//编译约束列表
+	else { //SYMBOL_BINDING
+		//参数列表绑定偏移
+		for (size_t i = 0; i < this->parameterCount; ++i) {
+			auto curVarName = this->parameters[i].getParameterName();
+			BLOCK_ID targetBlock; //肯定为本block，不可能是其他block
+			size_t targetOffset; //参数变量的偏移
+			symbolTable->getLocalSymbolOffset(this->block, this->functionExpression->getDomain(), curVarName, &targetBlock, &targetOffset);
+			this->parameters[i].setOffset(targetOffset);
+		}
+		//获取局部变量总数
+		this->localVariableCount = symbolTable->getTotalSymbolCount(this->block);
+	}
+
+	//约束列表
 	for (size_t i = 0; i < this->constraintCount; ++i) {
-		this->constraints[i]->compile(context);
+		this->constraints[i]->link(context);
 	}
-	//编译实现
+	//实现
 	for (size_t i = 0; i < this->implementCount; ++i) {
-		this->implements[i]->compile(context);
+		this->implements[i]->link(context);
 	}
-	this->localVariableCount = context->getLocalVariableCount();
 }

@@ -20,7 +20,7 @@ public:
 	virtual bool equals(Context *const &context, const Pointer<Expression> & targetExpression) const override;
 	virtual const Pointer<StringExpression> toString(Context *const& context) override;
 
-	inline virtual void compile(CompileContext *const& context) override{}
+	inline virtual void link(LinkContext *const& context) override{}
 
 	inline virtual const Pointer<TypeExpression> getType(Context *const& context) const override {
 		return TypeExpression::BOOLEAN_EXPRESSION;

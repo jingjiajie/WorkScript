@@ -19,11 +19,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitCommand(WorkScriptParser::CommandContext *ctx) override {
+  virtual antlrcpp::Any visitIncludeCommand(WorkScriptParser::IncludeCommandContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitIncludeCommand(WorkScriptParser::IncludeCommandContext *ctx) override {
+  virtual antlrcpp::Any visitAccessLevelExpression(WorkScriptParser::AccessLevelExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 

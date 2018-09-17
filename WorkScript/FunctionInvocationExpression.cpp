@@ -76,8 +76,8 @@ const Pointer<StringExpression> FunctionInvocationExpression::toString(Context *
 	return StringExpression::combine(strs, 4);
 }
 
-void FunctionInvocationExpression::compile(CompileContext *const &context)
+void FunctionInvocationExpression::link(LinkContext *const &context)
 {
-	this->leftExpression->compile(context);
-	this->parameters->compile(context);
+	this->leftExpression->link(context);
+	this->parameters->link(context);
 }

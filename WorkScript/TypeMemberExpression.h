@@ -21,7 +21,7 @@
 //	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
 //	//virtual bool equals(const Pointer<Expression> & targetExpression) const override;
 //	virtual const Pointer<StringExpression> toString(Context *const& context) override;
-//	virtual void compile(CompileContext *const& context) override;
+//	virtual void link(LinkContext *const& context) override;
 //
 //	const Pointer<TypeExpression> getBelongType() const;
 //	void setBelongType(const Pointer<TypeExpression> &);

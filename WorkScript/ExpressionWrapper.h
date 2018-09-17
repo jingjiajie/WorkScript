@@ -1,6 +1,10 @@
 #pragma once
 #include "Expression.h"
 
+enum class ExpressionLifeCycle : unsigned char {
+	COMPILE,ALL
+};
+
 class ExpressionWrapper
 {
 public:
@@ -13,7 +17,7 @@ public:
 	}
 
 	inline ExpressionWrapper(const ExpressionWrapper &wrapper) noexcept
-		:expression(wrapper.expression)
+		:expression(wrapper.expression),lifeCycle(wrapper.lifeCycle)
 	{
 
 	}
@@ -28,6 +32,17 @@ public:
 		this->expression = expression;
 	}
 
+	inline ExpressionLifeCycle getLifeCycle()const
+	{
+		return this->lifeCycle;
+	}
+
+	inline void setLifeCycle(ExpressionLifeCycle lifeCycle)
+	{
+		this->lifeCycle = lifeCycle;
+	}
+
 protected:
 	Pointer<Expression> expression;
+	ExpressionLifeCycle lifeCycle = ExpressionLifeCycle::ALL;
 };

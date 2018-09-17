@@ -100,7 +100,7 @@ public:
 
 	virtual bool match(const Pointer<ParameterExpression> &params, Context *const& context) const;
 	virtual const Pointer<Expression> invoke(Context *context) const;
-	virtual void compile(CompileContext *const& context);
+	virtual void link(LinkContext *const& context);
 
 	inline const ParameterInfo *const getParameterInfos() const
 	{
@@ -174,6 +174,7 @@ protected:
 
 	size_t localVariableCount = 0; //编译时存储局部变量个数，用于运行时分配局部变量空间
 	FunctionExpression *functionExpression = nullptr;
+	BLOCK_ID block = 0;
 };
 
 
@@ -191,7 +192,7 @@ public:
 	virtual const Pointer<Expression> evaluate(Context *const& context) override;
 	virtual bool equals(Context *const &context, const Pointer<Expression>& targetExpression) const;
 	virtual const Pointer<StringExpression> toString(Context *const& context) override;
-	virtual void compile(CompileContext *const& context) override;
+	virtual void link(LinkContext *const& context) override;
 
 	virtual const Pointer<Expression> invoke(const Pointer<ParameterExpression> &params) const;
 
@@ -234,12 +235,33 @@ public:
 	{
 		this->declareStackFrame = frame;
 	}
+
+	inline DOMAIN_ID getDomain() const {
+		return this->domain;
+	}
+
+	inline void setDomain(DOMAIN_ID domain) {
+		this->domain = domain;
+	}
+
+	inline DomainAccess getDomainAccess() const {
+		return this->domainAccess;
+	}
+
+	inline void setDomainAccess(DomainAccess domainAccess) {
+		this->domainAccess = domainAccess;
+	}
 protected:
 	StackFrame * declareStackFrame = nullptr;
 	CallStack *declareStack = nullptr;
 	wchar_t *name;
-	VariableCompileInfo functionVariableInfo;
+	BLOCK_ID targetBlock;
+	size_t offset;
 	std::vector<Overload *> *overloads;
-	VariableCompileInfo baseFunctionVariableInfo;
+	BLOCK_ID baseFunctionBlock;
+	size_t baseOffset;
 	bool hasBaseFunction = false;
+
+	DOMAIN_ID domain;
+	DomainAccess domainAccess;
 };

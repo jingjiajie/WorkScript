@@ -2,7 +2,7 @@
 #include <wchar.h>
 
 class Program;
-class CompileContext;
+class LinkContext;
 class Context;
 
 class WorkScriptEngine
@@ -14,6 +14,7 @@ public:
 	void run(const wchar_t *fileName);
 
 private:
-	void compileFile(const wchar_t *fileName, Program *outProgram, CompileContext *outCompileContext);
+	void parseFile(const wchar_t *fileName, Program *outProgram, size_t domain);
+	void combineProgram(Program *destnation, Program *source);
 };
 

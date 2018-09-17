@@ -19,8 +19,8 @@ bool BinaryOperatorExpression::equals(Context *const &context, const Pointer<Exp
 		&& this->rightExpression->equals(context, targetExpressionOfMyType->rightExpression);
 }
 
-void BinaryOperatorExpression::compile(CompileContext *const &context)
+void BinaryOperatorExpression::link(LinkContext *const &context)
 {
-	this->leftExpression->compile(context);
-	this->rightExpression->compile(context);
+	this->leftExpression->link(context);
+	this->rightExpression->link(context);
 }
