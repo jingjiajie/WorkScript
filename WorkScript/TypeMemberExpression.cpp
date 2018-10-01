@@ -1,3 +1,4 @@
+#include "stdafx.h"
 //#include <sstream>
 //#include "TypeMemberExpression.h"
 //#include "Context.h"

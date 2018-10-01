@@ -1,8 +1,8 @@
+#include "stdafx.h"
 #include "StringExpression.h"
 #include "TypeExpression.h"
 #include "Context.h"
 #include "Program.h"
-#include <string.h>
 
 using namespace std;
 

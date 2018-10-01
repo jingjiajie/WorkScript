@@ -1,10 +1,4 @@
-#include <iostream>
-#include <type_traits>
-#include <string>
-#include <vector>
-#include <boost/locale.hpp>
-#include <math.h>
-#include <limits.h>
+#include "stdafx.h"
 #include "WorkScriptVisitorImpl.h"
 #include "StringExpression.h"
 #include "DoubleExpression.h"

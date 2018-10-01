@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "BinaryOperatorExpression.h"
 #include "TypeExpression.h"
 #include "Program.h"

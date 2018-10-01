@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ParameterExpression.h"
 #include "TypeExpression.h"
 #include "StringExpression.h"

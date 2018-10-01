@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "GreaterThanExpression.h"
 #include "StringExpression.h"
 #include "Context.h"

@@ -1,8 +1,7 @@
+#include "stdafx.h"
 #include "BinaryCompareExpression.h"
 #include "BooleanExpression.h"
 #include "UncomparableException.h"
-#include <boost/locale.hpp>
-#include <string>
 
 using namespace std;
 

@@ -1,11 +1,10 @@
+#include "stdafx.h"
 #include "IntegerExpression.h"
 #include "DoubleExpression.h"
 #include "ByteExpression.h"
 #include "BooleanExpression.h"
 #include "StringExpression.h"
 #include "OperatorWrappers.hpp"
-
-#include <string.h>
 
 OBJECT_POOL_MEMBER_IMPL(IntegerExpression, 1024);
 

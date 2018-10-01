@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ModulusExpression.h"
 #include "NumberExpression.h"
 #include "TypeExpression.h"

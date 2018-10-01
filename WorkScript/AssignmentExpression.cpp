@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "AssignmentExpression.h"
 #include "StringExpression.h"
 #include "Context.h"
@@ -5,9 +6,6 @@
 #include "ExpressionPointerExpression.h"
 #include "VariableExpression.h"
 #include "CallStack.h"
-
-#include <boost/locale.hpp>
-#include <string>
 
 AssignmentExpression::~AssignmentExpression()
 {

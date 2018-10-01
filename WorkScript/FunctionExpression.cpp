@@ -1,5 +1,4 @@
-#include <sstream>
-#include <string>
+#include "stdafx.h"
 #include "FunctionExpression.h"
 #include "FunctionInvocationExpression.h"
 #include "BooleanExpression.h"

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "UnaryOperatorExpression.h"
 #include "TypeExpression.h"
 #include "Context.h"

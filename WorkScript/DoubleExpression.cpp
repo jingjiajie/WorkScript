@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "DoubleExpression.h"
 #include "StringExpression.h"
 #include "BooleanExpression.h"
@@ -7,8 +8,6 @@
 #include "Context.h"
 #include "Program.h"
 #include "OperatorWrappers.hpp"
-
-#include <type_traits>
 
 using namespace std;
 

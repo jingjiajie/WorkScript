@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "MainProgram.h"
 #include "Expression.h"
 #include "Context.h"
@@ -9,9 +10,6 @@
 #include "AssignmentExpression.h"
 #include "CallStack.h"
 #include "StackFrame.h"
-#include <locale.h>
-#include <time.h>
-#include <wchar.h>
 
 MainProgram::MainProgram()
 {

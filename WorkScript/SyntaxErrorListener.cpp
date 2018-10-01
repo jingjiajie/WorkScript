@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "SyntaxErrorListener.h"
 #include "SyntaxErrorException.h"
 #include "Token.h"
@@ -6,9 +7,6 @@
 #include "TokenSource.h"
 #include "CharStream.h"
 #include "IntStream.h"
-#include <utility>
-#include <sstream>
-#include <boost/locale.hpp>
 
 using namespace std;
 

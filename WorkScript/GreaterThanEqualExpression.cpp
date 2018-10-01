@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "GreaterThanEqualExpression.h"
 #include "StringExpression.h"
 #include "BooleanExpression.h"

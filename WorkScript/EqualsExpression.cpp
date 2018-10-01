@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "EqualsExpression.h"
 #include "TypeExpression.h"
 #include "BooleanExpression.h"

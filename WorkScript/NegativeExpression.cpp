@@ -1,9 +1,9 @@
+#include "stdafx.h"
 #include "NegativeExpression.h"
 #include "TypeExpression.h"
 #include "StringExpression.h"
 #include "DoubleExpression.h"
 #include "UncalculatableException.h"
-#include <boost/locale.hpp>
 
 using namespace std;
 

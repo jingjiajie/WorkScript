@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "LessThanExpression.h"
 #include "StringExpression.h"
 #include "BooleanExpression.h"

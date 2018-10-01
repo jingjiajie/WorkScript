@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "SyntaxErrorStrategy.h"
 #include "RecognitionException.h"
 #include "InputMismatchException.h"

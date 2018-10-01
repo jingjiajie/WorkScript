@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ByteExpression.h"
 #include "DoubleExpression.h"
 #include "IntegerExpression.h"
@@ -5,7 +6,6 @@
 #include "OperatorWrappers.hpp"
 #include "StringExpression.h"
 #include "UncalculatableException.h"
-#include <string>
 
 using namespace std;
 

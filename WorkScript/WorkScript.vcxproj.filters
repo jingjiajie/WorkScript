@@ -369,6 +369,12 @@
     <ClInclude Include="LinkException.h">
       <Filter>Runtime\Exceptions\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Generated\stdafx.h">
+      <Filter>Compile\Generated</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expression.cpp">
@@ -551,6 +557,9 @@
     </ClCompile>
     <ClCompile Include="SymbolTable.cpp">
       <Filter>Link\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

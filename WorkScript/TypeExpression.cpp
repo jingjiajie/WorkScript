@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "TypeExpression.h"
 #include "Expression.h"
 #include "UnimplementedException.h"

@@ -1,6 +1,5 @@
+#include "stdafx.h"
 #include "SymbolTable.h"
-#include <string>
-#include <algorithm>
 
 using namespace std;
 

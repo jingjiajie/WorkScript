@@ -144,7 +144,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(PlatformTarget)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</IntDir>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -220,7 +220,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
@@ -233,6 +233,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\local\boost_1_68_0\lib64-msvc-14.1;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">
@@ -326,6 +327,7 @@
     <ClInclude Include="BytePointerExpression.h" />
     <ClInclude Include="BinaryCompareExpression.h" />
     <ClInclude Include="CallStack.h" />
+    <ClInclude Include="Generated\stdafx.h" />
     <ClInclude Include="LinkContext.h" />
     <ClInclude Include="CompileDomain.h" />
     <ClInclude Include="Defines.h" />
@@ -370,6 +372,7 @@
     <ClInclude Include="PointerExpression.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="StackFrame.h" />
+    <ClInclude Include="stdafx.h" />
     <ClInclude Include="StringExpression.h" />
     <ClInclude Include="SymbolTable.h" />
     <ClInclude Include="SyntaxErrorException.h" />
@@ -431,6 +434,9 @@
     <ClCompile Include="ExpressionPointerExpression.cpp" />
     <ClCompile Include="PointerExpression.cpp" />
     <ClCompile Include="Program.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="StringExpression.cpp" />
     <ClCompile Include="SymbolTable.cpp" />
     <ClCompile Include="SyntaxErrorException.cpp" />

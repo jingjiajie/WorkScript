@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "PlusExpression.h"
 #include "Context.h"
 #include "TypeExpression.h"

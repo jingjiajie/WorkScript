@@ -1,5 +1,6 @@
+#include "stdafx.h"
 #include "WorkScriptException.h"
-#include <iostream>
+
 using namespace std;
 
 WorkScriptException::~WorkScriptException()

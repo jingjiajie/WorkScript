@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "MinusExpression.h"
 #include "Context.h"
 #include "TypeExpression.h"

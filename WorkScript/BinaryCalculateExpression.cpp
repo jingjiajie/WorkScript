@@ -1,8 +1,7 @@
+#include "stdafx.h"
 #include "BinaryCalculateExpression.h"
 #include "UncalculatableException.h"
 #include "NumberExpression.h"
-#include <wchar.h>
-#include <string>
 
 using namespace std;
 

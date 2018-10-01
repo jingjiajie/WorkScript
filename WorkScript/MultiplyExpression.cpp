@@ -1,4 +1,4 @@
-#include <sstream>
+#include "stdafx.h"
 #include "MultiplyExpression.h"
 #include "TypeExpression.h"
 #include "StringExpression.h"

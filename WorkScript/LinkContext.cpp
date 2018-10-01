@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "LinkContext.h"
 #include "CompileDomain.h"
 

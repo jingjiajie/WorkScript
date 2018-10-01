@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ExpressionPointerExpression.h"
 #include "StringExpression.h"
 #include "Context.h"

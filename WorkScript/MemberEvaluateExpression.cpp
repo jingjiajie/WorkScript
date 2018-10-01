@@ -1,3 +1,4 @@
+#include "stdafx.h"
 //#include "MemberEvaluateExpression.h"
 //#include "TypeExpression.h"
 //#include "TypeMemberExpression.h"

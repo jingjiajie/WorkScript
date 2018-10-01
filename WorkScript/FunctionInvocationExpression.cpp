@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "FunctionInvocationExpression.h"
 #include "ListExpression.h"
 #include "VariableExpression.h"
@@ -6,8 +7,6 @@
 #include "ParameterExpression.h"
 #include "StringExpression.h"
 #include "FunctionExpression.h"
-#include <sstream>
-#include <boost/locale.hpp>
 
 using namespace std;
 

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "PointerExpression.h"
 
 PointerExpression::~PointerExpression()
