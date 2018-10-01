@@ -3,6 +3,8 @@
 #include "InputMismatchException.h"
 #include "SyntaxErrorException.h"
 
+#include <boost/locale.hpp>
+
 using namespace antlr4;
 using namespace std;
 

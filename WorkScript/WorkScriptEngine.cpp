@@ -32,12 +32,13 @@ WorkScriptEngine::~WorkScriptEngine()
 {
 }
 
-void WorkScriptEngine::run(const wchar_t * filePath)
+void WorkScriptEngine::run(const char * filePath)
 {
+	auto wFilePath = boost::locale::conv::to_utf<wchar_t>(filePath, LOCAL_BOOST_ENCODING);
 	vector<wstring> filesToInclude;
-	filesToInclude.push_back(filePath);
+	filesToInclude.push_back(wFilePath);
 	unordered_set<wstring> includedFiles;
-	includedFiles.insert(filePath);
+	includedFiles.insert(wFilePath);
 
 	DOMAIN_ID curDomain = 1;
 

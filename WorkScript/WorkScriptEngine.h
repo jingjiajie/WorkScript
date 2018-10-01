@@ -11,7 +11,7 @@ public:
 	WorkScriptEngine();
 	~WorkScriptEngine();
 
-	void run(const wchar_t *fileName);
+	void run(const char *fileName);
 
 private:
 	void parseFile(const wchar_t *fileName, Program *outProgram, size_t domain);

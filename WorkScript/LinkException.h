@@ -1,5 +1,7 @@
 #pragma once
 #include "WorkScriptException.h"
+#include <sstream>
+
 class LinkException :
 	public WorkScriptException
 {

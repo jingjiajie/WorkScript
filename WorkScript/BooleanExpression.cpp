@@ -4,7 +4,6 @@
 #include "Context.h"
 #include "Program.h"
 #include "IllegalValueException.h"
-#include <boost/locale.hpp>
 using namespace std;
 
 OBJECT_POOL_MEMBER_IMPL(BooleanExpression, 64);
