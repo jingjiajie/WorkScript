@@ -1,6 +1,6 @@
+#include "stdafx.h"
 #include "WorkScriptException.h"
-#include <boost/locale.hpp>
-#include <iostream>
+
 using namespace std;
 
 WorkScriptException::~WorkScriptException()

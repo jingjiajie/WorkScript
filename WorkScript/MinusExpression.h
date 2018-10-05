@@ -1,27 +1,26 @@
 #pragma once
 #include "BinaryCalculateExpression.h"
+namespace WorkScript {
+	class StringExpression;
+	class DoubleExpression;
+	class NumberExpression;
 
-class StringExpression;
-class DoubleExpression;
-class NumberExpression;
-
-class MinusExpression :
-	public BinaryCalculateExpression
-{
-public:
-	inline MinusExpression(const Pointer<Expression> &left, const Pointer<Expression> &right)
-		:BinaryCalculateExpression(left, right)
+	class MinusExpression :
+		public BinaryCalculateExpression
 	{
+	public:
+		inline MinusExpression(Expression *left, Expression *right)
+			:BinaryCalculateExpression(left, right)
+		{
 
-	}
-	virtual ~MinusExpression();
+		}
+		virtual ~MinusExpression();
 
-	//virtual bool match(const Pointer<Expression> &matchExpression, Context *const& context) const override;
-	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
-	virtual const Pointer<StringExpression> toString(Context *const& context) override;
+		virtual ExpressionType getExpressionType() const override;
+		virtual Expression * clone() const override;
+	protected:
+		virtual std::wstring getOperatorString() const override;
+		virtual std::wstring getOperatorFunctionName() const override;
+	};
 
-private:
-	virtual const Pointer<NumberExpression> numberCalcNumber(Context *const context, const Pointer<NumberExpression> &left, const Pointer<NumberExpression> &right)const override;
-	//Pointer<StringExpression> stringMinusString(const Pointer<StringExpression>&, const Pointer<StringExpression>&) const;
-};
-
+}

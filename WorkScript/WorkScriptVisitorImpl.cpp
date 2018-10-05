@@ -1,15 +1,9 @@
-#include <iostream>
-#include <type_traits>
-#include <string>
-#include <vector>
-#include <boost/locale.hpp>
-#include <math.h>
-#include <limits.h>
+#include "stdafx.h"
 #include "WorkScriptVisitorImpl.h"
 #include "StringExpression.h"
 #include "DoubleExpression.h"
 #include "ExpressionWrapper.h"
-#include "TypeExpression.h"
+#include "Type.h"
 #include "PlusExpression.h"
 #include "MinusExpression.h"
 #include "MemberEvaluateExpression.h"
@@ -185,12 +179,12 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	vector<Pointer<Expression>> vecConstraints; //函数的限制，由字面声明和语法糖编译两部分组成
 	//首先是语法糖编译，包括约束和默认值
 	for (size_t i = 0; i < paramCount; ++i) {
-		if (paramExpr->getItem(i)->getType(nullptr)->equals(nullptr, TypeExpression::VARIABLE_EXPRESSION)) {
+		if (paramExpr->getItem(i)->getType(nullptr)->equals(nullptr, Type::VARIABLE_EXPRESSION)) {
 			Pointer<VariableExpression> varExpr = paramExpr->getItem(i);
 			paramInfos[i].setParameterName(varExpr->getName());
 			paramInfos[i].setVarargs(varExpr->isVarargs());
 		}
-		else if (paramExpr->getItem(i)->getType(nullptr)->isSubTypeOf(nullptr, TypeExpression::BINARY_COMPARE_EXPRESSION)) {
+		else if (paramExpr->getItem(i)->getType(nullptr)->isSubTypeOf(nullptr, Type::BINARY_COMPARE_EXPRESSION)) {
 			Pointer<VariableExpression>leftVar = ((Pointer<BinaryCompareExpression>)paramExpr->getItem(i))->getLeftVariable();
 			if (leftVar == nullptr) {
 				throw std::move(SyntaxErrorException(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1, L"函数参数约束左部必须为变量！"));
@@ -198,10 +192,10 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 			vecConstraints.push_back(paramExpr->getItem(i));
 			paramInfos[i].setParameterName(leftVar->getName());
 		}
-		else if (paramExpr->getItem(i)->getType(nullptr)->isSubTypeOf(nullptr, TypeExpression::ASSIGNMENT_EXPRESSION)) {
+		else if (paramExpr->getItem(i)->getType(nullptr)->isSubTypeOf(nullptr, Type::ASSIGNMENT_EXPRESSION)) {
 			Pointer<AssignmentExpression>assignmentExpr = (Pointer<AssignmentExpression>)paramExpr->getItem(i);
 			auto leftExpr = assignmentExpr->getLeftExpression();
-			if (!leftExpr->getType(nullptr)->equals(nullptr, TypeExpression::VARIABLE_EXPRESSION)){
+			if (!leftExpr->getType(nullptr)->equals(nullptr, Type::VARIABLE_EXPRESSION)){
 				throw std::move(SyntaxErrorException(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1, L"参数默认值左部必须为参数名！"));
 			}
 			auto leftVar = (Pointer<VariableExpression>)leftExpr;
@@ -269,7 +263,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionInvocationExpression(WorkScrip
 	STORE_FORBID_ASSIGN;
 	ExpressionWrapper expressionWrapper = ctx->expression()->accept(this);
 	ExpressionWrapper paramExpressionWrapper = ctx->parameterExpression()->accept(this);
-	auto termExpr = (const Pointer<Expression> &)(expressionWrapper.getExpression());
+	auto termExpr = (Expression *)(expressionWrapper.getExpression());
 	auto paramExpr = (const Pointer<ParameterExpression> &)(paramExpressionWrapper.getExpression());
 	auto expr = new FunctionInvocationExpression();
 	expr->setLeftExpression(termExpr);

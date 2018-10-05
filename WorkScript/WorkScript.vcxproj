@@ -144,7 +144,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(PlatformTarget)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</IntDir>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);C:\local\boost_1_68_0\lib64-msvc-14.1;$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -220,19 +220,25 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>BOOST_LIB_DIAGNOSTIC;ANTLR4CPP_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.core.x64-Debug.6.0.0\lib\native\include;C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.x64.6.0.0\lib\native\include;C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS /Zm1000 %(AdditionalOptions)</AdditionalOptions>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <DisableSpecificWarnings>4146;4267;4141;4244;4624;4291</DisableSpecificWarnings>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\local\boost_1_68_0\lib64-msvc-14.1;C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.targets.x64-Debug.6.0.0\lib\native\lib;C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.core.pdbs.x64-Debug.6.0.0\lib\native\lib;C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.core.x64-Debug.6.0.0\lib\native\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>LLVMAnalysis.lib;LLVMAsmParser.lib;LLVMAsmPrinter.lib;LLVMBinaryFormat.lib;LLVMBitReader.lib;LLVMBitWriter.lib;LLVMCodeGen.lib;LLVMCore.lib;LLVMCoroutines.lib;LLVMCoverage.lib;LLVMDebugInfoCodeView.lib;LLVMDebugInfoDWARF.lib;LLVMDebugInfoMSF.lib;LLVMDebugInfoPDB.lib;LLVMDemangle.lib;LLVMDlltoolDriver.lib;LLVMExecutionEngine.lib;LLVMGlobalISel.lib;LLVMInstCombine.lib;LLVMInstrumentation.lib;LLVMInterpreter.lib;LLVMipo.lib;LLVMIRReader.lib;LLVMLibDriver.lib;LLVMLineEditor.lib;LLVMLinker.lib;LLVMLTO.lib;LLVMMC.lib;LLVMMCDisassembler.lib;LLVMMCJIT.lib;LLVMMCParser.lib;LLVMMIRParser.lib;LLVMObjCARCOpts.lib;LLVMObject.lib;LLVMObjectYAML.lib;LLVMOption.lib;LLVMOrcJIT.lib;LLVMPasses.lib;LLVMProfileData.lib;LLVMRuntimeDyld.lib;LLVMScalarOpts.lib;LLVMSelectionDAG.lib;LLVMSupport.lib;LLVMSymbolize.lib;LLVMTableGen.lib;LLVMTarget.lib;LLVMTransformUtils.lib;LLVMVectorize.lib;LLVMXRay.lib;LLVMX86CodeGen.lib;LLVMX86Desc.lib;LLVMX86AsmParser.lib;LLVMX86AsmPrinter.lib;LLVMX86Info.lib;LLVMX86Utils.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">
@@ -322,67 +328,65 @@
     <ClInclude Include="BinaryCalculateExpression.h" />
     <ClInclude Include="BinaryOperatorExpression.h" />
     <ClInclude Include="BooleanExpression.h" />
+    <ClInclude Include="BranchOverload.h" />
     <ClInclude Include="ByteExpression.h" />
-    <ClInclude Include="BytePointerExpression.h" />
     <ClInclude Include="BinaryCompareExpression.h" />
-    <ClInclude Include="CallStack.h" />
-    <ClInclude Include="LinkContext.h" />
-    <ClInclude Include="CompileDomain.h" />
+    <ClInclude Include="ExpressionType.h" />
+    <ClInclude Include="Function.h" />
+    <ClInclude Include="FunctionTemplate.h" />
+    <ClInclude Include="GenerateContext.h" />
+    <ClInclude Include="Generated\stdafx.h" />
+    <ClInclude Include="GenerateResult.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="DivideExpression.h" />
-    <ClInclude Include="DoublePointerExpression.h" />
     <ClInclude Include="DuplicateDeclarationException.h" />
     <ClInclude Include="EnablePointer.h" />
     <ClInclude Include="EqualsExpression.h" />
-    <ClInclude Include="ExecuteCppCodeExpression.h" />
     <ClInclude Include="ExpressionWrapper.h" />
-    <ClInclude Include="FunctionExpression.h" />
     <ClInclude Include="FunctionInvocationExpression.h" />
     <ClInclude Include="GreaterThanEqualExpression.h" />
     <ClInclude Include="IllegalValueException.h" />
+    <ClInclude Include="Initializer.h" />
     <ClInclude Include="IntegerExpression.h" />
-    <ClInclude Include="IntegerPointerExpression.h" />
     <ClInclude Include="LessThanEqualExpression.h" />
     <ClInclude Include="LessThanExpression.h" />
     <ClInclude Include="LinkException.h" />
-    <ClInclude Include="ListExpression.h" />
     <ClInclude Include="Generated\WorkScriptBaseVisitor.h" />
     <ClInclude Include="Generated\WorkScriptLexer.h" />
     <ClInclude Include="Generated\WorkScriptParser.h" />
     <ClInclude Include="Generated\WorkScriptVisitor.h" />
     <ClInclude Include="GreaterThanExpression.h" />
-    <ClInclude Include="MainProgram.h" />
     <ClInclude Include="MemberEvaluateExpression.h" />
     <ClInclude Include="MinusExpression.h" />
     <ClInclude Include="ModulusExpression.h" />
     <ClInclude Include="MultiplyExpression.h" />
+    <ClInclude Include="NativeOverload.h" />
     <ClInclude Include="NegativeExpression.h" />
     <ClInclude Include="DoubleExpression.h" />
-    <ClInclude Include="NumberExpression.h" />
-    <ClInclude Include="ObjectPool.h" />
-    <ClInclude Include="OperatorWrappers.hpp" />
+    <ClInclude Include="Overload.h" />
+    <ClInclude Include="OverloadBranch.h" />
+    <ClInclude Include="OverloadTemplate.h" />
+    <ClInclude Include="Parameter.h" />
     <ClInclude Include="ParameterExpression.h" />
+    <ClInclude Include="ParameterTemplate.h" />
     <ClInclude Include="PlusExpression.h" />
-    <ClInclude Include="Context.h" />
     <ClInclude Include="Expression.h" />
-    <ClInclude Include="ExpressionPointerExpression.h" />
     <ClInclude Include="Pointer.h" />
-    <ClInclude Include="PointerExpression.h" />
     <ClInclude Include="Program.h" />
-    <ClInclude Include="StackFrame.h" />
+    <ClInclude Include="stdafx.h" />
     <ClInclude Include="StringExpression.h" />
-    <ClInclude Include="SymbolTable.h" />
+    <ClInclude Include="StringType.cpp" />
     <ClInclude Include="SyntaxErrorException.h" />
     <ClInclude Include="SyntaxErrorListener.h" />
     <ClInclude Include="SyntaxErrorStrategy.h" />
-    <ClInclude Include="TypeExpression.h" />
-    <ClInclude Include="TypeMemberExpression.h" />
+    <ClInclude Include="Type.h" />
     <ClInclude Include="UnaryOperatorExpression.h" />
     <ClInclude Include="UnassignableExpection.h" />
     <ClInclude Include="UncalculatableException.h" />
     <ClInclude Include="UncomparableException.h" />
     <ClInclude Include="UnimplementedException.h" />
     <ClInclude Include="UninvocableException.h" />
+    <ClInclude Include="Utils.h" />
     <ClInclude Include="VariableExpression.h" />
     <ClInclude Include="WorkScriptEngine.h" />
     <ClInclude Include="WorkScriptException.h" />
@@ -394,50 +398,52 @@
     <ClCompile Include="BinaryCalculateExpression.cpp" />
     <ClCompile Include="BinaryOperatorExpression.cpp" />
     <ClCompile Include="BooleanExpression.cpp" />
+    <ClCompile Include="BooleanType.cpp" />
+    <ClCompile Include="BranchOverload.cpp" />
     <ClCompile Include="ByteExpression.cpp" />
-    <ClCompile Include="BytePointerExpression.cpp" />
+    <ClCompile Include="ByteType.cpp" />
     <ClCompile Include="CompareExpression.cpp" />
-    <ClCompile Include="LinkContext.cpp" />
     <ClCompile Include="DivideExpression.cpp" />
-    <ClCompile Include="DoublePointerExpression.cpp" />
+    <ClCompile Include="DoubleType.cpp" />
     <ClCompile Include="DuplicateDeclarationException.cpp" />
     <ClCompile Include="EqualsExpression.cpp" />
-    <ClCompile Include="ExecuteCppCodeExpression.cpp" />
     <ClCompile Include="ExpressionWrapper.cpp" />
-    <ClCompile Include="FunctionExpression.cpp" />
+    <ClCompile Include="Function.cpp" />
     <ClCompile Include="FunctionInvocationExpression.cpp" />
+    <ClCompile Include="FunctionTemplate.cpp" />
     <ClCompile Include="GreaterThanEqualExpression.cpp" />
     <ClCompile Include="IllegalValueException.cpp" />
     <ClCompile Include="IntegerExpression.cpp" />
-    <ClCompile Include="IntegerPointerExpression.cpp" />
+    <ClCompile Include="IntegerType.cpp" />
     <ClCompile Include="LessThanEqualExpression.cpp" />
     <ClCompile Include="LessThanExpression.cpp" />
-    <ClCompile Include="ListExpression.cpp" />
     <ClCompile Include="Generated\WorkScriptBaseVisitor.cpp" />
     <ClCompile Include="Generated\WorkScriptLexer.cpp" />
     <ClCompile Include="Generated\WorkScriptParser.cpp" />
     <ClCompile Include="Generated\WorkScriptVisitor.cpp" />
     <ClCompile Include="GreaterThanExpression.cpp" />
-    <ClCompile Include="MainProgram.cpp" />
     <ClCompile Include="MemberEvaluateExpression.cpp" />
     <ClCompile Include="MinusExpression.cpp" />
     <ClCompile Include="ModulusExpression.cpp" />
     <ClCompile Include="MultiplyExpression.cpp" />
+    <ClCompile Include="NativeOverload.cpp" />
     <ClCompile Include="NegativeExpression.cpp" />
     <ClCompile Include="DoubleExpression.cpp" />
-    <ClCompile Include="NumberExpression.cpp" />
+    <ClCompile Include="Overload.cpp" />
+    <ClCompile Include="OverloadBranch.cpp" />
+    <ClCompile Include="OverloadTemplate.cpp" />
     <ClCompile Include="ParameterExpression.cpp" />
+    <ClCompile Include="ParameterTemplate.cpp" />
     <ClCompile Include="PlusExpression.cpp" />
-    <ClCompile Include="ExpressionPointerExpression.cpp" />
-    <ClCompile Include="PointerExpression.cpp" />
     <ClCompile Include="Program.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="StringExpression.cpp" />
-    <ClCompile Include="SymbolTable.cpp" />
     <ClCompile Include="SyntaxErrorException.cpp" />
     <ClCompile Include="SyntaxErrorListener.cpp" />
     <ClCompile Include="SyntaxErrorStrategy.cpp" />
-    <ClCompile Include="TypeExpression.cpp" />
-    <ClCompile Include="TypeMemberExpression.cpp" />
+    <ClCompile Include="Type.cpp" />
     <ClCompile Include="UnaryOperatorExpression.cpp" />
     <ClCompile Include="UnassignableExpection.cpp" />
     <ClCompile Include="UncalculatableException.cpp" />

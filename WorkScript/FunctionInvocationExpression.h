@@ -1,52 +1,39 @@
 #pragma once
 #include "Expression.h"
-#include "TypeExpression.h"
+#include "Type.h"
 
 class FunctionExpression;
 class ParameterExpression;
 class Overload;
 
-class FunctionInvocationExpression :
-	public Expression
-{
-public:
-	inline FunctionInvocationExpression()
+namespace WorkScript {
+	class FunctionInvocationExpression :
+		public Expression
 	{
-		
-	}
-	virtual ~FunctionInvocationExpression();
+	public:
+		inline FunctionInvocationExpression()
+		{
 
-	virtual const Pointer<Expression> evaluate(Context *const& context) override;
-	//virtual const Pointer<Expression> evaluate(Context *const& context, Overload *matchedOverload);
-	virtual bool equals(Context *const &context,const Pointer<Expression> &) const override;
-	const Pointer<FunctionExpression> getFunctionExpression(Context *const context) const;
-	const Pointer<ParameterExpression> getEvaluatedParameters(Context *const context);
-	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
-	virtual const Pointer<StringExpression> toString(Context *const& context) override;
-	virtual void link(LinkContext *const& context) override;
+		}
+		virtual ~FunctionInvocationExpression();
 
-	inline const Pointer<Expression> getLeftExpression() const
-	{
-		return this->leftExpression;
-	}
+		//virtual bool equals(Expression *) const override;
+		virtual Type * getType() const override;
+		virtual std::wstring toString() const override;
+		virtual ExpressionType getExpressionType() const override;
 
-	inline void setLeftExpression(const Pointer<Expression> &left)
-	{
-		this->leftExpression = left;
-	}
+		inline decltype(auto) getParameters() const
+		{
+			return this->parameters;
+		}
 
-	inline const Pointer<ParameterExpression> getParameters() const
-	{
-		return this->parameters;
-	}
+		inline void setParameters(ParameterExpression *parameters)
+		{
+			this->parameters = parameters;
+		}
 
-	inline void setParameters(const Pointer<ParameterExpression> & parameters)
-	{
-		this->parameters = parameters;
-	}
-
-protected:
-	Pointer<Expression> leftExpression = nullptr;
-	Pointer<ParameterExpression> parameters = nullptr;
-};
-
+	protected:
+		std::wstring funcName;
+		ParameterExpression *parameters = nullptr;
+	};
+}

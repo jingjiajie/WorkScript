@@ -1,33 +1,35 @@
+#include "stdafx.h"
 #include "EqualsExpression.h"
-#include "TypeExpression.h"
+#include "Type.h"
 #include "BooleanExpression.h"
 #include "Program.h"
 #include "StringExpression.h"
 #include "DoubleExpression.h"
+#include "Utils.h"
 
+using namespace WorkScript;
 using namespace std;
 
 EqualsExpression::~EqualsExpression()
 {
 }
 
-const Pointer<TypeExpression> EqualsExpression::getType(Context *const& context) const
+Expression * WorkScript::EqualsExpression::clone() const
 {
-	return TypeExpression::EQUALS_EXPRESSION;
+	return new thistype(this->leftExpression, this->rightExpression);
 }
 
-const Pointer<StringExpression> EqualsExpression::toString(Context *const& context)
+ExpressionType EqualsExpression::getExpressionType() const
 {
-	static Pointer<StringExpression> equal(new StringExpression(L"==", ReleaseStrategy::DELETE));
-	return BinaryOperatorExpression::toString(context, equal);
+	return ExpressionType::EQUALS_EXPRESSION;
 }
 
-const Pointer<BooleanExpression> EqualsExpression::numberCompareNumber(Context * context, const Pointer<NumberExpression> &left, const Pointer<NumberExpression> &right) const
+std::wstring WorkScript::EqualsExpression::getOperatorString() const
 {
-	return left->equals(right);
+	return L"==";
 }
 
-const Pointer<BooleanExpression> EqualsExpression::expressionCompareExpression(Context * context, const Pointer<Expression> &left, const Pointer<Expression> &right) const
+std::wstring WorkScript::EqualsExpression::getOperatorFunctionName() const
 {
-	return BooleanExpression::newInstance(left->equals(context, right));
+	return OPERATOR_EQUALS_FUNCTION_NAME;
 }

@@ -1,23 +1,31 @@
+#include "stdafx.h"
 #include "ModulusExpression.h"
-#include "NumberExpression.h"
-#include "TypeExpression.h"
+#include "Type.h"
+#include "Utils.h"
+
+using namespace std;
+using namespace WorkScript;
 
 ModulusExpression::~ModulusExpression()
 {
 }
 
-const Pointer<StringExpression> ModulusExpression::toString(Context * const & context)
+ExpressionType ModulusExpression::getExpressionType() const
 {
-	static Pointer<StringExpression> mod(new StringExpression(L"%", ReleaseStrategy::DELETE));
-	return BinaryOperatorExpression::toString(context, mod);
+	return ExpressionType::MODULUS_EXPRESSION;
 }
 
-const Pointer<TypeExpression> ModulusExpression::getType(Context * const & context) const
+Expression * WorkScript::ModulusExpression::clone() const
 {
-	return TypeExpression::MODULUS_EXPRESSION;
+	return new thistype(this->leftExpression, this->rightExpression);
 }
 
-const Pointer<NumberExpression> ModulusExpression::numberCalcNumber(Context * const context, const Pointer<NumberExpression> & left, const Pointer<NumberExpression> & right) const
+std::wstring WorkScript::ModulusExpression::getOperatorString() const
 {
-	return left->modulus(right);
+	return L"%";
+}
+
+std::wstring WorkScript::ModulusExpression::getOperatorFunctionName() const
+{
+	return OPERATOR_MODULUS_FUNCTION_NAME;
 }

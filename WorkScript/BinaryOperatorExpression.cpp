@@ -1,26 +1,35 @@
+#include "stdafx.h"
 #include "BinaryOperatorExpression.h"
-#include "TypeExpression.h"
-#include "Program.h"
+#include "Type.h"
+#include "Function.h"
 
 using namespace std;
+using namespace WorkScript;
 
 BinaryOperatorExpression::~BinaryOperatorExpression()
 {
+	delete this->leftExpression;
+	delete this->rightExpression;
 }
 
-bool BinaryOperatorExpression::equals(Context *const &context, const Pointer<Expression> &targetExpression) const
+GenerateResult WorkScript::BinaryOperatorExpression::generateIR(GenerateContext * context)
 {
-	if (!targetExpression->getType(context)->equals(context,this->getType(context))) {
-		return false;
-	}
-	auto targetExpressionOfMyType = (const Pointer<BinaryOperatorExpression> &)targetExpression;
-
-	return this->leftExpression->equals(context, targetExpressionOfMyType->leftExpression) 
-		&& this->rightExpression->equals(context, targetExpressionOfMyType->rightExpression);
+	Type *leftType = this->leftExpression->getType();
+	Type *rightType = this->rightExpression->getType();
+	Function *func = leftType->getMemberFunction(this->getOperatorFunctionName());
+	Overload *overload = func->getOverload({ rightType });
 }
 
-void BinaryOperatorExpression::link(LinkContext *const &context)
+std::wstring WorkScript::BinaryOperatorExpression::toString() const
 {
-	this->leftExpression->link(context);
-	this->rightExpression->link(context);
+	auto left = this->leftExpression->toString();
+	auto right = this->rightExpression->toString();
+	return left + this->getOperatorString() + right;
+}
+
+Type * WorkScript::BinaryOperatorExpression::getType() const
+{
+	Type *leftType = this->leftExpression->getType();
+	Type *rightType = this->rightExpression->getType();
+	return leftType->inferReturnType(this->getOperatorFunctionName(), { rightType });
 }

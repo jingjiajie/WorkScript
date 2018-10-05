@@ -5,19 +5,19 @@
 //	public Expression
 //{
 //public:
-//	MemberEvaluateExpression(const Pointer<Expression> &objExpr, const Pointer<Expression> &memberExpr);
+//	MemberEvaluateExpression(Expression *objExpr, Expression *memberExpr);
 //	virtual ~MemberEvaluateExpression();
 //
-// virtual const Pointer<Expression> evaluate(Context *const& context) override;
-//	//virtual bool match(const Pointer<Expression> &matchExpression, Context *const& context) const override;
-//	virtual bool equals(Context *const &context, const Pointer<Expression> & targetExpression) const;
-//	virtual const Pointer<TypeExpression> getType(Context *const& context) const override;
-//	virtual const Pointer<StringExpression> toString(Context *const& context) override;
+// 
+//	//virtual bool match(Expression *matchExpression, Context *const& context) const override;
+//	virtual bool equals(Context *const &context, Expression * targetExpression) const;
+//	virtual Type * getType() const override;
+//	virtual std::wstring toString() override;
 //
-//	const Pointer<Expression> getObjectExpression() const;
-//	void setObjectExpression(const Pointer<Expression> &);
-//	const Pointer<Expression> getMemberExpression() const;
-//	void setMemberExpression(const Pointer<Expression> &);
+//	Expression * getObjectExpression() const;
+//	void setObjectExpression(Expression *);
+//	Expression * getMemberExpression() const;
+//	void setMemberExpression(Expression *);
 //
 //protected:
 //	Pointer<Expression>  objectExpression;

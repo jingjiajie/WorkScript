@@ -1,48 +1,50 @@
 #pragma once
 #include "Expression.h"
-class ParameterExpression :
-	public Expression
-{
-public:
-	inline ParameterExpression(Pointer<Expression> *const& items, const size_t &count)
+namespace WorkScript {
+	class ParameterExpression :
+		public Expression
 	{
-		this->setItems(items,count);
-	}
+	public:
+		inline ParameterExpression(Pointer<Expression> *const& items, const size_t &count)
+		{
+			this->setItems(items, count);
+		}
 
-	virtual ~ParameterExpression();
+		virtual ~ParameterExpression();
 
-	virtual const Pointer<TypeExpression> getType(Context *const& context) const;
-	virtual const Pointer<StringExpression> toString(Context *const& context);
-	virtual void link(LinkContext *const& context) override;
+		virtual Type * getType() const;
+		virtual std::wstring toString();
+		virtual void link(LinkContext *const& context) override;
 
-	virtual const Pointer<Expression> evaluate(Context *const &context) override;
-	virtual bool equals(Context *const &context, const Pointer<Expression> &) const override;
 
-	inline Pointer<Expression> *const getItems() const
-	{
-		return this->items;
-	}
+		virtual bool equals(Expression *) const override;
 
-	inline const Pointer<Expression> getItem(const size_t &index)const
-	{
-		return this->items[index];
-	}
+		inline Expression * const getItems() const
+		{
+			return this->items;
+		}
 
-	inline void setItems(Pointer<Expression> *const& items, const size_t &count)
-	{
-		this->items = items;
-		this->count = count;
-		this->flat(nullptr);
-	}
+		inline Expression * getItem(const size_t &index)const
+		{
+			return this->items[index];
+		}
 
-	inline const size_t getCount() const {
-		return this->count;
-	}
+		inline void setItems(Expression * items, const size_t &count)
+		{
+			this->items = items;
+			this->count = count;
+			this->flat();
+		}
 
-	void flat(Context *const &context);
+		inline const size_t getCount() const {
+			return this->count;
+		}
 
-protected:
-	Pointer<Expression> *items;
-	size_t count;
-};
+		void flat();
+
+	protected:
+		std::vector<Expression*> items;
+		size_t count;
+	};
+}
 

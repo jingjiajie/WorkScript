@@ -1,25 +1,28 @@
 #pragma once
 #include "UnaryOperatorExpression.h"
-class NegativeExpression :
-	public UnaryOperatorExpression
-{
-public:
-	inline NegativeExpression(const Pointer<Expression> &subExpression)
-		:UnaryOperatorExpression(subExpression)
+
+namespace WorkScript {
+	class NegativeExpression :
+		public UnaryOperatorExpression
 	{
+	public:
+		inline NegativeExpression(Expression *subExpression)
+			:UnaryOperatorExpression(subExpression)
+		{
 
-	}
+		}
 
-	inline NegativeExpression()
-		: UnaryOperatorExpression()
-	{
+		inline NegativeExpression()
+			: UnaryOperatorExpression()
+		{
 
-	}
+		}
 
-	virtual ~NegativeExpression();
+		virtual ExpressionType getExpressionType() const override;
+		virtual Expression * clone() const override;
+	protected:
+		virtual std::wstring getOperatorString() const override;
+		virtual std::wstring getOperatorFunctionName() const override;
+	};
 
-	virtual const Pointer<Expression> evaluate(Context *const& context);
-	virtual const Pointer<TypeExpression> getType(Context *const& context) const;
-	virtual const Pointer<StringExpression> toString(Context *const& context);
-};
-
+}

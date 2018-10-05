@@ -1,97 +1,37 @@
+#include "stdafx.h"
 #include "ByteExpression.h"
 #include "DoubleExpression.h"
 #include "IntegerExpression.h"
 #include "BooleanExpression.h"
-#include "OperatorWrappers.hpp"
 #include "StringExpression.h"
 #include "UncalculatableException.h"
-#include <string>
+#include "Program.h"
+#include "Utils.h"
 
 using namespace std;
+using namespace WorkScript;
 
-OBJECT_POOL_MEMBER_IMPL(ByteExpression,64);
-
-#define BYTE_COMPARE_FUNCTION_IMPL(funcName, signWrapper) \
-const Pointer<BooleanExpression> ByteExpression::funcName(const Pointer<Expression> & targetExpression) const \
-{ \
-	bool result = false; \
-	switch (targetExpression->getType(nullptr)->getTypeID()) { \
-		case TypeExpression::TYPEID_DOUBLE: \
-			result = signWrapper(this->value, ((Pointer<DoubleExpression>)targetExpression)->getValue()); \
-			break; \
-		case TypeExpression::TYPEID_INTEGER: \
-			result = signWrapper(this->value, ((Pointer<IntegerExpression>)targetExpression)->getValue()); \
-			break; \
-		case TypeExpression::TYPEID_BYTE: \
-			result = signWrapper(this->value, ((Pointer<ByteExpression>)targetExpression)->getValue()); \
-			break; \
-	} \
-	return BooleanExpression::newInstance(result); \
-} \
-
-#define BYTE_CALCULATE_FUNCTION_IMPL(funcName, signWrapper) \
-const Pointer<NumberExpression> ByteExpression::funcName(const Pointer<Expression> & targetExpression) const \
-{ \
-	Pointer<NumberExpression>result = nullptr; \
-	switch (targetExpression->getType(nullptr)->getTypeID()) { \
-	case TypeExpression::TYPEID_DOUBLE: \
-		result = DoubleExpression::newInstance(signWrapper(this->value, ((Pointer<DoubleExpression>)targetExpression)->getValue())); \
-		break; \
-	case TypeExpression::TYPEID_INTEGER: \
-		result = IntegerExpression::newInstance(signWrapper(this->value, ((Pointer<IntegerExpression>)targetExpression)->getValue())); \
-		break; \
-	case TypeExpression::TYPEID_BYTE: \
-		result = ByteExpression::newInstance(signWrapper(this->value, ((Pointer<ByteExpression>)targetExpression)->getValue())); \
-		break; \
-	} \
-	return result; \
-} \
-
-BYTE_COMPARE_FUNCTION_IMPL(greaterThan, GREATER_THAN_WRAPPER)
-BYTE_COMPARE_FUNCTION_IMPL(greaterThanEquals, GREATER_THAN_EQUALS_WRAPPER)
-BYTE_COMPARE_FUNCTION_IMPL(lessThan, LESS_THAN_WRAPPER)
-BYTE_COMPARE_FUNCTION_IMPL(lessThanEquals, LESS_THAN_EQUALS_WRAPPER)
-BYTE_COMPARE_FUNCTION_IMPL(equals, EQUALS_WRAPPER)
-
-BYTE_CALCULATE_FUNCTION_IMPL(plus, PLUS_WRAPPER)
-BYTE_CALCULATE_FUNCTION_IMPL(minus, MINUS_WRAPPER)
-BYTE_CALCULATE_FUNCTION_IMPL(multiply, MULTIPLY_WRAPPER)
-BYTE_CALCULATE_FUNCTION_IMPL(modulus, MODULUS_WRAPPER)
-
-const Pointer<NumberExpression> ByteExpression::divide(const Pointer<Expression> & targetExpression) const
+GenerateResult WorkScript::ByteExpression::generateIR(GenerateContext * context)
 {
-	Pointer<NumberExpression>result = nullptr;
-	switch (targetExpression->getType(nullptr)->getTypeID()) {
-	case TypeExpression::TYPEID_DOUBLE:
-		result = DoubleExpression::newInstance(DIVIDE_WRAPPER((double)this->value, ((Pointer<DoubleExpression>)targetExpression)->getValue()));
-		break;
-	case TypeExpression::TYPEID_INTEGER:
-		result = DoubleExpression::newInstance(DIVIDE_WRAPPER((double)this->value, ((Pointer<IntegerExpression>)targetExpression)->getValue()));
-		break;
-	case TypeExpression::TYPEID_BYTE:
-		result = DoubleExpression::newInstance(DIVIDE_WRAPPER((double)this->value, ((Pointer<ByteExpression>)targetExpression)->getValue()));
-		break;
-	}
-	return result;
+	return (llvm::Value*)llvm::ConstantInt::get(llvm::Type::getInt8Ty(*context->getLLVMContext()), llvm::APInt(8, this->value));
 }
 
-ByteExpression::~ByteExpression()
+ExpressionType ByteExpression::getExpressionType() const
 {
+	return ExpressionType::BYTE_EXPRESSION;
 }
 
-const Pointer<Expression> ByteExpression::evaluate(Context * const & context)
+std::wstring ByteExpression::toString() const
 {
-	return this;
+	return to_wstring(this->value);
 }
 
-const Pointer<StringExpression> ByteExpression::toString(Context * const & context)
+Expression * WorkScript::ByteExpression::clone() const
 {
-	wchar_t buff[4];
-	swprintf(buff,4, L"%d", this->value);
-	return StringExpression::newInstance(buff);
+	return new thistype(this->value);
 }
 
-const Pointer<NumberExpression> ByteExpression::negate() const
+Type * WorkScript::ByteExpression::getType() const
 {
-	throw std::move(UncalculatableException((to_wstring(this->getValue()) + L"无法取负！").c_str()));
+	return program->getType(TYPENAME_BYTE);
 }

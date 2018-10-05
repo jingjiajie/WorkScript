@@ -1,24 +1,33 @@
+#include "stdafx.h"
 #include "GreaterThanEqualExpression.h"
 #include "StringExpression.h"
 #include "BooleanExpression.h"
 #include "DoubleExpression.h"
+#include "Utils.h"
+
+using namespace std;
+using namespace WorkScript;
 
 GreaterThanEqualExpression::~GreaterThanEqualExpression()
 {
 }
 
-const Pointer<TypeExpression> GreaterThanEqualExpression::getType(Context * const & context) const
+ExpressionType GreaterThanEqualExpression::getExpressionType() const
 {
-	return TypeExpression::GREATER_THAN_EQUAL_EXPRESSION;
+	return ExpressionType::GREATER_THAN_EQUAL_EXPRESSION;
 }
 
-const Pointer<StringExpression> GreaterThanEqualExpression::toString(Context * const & context)
+Expression * WorkScript::GreaterThanEqualExpression::clone() const
 {
-	static Pointer<StringExpression> sign = new StringExpression(L">=", ReleaseStrategy::DELETE);
-	return BinaryOperatorExpression::toString(context, sign);
+	return new thistype(this->leftExpression, this->rightExpression);
 }
 
-const Pointer<BooleanExpression> GreaterThanEqualExpression::numberCompareNumber(Context * context, const Pointer<NumberExpression> &left, const Pointer<NumberExpression> &right) const
+std::wstring WorkScript::GreaterThanEqualExpression::getOperatorString() const
 {
-	return left->greaterThanEquals(right);
+	return L">=";
+}
+
+std::wstring WorkScript::GreaterThanEqualExpression::getOperatorFunctionName() const
+{
+	return OPERATOR_GREATER_THAN_EQUAL_FUNCTION_NAME;
 }

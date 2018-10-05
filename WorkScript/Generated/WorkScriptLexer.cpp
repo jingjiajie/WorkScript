@@ -1,4 +1,4 @@
-
+#include "stdafx.h"
 // Generated from WorkScript.g4 by ANTLR 4.7.1
 
 
@@ -16,23 +16,23 @@ WorkScriptLexer::~WorkScriptLexer() {
   delete _interpreter;
 }
 
-std::string WorkScriptLexer::getGrammarFileName() const {
+std::wstring WorkScriptLexer::getGrammarFileName() const {
   return "WorkScript.g4";
 }
 
-const std::vector<std::string>& WorkScriptLexer::getRuleNames() const {
+const std::vector<std::wstring>& WorkScriptLexer::getRuleNames() const {
   return _ruleNames;
 }
 
-const std::vector<std::string>& WorkScriptLexer::getChannelNames() const {
+const std::vector<std::wstring>& WorkScriptLexer::getChannelNames() const {
   return _channelNames;
 }
 
-const std::vector<std::string>& WorkScriptLexer::getModeNames() const {
+const std::vector<std::wstring>& WorkScriptLexer::getModeNames() const {
   return _modeNames;
 }
 
-const std::vector<std::string>& WorkScriptLexer::getTokenNames() const {
+const std::vector<std::wstring>& WorkScriptLexer::getTokenNames() const {
   return _tokenNames;
 }
 
@@ -59,7 +59,7 @@ atn::PredictionContextCache WorkScriptLexer::_sharedContextCache;
 atn::ATN WorkScriptLexer::_atn;
 std::vector<uint16_t> WorkScriptLexer::_serializedATN;
 
-std::vector<std::string> WorkScriptLexer::_ruleNames = {
+std::vector<std::wstring> WorkScriptLexer::_ruleNames = {
   u8"ACCESS_LEVEL", u8"INCLUDE", u8"WHEN", u8"BOOLEAN", u8"IDENTIFIER", 
   u8"DOUBLE", u8"INTEGER", u8"STRING", u8"POINT", u8"COMMA", u8"LEFT_PARENTHESE", 
   u8"RIGHT_PARENTHESE", u8"LEFT_BRACE", u8"RIGHT_BRACE", u8"LEFT_BRACKET", 
@@ -70,22 +70,22 @@ std::vector<std::string> WorkScriptLexer::_ruleNames = {
   u8"WS"
 };
 
-std::vector<std::string> WorkScriptLexer::_channelNames = {
+std::vector<std::wstring> WorkScriptLexer::_channelNames = {
   "DEFAULT_TOKEN_CHANNEL", "HIDDEN"
 };
 
-std::vector<std::string> WorkScriptLexer::_modeNames = {
+std::vector<std::wstring> WorkScriptLexer::_modeNames = {
   u8"DEFAULT_MODE"
 };
 
-std::vector<std::string> WorkScriptLexer::_literalNames = {
+std::vector<std::wstring> WorkScriptLexer::_literalNames = {
   "", "", u8"'include'", u8"'when'", "", "", "", "", "", u8"'.'", u8"','", 
   u8"'('", u8"')'", u8"'{'", u8"'}'", u8"'['", u8"']'", u8"'=='", u8"'='", 
   u8"'=>'", u8"':='", u8"':'", u8"'+'", u8"'-'", u8"'*'", u8"'/'", u8"'%'", 
   u8"'#'", u8"'>'", u8"'>='", u8"'<'", u8"'<='", "", "", u8"'...'", u8"'\n'"
 };
 
-std::vector<std::string> WorkScriptLexer::_symbolicNames = {
+std::vector<std::wstring> WorkScriptLexer::_symbolicNames = {
   "", u8"ACCESS_LEVEL", u8"INCLUDE", u8"WHEN", u8"BOOLEAN", u8"IDENTIFIER", 
   u8"DOUBLE", u8"INTEGER", u8"STRING", u8"POINT", u8"COMMA", u8"LEFT_PARENTHESE", 
   u8"RIGHT_PARENTHESE", u8"LEFT_BRACE", u8"RIGHT_BRACE", u8"LEFT_BRACKET", 
@@ -98,12 +98,12 @@ std::vector<std::string> WorkScriptLexer::_symbolicNames = {
 
 dfa::Vocabulary WorkScriptLexer::_vocabulary(_literalNames, _symbolicNames);
 
-std::vector<std::string> WorkScriptLexer::_tokenNames;
+std::vector<std::wstring> WorkScriptLexer::_tokenNames;
 
 WorkScriptLexer::Initializer::Initializer() {
   // This code could be in a static initializer lambda, but VS doesn't allow access to private class members from there.
 	for (size_t i = 0; i < _symbolicNames.size(); ++i) {
-		std::string name = _vocabulary.getLiteralName(i);
+		std::wstring name = _vocabulary.getLiteralName(i);
 		if (name.empty()) {
 			name = _vocabulary.getSymbolicName(i);
 		}

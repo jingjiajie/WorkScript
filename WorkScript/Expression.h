@@ -1,26 +1,28 @@
 #pragma once
-#include <iostream>
 #include "Defines.h"
 #include "WorkScriptException.h"
-#include "TypeInfo.h"
-#include "LinkContext.h"
-#include "Pointer.h"
+#include "GenerateContext.h"
+#include "GenerateResult.h"
+#include "ExpressionType.h"
+#include "Program.h"
 
-class Context;
-class TypeExpression;
-class StringExpression;
+namespace WorkScript {
+	class Type;
 
-class Expression : public EnablePointer
-{
-public:
-	inline Expression() {};
-	virtual ~Expression();
-	//需要实现的接口函数
-	virtual const Pointer<Expression> evaluate(Context *const& context) = 0;
-	virtual const Pointer<TypeExpression> getType(Context *const& context) const = 0;
-	virtual const Pointer<StringExpression> toString(Context *const& context) = 0;
-	virtual void link(LinkContext *const& context) = 0;
-	virtual bool equals(Context *const &context, const Pointer<Expression>&) const = 0;
+	class Expression
+	{
+	public:
+		inline Expression() {};
+		virtual ~Expression();
+		//生成LLVM字节码的接口函数
+		virtual GenerateResult generateIR(GenerateContext *context) = 0;
+		//需要实现的接口函数
+		virtual Type* getType() const = 0;
+		virtual ExpressionType getExpressionType() const = 0;
+		virtual std::wstring toString() const = 0;
+		//virtual bool equals(Expression *) const = 0;
+		virtual Expression * clone() const = 0;
+		Program *program;
+	};
 
-protected:
-};
+}

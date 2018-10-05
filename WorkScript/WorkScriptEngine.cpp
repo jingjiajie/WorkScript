@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "WorkScriptEngine.h"
 #include "Program.h"
 #include "antlr4-runtime.h"
@@ -16,10 +17,6 @@
 #include "MainProgram.h"
 #include "SyntaxErrorException.h"
 #include "LinkException.h"
-#include <boost/locale.hpp>
-#include <unordered_set>
-#include <stdio.h>
-#include <vector>
 
 using namespace std;
 

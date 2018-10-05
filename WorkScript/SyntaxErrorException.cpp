@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include "SyntaxErrorException.h"
-#include <sstream>
 
 using namespace std;
 

@@ -10,7 +10,7 @@ class ExpressionWrapper
 public:
 	inline ExpressionWrapper() {}
 
-	inline ExpressionWrapper(const Pointer<Expression> &expr) noexcept
+	inline ExpressionWrapper(Expression *expr) noexcept
 		:expression(expr)
 	{
 
@@ -22,12 +22,12 @@ public:
 
 	}
 
-	inline const Pointer<Expression> getExpression() const
+	inline Expression * getExpression() const
 	{
 		return this->expression;
 	}
 
-	inline void setExpression(const Pointer<Expression> & expression)
+	inline void setExpression(Expression * expression)
 	{
 		this->expression = expression;
 	}

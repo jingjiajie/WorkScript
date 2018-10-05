@@ -1,45 +1,33 @@
+#include "stdafx.h"
 #include "StringExpression.h"
-#include "TypeExpression.h"
-#include "Context.h"
+#include "Type.h"
 #include "Program.h"
-#include <string.h>
+#include "Utils.h"
 
 using namespace std;
+using namespace WorkScript;
 
-OBJECT_POOL_MEMBER_IMPL(StringExpression,64);
-
-const Pointer<StringExpression> StringExpression::combine(const Pointer<StringExpression> *const &stringExpressions, const size_t &count)
+ExpressionType StringExpression::getExpressionType() const
 {
-	auto newInstance = OBJECT_POOL_GET;
-	size_t totalLength = 0;
-	for (size_t i = 0; i < count; ++i) {
-		totalLength += stringExpressions[i]->getLength();
-	}
-
-	wchar_t *buff = new wchar_t[totalLength + 1];
-	for (size_t i = 0, curPos = 0; i < count; curPos += stringExpressions[i]->getLength(), ++i) {
-		wcscpy(buff + curPos, stringExpressions[i]->getValue());
-	}
-	if (newInstance->value)delete[]newInstance->value;
-	newInstance->value = buff;
-	newInstance->length = totalLength;
-	return newInstance;
+	return ExpressionType::STRING_EXPRESSION;
 }
 
-void StringExpression::release()
+Expression * WorkScript::StringExpression::clone() const
 {
-	OBJECT_POOL_PUSH(this);
-	//printf("push string %p\n", this);
+	return new thistype(this->value);
 }
 
-//
-//bool StringExpression::match(const Pointer<Expression> & matchExpression, Context *const& context) const
-//{
-//	//如果类型不同，匹配失败
-//	if (!matchExpression->getType(context)->equals(this->getType(context))) {
-//		return false;
-//	}
-//	//类型相同，比较值是否相同
-//	auto matchValueExpression = (const std::shared_ptr<std::remove_pointer<decltype(this)>::type> &)matchExpression;
-//	return matchValueExpression->getValue() == this->getValue();
-//}
+std::wstring StringExpression::toString() const
+{
+	return this->value;
+}
+
+Type * StringExpression::getType() const
+{
+	return program->getType(TYPENAME_STRING);
+}
+
+GenerateResult StringExpression::generateIR(GenerateContext * context)
+{
+	return (llvm::Value*)context->getIRBuilder()->CreateGlobalStringPtr((char*)this->value.c_str());
+}

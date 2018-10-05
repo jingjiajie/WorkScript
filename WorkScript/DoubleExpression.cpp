@@ -1,90 +1,19 @@
+#include "stdafx.h"
 #include "DoubleExpression.h"
 #include "StringExpression.h"
 #include "BooleanExpression.h"
 #include "IntegerExpression.h"
 #include "ByteExpression.h"
-#include "TypeExpression.h"
-#include "Context.h"
+#include "Type.h"
 #include "Program.h"
-#include "OperatorWrappers.hpp"
-
-#include <type_traits>
+#include "GenerateContext.h"
+#include "GenerateResult.h"
+#include "Utils.h"
 
 using namespace std;
+using namespace WorkScript;
 
-OBJECT_POOL_MEMBER_IMPL(DoubleExpression, 64);
-
-#define DOUBLE_COMPARE_FUNCTION_IMPL(funcName, signWrapper) \
-const Pointer<BooleanExpression> DoubleExpression::funcName(const Pointer<Expression> & targetExpression) const \
-{ \
-	bool result = false; \
-	switch (targetExpression->getType(nullptr)->getTypeID()) { \
-		case TypeExpression::TYPEID_DOUBLE: \
-			result = signWrapper(this->value, ((Pointer<DoubleExpression>)targetExpression)->getValue()); \
-			break; \
-		case TypeExpression::TYPEID_INTEGER: \
-			result = signWrapper(this->value, ((Pointer<IntegerExpression>)targetExpression)->getValue()); \
-			break; \
-		case TypeExpression::TYPEID_BYTE: \
-			result = signWrapper(this->value, ((Pointer<ByteExpression>)targetExpression)->getValue()); \
-			break; \
-	} \
-	return BooleanExpression::newInstance(result); \
-} \
-
-#define DOUBLE_CALCULATE_FUNCTION_IMPL(funcName, signWrapper) \
-const Pointer<NumberExpression> DoubleExpression::funcName(const Pointer<Expression> & targetExpression) const \
-{ \
-	Pointer<NumberExpression>result = nullptr; \
-	switch (targetExpression->getType(nullptr)->getTypeID()) { \
-	case TypeExpression::TYPEID_DOUBLE: \
-		result = DoubleExpression::newInstance(signWrapper(this->value, ((Pointer<DoubleExpression>)targetExpression)->getValue())); \
-		break; \
-	case TypeExpression::TYPEID_INTEGER: \
-		result = DoubleExpression::newInstance(signWrapper(this->value, ((Pointer<IntegerExpression>)targetExpression)->getValue())); \
-		break; \
-	case TypeExpression::TYPEID_BYTE: \
-		result = DoubleExpression::newInstance(signWrapper(this->value, ((Pointer<ByteExpression>)targetExpression)->getValue())); \
-		break; \
-	} \
-	return result; \
-} \
-
-
-DOUBLE_COMPARE_FUNCTION_IMPL(greaterThan, GREATER_THAN_WRAPPER)
-DOUBLE_COMPARE_FUNCTION_IMPL(greaterThanEquals, GREATER_THAN_EQUALS_WRAPPER)
-DOUBLE_COMPARE_FUNCTION_IMPL(lessThan, LESS_THAN_WRAPPER)
-DOUBLE_COMPARE_FUNCTION_IMPL(lessThanEquals, LESS_THAN_EQUALS_WRAPPER)
-DOUBLE_COMPARE_FUNCTION_IMPL(equals, EQUALS_WRAPPER)
-
-DOUBLE_CALCULATE_FUNCTION_IMPL(plus, PLUS_WRAPPER)
-DOUBLE_CALCULATE_FUNCTION_IMPL(minus, MINUS_WRAPPER)
-DOUBLE_CALCULATE_FUNCTION_IMPL(multiply, MULTIPLY_WRAPPER)
-DOUBLE_CALCULATE_FUNCTION_IMPL(divide, DIVIDE_WRAPPER)
-DOUBLE_CALCULATE_FUNCTION_IMPL(modulus, MODULUS_WRAPPER)
-
-DoubleExpression::~DoubleExpression()
-{
-
-}
-
-const Pointer<Expression> DoubleExpression::evaluate(Context *const& context)
-{
-	return this;
-}
-
-//bool DoubleExpression::match(const Pointer<Expression> & matchExpression, Context *const& context) const
-//{
-//	//如果类型不同，匹配失败
-//	if (!matchExpression->getType(context)->equals(this->getType(context))) {
-//		return false;
-//	}
-//	//类型相同，比较值是否相同
-//	auto matchValueExpression = (const std::shared_ptr<std::remove_pointer<decltype(this)>::type> &)matchExpression;
-//	return matchValueExpression->getValue() == this->getValue();
-//}
-
-const Pointer<StringExpression> DoubleExpression::toString(Context *const& context)
+std::wstring DoubleExpression::toString() const
 {
 	double number = this->value;
 	wchar_t buff[32];
@@ -105,10 +34,25 @@ const Pointer<StringExpression> DoubleExpression::toString(Context *const& conte
 		}
 	}
 	numberStr = numberStr.substr(0, numberStr.size() - removeCharCount);
-	return StringExpression::newInstance(numberStr.c_str());
+	return numberStr;
 }
 
-const Pointer<NumberExpression> DoubleExpression::negate() const
+Expression * WorkScript::DoubleExpression::clone() const
 {
-	return DoubleExpression::newInstance(-this->value);
+	return new thistype(this->value);
+}
+
+GenerateResult DoubleExpression::generateIR(GenerateContext * context)
+{
+	return (llvm::Value*)llvm::ConstantFP::get(*context->getLLVMContext(), llvm::APFloat(this->value));
+}
+
+ExpressionType DoubleExpression::getExpressionType() const
+{
+	return ExpressionType::DOUBLE_EXPRESSION;
+}
+
+Type * WorkScript::DoubleExpression::getType() const
+{
+	return program->getType(TYPENAME_DOUBLE);
 }

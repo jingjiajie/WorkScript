@@ -1,34 +1,30 @@
+#include "stdafx.h"
 #include "NegativeExpression.h"
-#include "TypeExpression.h"
+#include "Type.h"
 #include "StringExpression.h"
 #include "DoubleExpression.h"
 #include "UncalculatableException.h"
+#include "Utils.h"
 
 using namespace std;
+using namespace WorkScript;
 
-NegativeExpression::~NegativeExpression()
+ExpressionType NegativeExpression::getExpressionType() const
 {
+	return ExpressionType::NEGATIVE_EXPRESSION;
 }
 
-const Pointer<Expression> NegativeExpression::evaluate(Context * const & context)
+Expression * WorkScript::NegativeExpression::clone() const
 {
-	Pointer<Expression> evaluatedSub =  this->subExpression->evaluate(context);
-	if (evaluatedSub->getType(context)->isSubTypeOf(context, TypeExpression::NUMBER_EXPRESSION)) {
-		return ((Pointer<NumberExpression>)evaluatedSub)->negate();
-	}
-	else {
-		Pointer<StringExpression> str = evaluatedSub->toString(context);
-		throw std::move(UncalculatableException((wstring(str->getValue()) + L"无法取负！").c_str()));
-	}
+	return new thistype(this->subExpression);
 }
 
-const Pointer<TypeExpression> NegativeExpression::getType(Context * const & context) const
+std::wstring WorkScript::NegativeExpression::getOperatorString() const
 {
-	return TypeExpression::NEGATIVE_EXPRESSION;
+	return L"-";
 }
 
-const Pointer<StringExpression> NegativeExpression::toString(Context * const & context)
+std::wstring WorkScript::NegativeExpression::getOperatorFunctionName() const
 {
-	static Pointer<StringExpression> sign = new StringExpression(L"-", ReleaseStrategy::DELETE);
-	return UnaryOperatorExpression::toString(context, sign);
+	return OPERATOR_NEGATE_FUNCTION_NAME;
 }

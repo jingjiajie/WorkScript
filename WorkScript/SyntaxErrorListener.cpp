@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "SyntaxErrorListener.h"
 #include "SyntaxErrorException.h"
 #include "Token.h"
@@ -6,9 +7,6 @@
 #include "TokenSource.h"
 #include "CharStream.h"
 #include "IntStream.h"
-#include <utility>
-#include <sstream>
-#include <boost/locale.hpp>
 
 using namespace std;
 
@@ -41,7 +39,7 @@ void SyntaxErrorListener::syntaxError(Recognizer * recognizer,
 	Token * offendingSymbol,
 	size_t line,
 	size_t charPositionInLine,
-	const std::string & msg,
+	const std::wstring & msg,
 	std::exception_ptr e)
 {
 	wstringstream ss, ssCode;

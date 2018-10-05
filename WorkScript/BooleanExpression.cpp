@@ -1,44 +1,33 @@
+#include "stdafx.h"
 #include "BooleanExpression.h"
 #include "StringExpression.h"
-#include "TypeExpression.h"
-#include "Context.h"
+#include "Type.h"
 #include "Program.h"
 #include "IllegalValueException.h"
+#include "GenerateContext.h"
+#include "GenerateResult.h"
+#include "Utils.h"
+
+using namespace WorkScript;
 using namespace std;
 
-OBJECT_POOL_MEMBER_IMPL(BooleanExpression, 64);
 
 //真值
-Pointer<BooleanExpression> BooleanExpression::VAL_TRUE(new BooleanExpression(1, ReleaseStrategy::DELETE));
-Pointer<BooleanExpression> BooleanExpression::VAL_YES(new BooleanExpression(3, ReleaseStrategy::DELETE));
-Pointer<BooleanExpression> BooleanExpression::VAL_OK(new BooleanExpression(5, ReleaseStrategy::DELETE));
-Pointer<BooleanExpression> BooleanExpression::VAL_GOOD(new BooleanExpression(7, ReleaseStrategy::DELETE));
-
-Pointer<StringExpression> BooleanExpression::STR_TRUE(new StringExpression(L"true", ReleaseStrategy::DELETE));
-Pointer<StringExpression> BooleanExpression::STR_YES(new StringExpression(L"yes", ReleaseStrategy::DELETE));
-Pointer<StringExpression> BooleanExpression::STR_OK(new StringExpression(L"ok", ReleaseStrategy::DELETE));
-Pointer<StringExpression> BooleanExpression::STR_GOOD(new StringExpression(L"good", ReleaseStrategy::DELETE));
-
+BooleanExpression BooleanExpression::TRUE(1);
+BooleanExpression BooleanExpression::YES(3);
+BooleanExpression BooleanExpression::OK(5);
+BooleanExpression BooleanExpression::GOOD(7);
 //假值
-Pointer<BooleanExpression> BooleanExpression::VAL_FALSE(new BooleanExpression(0, ReleaseStrategy::DELETE));
-Pointer<BooleanExpression> BooleanExpression::VAL_NO(new BooleanExpression(2, ReleaseStrategy::DELETE));
-Pointer<BooleanExpression> BooleanExpression::VAL_BAD(new BooleanExpression(4, ReleaseStrategy::DELETE));
+BooleanExpression BooleanExpression::FALSE(0);
+BooleanExpression BooleanExpression::NO(2);
+BooleanExpression BooleanExpression::BAD(4);
 
-Pointer<StringExpression> BooleanExpression::STR_FALSE(new StringExpression(L"false", ReleaseStrategy::DELETE));
-Pointer<StringExpression> BooleanExpression::STR_NO(new StringExpression(L"no", ReleaseStrategy::DELETE));
-Pointer<StringExpression> BooleanExpression::STR_BAD(new StringExpression(L"bad", ReleaseStrategy::DELETE));
-
-
-BooleanExpression::~BooleanExpression()
+GenerateResult BooleanExpression::generateIR(GenerateContext * context)
 {
+	return (llvm::Value*)llvm::ConstantInt::get(llvm::Type::getInt8Ty(*context->getLLVMContext()), llvm::APInt(8, this->value));
 }
 
-const Pointer<Expression> BooleanExpression::evaluate(Context *const& context)
-{
-	return this;
-}
-
-//bool BooleanExpression::match(const Pointer<Expression> & matchExpression,Context *const &context) const
+//bool BooleanExpression::match(Expression * matchExpression,Context *const &context) const
 //{
 //	//如果类型不同，匹配失败
 //	if (!matchExpression->getType(context)->equals(this->getType(context))) {
@@ -49,29 +38,43 @@ const Pointer<Expression> BooleanExpression::evaluate(Context *const& context)
 //	return matchValueExpression->getValue() == this->getValue();
 //}
 
-bool BooleanExpression::equals(Context *const &context, const Pointer<Expression> & targetExpression) const
-{
-	if (targetExpression == this)return true;
-	if (!targetExpression->getType(context)->equals(context, this->getType(context))) {
-		return false;
-	}
-	auto targetExpressionOfMyType = (const Pointer<BooleanExpression> &)targetExpression;
-	//偶数为假，奇数为真
-	return targetExpressionOfMyType->value % 2 == this->value % 2;
-}
+//bool BooleanExpression::equals(Expression  *targetExpression) const
+//{
+//	//if (targetExpression == this)return true;
+//	//if (!targetExpression->getType()->equals(this->getType())) {
+//	//	return false;
+//	//}
+//	//auto targetExpressionOfMyType = (const Pointer<BooleanExpression> &)targetExpression;
+//	////偶数为假，奇数为真
+//	//return targetExpressionOfMyType->value % 2 == this->value % 2;
+//	return targetExpression == this;
+//}
 
-const Pointer<StringExpression> BooleanExpression::toString(Context * const & context)
+std::wstring BooleanExpression::toString() const
 {
 	switch (this->value) {
-	case 1:return BooleanExpression::STR_TRUE;
-	case 3:return BooleanExpression::STR_YES;
-	case 5:return BooleanExpression::STR_OK;
-	case 7:return BooleanExpression::STR_GOOD;
-
-	case 0:return BooleanExpression::STR_FALSE;
-	case 2:return BooleanExpression::STR_NO;
-	case 4:return BooleanExpression::STR_BAD;
-	default:
-		throw IllegalValueException((to_wstring(this->value) + L"不是合法的布尔值！").c_str());
+	case 0:return L"false";
+	case 2:return L"no";
+	case 4:return L"bad";
+	case 1:return L"true";
+	case 3:return L"yes";
+	case 5:return L"ok";
+	case 7:return L"good";
+	default:return L"unknown_bool";
 	}
+}
+
+Type * WorkScript::BooleanExpression::getType() const
+{
+	return program->getType(TYPENAME_BOOLEAN);
+}
+
+ExpressionType BooleanExpression::getExpressionType() const
+{
+	return ExpressionType::BOOLEAN_EXPRESSION;
+}
+
+Expression * WorkScript::BooleanExpression::clone() const
+{
+	return new thistype(this->value);
 }

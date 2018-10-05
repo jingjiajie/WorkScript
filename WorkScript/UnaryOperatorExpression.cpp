@@ -1,18 +1,26 @@
+#include "stdafx.h"
 #include "UnaryOperatorExpression.h"
-#include "TypeExpression.h"
-#include "Context.h"
+#include "Type.h"
+
+using namespace WorkScript;
 
 UnaryOperatorExpression::~UnaryOperatorExpression()
 {
+	delete this->subExpression;
 }
 
-bool UnaryOperatorExpression::equals(Context * const & context, const Pointer<Expression> &target) const
+bool UnaryOperatorExpression::equals(Expression *target) const
 {
-	if (!target->getType(context)->equals(context, this->getType(context)))return false;
-	return this->subExpression->equals(context, ((Pointer<UnaryOperatorExpression>)target)->subExpression);
+	return target == this;
 }
 
-void UnaryOperatorExpression::link(LinkContext * const & context)
+std::wstring WorkScript::UnaryOperatorExpression::toString() const
 {
-	this->subExpression->link(context);
+	return this->getOperatorString() + this->subExpression->toString();
+}
+
+Type * WorkScript::UnaryOperatorExpression::getType() const
+{
+	Type *subExprType = this->subExpression->getType();
+	return subExprType->inferReturnType(this->getOperatorFunctionName(), {});
 }

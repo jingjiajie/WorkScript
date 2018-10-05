@@ -1,7 +1,6 @@
 
 // Generated from WorkScript.g4 by ANTLR 4.7.1
-
-
+#include "stdafx.h"
 #include "WorkScriptVisitor.h"
 
 #include "WorkScriptParser.h"
@@ -18,11 +17,11 @@ WorkScriptParser::~WorkScriptParser() {
   delete _interpreter;
 }
 
-std::string WorkScriptParser::getGrammarFileName() const {
+std::wstring WorkScriptParser::getGrammarFileName() const {
   return "WorkScript.g4";
 }
 
-const std::vector<std::string>& WorkScriptParser::getRuleNames() const {
+const std::vector<std::wstring>& WorkScriptParser::getRuleNames() const {
   return _ruleNames;
 }
 
@@ -2291,21 +2290,21 @@ atn::PredictionContextCache WorkScriptParser::_sharedContextCache;
 atn::ATN WorkScriptParser::_atn;
 std::vector<uint16_t> WorkScriptParser::_serializedATN;
 
-std::vector<std::string> WorkScriptParser::_ruleNames = {
+std::vector<std::wstring> WorkScriptParser::_ruleNames = {
   "program", "includeCommand", "expression", "parameterExpression", "parameterExpressionItem", 
   "numberExpression", "stringExpression", "variableExpression", "functionExpression", 
   "functionDeclarationExpression", "functionImplementationExpression", "functionConstraintExpression", 
   "blockExpression", "booleanExpression", "varargsExpression", "identifier"
 };
 
-std::vector<std::string> WorkScriptParser::_literalNames = {
+std::vector<std::wstring> WorkScriptParser::_literalNames = {
   "", "", "'include'", "'when'", "", "", "", "", "", "'.'", "','", "'('", 
   "')'", "'{'", "'}'", "'['", "']'", "'=='", "'='", "'=>'", "':='", "':'", 
   "'+'", "'-'", "'*'", "'/'", "'%'", "'#'", "'>'", "'>='", "'<'", "'<='", 
   "", "", "'...'", "'\n'"
 };
 
-std::vector<std::string> WorkScriptParser::_symbolicNames = {
+std::vector<std::wstring> WorkScriptParser::_symbolicNames = {
   "", "ACCESS_LEVEL", "INCLUDE", "WHEN", "BOOLEAN", "IDENTIFIER", "DOUBLE", 
   "INTEGER", "STRING", "POINT", "COMMA", "LEFT_PARENTHESE", "RIGHT_PARENTHESE", 
   "LEFT_BRACE", "RIGHT_BRACE", "LEFT_BRACKET", "RIGHT_BRACKET", "DOUBLE_EQUAL", 
@@ -2317,11 +2316,11 @@ std::vector<std::string> WorkScriptParser::_symbolicNames = {
 
 dfa::Vocabulary WorkScriptParser::_vocabulary(_literalNames, _symbolicNames);
 
-std::vector<std::string> WorkScriptParser::_tokenNames;
+std::vector<std::wstring> WorkScriptParser::_tokenNames;
 
 WorkScriptParser::Initializer::Initializer() {
 	for (size_t i = 0; i < _symbolicNames.size(); ++i) {
-		std::string name = _vocabulary.getLiteralName(i);
+		std::wstring name = _vocabulary.getLiteralName(i);
 		if (name.empty()) {
 			name = _vocabulary.getSymbolicName(i);
 		}

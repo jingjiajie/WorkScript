@@ -1,24 +1,33 @@
+#include "stdafx.h"
 #include "LessThanEqualExpression.h"
 #include "StringExpression.h"
 #include "BooleanExpression.h"
 #include "DoubleExpression.h"
+#include "Utils.h"
+
+using namespace std;
+using namespace WorkScript;
 
 LessThanEqualExpression::~LessThanEqualExpression()
 {
 }
 
-const Pointer<TypeExpression> LessThanEqualExpression::getType(Context * const & context) const
+ExpressionType LessThanEqualExpression::getExpressionType() const
 {
-	return TypeExpression::LESS_THAN_EQUAL_EXPRESSION;
+	return ExpressionType::LESS_THAN_EQUAL_EXPRESSION;
 }
 
-const Pointer<StringExpression> LessThanEqualExpression::toString(Context * const & context)
+Expression * WorkScript::LessThanEqualExpression::clone() const
 {
-	static Pointer<StringExpression> sign = new StringExpression(L"<=", ReleaseStrategy::DELETE);
-	return BinaryOperatorExpression::toString(context, sign);
+	return new thistype(this->leftExpression, this->rightExpression);
 }
 
-const Pointer<BooleanExpression> LessThanEqualExpression::numberCompareNumber(Context * context, const Pointer<NumberExpression> &left, const Pointer<NumberExpression> &right) const
+std::wstring WorkScript::LessThanEqualExpression::getOperatorString() const
 {
-	return left->lessThanEquals(right);
+	return L"<=";
+}
+
+std::wstring WorkScript::LessThanEqualExpression::getOperatorFunctionName() const
+{
+	return OPERATOR_LESS_THAN_EQUAL_FUNCTION_NAME;
 }

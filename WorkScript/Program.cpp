@@ -1,75 +1,103 @@
+#include "stdafx.h"
 #include "Program.h"
-#include "Expression.h"
-#include "Context.h"
-#include "ExecuteCppCodeExpression.h"
-#include "FunctionExpression.h"
-#include "BooleanExpression.h"
-#include "VariableExpression.h"
-#include "StringExpression.h"
-#include "AssignmentExpression.h"
-#include "CallStack.h"
-#include "StackFrame.h"
-#include <locale.h>
-#include <time.h>
-#include <wchar.h>
+#include "Function.h"
+#include "FunctionTemplate.h"
 
 using namespace std;
+using namespace WorkScript;
+namespace WorkScript {
+	extern void initIntegerType(Program *p);
+	extern void initBooleanType(Program *p);
+	extern void initByteType(Program *p);
+	extern void initDoubleType(Program *p);
+	extern void initStringType(Program *p);
+}
 
 Program::Program()
 {
-
+	this->types[TYPENAME_INTEGER] = nullptr;
+	this->types[TYPENAME_BOOLEAN] = nullptr;
+	this->types[TYPENAME_BYTE] = nullptr;
+	this->types[TYPENAME_DOUBLE] = nullptr;
+	this->types[TYPENAME_STRING] = nullptr;
+	initIntegerType(this);
+	initBooleanType(this);
+	initByteType(this);
+	initDoubleType(this);
+	initStringType(this);
 }
-
 
 Program::~Program()
 {
-}
-
-void Program::printProgram()const
-{
-	for (auto &expr : this->expressions) {
-		auto strExpr = expr->toString(nullptr);
-		wprintf(L"%s\n", strExpr->getValue());
+	for (auto itFunc : this->functions)
+	{
+		delete itFunc.second;
+	}
+	for (auto itFuncTemplate : this->functionTemplates)
+	{
+		delete itFuncTemplate.second;
 	}
 }
-
-void Program::execute(Context *context) //throws WorkScriptException
+Overload * WorkScript::Program::getFunctionOverload(const std::wstring &funcName, const std::vector<Type*> &paramTypes, Type *type)
 {
-	for (auto &expr : this->expressions) {
-		expr->evaluate(context);
+	auto it = this->functions.find(make_pair(type, funcName));
+	Function *func;
+	FunctionTemplate *funcTemplate;
+	//获取相应模板
+	auto itTemplate = this->functionTemplates.find(make_pair(type, funcName));
+	if (itTemplate == this->functionTemplates.end()) {
+		funcTemplate = nullptr;
 	}
-	return;
-}
-
-void Program::link(LinkContext *context)
-{
-	for (auto &expr : this->expressions) {
-		expr->link(context);
+	else {
+		funcTemplate = itTemplate->second;
 	}
+	//获取函数
+	if (it != this->functions.end())
+	{
+		func = it->second;
+	}
+	else {
+		if (!funcTemplate) return nullptr;
+		func = funcTemplate->createFunction();
+		this->addFunction(func, type);
+	}
+	//获取重载
+	Overload *overload = func->getOverload(paramTypes);
+	if (!overload) {
+		if (!funcTemplate)return nullptr;
+		OverloadTemplate *overloadTemplate = funcTemplate->getOverload(paramTypes);
+		if (!overloadTemplate)return nullptr;
+		overload = overloadTemplate->createOverload(func, paramTypes);
+		func->addOverload(overload);
+	}
+	return overload;
 }
 
-void Program::pushExpression(const Pointer<Expression> &expr)
+void WorkScript::Program::addFunction(Function * func, Type *type)
 {
-	this->expressions.push_back(expr);
+	this->functions[make_pair(type, func->getName())] = func;
 }
 
-const std::vector<Pointer<Expression>>& Program::getExpressions() const
+FunctionTemplate * WorkScript::Program::getFunctionTemplate(const std::wstring & funcName, Type *type) const
 {
-	return this->expressions;
+	auto it = this->functionTemplates.find(make_pair(type, funcName));
+	if (it == this->functionTemplates.end())return nullptr;
+	else return it->second;
 }
 
-void Program::addIncludeFile(const wchar_t * filePath)
+void WorkScript::Program::addFunctionTemplate(FunctionTemplate *funcTemplate, Type *type)
 {
-	this->includeFiles.push_back(filePath);
+	this->functionTemplates[make_pair(type, funcTemplate->getName())] = funcTemplate;
 }
 
-std::vector<std::wstring> Program::getIncludeFiles() const
+Type * WorkScript::Program::getType(const std::wstring & name) const
 {
-	return this->includeFiles;
+	auto it = this->types.find(name);
+	if (it == this->types.end()) return nullptr;
+	else return it->second;
 }
 
-void Program::pushAssignmentExpression(const wchar_t * const & varName, const Pointer<Expression> & value)
+void WorkScript::Program::addType(Type * type)
 {
-	auto expr = new AssignmentExpression(new VariableExpression(varName), value);
-	this->pushExpression(expr);
+	this->types[type->getName()] = type;
 }
