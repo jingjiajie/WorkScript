@@ -8,7 +8,7 @@ WorkScript::BranchOverload::~BranchOverload()
 
 GenerateResult WorkScript::BranchOverload::generateIR(GenerateContext * context)
 {
-	llvm::Function *func = this->makeLLVMFunction(context);
+	llvm::Function *func = this->getLLVMFunction(context);
 	llvm::BasicBlock *entry = llvm::BasicBlock::Create(*context->getLLVMContext(), "entry", func);
 	llvm::BasicBlock *mergeBlock = llvm::BasicBlock::Create(*context->getLLVMContext(), "merge", func);
 	auto builder = context->getIRBuilder();
@@ -18,7 +18,7 @@ GenerateResult WorkScript::BranchOverload::generateIR(GenerateContext * context)
 	for (size_t i = 0; i < this->branches.size(); ++i)
 	{
 		builder->SetInsertPoint(entry);
-		curFalseBlock = this->branches[branchCount - i]->generateBlock(context, curFalseBlock, mergeBlock);
+		curFalseBlock = this->branches[branchCount - i]->generateBlock(context, func, curFalseBlock, mergeBlock);
 	}
 	llvm::verifyFunction(*func);
 	return (llvm::Value*)func;

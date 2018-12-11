@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "OverloadBranch.h"
 
-llvm::BasicBlock * WorkScript::OverloadBranch::generateBlock(GenerateContext * context, llvm::BasicBlock * falseBlock, llvm::BasicBlock * mergeBlock)
+llvm::BasicBlock * WorkScript::OverloadBranch::generateBlock(GenerateContext * context, llvm::Function *llvmFunc, llvm::BasicBlock * falseBlock, llvm::BasicBlock * mergeBlock)
 {
 	auto builder = context->getIRBuilder();
-	auto curFunc = context->getCurrentFunction();
+	auto curFunc = llvmFunc;
 	llvm::BasicBlock *block = llvm::BasicBlock::Create(*context->getLLVMContext(), "if", curFunc);
 	llvm::BasicBlock *trueBlock = llvm::BasicBlock::Create(*context->getLLVMContext(), "if_true", curFunc);
 	builder->SetInsertPoint(block);

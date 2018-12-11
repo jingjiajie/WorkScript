@@ -39,12 +39,12 @@ void SyntaxErrorListener::syntaxError(Recognizer * recognizer,
 	Token * offendingSymbol,
 	size_t line,
 	size_t charPositionInLine,
-	const std::wstring & msg,
+	const std::string & msg,
 	std::exception_ptr e)
 {
 	wstringstream ss, ssCode;
 	wstring woffendingText = boost::locale::conv::utf_to_utf<wchar_t>(offendingSymbol->getInputStream()->toString());
-	wstring wmsg = boost::locale::conv::to_utf<wchar_t>(msg,LOCAL_BOOST_ENCODING);
+	wstring wmsg = boost::locale::conv::to_utf<wchar_t>(msg, LOCAL_BOOST_ENCODING);
 	ssCode << woffendingText;
 	wstring lineData;
 	for (int i = 0; i < line; i++) {

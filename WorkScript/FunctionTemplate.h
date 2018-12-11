@@ -5,7 +5,8 @@
 namespace WorkScript {
 	class FunctionTemplate {
 	public:
-		inline FunctionTemplate(const std::wstring &name) :name(name) {}
+		inline FunctionTemplate(Program *program, const std::wstring &name)
+			:program(program), name(name) {}
 
 		inline ~FunctionTemplate()
 		{

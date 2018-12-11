@@ -227,7 +227,7 @@
       <PreprocessorDefinitions>BOOST_LIB_DIAGNOSTIC;ANTLR4CPP_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.core.x64-Debug.6.0.0\lib\native\include;C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.x64.6.0.0\lib\native\include;C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS /Zm1000 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS /D _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING /D _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING /Zm1000 %(AdditionalOptions)</AdditionalOptions>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <DisableSpecificWarnings>4146;4267;4141;4244;4624;4291</DisableSpecificWarnings>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
@@ -329,6 +329,7 @@
     <ClInclude Include="BinaryOperatorExpression.h" />
     <ClInclude Include="BooleanExpression.h" />
     <ClInclude Include="BranchOverload.h" />
+    <ClInclude Include="BranchOverloadTemplate.h" />
     <ClInclude Include="ByteExpression.h" />
     <ClInclude Include="BinaryCompareExpression.h" />
     <ClInclude Include="ExpressionType.h" />
@@ -365,6 +366,7 @@
     <ClInclude Include="DoubleExpression.h" />
     <ClInclude Include="Overload.h" />
     <ClInclude Include="OverloadBranch.h" />
+    <ClInclude Include="OverloadBranchTemplate.h" />
     <ClInclude Include="OverloadTemplate.h" />
     <ClInclude Include="Parameter.h" />
     <ClInclude Include="ParameterExpression.h" />
@@ -376,6 +378,8 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StringExpression.h" />
     <ClInclude Include="StringType.cpp" />
+    <ClInclude Include="SymbolInfo.h" />
+    <ClInclude Include="SymbolTable.h" />
     <ClInclude Include="SyntaxErrorException.h" />
     <ClInclude Include="SyntaxErrorListener.h" />
     <ClInclude Include="SyntaxErrorStrategy.h" />
@@ -400,6 +404,7 @@
     <ClCompile Include="BooleanExpression.cpp" />
     <ClCompile Include="BooleanType.cpp" />
     <ClCompile Include="BranchOverload.cpp" />
+    <ClCompile Include="BranchOverloadTemplate.cpp" />
     <ClCompile Include="ByteExpression.cpp" />
     <ClCompile Include="ByteType.cpp" />
     <ClCompile Include="CompareExpression.cpp" />
@@ -431,6 +436,7 @@
     <ClCompile Include="DoubleExpression.cpp" />
     <ClCompile Include="Overload.cpp" />
     <ClCompile Include="OverloadBranch.cpp" />
+    <ClCompile Include="OverloadBranchTemplate.cpp" />
     <ClCompile Include="OverloadTemplate.cpp" />
     <ClCompile Include="ParameterExpression.cpp" />
     <ClCompile Include="ParameterTemplate.cpp" />
@@ -440,6 +446,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="StringExpression.cpp" />
+    <ClCompile Include="SymbolInfo.cpp" />
+    <ClCompile Include="SymbolTable.cpp" />
     <ClCompile Include="SyntaxErrorException.cpp" />
     <ClCompile Include="SyntaxErrorListener.cpp" />
     <ClCompile Include="SyntaxErrorStrategy.cpp" />

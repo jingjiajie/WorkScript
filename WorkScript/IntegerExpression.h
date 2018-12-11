@@ -1,12 +1,13 @@
 #pragma once
 #include "Expression.h"
+#include "IntegerType.h"
 
 namespace WorkScript {
 	class IntegerExpression :
 		public Expression
 	{
 	public:
-		inline IntegerExpression(int v) :value(v) {}
+		inline IntegerExpression(Program *program, IntegerType *type, long long v);
 
 		virtual GenerateResult generateIR(GenerateContext *context);
 		virtual ExpressionType getExpressionType() const override;
@@ -14,15 +15,16 @@ namespace WorkScript {
 		virtual Expression * clone() const override;
 		virtual std::wstring toString() const override;
 
-		inline const int getValue() const {
+		inline long long getValue() const {
 			return this->value;
 		}
 
-		inline void setValue(const int &value) {
+		inline void setValue(long long value) {
 			this->value = value;
 		}
 	protected:
-		int value;
+		long long value;
+		IntegerType *type;
 	};
 }
 

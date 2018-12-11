@@ -2,10 +2,11 @@
 #include "DivideExpression.h"
 #include "Type.h"
 #include "StringExpression.h"
-#include "DoubleExpression.h"
 #include "Program.h"
 #include "VariableExpression.h"
 #include "MultiplyExpression.h"
+#include "IntegerExpression.h"
+#include "FloatExpression.h"
 #include "Utils.h"
 
 using namespace std;
@@ -26,7 +27,22 @@ std::wstring WorkScript::DivideExpression::getOperatorString() const
 	return L"/";
 }
 
-std::wstring WorkScript::DivideExpression::getOperatorFunctionName() const
+GenerateResult WorkScript::DivideExpression::generateLLVMIRIntegerInteger(GenerateContext * context, IntegerExpression * left, IntegerExpression * right) const
 {
-	return OPERATOR_DIVIDE_FUNCTION_NAME;
+	return GenerateResult();
+}
+
+GenerateResult WorkScript::DivideExpression::generateLLVMIRIntegerFloat(GenerateContext * context, IntegerExpression * left, FloatExpression * right) const
+{
+	return GenerateResult();
+}
+
+GenerateResult WorkScript::DivideExpression::generateLLVMIRFloatInteger(GenerateContext * context, FloatExpression * left, IntegerExpression * right) const
+{
+	return GenerateResult();
+}
+
+GenerateResult WorkScript::DivideExpression::generateLLVMIRFloatFloat(GenerateContext * context, FloatExpression * left, FloatExpression * right) const
+{
+	return GenerateResult();
 }

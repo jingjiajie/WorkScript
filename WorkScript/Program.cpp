@@ -101,3 +101,13 @@ void WorkScript::Program::addType(Type * type)
 {
 	this->types[type->getName()] = type;
 }
+
+llvm::LLVMContext * WorkScript::Program::getLLVMContext()
+{
+	return this->llvmContext;
+}
+
+void WorkScript::Program::setLLVMContext(llvm::LLVMContext * ctx)
+{
+	this->llvmContext = ctx;
+}

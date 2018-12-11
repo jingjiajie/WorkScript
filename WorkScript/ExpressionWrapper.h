@@ -1,48 +1,52 @@
 #pragma once
 #include "Expression.h"
 
-enum class ExpressionLifeCycle : unsigned char {
-	COMPILE,ALL
-};
+namespace WorkScript {
 
-class ExpressionWrapper
-{
-public:
-	inline ExpressionWrapper() {}
+	enum class ExpressionLifeCycle : unsigned char {
+		COMPILE, ALL
+	};
 
-	inline ExpressionWrapper(Expression *expr) noexcept
-		:expression(expr)
+	class ExpressionWrapper
 	{
+	public:
+		inline ExpressionWrapper() {}
 
-	}
+		inline ExpressionWrapper(Expression *expr) noexcept
+			:expression(expr)
+		{
 
-	inline ExpressionWrapper(const ExpressionWrapper &wrapper) noexcept
-		:expression(wrapper.expression),lifeCycle(wrapper.lifeCycle)
-	{
+		}
 
-	}
+		inline ExpressionWrapper(const ExpressionWrapper &wrapper) noexcept
+			:expression(wrapper.expression), lifeCycle(wrapper.lifeCycle)
+		{
 
-	inline Expression * getExpression() const
-	{
-		return this->expression;
-	}
+		}
 
-	inline void setExpression(Expression * expression)
-	{
-		this->expression = expression;
-	}
+		inline Expression * getExpression() const
+		{
+			return this->expression;
+		}
 
-	inline ExpressionLifeCycle getLifeCycle()const
-	{
-		return this->lifeCycle;
-	}
+		inline void setExpression(Expression * expression)
+		{
+			this->expression = expression;
+		}
 
-	inline void setLifeCycle(ExpressionLifeCycle lifeCycle)
-	{
-		this->lifeCycle = lifeCycle;
-	}
+		inline ExpressionLifeCycle getLifeCycle()const
+		{
+			return this->lifeCycle;
+		}
 
-protected:
-	Pointer<Expression> expression;
-	ExpressionLifeCycle lifeCycle = ExpressionLifeCycle::ALL;
-};
+		inline void setLifeCycle(ExpressionLifeCycle lifeCycle)
+		{
+			this->lifeCycle = lifeCycle;
+		}
+
+	protected:
+		Expression * expression;
+		ExpressionLifeCycle lifeCycle = ExpressionLifeCycle::ALL;
+	};
+
+}

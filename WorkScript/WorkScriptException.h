@@ -20,9 +20,14 @@ public:
 
 	inline WorkScriptException(const WorkScriptException &tmp) = delete;
 
-	inline WorkScriptException(const wchar_t *const &lpszMsg)
+	inline WorkScriptException(const wchar_t *lpszMsg)
 	{
 		this->setMessage(lpszMsg);
+	}
+
+	inline WorkScriptException(const std::wstring &wmsg)
+	{
+		this->setMessage(wmsg.c_str());
 	}
 
 	virtual ~WorkScriptException();

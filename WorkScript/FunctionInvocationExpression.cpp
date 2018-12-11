@@ -7,6 +7,7 @@
 #include "StringExpression.h"
 #include "ParameterExpression.h"
 #include "Overload.h"
+#include "Utils.h"
 
 using namespace WorkScript;
 using namespace std;
@@ -47,7 +48,8 @@ GenerateResult WorkScript::FunctionInvocationExpression::generateIR(GenerateCont
 
 Type * FunctionInvocationExpression::getType() const
 {
-	this->program->getFunctionOverload(funcName, this->getParameterTypes());
+	Overload *overload = this->program->getFunctionOverload(funcName, this->getParameterTypes());
+	return overload->getReturnType();
 }
 
 std::wstring FunctionInvocationExpression::toString() const
@@ -60,6 +62,13 @@ std::wstring FunctionInvocationExpression::toString() const
 ExpressionType FunctionInvocationExpression::getExpressionType() const
 {
 	return ExpressionType::FUNCTION_INVOCATION_EXPRESSION;
+}
+
+Expression * WorkScript::FunctionInvocationExpression::clone() const
+{
+	auto newInstance = new thistype();
+	newInstance->setParameters((ParameterExpression*)this->parameters->clone());
+	return newInstance;
 }
 
 std::vector<Type*> WorkScript::FunctionInvocationExpression::getParameterTypes() const

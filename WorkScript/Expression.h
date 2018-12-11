@@ -12,7 +12,7 @@ namespace WorkScript {
 	class Expression
 	{
 	public:
-		inline Expression() {};
+		inline Expression(Program *p):program(p) {};
 		virtual ~Expression();
 		//生成LLVM字节码的接口函数
 		virtual GenerateResult generateIR(GenerateContext *context) = 0;

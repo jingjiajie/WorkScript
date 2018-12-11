@@ -6,8 +6,7 @@ namespace WorkScript {
 	public:
 		typedef GenerateResult(*TFuncGenerateIR)(NativeOverload *, GenerateContext*);
 
-		template<size_t paramCount>
-		inline NativeOverload(Function *func, Parameter *const (&params)[paramCount], Type *returnType, TFuncGenerateIR f)
+		inline NativeOverload(Function *func, const std::vector<Parameter*> &params, Type *returnType, TFuncGenerateIR f)
 			: Overload(func, params, returnType), funcGenerateIR(f) {}
 
 		virtual GenerateResult generateIR(GenerateContext *context);

@@ -16,7 +16,7 @@ namespace WorkScript
 			this->setName(name);
 		}
 
-		llvm::Value * getLLVMValue(GenerateContext *context) const;
+		llvm::Value * getLLVMValue(GenerateContext *context);
 
 		inline const Type * getType() const
 		{

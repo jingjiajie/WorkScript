@@ -1,20 +1,21 @@
 #pragma once
 #include <wchar.h>
 
-class Program;
-class LinkContext;
-class Context;
+namespace WorkScript {
+	class Program;
+	class LinkContext;
+	class Context;
 
-class WorkScriptEngine
-{
-public:
-	WorkScriptEngine();
-	~WorkScriptEngine();
+	class WorkScriptEngine
+	{
+	public:
+		WorkScriptEngine();
+		~WorkScriptEngine();
 
-	void run(const char *fileName);
+		void run(const char *fileName);
 
-private:
-	void parseFile(const wchar_t *fileName, Program *outProgram, size_t domain);
-	void combineProgram(Program *destnation, Program *source);
-};
+	private:
+		void parseFile(const wchar_t *fileName, Program *outProgram);
+	};
 
+}

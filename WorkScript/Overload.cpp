@@ -28,18 +28,16 @@ llvm::Function * WorkScript::Overload::getLLVMFunction(GenerateContext * context
 		llvmTypes.reserve(this->parameters.size() + 1);
 		for (size_t i = 0; i < this->parameters.size(); ++i)
 		{
-			llvmTypes[i] = this->parameters[i]->getType()->getLLVMType();
+			llvmTypes[i] = this->parameters[i]->getType()->getLLVMType(context);
 		}
-
 		auto thisParam = this->getThisParameter(); //this
-		llvmTypes[llvmTypes.size() - 1] = thisParam->getType()->getLLVMType();
-		llvm::FunctionType *funcType = llvm::FunctionType::get(this->returnType->getLLVMType(), llvmTypes, false);
+		llvmTypes[llvmTypes.size() - 1] = thisParam->getType()->getLLVMType(context);
+		llvm::FunctionType *funcType = llvm::FunctionType::get(this->returnType->getLLVMType(context), llvmTypes, false);
 		llvm::Function *func = llvm::Function::Create(funcType,
 			llvm::Function::ExternalLinkage,
 			boost::locale::conv::from_utf(this->getMangledFunctionName(), "UTF-8"),
 			context->getLLVMModule()
 		);
-		context->setCurrentFunction(func);
 		this->llvmFunction = func;
 	}
 	return this->llvmFunction;

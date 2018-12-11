@@ -12,7 +12,7 @@ using namespace WorkScript;
 GenerateResult WorkScript::VariableExpression::generateIR(GenerateContext * context)
 {
 	auto symbolInfo = this->symbolTable->getSymbolInfo(this->name);
-	llvm::Value *var = symbolInfo->getLLVMValue(context);
+	llvm::Value *var = ((SymbolInfo*)symbolInfo)->getLLVMValue(context);
 	return var;
 }
 
@@ -31,7 +31,7 @@ Expression * WorkScript::VariableExpression::clone() const
 {
 	auto newInstance = new thistype(this->name);
 	newInstance->type = this->type;
-	newInstance->isVarargs = this->isVarargs;
+	newInstance->varargs = this->varargs;
 	return newInstance;
 }
 

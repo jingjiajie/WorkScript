@@ -1,13 +1,6 @@
 #pragma once
 #include "stdafx.h"
 
-//class llvm::LLVMContext;
-//class llvm::Module;
-//class llvm::ConstantFolder;
-//class llvm::IRBuilderDefaultInserter;
-//template <typename T = ConstantFolder, typename Inserter = IRBuilderDefaultInserter>
-//class llvm::IRBuilder;
-
 class GenerateContext
 {
 public:
@@ -44,33 +37,33 @@ public:
 		this->irBuilder = irBuilder;
 	}
 
-	inline llvm::Function * getCurrentFunction()
-	{
-		return this->currentFunction;
-	}
+	//inline llvm::Function * getCurrentFunction()
+	//{
+	//	return this->currentFunction;
+	//}
 
-	inline void setCurrentFunction(llvm::Function *curFunc)
-	{
-		this->currentFunction = curFunc;
-	}
+	//inline void setCurrentFunction(llvm::Function *curFunc)
+	//{
+	//	this->currentFunction = curFunc;
+	//}
 
-	inline llvm::Value * getLocalVariable(const std::wstring &name)
-	{
-		auto it = this->variables.find(name);
-		if (it == this->variables.end())return nullptr;
-		else return it->second;
-	}
+	//inline llvm::Value * getLocalVariable(const std::wstring &name)
+	//{
+	//	auto it = this->variables.find(name);
+	//	if (it == this->variables.end())return nullptr;
+	//	else return it->second;
+	//}
 
-	inline llvm::Value * setLocalVariable(const std::wstring &name, llvm::Type *type)
-	{
-		llvm::Value *var = this->irBuilder->CreateAlloca(type, nullptr, boost::locale::conv::from_utf(name, "UTF-8"));
-		this->variables[name] = var;
-		return var;
-	}
+	//inline llvm::Value * setLocalVariable(const std::wstring &name, llvm::Type *type)
+	//{
+	//	llvm::Value *var = this->irBuilder->CreateAlloca(type, nullptr, boost::locale::conv::from_utf(name, "UTF-8"));
+	//	this->variables[name] = var;
+	//	return var;
+	//}
 private:
 	llvm::LLVMContext * llvmContext = nullptr;
 	llvm::Module * llvmModule = nullptr;
 	llvm::IRBuilder<> * irBuilder = nullptr;
-	llvm::Function *currentFunction = nullptr;
-	std::unordered_map<std::wstring, llvm::Value*> variables;
+	//llvm::Function *currentFunction = nullptr;
+	//std::unordered_map<std::wstring, llvm::Value*> variables;
 };

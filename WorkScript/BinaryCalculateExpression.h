@@ -7,16 +7,11 @@ namespace WorkScript {
 	{
 	public:
 		inline BinaryCalculateExpression(Expression *left, Expression *right)
-			:BinaryOperatorExpression(left, right)
-		{
-
-		}
+			:BinaryOperatorExpression(left, right) { }
 
 		inline BinaryCalculateExpression()
-			: BinaryOperatorExpression()
-		{
+			: BinaryOperatorExpression() { }
 
-		}
 		virtual ~BinaryCalculateExpression();
 	};
 }

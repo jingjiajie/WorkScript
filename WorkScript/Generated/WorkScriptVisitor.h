@@ -29,11 +29,11 @@ public:
 
     virtual antlrcpp::Any visitListExpression(WorkScriptParser::ListExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitFunctionInvocationExpression(WorkScriptParser::FunctionInvocationExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitStringExpression_(WorkScriptParser::StringExpression_Context *context) = 0;
 
     virtual antlrcpp::Any visitMultiplyDivideModulusExpression(WorkScriptParser::MultiplyDivideModulusExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitFunctionInvocationExpression(WorkScriptParser::FunctionInvocationExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitCompareExpression(WorkScriptParser::CompareExpressionContext *context) = 0;
 

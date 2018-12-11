@@ -8,7 +8,7 @@ namespace WorkScript {
 		inline Function(Program *program, const std::wstring &name)
 			:program(program), name(name) {}
 
-		inline ~Function() 
+		inline ~Function()
 		{
 			for (Overload *overload : this->overloads)delete overload;
 			if (this->thisParam) delete this->thisParam;

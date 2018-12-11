@@ -20,6 +20,7 @@ namespace WorkScript {
 		//virtual bool equals(Expression *) const override;
 		virtual std::wstring toString() const override;
 		virtual Type * getType() const override;
+		virtual GenerateResult generateIR(GenerateContext *context) override;
 
 		inline Expression * getSubExpression() const
 		{

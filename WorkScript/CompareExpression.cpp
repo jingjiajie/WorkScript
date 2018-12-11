@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "BinaryCompareExpression.h"
-#include "BooleanExpression.h"
 #include "UncomparableException.h"
 
 using namespace std;
@@ -12,5 +11,5 @@ BinaryCompareExpression::~BinaryCompareExpression()
 
 Type * WorkScript::BinaryCompareExpression::getType() const
 {
-	return &Type::BOOLEAN;
+	return program->getType(TYPENAME_BOOLEAN);
 }

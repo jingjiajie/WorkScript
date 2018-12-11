@@ -13,6 +13,12 @@ namespace WorkScript {
 
 		virtual Overload * createOverload(Function *func, const std::vector<Type*> &paramTypes) const override;
 
+		inline decltype(auto) getBranches() const
+		{
+			return (this->branchTemplates);
+		}
+
+		void setBranches(const std::vector<OverloadBranchTemplate*> &branches);
 	private:
 		std::vector<OverloadBranchTemplate*> branchTemplates;
 	};

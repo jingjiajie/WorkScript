@@ -3,13 +3,9 @@
 
 #pragma once
 
-
 #include "antlr4-runtime.h"
 
-
-
-
-class  WorkScriptLexer : public antlr4::Lexer {
+class WorkScriptLexer : public antlr4::Lexer {
 public:
   enum {
     ACCESS_LEVEL = 1, INCLUDE = 2, WHEN = 3, BOOLEAN = 4, IDENTIFIER = 5, 
@@ -25,12 +21,12 @@ public:
   WorkScriptLexer(antlr4::CharStream *input);
   ~WorkScriptLexer();
 
-  virtual std::wstring getGrammarFileName() const override;
-  virtual const std::vector<std::wstring>& getRuleNames() const override;
+  virtual std::string getGrammarFileName() const override;
+  virtual const std::vector<std::string>& getRuleNames() const override;
 
-  virtual const std::vector<std::wstring>& getChannelNames() const override;
-  virtual const std::vector<std::wstring>& getModeNames() const override;
-  virtual const std::vector<std::wstring>& getTokenNames() const override; // deprecated, use vocabulary instead
+  virtual const std::vector<std::string>& getChannelNames() const override;
+  virtual const std::vector<std::string>& getModeNames() const override;
+  virtual const std::vector<std::string>& getTokenNames() const override; // deprecated, use vocabulary instead
   virtual antlr4::dfa::Vocabulary& getVocabulary() const override;
 
   virtual const std::vector<uint16_t> getSerializedATN() const override;
@@ -39,13 +35,13 @@ public:
 private:
   static std::vector<antlr4::dfa::DFA> _decisionToDFA;
   static antlr4::atn::PredictionContextCache _sharedContextCache;
-  static std::vector<std::wstring> _ruleNames;
-  static std::vector<std::wstring> _tokenNames;
-  static std::vector<std::wstring> _channelNames;
-  static std::vector<std::wstring> _modeNames;
+  static std::vector<std::string> _ruleNames;
+  static std::vector<std::string> _tokenNames;
+  static std::vector<std::string> _channelNames;
+  static std::vector<std::string> _modeNames;
 
-  static std::vector<std::wstring> _literalNames;
-  static std::vector<std::wstring> _symbolicNames;
+  static std::vector<std::string> _literalNames;
+  static std::vector<std::string> _symbolicNames;
   static antlr4::dfa::Vocabulary _vocabulary;
   static antlr4::atn::ATN _atn;
   static std::vector<uint16_t> _serializedATN;

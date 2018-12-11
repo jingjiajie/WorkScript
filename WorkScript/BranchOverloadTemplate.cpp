@@ -8,13 +8,9 @@
 using namespace WorkScript;
 using namespace std;
 
-BranchOverloadTemplate::BranchOverloadTemplate()
-{
-}
-
-
 BranchOverloadTemplate::~BranchOverloadTemplate()
 {
+	for (auto br : this->branchTemplates)delete br;
 }
 
 Overload * WorkScript::BranchOverloadTemplate::createOverload(Function * func, const std::vector<Type*>& paramTypes) const
@@ -36,4 +32,10 @@ Overload * WorkScript::BranchOverloadTemplate::createOverload(Function * func, c
 	}
 	Overload *overload = new BranchOverload(func, params, retType);
 	return overload;
+}
+
+void WorkScript::BranchOverloadTemplate::setBranches(const std::vector<OverloadBranchTemplate*>& branches)
+{
+	for (auto br : this->branchTemplates)delete br;
+	this->branchTemplates = branches;
 }

@@ -45,18 +45,18 @@ namespace WorkScript {
 			this->varargs = isVarargs;
 		}
 
-		//inline bool isDeclarable() const {
-		//	return this->declarable;
-		//}
+		inline bool isDeclarable() const {
+			return this->declarable;
+		}
 
-		//inline void setDeclarable(bool declarable) {
-		//	this->declarable = declarable;
-		//}
+		inline void setDeclarable(bool declarable) {
+			this->declarable = declarable;
+		}
 	protected:
 		std::wstring name;
 		Type *type;
 		bool varargs = false;
 		SymbolTable *symbolTable = nullptr;
-		//bool declarable = false; //可声明变量，如果具有此属性，则遇到该变量时可以创建声明。否则提示找不到符号
+		bool declarable = false; //可声明变量，如果具有此属性，则遇到该变量时可以创建声明。否则提示找不到符号
 	};
 }

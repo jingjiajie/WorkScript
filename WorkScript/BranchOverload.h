@@ -7,9 +7,8 @@ namespace WorkScript {
 	public:
 		virtual ~BranchOverload();
 
-		template<size_t paramCount>
-		inline BranchOverload(Function *func, Parameter *const (&params)[paramCount], Type *returnType)
-			: BranchOverload(func, params, returnType) {}
+		inline BranchOverload(Function *func, const std::vector<Parameter*> &params, Type *returnType)
+			: Overload(func, params, returnType) {}
 
 		virtual GenerateResult generateIR(GenerateContext *context);
 

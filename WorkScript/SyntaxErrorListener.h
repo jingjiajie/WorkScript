@@ -11,5 +11,5 @@ public:
 	virtual ~SyntaxErrorListener();
 
 	virtual void syntaxError(Recognizer *recognizer, Token * offendingSymbol, size_t line, size_t charPositionInLine,
-		const std::wstring &msg, std::exception_ptr e) override;
+		const std::string &msg, std::exception_ptr e) override;
 };

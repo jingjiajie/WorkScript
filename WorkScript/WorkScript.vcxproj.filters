@@ -130,6 +130,24 @@
     <Filter Include="Expressions\VariableExpressions\Sources">
       <UniqueIdentifier>{b006782e-e638-4993-8c64-b3a175b528d0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FunctionTemplate">
+      <UniqueIdentifier>{d64c00db-259b-46a9-956b-572ed55c03c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FunctionTemplate\Sources">
+      <UniqueIdentifier>{be329e95-8372-4d16-ade1-6e908c9964a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FunctionTemplate\Headers">
+      <UniqueIdentifier>{042e1a6f-4767-4383-87aa-1e7b01236639}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SymbolTable">
+      <UniqueIdentifier>{5f18cf89-584a-4368-be74-37752c045696}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SymbolTable\Headers">
+      <UniqueIdentifier>{fa12c278-09e4-4190-801a-ad390f6c8cb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SymbolTable\Sources">
+      <UniqueIdentifier>{0d840866-f922-4c06-b3c9-be5855034e2e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Expression.h">
@@ -324,11 +342,29 @@
     <ClInclude Include="StringType.cpp">
       <Filter>Type\Sources</Filter>
     </ClInclude>
-    <ClInclude Include="FunctionTemplate.h" />
-    <ClInclude Include="OverloadTemplate.h" />
-    <ClInclude Include="ParameterTemplate.h" />
     <ClInclude Include="Utils.h">
       <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionTemplate.h">
+      <Filter>FunctionTemplate\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="OverloadTemplate.h">
+      <Filter>FunctionTemplate\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ParameterTemplate.h">
+      <Filter>FunctionTemplate\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SymbolTable.h">
+      <Filter>SymbolTable\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SymbolInfo.h">
+      <Filter>SymbolTable\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="BranchOverloadTemplate.h">
+      <Filter>FunctionTemplate\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="OverloadBranchTemplate.h">
+      <Filter>FunctionTemplate\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -504,8 +540,24 @@
     <ClCompile Include="OverloadBranch.cpp">
       <Filter>Function\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="FunctionTemplate.cpp" />
-    <ClCompile Include="OverloadTemplate.cpp" />
-    <ClCompile Include="ParameterTemplate.cpp" />
+    <ClCompile Include="FunctionTemplate.cpp">
+      <Filter>FunctionTemplate\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="OverloadTemplate.cpp">
+      <Filter>FunctionTemplate\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ParameterTemplate.cpp">
+      <Filter>FunctionTemplate\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="SymbolTable.cpp">
+      <Filter>SymbolTable\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="BranchOverloadTemplate.cpp">
+      <Filter>FunctionTemplate\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="OverloadBranchTemplate.cpp">
+      <Filter>FunctionTemplate\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="SymbolInfo.cpp" />
   </ItemGroup>
 </Project>

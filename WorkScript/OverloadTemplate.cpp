@@ -27,17 +27,6 @@ bool WorkScript::OverloadTemplate::matchByParameters(const std::vector<Type*> &p
 	return true;
 }
 
-Overload * WorkScript::OverloadTemplate::createOverload(Function *func, const std::vector<Type*>& paramTypes) const
-{
-	vector<Parameter*> params;
-	params.reserve(paramTypes.size());
-	for (size_t i = 0; i < params.size(); ++i) {
-		Parameter *curParam = new Parameter(this->parameters[i]->getName(), paramTypes[i], this->parameters[i]->getDefaultValue());
-		params[i] = curParam;
-	}
-	Overload *overload = new BranchOverload(func,params,);
-}
-
 ParameterTemplate * WorkScript::OverloadTemplate::getThisParameter()
 {
 	return this->function->getThisParameter();

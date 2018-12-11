@@ -10,7 +10,7 @@ includeCommand: HASH INCLUDE STRING;
 expression:
 	ACCESS_LEVEL COLON																	# AccessLevelExpression
 	| LEFT_PARENTHESE expression RIGHT_PARENTHESE										# ParentheseExpression
-	| expression LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE					# FunctionInvocationExpression
+	| identifier LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE					# FunctionInvocationExpression
 	| LEFT_BRACKET (expression (COMMA expression)*)? RIGHT_BRACKET						# ListExpression
 	| expression POINT identifier LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE	#
 		MethodInvocationExpression
@@ -125,6 +125,6 @@ LESS_THAN_EQUAL: '<=';
 SINGLE_LINE_COMMENT: '//' ~'\n'* -> skip;
 MULTILINE_COMMENT: '/*' .*? '*/' -> skip;
 APOSTROPHE: '...';
-NEWLINE:'\n';
+NEWLINE: '\n';
 
 WS: [ \t\r]+ -> skip;
