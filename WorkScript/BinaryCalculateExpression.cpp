@@ -1,13 +1,11 @@
 #include "stdafx.h"
 #include "BinaryCalculateExpression.h"
 #include "UncalculatableException.h"
+#include "IntegerType.h"
+#include "FloatType.h"
 
 using namespace std;
 using namespace WorkScript;
-
-BinaryCalculateExpression::~BinaryCalculateExpression()
-{
-}
 
 GenerateResult WorkScript::BinaryCalculateExpression::generateIR(GenerateContext * context)
 {
@@ -16,16 +14,129 @@ GenerateResult WorkScript::BinaryCalculateExpression::generateIR(GenerateContext
 	auto rightExpr = this->getRightExpression();
 	Type *leftType = leftExpr->getType();
 	Type *rightType = rightExpr->getType();
-	auto leftVal = leftExpr->generateIR(context).getValue();
-	auto rightVal = rightExpr->generateIR(context).getValue();
-	switch (leftType->getClassification())
+	TypeClassification leftCls = leftType->getClassification();
+	TypeClassification rightCls = rightType->getClassification();
+	Type *promotedType = Type::getPromotedType(leftType, rightType);
+	GenerateResult res = Type::generateLLVMTypePromote(context, leftExpr, rightExpr, promotedType);
+	switch (promotedType->getClassification())
 	{
-	case TypeClassification::INTEGER:
-		if (rightType->getClassification() == TypeClassification::INTEGER) {
+	case TypeClassification::INTEGER: {
+		return this->generateLLVMIRInteger(context, res.getValue(), res.getValue1(), (IntegerType*)promotedType);
+	}
 
-
-		}
+	case TypeClassification::FLOAT: {
+		return this->generateLLVMIRFloat(context, res.getValue(), res.getValue1(), (FloatType*)promotedType);
+	}
 	default:
+		goto UNSUPPORTED;
+	}
+
+UNSUPPORTED:
+	throw WorkScriptException(L"双目运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
+}
+
+Type * WorkScript::BinaryCalculateExpression::getType() const
+{
+	return Type::getPromotedType(this->leftExpression->getType(), this->rightExpression->getType());
+}
+
+Expression * WorkScript::BinaryCalculateExpression::clone() const
+{
+	return new BinaryCalculateExpression(program, calculateType, leftExpression, rightExpression);
+}
+
+ExpressionType WorkScript::BinaryCalculateExpression::getExpressionType() const
+{
+	return ExpressionType::BINARY_CALCULATE_EXPRESSION;
+}
+
+std::wstring WorkScript::BinaryCalculateExpression::getOperatorString() const
+{
+	switch (this->calculateType)
+	{
+	case PLUS:
+		return L"+";
 		break;
+	case MINUS:
+		return L"-";
+		break;
+	case MULTIPLY:
+		return L"*";
+		break;
+	case DIVIDE:
+		return L"/";
+		break;
+	case MODULUS:
+		return L"%";
+		break;
+	default:
+		throw WorkScriptException(L"未知操作符");
 	}
 }
+
+GenerateResult WorkScript::BinaryCalculateExpression::generateLLVMIRInteger(GenerateContext * context, llvm::Value * left, llvm::Value * right, IntegerType * promotedType) const
+{
+	auto irBuilder = context->getIRBuilder();
+	llvm::Value *res;
+	switch (this->calculateType)
+	{
+	case PLUS:
+		res = irBuilder->CreateAdd(left, right);
+		break;
+	case MINUS:
+		res = irBuilder->CreateSub(left, right);
+		break;
+	case MULTIPLY:
+		res = irBuilder->CreateMul(left, right);
+		break;
+	case DIVIDE:
+		if (promotedType->isSigned()) {
+			res = irBuilder->CreateSDiv(left, right);
+		}
+		else {
+			res = irBuilder->CreateUDiv(left, right);
+		}
+		break;
+	case MODULUS:
+		if (promotedType->isSigned()) {
+			res = irBuilder->CreateSRem(left, right);
+		}
+		else {
+			res = irBuilder->CreateURem(left, right);
+		}
+		break;
+	default:
+		throw WorkScriptException(L"未知操作符");
+	}
+
+	return res;
+}
+
+GenerateResult WorkScript::BinaryCalculateExpression::generateLLVMIRFloat(GenerateContext * context, llvm::Value * left, llvm::Value * right, FloatType * promotedType) const
+{
+	auto irBuilder = context->getIRBuilder();
+	llvm::Value *res;
+	switch (this->calculateType)
+	{
+	case PLUS:
+		res = irBuilder->CreateFAdd(left, right);
+		break;
+	case MINUS:
+		res = irBuilder->CreateFSub(left, right);
+		break;
+	case MULTIPLY:
+		res = irBuilder->CreateFMul(left, right);
+		break;
+	case DIVIDE:
+			res = irBuilder->CreateFDiv(left, right);
+		break;
+	case MODULUS:
+			res = irBuilder->CreateFRem(left, right);
+		break;
+	default:
+		throw WorkScriptException(L"未知操作符");
+	}
+
+	return res;
+}
+

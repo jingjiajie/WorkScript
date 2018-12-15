@@ -10,7 +10,7 @@ namespace WorkScript {
 		inline BranchOverload(Function *func, const std::vector<Parameter*> &params, Type *returnType)
 			: Overload(func, params, returnType) {}
 
-		virtual GenerateResult generateIR(GenerateContext *context);
+		virtual GenerateResult generateLLVMIR(GenerateContext *context) override;
 
 		inline OverloadBranch * getBranch(size_t index)
 		{

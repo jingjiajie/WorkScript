@@ -9,7 +9,7 @@ namespace WorkScript {
 		inline NativeOverload(Function *func, const std::vector<Parameter*> &params, Type *returnType, TFuncGenerateIR f)
 			: Overload(func, params, returnType), funcGenerateIR(f) {}
 
-		virtual GenerateResult generateIR(GenerateContext *context);
+		virtual GenerateResult generateLLVMIR(GenerateContext *context) override;
 	private:
 		TFuncGenerateIR funcGenerateIR;
 	};

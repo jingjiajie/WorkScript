@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "StringExpression.h"
-#include "Type.h"
+#include "IntegerPointerType.h"
 #include "Program.h"
 #include "Utils.h"
 
@@ -14,7 +14,7 @@ ExpressionType StringExpression::getExpressionType() const
 
 Expression * WorkScript::StringExpression::clone() const
 {
-	return new thistype(this->value);
+	return new thistype(program, this->value);
 }
 
 std::wstring StringExpression::toString() const
@@ -24,10 +24,11 @@ std::wstring StringExpression::toString() const
 
 Type * StringExpression::getType() const
 {
-	return program->getType(TYPENAME_STRING);
+	return program->getUInt8PtrType();
 }
 
 GenerateResult StringExpression::generateIR(GenerateContext * context)
 {
-	return (llvm::Value*)context->getIRBuilder()->CreateGlobalStringPtr((char*)this->value.c_str());
+	auto irBuilder = context->getIRBuilder();
+	return irBuilder->CreateGlobalStringPtr((char*)this->value.c_str());
 }

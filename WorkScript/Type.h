@@ -14,13 +14,14 @@ namespace WorkScript {
 			this->program = program;
 		}
 
-		inline bool equals(const Type *type) const
-		{
-			return type == this;
-		}
+		virtual bool equals(const Type *type) const;
+
+		static GenerateResult generateLLVMTypePromote(GenerateContext *context, Expression *expr, Type *targetType);
+		static GenerateResult generateLLVMTypePromote(GenerateContext *context, Expression *left, Expression *right, Type *promotedType);
+		static Type * getPromotedType(Type *type1, Type *type2);
 
 		virtual inline TypeClassification getClassification() const = 0;
-		virtual llvm::Type* getLLVMType() const = 0;
+		virtual llvm::Type* getLLVMType(GenerateContext *context) const = 0;
 
 		//¿‡√˚
 		inline const std::wstring & getName() const
@@ -35,7 +36,6 @@ namespace WorkScript {
 
 	protected:
 		std::wstring name;
-		TypeClassification classification;
 		Program *program;
 	};
 }

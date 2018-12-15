@@ -145,6 +145,9 @@
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(PlatformTarget)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\$(PlatformTarget)\</IntDir>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(LibraryPath)</LibraryPath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
+    <LibraryWPath>$(LibraryWPath)</LibraryWPath>
+    <IncludePath>C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.14.26428\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -178,7 +181,10 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -195,7 +201,10 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -211,7 +220,10 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -224,19 +236,23 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>BOOST_LIB_DIAGNOSTIC;ANTLR4CPP_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANTLR4CPP_STATIC;_DEBUG;_CONSOLE;BOOST_LIB_DIAGNOSTIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.core.x64-Debug.6.0.0\lib\native\include;C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.x64.6.0.0\lib\native\include;C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS /D _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING /D _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING /Zm1000 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.core.x64-Debug.6.0.0\lib\native\include;C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.x64.6.0.0\lib\native\include;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS /Zm1000 %(AdditionalOptions)</AdditionalOptions>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <DisableSpecificWarnings>4146;4267;4141;4244;4624;4291</DisableSpecificWarnings>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <CallingConvention>StdCall</CallingConvention>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\local\boost_1_68_0\lib64-msvc-14.1;C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.targets.x64-Debug.6.0.0\lib\native\lib;C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.core.pdbs.x64-Debug.6.0.0\lib\native\lib;C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.core.x64-Debug.6.0.0\lib\native\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Jonas\Desktop\WorkScript\packages\boost_locale-vc141.1.68.0.0\lib\native;C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.targets.x64-Debug.6.0.0\lib\native\lib;C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.core.pdbs.x64-Debug.6.0.0\lib\native\lib;C:\Users\Jonas\Desktop\WorkScript\packages\Llvm.Libs.core.x64-Debug.6.0.0\lib\native\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>LLVMAnalysis.lib;LLVMAsmParser.lib;LLVMAsmPrinter.lib;LLVMBinaryFormat.lib;LLVMBitReader.lib;LLVMBitWriter.lib;LLVMCodeGen.lib;LLVMCore.lib;LLVMCoroutines.lib;LLVMCoverage.lib;LLVMDebugInfoCodeView.lib;LLVMDebugInfoDWARF.lib;LLVMDebugInfoMSF.lib;LLVMDebugInfoPDB.lib;LLVMDemangle.lib;LLVMDlltoolDriver.lib;LLVMExecutionEngine.lib;LLVMGlobalISel.lib;LLVMInstCombine.lib;LLVMInstrumentation.lib;LLVMInterpreter.lib;LLVMipo.lib;LLVMIRReader.lib;LLVMLibDriver.lib;LLVMLineEditor.lib;LLVMLinker.lib;LLVMLTO.lib;LLVMMC.lib;LLVMMCDisassembler.lib;LLVMMCJIT.lib;LLVMMCParser.lib;LLVMMIRParser.lib;LLVMObjCARCOpts.lib;LLVMObject.lib;LLVMObjectYAML.lib;LLVMOption.lib;LLVMOrcJIT.lib;LLVMPasses.lib;LLVMProfileData.lib;LLVMRuntimeDyld.lib;LLVMScalarOpts.lib;LLVMSelectionDAG.lib;LLVMSupport.lib;LLVMSymbolize.lib;LLVMTableGen.lib;LLVMTarget.lib;LLVMTransformUtils.lib;LLVMVectorize.lib;LLVMXRay.lib;LLVMX86CodeGen.lib;LLVMX86Desc.lib;LLVMX86AsmParser.lib;LLVMX86AsmPrinter.lib;LLVMX86Info.lib;LLVMX86Utils.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -251,8 +267,11 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -272,8 +291,11 @@
       <PreprocessorDefinitions>ANTLR4CPP_STATIC;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -293,7 +315,10 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -313,7 +338,10 @@
       <PreprocessorDefinitions>ANTLR4CPP_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\local\boost_1_68_0;$(SolutionDir)Runtime\src;$(SolutionDir)Runtime\src\atn;$(SolutionDir)Runtime\src\dfa;$(SolutionDir)Runtime\src\misc;$(SolutionDir)Runtime\src\support;$(SolutionDir)Runtime\src\tree;$(SolutionDir)Runtime\src\tree\xpath;$(SolutionDir)Runtime\src\tree\pattern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -327,63 +355,52 @@
     <ClInclude Include="AssignmentExpression.h" />
     <ClInclude Include="BinaryCalculateExpression.h" />
     <ClInclude Include="BinaryOperatorExpression.h" />
-    <ClInclude Include="BooleanExpression.h" />
     <ClInclude Include="BranchOverload.h" />
     <ClInclude Include="BranchOverloadTemplate.h" />
-    <ClInclude Include="ByteExpression.h" />
     <ClInclude Include="BinaryCompareExpression.h" />
     <ClInclude Include="ExpressionType.h" />
+    <ClInclude Include="FloatExpression.h" />
+    <ClInclude Include="FloatPointerType.h" />
+    <ClInclude Include="FloatType.h" />
     <ClInclude Include="Function.h" />
     <ClInclude Include="FunctionTemplate.h" />
     <ClInclude Include="GenerateContext.h" />
     <ClInclude Include="Generated\stdafx.h" />
     <ClInclude Include="GenerateResult.h" />
     <ClInclude Include="Defines.h" />
-    <ClInclude Include="DivideExpression.h" />
     <ClInclude Include="DuplicateDeclarationException.h" />
-    <ClInclude Include="EnablePointer.h" />
-    <ClInclude Include="EqualsExpression.h" />
     <ClInclude Include="ExpressionWrapper.h" />
-    <ClInclude Include="FunctionInvocationExpression.h" />
-    <ClInclude Include="GreaterThanEqualExpression.h" />
+    <ClInclude Include="CallExpression.h" />
     <ClInclude Include="IllegalValueException.h" />
-    <ClInclude Include="Initializer.h" />
     <ClInclude Include="IntegerExpression.h" />
-    <ClInclude Include="LessThanEqualExpression.h" />
-    <ClInclude Include="LessThanExpression.h" />
+    <ClInclude Include="IntegerPointerType.h" />
+    <ClInclude Include="IntegerType.h" />
     <ClInclude Include="LinkException.h" />
     <ClInclude Include="Generated\WorkScriptBaseVisitor.h" />
     <ClInclude Include="Generated\WorkScriptLexer.h" />
     <ClInclude Include="Generated\WorkScriptParser.h" />
     <ClInclude Include="Generated\WorkScriptVisitor.h" />
-    <ClInclude Include="GreaterThanExpression.h" />
+    <ClInclude Include="Locale.h" />
     <ClInclude Include="MemberEvaluateExpression.h" />
-    <ClInclude Include="MinusExpression.h" />
-    <ClInclude Include="ModulusExpression.h" />
-    <ClInclude Include="MultiplyExpression.h" />
     <ClInclude Include="NativeOverload.h" />
-    <ClInclude Include="NegativeExpression.h" />
-    <ClInclude Include="DoubleExpression.h" />
     <ClInclude Include="Overload.h" />
     <ClInclude Include="OverloadBranch.h" />
     <ClInclude Include="OverloadBranchTemplate.h" />
     <ClInclude Include="OverloadTemplate.h" />
     <ClInclude Include="Parameter.h" />
-    <ClInclude Include="ParameterExpression.h" />
+    <ClInclude Include="MultiValueExpression.h" />
     <ClInclude Include="ParameterTemplate.h" />
-    <ClInclude Include="PlusExpression.h" />
     <ClInclude Include="Expression.h" />
-    <ClInclude Include="Pointer.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StringExpression.h" />
-    <ClInclude Include="StringType.cpp" />
     <ClInclude Include="SymbolInfo.h" />
     <ClInclude Include="SymbolTable.h" />
     <ClInclude Include="SyntaxErrorException.h" />
     <ClInclude Include="SyntaxErrorListener.h" />
     <ClInclude Include="SyntaxErrorStrategy.h" />
     <ClInclude Include="Type.h" />
+    <ClInclude Include="TypeClassification.h" />
     <ClInclude Include="UnaryOperatorExpression.h" />
     <ClInclude Include="UnassignableExpection.h" />
     <ClInclude Include="UncalculatableException.h" />
@@ -392,6 +409,7 @@
     <ClInclude Include="UninvocableException.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="VariableExpression.h" />
+    <ClInclude Include="VoidType.h" />
     <ClInclude Include="WorkScriptEngine.h" />
     <ClInclude Include="WorkScriptException.h" />
     <ClInclude Include="WorkScriptVisitorImpl.h" />
@@ -401,46 +419,33 @@
     <ClCompile Include="AssignmentExpression.cpp" />
     <ClCompile Include="BinaryCalculateExpression.cpp" />
     <ClCompile Include="BinaryOperatorExpression.cpp" />
-    <ClCompile Include="BooleanExpression.cpp" />
-    <ClCompile Include="BooleanType.cpp" />
     <ClCompile Include="BranchOverload.cpp" />
     <ClCompile Include="BranchOverloadTemplate.cpp" />
-    <ClCompile Include="ByteExpression.cpp" />
-    <ClCompile Include="ByteType.cpp" />
-    <ClCompile Include="CompareExpression.cpp" />
-    <ClCompile Include="DivideExpression.cpp" />
-    <ClCompile Include="DoubleType.cpp" />
+    <ClCompile Include="BinaryCompareExpression.cpp" />
     <ClCompile Include="DuplicateDeclarationException.cpp" />
-    <ClCompile Include="EqualsExpression.cpp" />
-    <ClCompile Include="ExpressionWrapper.cpp" />
+    <ClCompile Include="FloatExpression.cpp" />
+    <ClCompile Include="FloatPointerType.cpp" />
+    <ClCompile Include="FloatType.cpp" />
     <ClCompile Include="Function.cpp" />
-    <ClCompile Include="FunctionInvocationExpression.cpp" />
+    <ClCompile Include="CallExpression.cpp" />
     <ClCompile Include="FunctionTemplate.cpp" />
-    <ClCompile Include="GreaterThanEqualExpression.cpp" />
     <ClCompile Include="IllegalValueException.cpp" />
     <ClCompile Include="IntegerExpression.cpp" />
+    <ClCompile Include="IntegerPointerType.cpp" />
     <ClCompile Include="IntegerType.cpp" />
-    <ClCompile Include="LessThanEqualExpression.cpp" />
-    <ClCompile Include="LessThanExpression.cpp" />
     <ClCompile Include="Generated\WorkScriptBaseVisitor.cpp" />
     <ClCompile Include="Generated\WorkScriptLexer.cpp" />
     <ClCompile Include="Generated\WorkScriptParser.cpp" />
     <ClCompile Include="Generated\WorkScriptVisitor.cpp" />
-    <ClCompile Include="GreaterThanExpression.cpp" />
+    <ClCompile Include="Locale.cpp" />
     <ClCompile Include="MemberEvaluateExpression.cpp" />
-    <ClCompile Include="MinusExpression.cpp" />
-    <ClCompile Include="ModulusExpression.cpp" />
-    <ClCompile Include="MultiplyExpression.cpp" />
     <ClCompile Include="NativeOverload.cpp" />
-    <ClCompile Include="NegativeExpression.cpp" />
-    <ClCompile Include="DoubleExpression.cpp" />
     <ClCompile Include="Overload.cpp" />
     <ClCompile Include="OverloadBranch.cpp" />
     <ClCompile Include="OverloadBranchTemplate.cpp" />
     <ClCompile Include="OverloadTemplate.cpp" />
-    <ClCompile Include="ParameterExpression.cpp" />
+    <ClCompile Include="MultiValueExpression.cpp" />
     <ClCompile Include="ParameterTemplate.cpp" />
-    <ClCompile Include="PlusExpression.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">Create</PrecompiledHeader>
@@ -459,18 +464,23 @@
     <ClCompile Include="UnimplementedException.cpp" />
     <ClCompile Include="UninvocableException.cpp" />
     <ClCompile Include="VariableExpression.cpp" />
+    <ClCompile Include="VoidType.cpp" />
     <ClCompile Include="WorkScript.cpp" />
     <ClCompile Include="Expression.cpp" />
     <ClCompile Include="WorkScriptEngine.cpp" />
     <ClCompile Include="WorkScriptException.cpp" />
-    <ClCompile Include="WorkScriptVisitorImpl.cpp" />
+    <ClCompile Include="WorkScriptVisitorImpl.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Runtime\antlr4cpp-vs2015.vcxproj">
       <Project>{a9762991-1b57-4dce-90c0-ee42b96947be}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

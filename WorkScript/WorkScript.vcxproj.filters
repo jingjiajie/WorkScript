@@ -4,15 +4,6 @@
     <Filter Include="Util">
       <UniqueIdentifier>{52b1d27d-fff9-433f-a7fc-13bfbf92c4ae}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Util\Pointer">
-      <UniqueIdentifier>{0a87b41b-5146-4b5a-a6b7-2f41616638e4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Util\Pointer\Headers">
-      <UniqueIdentifier>{d95a389f-2e72-44a6-b936-f358f542aea1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Util\Pointer\Sources">
-      <UniqueIdentifier>{9a0f100e-c00e-4468-a9b9-2ea9c06cd1dd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Program">
       <UniqueIdentifier>{ff5a9918-380a-4167-8fcc-ddf9e3572147}</UniqueIdentifier>
     </Filter>
@@ -49,24 +40,6 @@
     <Filter Include="Expressions">
       <UniqueIdentifier>{d9631a69-ff7e-4ff9-94ba-2192f41591d2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Expressions\BinaryOperatorExpressions">
-      <UniqueIdentifier>{43390ace-48d3-4ebe-a517-50c986a14e3a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Expressions\BinaryOperatorExpressions\Headers">
-      <UniqueIdentifier>{376e3673-d6aa-4eea-a3a9-ed3f8eeb87d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Expressions\BinaryOperatorExpressions\Sources">
-      <UniqueIdentifier>{40527fb0-2f36-4626-b3ca-a48a02e47510}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Expressions\UnaryOperatorExpressions">
-      <UniqueIdentifier>{7396a98c-e724-4d20-b976-68f4540b2027}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Expressions\UnaryOperatorExpressions\Headers">
-      <UniqueIdentifier>{eafd5b76-a34a-4515-b419-47b0bae2cc04}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Expressions\UnaryOperatorExpressions\Sources">
-      <UniqueIdentifier>{b912a71b-db9f-4fc4-9da7-79553b87c11c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Expressions\ValueExpressions">
       <UniqueIdentifier>{202dd94e-7be2-45a3-a9c1-bb4452509db6}</UniqueIdentifier>
     </Filter>
@@ -75,15 +48,6 @@
     </Filter>
     <Filter Include="Expressions\ValueExpressions\Sources">
       <UniqueIdentifier>{b937a3c2-92cb-483b-8435-b244f1cd34cd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Expressions\FunctionExpressions">
-      <UniqueIdentifier>{d8c29469-7ded-4337-afb9-5fb221d525ee}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Expressions\FunctionExpressions\Headers">
-      <UniqueIdentifier>{e32d85ac-cd67-4310-a3ca-1ced0755a48f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Expressions\FunctionExpressions\Sources">
-      <UniqueIdentifier>{76770a93-fdf3-4a71-8a1b-5cc7d4502471}</UniqueIdentifier>
     </Filter>
     <Filter Include="Expressions\VariableExpressions">
       <UniqueIdentifier>{2da0d308-5334-41f5-98fd-e5062b5f1e3f}</UniqueIdentifier>
@@ -148,6 +112,24 @@
     <Filter Include="SymbolTable\Sources">
       <UniqueIdentifier>{0d840866-f922-4c06-b3c9-be5855034e2e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Expressions\OperatorExpressions">
+      <UniqueIdentifier>{43390ace-48d3-4ebe-a517-50c986a14e3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Expressions\OperatorExpressions\Headers">
+      <UniqueIdentifier>{376e3673-d6aa-4eea-a3a9-ed3f8eeb87d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Expressions\OperatorExpressions\Sources">
+      <UniqueIdentifier>{40527fb0-2f36-4626-b3ca-a48a02e47510}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Expressions\CallExpressions">
+      <UniqueIdentifier>{d8c29469-7ded-4337-afb9-5fb221d525ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Expressions\CallExpressions\Headers">
+      <UniqueIdentifier>{e32d85ac-cd67-4310-a3ca-1ced0755a48f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Expressions\CallExpressions\Sources">
+      <UniqueIdentifier>{76770a93-fdf3-4a71-8a1b-5cc7d4502471}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Expression.h">
@@ -205,58 +187,16 @@
       <Filter>Exceptions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="AssignmentExpression.h">
-      <Filter>Expressions\BinaryOperatorExpressions\Headers</Filter>
+      <Filter>Expressions\OperatorExpressions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="BinaryOperatorExpression.h">
-      <Filter>Expressions\BinaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="GreaterThanEqualExpression.h">
-      <Filter>Expressions\BinaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="GreaterThanExpression.h">
-      <Filter>Expressions\BinaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="LessThanEqualExpression.h">
-      <Filter>Expressions\BinaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="LessThanExpression.h">
-      <Filter>Expressions\BinaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="DivideExpression.h">
-      <Filter>Expressions\BinaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="EqualsExpression.h">
-      <Filter>Expressions\BinaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="MinusExpression.h">
-      <Filter>Expressions\BinaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="MultiplyExpression.h">
-      <Filter>Expressions\BinaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="PlusExpression.h">
-      <Filter>Expressions\BinaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="UnaryOperatorExpression.h">
-      <Filter>Expressions\UnaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="NegativeExpression.h">
-      <Filter>Expressions\UnaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="BooleanExpression.h">
-      <Filter>Expressions\ValueExpressions\Headers</Filter>
+      <Filter>Expressions\OperatorExpressions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="StringExpression.h">
       <Filter>Expressions\ValueExpressions\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="FunctionInvocationExpression.h">
-      <Filter>Expressions\FunctionExpressions\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="MemberEvaluateExpression.h">
-      <Filter>Expressions\FunctionExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="ParameterExpression.h">
-      <Filter>Expressions\FunctionExpressions\Headers</Filter>
+      <Filter>Expressions\CallExpressions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="VariableExpression.h">
       <Filter>Expressions\VariableExpressions\Headers</Filter>
@@ -267,29 +207,14 @@
     <ClInclude Include="SyntaxErrorStrategy.h">
       <Filter>Compile\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="DoubleExpression.h">
-      <Filter>Expressions\ValueExpressions\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="IntegerExpression.h">
       <Filter>Expressions\ValueExpressions\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="ByteExpression.h">
-      <Filter>Expressions\ValueExpressions\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="BinaryCompareExpression.h">
-      <Filter>Expressions\BinaryOperatorExpressions\Headers</Filter>
+      <Filter>Expressions\OperatorExpressions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="BinaryCalculateExpression.h">
-      <Filter>Expressions\BinaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="ModulusExpression.h">
-      <Filter>Expressions\BinaryOperatorExpressions\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Pointer.h">
-      <Filter>Util\Pointer\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="EnablePointer.h">
-      <Filter>Util\Pointer\Headers</Filter>
+      <Filter>Expressions\OperatorExpressions\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Defines.h">
       <Filter>Util</Filter>
@@ -330,17 +255,11 @@
     <ClInclude Include="Parameter.h">
       <Filter>Function\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Initializer.h">
-      <Filter>Util</Filter>
-    </ClInclude>
     <ClInclude Include="NativeOverload.h">
       <Filter>Function\Headers</Filter>
     </ClInclude>
     <ClInclude Include="BranchOverload.h">
       <Filter>Function\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="StringType.cpp">
-      <Filter>Type\Sources</Filter>
     </ClInclude>
     <ClInclude Include="Utils.h">
       <Filter>Util</Filter>
@@ -365,6 +284,39 @@
     </ClInclude>
     <ClInclude Include="OverloadBranchTemplate.h">
       <Filter>FunctionTemplate\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="IntegerType.h">
+      <Filter>Type\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FloatType.h">
+      <Filter>Type\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="UnaryOperatorExpression.h">
+      <Filter>Expressions\OperatorExpressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="CallExpression.h">
+      <Filter>Expressions\CallExpressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FloatExpression.h">
+      <Filter>Expressions\ValueExpressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="VoidType.h">
+      <Filter>Type\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeClassification.h">
+      <Filter>Type\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="IntegerPointerType.h">
+      <Filter>Type\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FloatPointerType.h">
+      <Filter>Type\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiValueExpression.h">
+      <Filter>Expressions\CallExpressions\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Locale.h">
+      <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -420,65 +372,17 @@
     <ClCompile Include="SyntaxErrorException.cpp">
       <Filter>Exceptions\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="PlusExpression.cpp">
-      <Filter>Expressions\BinaryOperatorExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="MultiplyExpression.cpp">
-      <Filter>Expressions\BinaryOperatorExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="MinusExpression.cpp">
-      <Filter>Expressions\BinaryOperatorExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="LessThanExpression.cpp">
-      <Filter>Expressions\BinaryOperatorExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="LessThanEqualExpression.cpp">
-      <Filter>Expressions\BinaryOperatorExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="GreaterThanExpression.cpp">
-      <Filter>Expressions\BinaryOperatorExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="GreaterThanEqualExpression.cpp">
-      <Filter>Expressions\BinaryOperatorExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="CompareExpression.cpp">
-      <Filter>Expressions\BinaryOperatorExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="DivideExpression.cpp">
-      <Filter>Expressions\BinaryOperatorExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="EqualsExpression.cpp">
-      <Filter>Expressions\BinaryOperatorExpressions\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="AssignmentExpression.cpp">
-      <Filter>Expressions\BinaryOperatorExpressions\Sources</Filter>
+      <Filter>Expressions\OperatorExpressions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="BinaryOperatorExpression.cpp">
-      <Filter>Expressions\BinaryOperatorExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="NegativeExpression.cpp">
-      <Filter>Expressions\UnaryOperatorExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="UnaryOperatorExpression.cpp">
-      <Filter>Expressions\UnaryOperatorExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="BooleanExpression.cpp">
-      <Filter>Expressions\ValueExpressions\Sources</Filter>
+      <Filter>Expressions\OperatorExpressions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="StringExpression.cpp">
       <Filter>Expressions\ValueExpressions\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="FunctionInvocationExpression.cpp">
-      <Filter>Expressions\FunctionExpressions\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="MemberEvaluateExpression.cpp">
-      <Filter>Expressions\FunctionExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="ParameterExpression.cpp">
-      <Filter>Expressions\FunctionExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="ExpressionWrapper.cpp">
-      <Filter>Compile\ExpressionWrappers</Filter>
+      <Filter>Expressions\CallExpressions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="VariableExpression.cpp">
       <Filter>Expressions\VariableExpressions\Sources</Filter>
@@ -489,20 +393,11 @@
     <ClCompile Include="SyntaxErrorStrategy.cpp">
       <Filter>Compile\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="DoubleExpression.cpp">
-      <Filter>Expressions\ValueExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="ByteExpression.cpp">
-      <Filter>Expressions\ValueExpressions\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="IntegerExpression.cpp">
       <Filter>Expressions\ValueExpressions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="BinaryCalculateExpression.cpp">
-      <Filter>Expressions\BinaryOperatorExpressions\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="ModulusExpression.cpp">
-      <Filter>Expressions\BinaryOperatorExpressions\Sources</Filter>
+      <Filter>Expressions\OperatorExpressions\Sources</Filter>
     </ClCompile>
     <ClCompile Include="WorkScriptEngine.cpp">
       <Filter>Engine\Sources</Filter>
@@ -521,15 +416,6 @@
     </ClCompile>
     <ClCompile Include="Overload.cpp">
       <Filter>Function\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="DoubleType.cpp">
-      <Filter>Type\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="ByteType.cpp">
-      <Filter>Type\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="BooleanType.cpp">
-      <Filter>Type\Sources</Filter>
     </ClCompile>
     <ClCompile Include="BranchOverload.cpp">
       <Filter>Function\Sources</Filter>
@@ -558,6 +444,41 @@
     <ClCompile Include="OverloadBranchTemplate.cpp">
       <Filter>FunctionTemplate\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="SymbolInfo.cpp" />
+    <ClCompile Include="FloatType.cpp">
+      <Filter>Type\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="BinaryCompareExpression.cpp">
+      <Filter>Expressions\OperatorExpressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="UnaryOperatorExpression.cpp">
+      <Filter>Expressions\OperatorExpressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="SymbolInfo.cpp">
+      <Filter>SymbolTable\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="CallExpression.cpp">
+      <Filter>Expressions\CallExpressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FloatExpression.cpp">
+      <Filter>Expressions\ValueExpressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="VoidType.cpp">
+      <Filter>Type\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="IntegerPointerType.cpp">
+      <Filter>Type\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FloatPointerType.cpp">
+      <Filter>Type\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiValueExpression.cpp">
+      <Filter>Expressions\CallExpressions\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Locale.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

@@ -8,40 +8,39 @@ program: (includeCommand NEWLINE? | NEWLINE)* (
 includeCommand: HASH INCLUDE STRING;
 
 expression:
-	ACCESS_LEVEL COLON																	# AccessLevelExpression
-	| LEFT_PARENTHESE expression RIGHT_PARENTHESE										# ParentheseExpression
-	| identifier LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE					# FunctionInvocationExpression
-	| LEFT_BRACKET (expression (COMMA expression)*)? RIGHT_BRACKET						# ListExpression
-	| expression POINT identifier LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE	#
-		MethodInvocationExpression
-	| expression POINT identifier							# MemberEvaluateExpression
+	ACCESS_LEVEL COLON								# AccessLevelExpression
+	| LEFT_PARENTHESE expression RIGHT_PARENTHESE	# ParentheseExpression
+	// | LEFT_BRACKET (expression (COMMA expression)*)? RIGHT_BRACKET # ListExpression | expression
+	// POINT identifier # MemberEvaluateExpression
 	| functionExpression									# FunctionExpression_
+	| callExpression										# CallExpression_
 	| expression (MULTIPLY | DIVIDE | MODULUS) expression	# MultiplyDivideModulusExpression
-	| numberExpression variableExpression					# NonSignMultiplyExpression
 	| expression (PLUS | MINUS) expression					# PlusMinusExpression
 	| numberExpression										# NumberExpression_
 	| MINUS expression										# NegativeExpression
 	| PLUS expression										# PositiveExpression
 	| expression ASSIGN expression							# AssignmentExpression
-	| expression DOUBLE_EQUAL expression					# EqualsExpression
 	| expression EQUALS expression							# AssignmentOrEqualsExpression
 	| expression (
-		GREATER_THAN
+		DOUBLE_EQUAL
+		| GREATER_THAN
 		| GREATER_THAN_EQUAL
 		| LESS_THAN
 		| LESS_THAN_EQUAL
-	) expression			# CompareExpression
+	) expression			# BinaryCompareExpression
 	| stringExpression		# StringExpression_
 	| booleanExpression		# BooleanExpression_
 	| variableExpression	# VariableExpression_;
 
-parameterExpression:
+callExpression:
+	identifier LEFT_PARENTHESE multiValueExpression RIGHT_PARENTHESE;
+
+multiValueExpression:
 	(
-		NEWLINE* parameterExpressionItem (
-			NEWLINE* (NEWLINE | COMMA) NEWLINE* parameterExpressionItem
+		NEWLINE* expression (
+			NEWLINE* (NEWLINE | COMMA) NEWLINE* expression
 		)*
 	)? NEWLINE* COMMA? NEWLINE*;
-parameterExpressionItem: (expression | varargsExpression);
 
 numberExpression: (PLUS | MINUS)? (DOUBLE | INTEGER);
 stringExpression: STRING;
@@ -56,7 +55,9 @@ functionExpression:
 		functionConstraintExpression;
 
 functionDeclarationExpression:
-	identifier? LEFT_PARENTHESE parameterExpression RIGHT_PARENTHESE;
+	identifier? LEFT_PARENTHESE formalParameterExpression RIGHT_PARENTHESE;
+
+formalParameterExpression: (identifier COMMA)*; //TODO 函数的参数类型
 
 functionImplementationExpression:
 	(EQUALS | RIGHT_ARROW) expression

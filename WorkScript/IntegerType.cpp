@@ -25,14 +25,25 @@ llvm::Type * WorkScript::IntegerType::getLLVMType(GenerateContext *ctx) const
 	switch (this->length)
 	{
 	case 1:
-		return llvm::IntegerType::getInt8Ty(*ctx->getLLVMContext());
-	case 2:
-		return llvm::IntegerType::getInt16Ty(*ctx->getLLVMContext());
-	case 4:
-		return llvm::IntegerType::getInt32Ty(*ctx->getLLVMContext());
+		return llvm::IntegerType::getInt1Ty(*ctx->getLLVMContext());
 	case 8:
+		return llvm::IntegerType::getInt8Ty(*ctx->getLLVMContext());
+	case 16:
+		return llvm::IntegerType::getInt16Ty(*ctx->getLLVMContext());
+	case 32:
+		return llvm::IntegerType::getInt32Ty(*ctx->getLLVMContext());
+	case 64:
 		return llvm::IntegerType::getInt64Ty(*ctx->getLLVMContext());
 	default:
 		throw WorkScriptException(L"不支持的整数长度："+this->length);
 	}
+}
+
+bool WorkScript::IntegerType::equals(const Type * type) const
+{
+	if (!Type::equals(type))return false;
+	IntegerType *target = (IntegerType*)type;
+	if (target->getLength() != this->getLength())return false;
+	if (target->isSigned() != this->isSigned())return false;
+	return true;
 }

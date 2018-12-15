@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Overload.h"
 #include "Function.h"
+#include "Locale.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -30,12 +31,10 @@ llvm::Function * WorkScript::Overload::getLLVMFunction(GenerateContext * context
 		{
 			llvmTypes[i] = this->parameters[i]->getType()->getLLVMType(context);
 		}
-		auto thisParam = this->getThisParameter(); //this
-		llvmTypes[llvmTypes.size() - 1] = thisParam->getType()->getLLVMType(context);
 		llvm::FunctionType *funcType = llvm::FunctionType::get(this->returnType->getLLVMType(context), llvmTypes, false);
 		llvm::Function *func = llvm::Function::Create(funcType,
 			llvm::Function::ExternalLinkage,
-			boost::locale::conv::from_utf(this->getMangledFunctionName(), "UTF-8"),
+			Locale::unicodeToUTF8(this->getMangledFunctionName()),
 			context->getLLVMModule()
 		);
 		this->llvmFunction = func;
@@ -53,9 +52,4 @@ bool WorkScript::Overload::matchByParameters(const std::vector<Type*> &paramType
 		if (!this->parameters[i]->getType()->equals(paramTypes[i]))return false;
 	}
 	return true;
-}
-
-Parameter * Overload::getThisParameter()
-{
-	return this->function->getThisParameter();
 }

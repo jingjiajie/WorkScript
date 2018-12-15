@@ -11,7 +11,7 @@ namespace WorkScript {
 
 		virtual GenerateResult generateIR(GenerateContext *context);
 		virtual ExpressionType getExpressionType() const override;
-		virtual Type * getType() const override;
+		virtual IntegerType * getType() const override;
 		virtual Expression * clone() const override;
 		virtual std::wstring toString() const override;
 

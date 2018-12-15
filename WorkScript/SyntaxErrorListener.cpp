@@ -7,8 +7,10 @@
 #include "TokenSource.h"
 #include "CharStream.h"
 #include "IntStream.h"
+#include "Locale.h"
 
 using namespace std;
+using namespace WorkScript;
 
 SyntaxErrorListener::SyntaxErrorListener()
 {
@@ -43,8 +45,8 @@ void SyntaxErrorListener::syntaxError(Recognizer * recognizer,
 	std::exception_ptr e)
 {
 	wstringstream ss, ssCode;
-	wstring woffendingText = boost::locale::conv::utf_to_utf<wchar_t>(offendingSymbol->getInputStream()->toString());
-	wstring wmsg = boost::locale::conv::to_utf<wchar_t>(msg, LOCAL_BOOST_ENCODING);
+	wstring woffendingText = Locale::ansiToUnicode(offendingSymbol->getInputStream()->toString());
+	wstring wmsg = Locale::ansiToUnicode(msg);
 	ssCode << woffendingText;
 	wstring lineData;
 	for (int i = 0; i < line; i++) {

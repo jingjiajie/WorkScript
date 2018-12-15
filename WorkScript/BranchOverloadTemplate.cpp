@@ -3,6 +3,7 @@
 #include "BranchOverload.h"
 #include "Parameter.h"
 #include "FunctionTemplate.h"
+#include "VoidType.h"
 #include "Program.h"
 
 using namespace WorkScript;
@@ -24,13 +25,18 @@ Overload * WorkScript::BranchOverloadTemplate::createOverload(Function * func, c
 	Type *retType;
 	if (this->branchTemplates.size() == 0)
 	{
-		retType = this->function->getProgram()->getType(TYPENAME_VOID);
+		retType = this->function->getProgram()->getVoidType();
 	}
 	else {
 		auto exprs = this->branchTemplates[0]->getExpressions();
 		retType = exprs->at(exprs->size() - 1)->getType();
 	}
-	Overload *overload = new BranchOverload(func, params, retType);
+	BranchOverload *overload = new BranchOverload(func, params, retType);
+	for (auto br : this->branchTemplates)
+	{
+		overload->addBranch(br->createOverloadBranch());
+	}
+	
 	return overload;
 }
 

@@ -1,14 +1,14 @@
 #pragma once
 #include <string>
 #include "Expression.h"
-#include "SymbolTable.h"
 
 namespace WorkScript {
 	class VariableExpression :
 		public Expression
 	{
 	public:
-		inline VariableExpression(const std::wstring &name)
+		inline VariableExpression(Program *p, const std::wstring &name)
+			:Expression(p)
 		{
 			this->setName(name);
 		}
@@ -56,7 +56,6 @@ namespace WorkScript {
 		std::wstring name;
 		Type *type;
 		bool varargs = false;
-		SymbolTable *symbolTable = nullptr;
 		bool declarable = false; //可声明变量，如果具有此属性，则遇到该变量时可以创建声明。否则提示找不到符号
 	};
 }

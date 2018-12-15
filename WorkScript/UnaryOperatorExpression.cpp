@@ -11,11 +11,6 @@ UnaryOperatorExpression::~UnaryOperatorExpression()
 	delete this->subExpression;
 }
 
-//bool UnaryOperatorExpression::equals(Expression *target) const
-//{
-//	return target == this;
-//}
-
 std::wstring WorkScript::UnaryOperatorExpression::toString() const
 {
 	return this->getOperatorString() + this->subExpression->toString();
@@ -23,15 +18,48 @@ std::wstring WorkScript::UnaryOperatorExpression::toString() const
 
 Type * WorkScript::UnaryOperatorExpression::getType() const
 {
-	Type *subExprType = this->subExpression->getType();
-	return subExprType->inferReturnType(this->getOperatorFunctionName(), {});
+	return this->subExpression->getType();
+}
+
+Expression * WorkScript::UnaryOperatorExpression::clone() const
+{
+	return new UnaryOperatorExpression(program, operatorType, subExpression);
 }
 
 GenerateResult WorkScript::UnaryOperatorExpression::generateIR(GenerateContext * context)
 {
-	Type *subType = this->subExpression->getType();
-	Function *func = subType->getMemberFunction(this->getOperatorFunctionName());
-	Overload *overload = func->getOverload({ });
-	auto builder = context->getIRBuilder();
-	return builder->CreateCall(overload->getLLVMFunction(context), {}, "tmp");
+	auto irBuilder = context->getIRBuilder();
+	llvm::Value *subValue = this->subExpression->generateIR(context).getValue();
+	llvm::Value *res;
+	switch (this->operatorType)
+	{
+	case OperatorType::NEGATIVE:
+		res = irBuilder->CreateNeg(subValue);
+		break;
+	case OperatorType::NOT:
+		res = irBuilder->CreateNot(subValue);
+		break;
+	default:
+		throw WorkScriptException(L"未知的单目运算符");
+	}
+
+	return res;
+}
+
+ExpressionType WorkScript::UnaryOperatorExpression::getExpressionType() const
+{
+	return ExpressionType::UNARY_OPERATOR_EXPRESSION;
+}
+
+std::wstring WorkScript::UnaryOperatorExpression::getOperatorString() const
+{
+	switch (this->operatorType)
+	{
+	case OperatorType::NEGATIVE:
+		return L"-";
+	case OperatorType::NOT:
+		return L"!";
+	default:
+		throw WorkScriptException(L"未知的单目运算符");
+	}
 }

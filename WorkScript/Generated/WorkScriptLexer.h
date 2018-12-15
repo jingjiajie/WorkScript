@@ -3,9 +3,13 @@
 
 #pragma once
 
+
 #include "antlr4-runtime.h"
 
-class WorkScriptLexer : public antlr4::Lexer {
+
+
+
+class  WorkScriptLexer : public antlr4::Lexer {
 public:
   enum {
     ACCESS_LEVEL = 1, INCLUDE = 2, WHEN = 3, BOOLEAN = 4, IDENTIFIER = 5, 

@@ -4,6 +4,7 @@
 #include "StringExpression.h"
 #include "LinkException.h"
 #include "Utils.h"
+#include "SymbolTable.h"
 #include "SymbolInfo.h"
 
 using namespace std;
@@ -11,25 +12,22 @@ using namespace WorkScript;
 
 GenerateResult WorkScript::VariableExpression::generateIR(GenerateContext * context)
 {
-	auto symbolInfo = this->symbolTable->getSymbolInfo(this->name);
+	SymbolTable *symbolTable = this->program->getSymbolTable();
+	auto symbolInfo = symbolTable->getSymbolInfo(this->name);
 	llvm::Value *var = ((SymbolInfo*)symbolInfo)->getLLVMValue(context);
 	return var;
 }
 
 Type * VariableExpression::getType() const
 {
-	const SymbolInfo *info = this->symbolTable->getSymbolInfo(this->name);
+	SymbolTable *symbolTable = this->program->getSymbolTable();
+	const SymbolInfo *info = symbolTable->getSymbolInfo(this->name);
 	return (Type*)info->getType();
 }
 
-//bool VariableExpression::equals(Expression * targetExpression) const
-//{
-//	return targetExpression == this;
-//}
-
 Expression * WorkScript::VariableExpression::clone() const
 {
-	auto newInstance = new thistype(this->name);
+	auto newInstance = new thistype(program, this->name);
 	newInstance->type = this->type;
 	newInstance->varargs = this->varargs;
 	return newInstance;

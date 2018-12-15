@@ -1,9 +1,9 @@
 
 // Generated from WorkScript.g4 by ANTLR 4.7.1
 
-
-#include "WorkScriptLexer.h"
 #include "stdafx.h"
+#include "WorkScriptLexer.h"
+
 
 using namespace antlr4;
 

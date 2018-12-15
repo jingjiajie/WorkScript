@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "Expression.h"
+#include "OverloadBranch.h"
 namespace WorkScript
 {
 	class OverloadBranchTemplate
@@ -11,6 +12,10 @@ namespace WorkScript
 			this->setConditions(conds);
 			this->setExpressions(codes);
 		}
+
+		~OverloadBranchTemplate();
+
+		OverloadBranch * createOverloadBranch();
 
 		void setConditions(const std::vector<Expression*> &conds)
 		{

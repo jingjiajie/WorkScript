@@ -13,7 +13,7 @@ namespace WorkScript
 			this->setCodes(codes);
 		}
 
-		llvm::BasicBlock * generateBlock(GenerateContext *context, llvm::Function *llvmFunc, llvm::BasicBlock *falseBlock, llvm::BasicBlock *mergeBlock);
+		llvm::BasicBlock * generateBlock(GenerateContext *context, llvm::Function *llvmFunc, llvm::BasicBlock *falseBlock);
 
 		void setConditions(const std::vector<Expression*> &conds)
 		{

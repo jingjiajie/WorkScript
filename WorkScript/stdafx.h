@@ -17,8 +17,6 @@
 #include <math.h>
 #include <limits.h>
 
-#include <boost/locale.hpp>
-
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Verifier.h>

@@ -1,7 +1,6 @@
 #pragma once
 #include <exception>
-#include <string.h>
-#include <utility>
+#include <string>
 
 #include "Defines.h"
 
@@ -12,33 +11,16 @@
 class WorkScriptException : public std::exception
 {
 public:
-	inline WorkScriptException(WorkScriptException &&tmp)
-	{
-		this->message = tmp.message;
-		tmp.message = nullptr;
-	}
-
-	inline WorkScriptException(const WorkScriptException &tmp) = delete;
-
-	inline WorkScriptException(const wchar_t *lpszMsg)
-	{
-		this->setMessage(lpszMsg);
-	}
-
 	inline WorkScriptException(const std::wstring &wmsg)
 	{
 		this->setMessage(wmsg.c_str());
 	}
 
-	virtual ~WorkScriptException();
+	virtual const char * what() const override;
 
-	virtual const char * what() const override
-	{
-		return this->message;
-	}
-
-	void setMessage(const wchar_t *const &lpszMsg);
+	void setMessage(const std::wstring &msg);
 protected:
-	const char *message;
+	std::wstring message;
+	std::string messageANSI;
 };
 

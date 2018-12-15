@@ -1,27 +1,27 @@
 #include "stdafx.h"
 #include "OverloadBranch.h"
 
-llvm::BasicBlock * WorkScript::OverloadBranch::generateBlock(GenerateContext * context, llvm::Function *llvmFunc, llvm::BasicBlock * falseBlock, llvm::BasicBlock * mergeBlock)
+llvm::BasicBlock * WorkScript::OverloadBranch::generateBlock(GenerateContext * context, llvm::Function *llvmFunc, llvm::BasicBlock * falseBlock)
 {
-	auto builder = context->getIRBuilder();
 	auto curFunc = llvmFunc;
-	llvm::BasicBlock *block = llvm::BasicBlock::Create(*context->getLLVMContext(), "if", curFunc);
-	llvm::BasicBlock *trueBlock = llvm::BasicBlock::Create(*context->getLLVMContext(), "if_true", curFunc);
-	builder->SetInsertPoint(block);
+	llvm::BasicBlock *cond = llvm::BasicBlock::Create(*context->getLLVMContext(), "cond", curFunc);
+	llvm::BasicBlock *matched = llvm::BasicBlock::Create(*context->getLLVMContext(), "matched", curFunc);
+	llvm::IRBuilder<> &builder = *context->getIRBuilder();
+	builder.CreateBr(cond);
+	builder.SetInsertPoint(cond);
 	for (size_t i = 0; i < this->conditions.size(); ++i)
 	{
 		llvm::Value *res = this->conditions[i]->generateIR(context).getValue();
-		builder->CreateCondBr(res, trueBlock, falseBlock);
+		builder.CreateCondBr(res, matched, falseBlock);
 	}
-	builder->SetInsertPoint(trueBlock);
+	builder.SetInsertPoint(matched);
 	for (size_t i = 0; i < this->codes.size(); ++i)
 	{
 		llvm::Value *res = this->codes[i]->generateIR(context).getValue();
-		if(i == this->codes.size())
-		{ 
-			builder->CreateRet(res);
+		if(i == this->codes.size() - 1)
+		{
+			builder.CreateRet(res);
 		}
 	}
-	builder->CreateBr(mergeBlock);
-	return block;
+	return cond;
 }

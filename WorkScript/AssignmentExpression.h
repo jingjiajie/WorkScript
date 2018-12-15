@@ -7,21 +7,16 @@ namespace WorkScript {
 		public BinaryOperatorExpression
 	{
 	public:
-		inline AssignmentExpression()
-			:BinaryOperatorExpression()
-		{
-		}
+		inline AssignmentExpression(Program *p, Expression *left, Expression *right)
+			: BinaryOperatorExpression(p, left, right){}
 
-		inline AssignmentExpression(Expression *left, Expression *right)
-			: BinaryOperatorExpression(left, right)
-		{
-		}
-
+		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual ExpressionType getExpressionType() const override;
 		virtual Expression * clone() const override;
+		virtual Type * getType() const override;
+
 	protected:
 		virtual std::wstring getOperatorString() const override;
-		virtual std::wstring getOperatorFunctionName() const override;
 	};
 
 }

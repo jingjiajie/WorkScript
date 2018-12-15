@@ -1,34 +1,25 @@
 #include "stdafx.h"
 #include "WorkScriptVisitorImpl.h"
-#include "StringExpression.h"
-#include "DoubleExpression.h"
 #include "ExpressionWrapper.h"
 #include "Type.h"
-#include "PlusExpression.h"
-#include "MinusExpression.h"
 #include "MemberEvaluateExpression.h"
-#include "MultiplyExpression.h"
-#include "DivideExpression.h"
-#include "FunctionInvocationExpression.h"
-#include "GreaterThanExpression.h"
+#include "CallExpression.h"
 #include "VariableExpression.h"
-#include "EqualsExpression.h"
 #include "AssignmentExpression.h"
-#include "ParameterExpression.h"
-#include "GreaterThanEqualExpression.h"
-#include "LessThanEqualExpression.h"
-#include "LessThanExpression.h"
-#include "NegativeExpression.h"
+#include "MultiValueExpression.h"
 #include "IntegerExpression.h"
-#include "ModulusExpression.h"
-#include "ByteExpression.h"
-#include "ParameterExpression.h"
+#include "FloatExpression.h"
+#include "StringExpression.h"
 #include "SyntaxErrorException.h"
 #include "Parameter.h"
 #include "Function.h"
 #include "FunctionTemplate.h"
 #include "BranchOverloadTemplate.h"
 #include "Program.h"
+#include "BinaryCompareExpression.h"
+#include "BinaryCalculateExpression.h"
+#include "UnaryOperatorExpression.h"
+#include "Locale.h"
 
 #define FORBID_ASSIGN \
 this->assignable = false; 
@@ -52,10 +43,6 @@ using namespace WorkScript;
 
 antlrcpp::Any WorkScriptVisitorImpl::visitIncludeCommand(WorkScriptParser::IncludeCommandContext *ctx)
 {
-	//string utf8FileName = ctx->STRING()->getText();
-	//utf8FileName = utf8FileName.substr(1, utf8FileName.size() - 2);
-	//wstring wFileName = boost::locale::conv::to_utf<wchar_t>(utf8FileName, "UTF-8");
-	//this->program->addIncludeFile(wFileName.c_str());
 	return nullptr;
 }
 
@@ -67,7 +54,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new DoubleExpression(value));
+		return ExpressionWrapper(new FloatExpression(program, program->getFloat64Type(), value));
 	}
 	else {
 		int value = 0;
@@ -75,7 +62,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new IntegerExpression(value));
+		return ExpressionWrapper(new IntegerExpression(program,program->getSInt32Type(), value));
 	}
 }
 
@@ -83,7 +70,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitStringExpression(WorkScriptParser::Str
 {
 	string text = ctx->STRING()->getText();
 	text = text.substr(1, text.length() - 2);
-	wstring wtext = boost::locale::conv::to_utf<wchar_t>(text, "UTF-8");
+	wstring wtext = Locale::ansiToUnicode(text);
 
 	wchar_t *unescapedText = new wchar_t[wtext.length() + 1];
 	try {
@@ -93,7 +80,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitStringExpression(WorkScriptParser::Str
 		delete[]unescapedText;
 		throw;
 	}
-	auto lpExpr = new StringExpression(unescapedText);
+	auto lpExpr = new StringExpression(program, unescapedText);
 	delete[]unescapedText;
 	return ExpressionWrapper(lpExpr);
 }
@@ -101,36 +88,21 @@ antlrcpp::Any WorkScriptVisitorImpl::visitStringExpression(WorkScriptParser::Str
 antlrcpp::Any WorkScriptVisitorImpl::visitBooleanExpression(WorkScriptParser::BooleanExpressionContext *ctx)
 {
 	string boolStr = ctx->BOOLEAN()->getText();
-	if (boolStr == "true") {
-		return ExpressionWrapper(&BooleanExpression::TRUE);
+	if (boolStr == "true" || boolStr == "yes" || boolStr == "ok" || boolStr == "good") {
+		return ExpressionWrapper(new IntegerExpression(program,program->getUInt1Type(),1));
 	}
-	else if (boolStr == "yes") {
-		return ExpressionWrapper(&BooleanExpression::YES);
-	}
-	else if (boolStr == "ok") {
-		return ExpressionWrapper(&BooleanExpression::OK);
-	}
-	else if (boolStr == "good") {
-		return ExpressionWrapper(&BooleanExpression::GOOD);
-	}
-	else if (boolStr == "false") {
-		return ExpressionWrapper(&BooleanExpression::FALSE);
-	}
-	else if (boolStr == "no") {
-		return ExpressionWrapper(&BooleanExpression::NO);
-	}
-	else if (boolStr == "bad") {
-		return ExpressionWrapper(&BooleanExpression::BAD);
+	else if (boolStr == "false" || boolStr == "no" || boolStr == "bad") {
+		return ExpressionWrapper(new IntegerExpression(program, program->getUInt1Type(), 0));
 	}
 	else {
-		throw std::move(SyntaxErrorException(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1, (L"无法识别的布尔值：" + boost::locale::conv::to_utf<wchar_t>(boolStr, "UTF-8")).c_str()));
+		throw std::move(SyntaxErrorException(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1, (L"无法识别的布尔值：" + Locale::ansiToUnicode(boolStr))));
 	}
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx)
 {
 	string varName = ctx->identifier()->getText();
-	auto expr = new VariableExpression(boost::locale::conv::to_utf<wchar_t>(varName, "UTF-8").c_str());
+	auto expr = new VariableExpression(program, Locale::ansiToUnicode(varName));
 	expr->setDeclarable(this->declarable); //等号左边的变量才可以创建声明
 	auto wrapper = ExpressionWrapper(expr);
 	return wrapper;
@@ -145,7 +117,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	//函数的实现
 	vector<Expression*> impls;
 	if (ctx->functionImplementationExpression()->expression() != nullptr) {
-		auto expr = (ExpressionWrapper)ctx->functionImplementationExpression()->expression()->accept(this);
+		auto expr = ctx->functionImplementationExpression()->expression()->accept(this).as<ExpressionWrapper>();
 		impls.push_back(expr.getExpression());
 	}
 	else {
@@ -153,7 +125,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 		impls.reserve(exprs.size());
 		for (size_t i = 0; i < exprs.size(); ++i)
 		{
-			auto wrapper = (ExpressionWrapper)exprs[i]->accept(this);
+			auto wrapper = exprs[i]->accept(this).as<ExpressionWrapper>();
 			impls[i] = wrapper.getExpression();
 		}
 	}
@@ -161,8 +133,8 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	FORBID_ASSIGN;
 
 	//函数的参数和限制
-	ExpressionWrapper paramsWrapper = ctx->functionDeclarationExpression()->parameterExpression()->accept(this);
-	auto paramExpr = (ParameterExpression *)paramsWrapper.getExpression();
+	ExpressionWrapper paramsWrapper = ctx->functionDeclarationExpression()->formalParameterExpression()->accept(this);
+	auto paramExpr = (MultiValueExpression *)paramsWrapper.getExpression();
 	size_t paramCount = paramExpr->getItems().size();
 	vector<ParameterTemplate*> paramInfos;
 	paramInfos.reserve(paramCount);
@@ -223,7 +195,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	auto funcNameCtx = ctx->functionDeclarationExpression()->identifier();
 	wstring funcName;
 	if(funcNameCtx != nullptr) {
-		funcName = boost::locale::conv::to_utf<wchar_t>(funcNameCtx->getText(), LOCAL_BOOST_ENCODING);
+		funcName = Locale::ansiToUnicode(funcNameCtx->getText());
 	}
 	FunctionTemplate* funcTemplate = this->program->getFunctionTemplate(funcName);
 	if (!funcTemplate) {
@@ -241,26 +213,20 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	return nullptr;
 }
 
-antlrcpp::Any WorkScriptVisitorImpl::visitFunctionInvocationExpression(WorkScriptParser::FunctionInvocationExpressionContext *ctx)
+antlrcpp::Any WorkScriptVisitorImpl::visitCallExpression(WorkScriptParser::CallExpressionContext *ctx)
 {
 	STORE_FORBID_ASSIGN;
-	ExpressionWrapper paramExpressionWrapper = ctx->parameterExpression()->accept(this);
-	auto funcName = boost::locale::conv::to_utf<wchar_t>(ctx->identifier()->getText(), "UTF-8");
-	auto paramExpr = (ParameterExpression*)paramExpressionWrapper.getExpression();
-	auto expr = new FunctionInvocationExpression();
-	expr->setFunctionName(funcName);
-	expr->setParameters(paramExpr);
+	ExpressionWrapper paramExpressionWrapper = ctx->multiValueExpression()->accept(this);
+	auto funcName = Locale::ansiToUnicode(ctx->identifier()->getText());
+	auto paramExpr = (MultiValueExpression*)paramExpressionWrapper.getExpression();
+	Overload *overload = program->getFunctionOverload(funcName, paramExpr->getTypes());
+	auto expr = new CallExpression(program, overload, paramExpr);
 	RESTORE_ASSIGNABLE;
 	return ExpressionWrapper(expr);
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitProgram(WorkScriptParser::ProgramContext *ctx)
 {
-	//auto includeCommands = ctx->includeCommand();
-	//for (auto &command : includeCommands) {
-	//	command->accept(this);
-	//}
-
 	auto exprs = ctx->expression();
 	for (auto &expr : exprs)
 	{
@@ -275,18 +241,18 @@ antlrcpp::Any WorkScriptVisitorImpl::visitAssignmentOrEqualsExpression(WorkScrip
 	if (this->assignable) {
 		STORE_FORBID_ASSIGN;
 		this->declarable = true;
-		auto left = ((ExpressionWrapper)ctx->expression()[0]->accept(this)).getExpression();
+		auto left = ctx->expression()[0]->accept(this).as<ExpressionWrapper>().getExpression();
 		this->declarable = false;
-		auto right = ((ExpressionWrapper)ctx->expression()[1]->accept(this)).getExpression();
+		auto right = ctx->expression()[1]->accept(this).as<ExpressionWrapper>().getExpression();
 		RESTORE_ASSIGNABLE;
-		return ExpressionWrapper(new AssignmentExpression(left, right));
+		return ExpressionWrapper(new AssignmentExpression(program, left, right));
 	}
 	else {
 		STORE_FORBID_ASSIGN;
 		auto left = ((ExpressionWrapper)ctx->expression()[0]->accept(this)).getExpression();
 		auto right = ((ExpressionWrapper)ctx->expression()[1]->accept(this)).getExpression();
 		RESTORE_ASSIGNABLE;
-		return ExpressionWrapper(new EqualsExpression(left, right));
+		return ExpressionWrapper(new BinaryCompareExpression(program, BinaryCompareExpression::CompareType::EQUAL, left, right));
 	}
 }
 
@@ -296,22 +262,14 @@ antlrcpp::Any WorkScriptVisitorImpl::visitAssignmentExpression(WorkScriptParser:
 	auto left = ((ExpressionWrapper)ctx->expression()[0]->accept(this)).getExpression();
 	auto right = ((ExpressionWrapper)ctx->expression()[1]->accept(this)).getExpression();
 	RESTORE_ASSIGNABLE;
-	return ExpressionWrapper(new AssignmentExpression(left, right));
+	auto expr = new AssignmentExpression(program, left, right);
+	return ExpressionWrapper(expr);
 }
 
-antlrcpp::Any WorkScriptVisitorImpl::visitEqualsExpression(WorkScriptParser::EqualsExpressionContext *ctx)
-{
-	STORE_FORBID_ASSIGN;
-	auto left = ((ExpressionWrapper)ctx->expression()[0]->accept(this)).getExpression();
-	auto right = ((ExpressionWrapper)ctx->expression()[1]->accept(this)).getExpression();
-	RESTORE_ASSIGNABLE;
-	return ExpressionWrapper(new EqualsExpression(left, right));
-}
-
-antlrcpp::Any WorkScriptVisitorImpl::visitParameterExpression(WorkScriptParser::ParameterExpressionContext *ctx)
+antlrcpp::Any WorkScriptVisitorImpl::visitMultiValueExpression(WorkScriptParser::MultiValueExpressionContext *ctx)
 {
 	STORE_FORBID_ASSIGN
-	auto subContext = ctx->parameterExpressionItem();
+	auto subContext = ctx->expression();
 	size_t subContextCount = subContext.size();
 	vector<Expression*> items;
 	items.reserve(subContextCount);
@@ -320,7 +278,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitParameterExpression(WorkScriptParser::
 		auto itemExpr = wrapper.getExpression();
 		items[i] = itemExpr;
 	}
-	auto expr = new WorkScript::ParameterExpression(items);
+	auto expr = new WorkScript::MultiValueExpression(program, items);
 	RESTORE_ASSIGNABLE
 	return ExpressionWrapper(expr);
 }
@@ -345,10 +303,10 @@ antlrcpp::Any WorkScriptVisitorImpl::visitPlusMinusExpression(WorkScriptParser::
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	RESTORE_ASSIGNABLE
 	if (ctx->PLUS()) {
-		return ExpressionWrapper(new PlusExpression(leftExpression, rightExpression));
+		return ExpressionWrapper(new BinaryCalculateExpression(program,BinaryCalculateExpression::PLUS,leftExpression, rightExpression));
 	}
 	else { //MINUS
-		return ExpressionWrapper(new MinusExpression(leftExpression, rightExpression));
+		return ExpressionWrapper(new BinaryCalculateExpression(program, BinaryCalculateExpression::MINUS, leftExpression, rightExpression));
 	}
 }
 
@@ -360,11 +318,14 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideModulusExpression(WorkSc
 	const ExpressionWrapper &rightExpressionWrapper = ctx->expression()[1]->accept(this);
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	RESTORE_ASSIGNABLE;
-	if (ctx->DIVIDE()) { //DIVIDE
-		return ExpressionWrapper(new DivideExpression(leftExpression, rightExpression));
+	if (ctx->MULTIPLY()) {
+		return ExpressionWrapper(new BinaryCalculateExpression(program, BinaryCalculateExpression::MULTIPLY, leftExpression, rightExpression));
 	}
-	else if (ctx->MODULUS()) {
-		return ExpressionWrapper(new ModulusExpression(leftExpression, rightExpression));
+	else if (ctx->DIVIDE()) {
+		return ExpressionWrapper(new BinaryCalculateExpression(program, BinaryCalculateExpression::DIVIDE, leftExpression, rightExpression));
+	}
+	else { //MODULUS
+		return ExpressionWrapper(new BinaryCalculateExpression(program, BinaryCalculateExpression::MODULUS, leftExpression, rightExpression));
 	}
 }
 
@@ -376,26 +337,31 @@ antlrcpp::Any WorkScriptVisitorImpl::visitParentheseExpression(WorkScriptParser:
 	return ret;
 }
 
-antlrcpp::Any WorkScriptVisitorImpl::visitCompareExpression(WorkScriptParser::CompareExpressionContext *ctx)
+antlrcpp::Any WorkScriptVisitorImpl::visitBinaryCompareExpression(WorkScriptParser::BinaryCompareExpressionContext *ctx)
 {
 	STORE_FORBID_ASSIGN
 	ExpressionWrapper wrapperLeft = ctx->expression()[0]->accept(this);
 	ExpressionWrapper wrapperRight = ctx->expression()[1]->accept(this);
 	auto leftExpression = wrapperLeft.getExpression();
 	auto rightExpression = wrapperRight.getExpression();
+	BinaryCompareExpression::CompareType compareType;
 	RESTORE_ASSIGNABLE;
-	if (ctx->GREATER_THAN()) {
-		return ExpressionWrapper(new GreaterThanExpression(leftExpression, rightExpression));
+	if (ctx->DOUBLE_EQUAL()) {
+		compareType = BinaryCompareExpression::CompareType::EQUAL;
+	}
+	else if (ctx->GREATER_THAN()) {
+		compareType = BinaryCompareExpression::CompareType::GREATER_THAN;
 	}
 	else if (ctx->GREATER_THAN_EQUAL()) {
-		return ExpressionWrapper(new GreaterThanEqualExpression(leftExpression, rightExpression));
+		compareType = BinaryCompareExpression::CompareType::GREATER_THAN_EQUAL;
 	}
 	else if (ctx->LESS_THAN()) {
-		return ExpressionWrapper(new LessThanExpression(leftExpression, rightExpression));
+		compareType = BinaryCompareExpression::CompareType::LESS_THAN;
 	}
 	else {
-		return ExpressionWrapper(new LessThanEqualExpression(leftExpression, rightExpression));
+		compareType = BinaryCompareExpression::CompareType::LESS_THAN_EQUAL;
 	}
+	return new BinaryCompareExpression(program, compareType, leftExpression, rightExpression);
 }
 
 //antlrcpp::Any WorkScriptVisitorImpl::visitListExpression(WorkScriptParser::ListExpressionContext *ctx)
@@ -416,7 +382,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitCompareExpression(WorkScriptParser::Co
 antlrcpp::Any WorkScriptVisitorImpl::visitNegativeExpression(WorkScriptParser::NegativeExpressionContext *ctx)
 {
 	ExpressionWrapper wrapper = ctx->expression()->accept(this);
-	auto expr = new NegativeExpression(wrapper.getExpression());
+	auto expr = new UnaryOperatorExpression(program, UnaryOperatorExpression::NEGATIVE, wrapper.getExpression());
 	return ExpressionWrapper(expr);
 }
 
@@ -433,29 +399,18 @@ antlrcpp::Any WorkScriptVisitorImpl::visitVarargsExpression(WorkScriptParser::Va
 	return varWrapper;
 }
 
-antlrcpp::Any WorkScriptVisitorImpl::visitParameterExpressionItem(WorkScriptParser::ParameterExpressionItemContext *ctx)
+antlrcpp::Any WorkScript::WorkScriptVisitorImpl::visitFormalParameterExpression(WorkScriptParser::FormalParameterExpressionContext * ctx)
 {
-	if (ctx->expression()) {
-		return ctx->expression()->accept(this);
+	auto params = ctx->identifier();
+	vector<Expression*> itemExprs;
+	itemExprs.reserve(params.size());
+	for (size_t i = 0; i < params.size(); ++i)
+	{
+		itemExprs[i] = params[i]->accept(this).as<ExpressionWrapper>().getExpression();
 	}
-	else {
-		return ctx->varargsExpression()->accept(this);
-	}
+	MultiValueExpression *expr = new MultiValueExpression(program, itemExprs);
+	return ExpressionWrapper(expr);
 }
-
-//antlrcpp::Any WorkScriptVisitorImpl::visitAccessLevelExpression(WorkScriptParser::AccessLevelExpressionContext *ctx)
-//{
-//	string level = ctx->ACCESS_LEVEL()->getText();
-//	if (level == "public") {
-//		this->setDomainAccess(this->curDepth, DomainAccess::PUBLIC);
-//	}
-//	else if (level == "private") {
-//		this->setDomainAccess(this->curDepth, DomainAccess::PRIVATE);
-//	}
-//	ExpressionWrapper ret;
-//	ret.setLifeCycle(ExpressionLifeCycle::COMPILE);
-//	return ret;
-//}
 
 WorkScriptVisitorImpl::WorkScriptVisitorImpl(Program *lpProgram)
 {

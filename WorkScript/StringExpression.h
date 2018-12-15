@@ -9,26 +9,14 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline StringExpression(const std::wstring &v):value(v){}
+		inline StringExpression(Program *p, const std::wstring &v)
+			:Expression(p), value(v) { }
 
 		virtual std::wstring toString() const override;
 		virtual Type * getType() const override;
 		virtual GenerateResult generateIR(GenerateContext *context);
 		virtual ExpressionType getExpressionType() const;
 		virtual Expression * clone() const override;
-
-		inline virtual bool equals(const Expression *targetExpression) const
-		{
-			if (targetExpression == this) {
-				return true;
-			}
-			else if (!targetExpression->getType()->equals(this->getType())) {
-				return false;
-			}
-			else {
-				return ((StringExpression*)targetExpression)->value == this->value;
-			}
-		}
 
 		inline std::wstring& getValue()
 		{

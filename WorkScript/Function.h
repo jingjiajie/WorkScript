@@ -11,8 +11,9 @@ namespace WorkScript {
 		inline ~Function()
 		{
 			for (Overload *overload : this->overloads)delete overload;
-			if (this->thisParam) delete this->thisParam;
 		}
+
+		virtual GenerateResult generateLLVMIR(GenerateContext *context);
 
 		Overload * getOverload(const std::vector<Type*> paramTypes)
 		{
@@ -41,19 +42,9 @@ namespace WorkScript {
 			this->name = funcName;
 		}
 
-		inline Parameter * getThisParameter()
-		{
-			return this->thisParam;
-		}
-
-		inline void setThisParameter(Parameter *thisParam)
-		{
-			this->thisParam = thisParam;
-		}
 	private:
 		std::wstring name;
 		std::vector<WorkScript::Overload*> overloads;
-		Parameter *thisParam = nullptr;
 		Program *program;
 	};
 }

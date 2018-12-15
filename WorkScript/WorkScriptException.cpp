@@ -1,17 +1,17 @@
 #include "stdafx.h"
 #include "WorkScriptException.h"
+#include "Locale.h"
 
 using namespace std;
+using namespace WorkScript;
 
-WorkScriptException::~WorkScriptException()
+void WorkScriptException::setMessage(const wstring& msg)
 {
-	if (this->message) delete[] this->message;
+	this->message = msg;
+	this->messageANSI = Locale::unicodeToANSI(msg);
 }
 
-void WorkScriptException::setMessage(const wchar_t * const & lpszMsg)
+const char * WorkScriptException::what() const
 {
-	auto str = boost::locale::conv::from_utf(lpszMsg, LOCAL_BOOST_ENCODING);
-	auto buff = new char[str.length() + 1];
-	strcpy(buff, str.c_str());
-	this->message = buff;
+	return this->messageANSI.c_str();
 }

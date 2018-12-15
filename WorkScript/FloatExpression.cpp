@@ -40,16 +40,7 @@ Expression * WorkScript::FloatExpression::clone() const
 
 GenerateResult FloatExpression::generateIR(GenerateContext * context)
 {
-	auto len = this->type->getLength();
-	switch (len)
-	{
-	case 4:
-		return (llvm::Value*)llvm::ConstantFP::get(llvm::Type::getFloatTy(*context->getLLVMContext()), this->value);
-	case 8:
-		return (llvm::Value*)llvm::ConstantFP::get(llvm::Type::getDoubleTy(*context->getLLVMContext()), this->value);
-	default:
-		throw WorkScriptException(L"不支持的浮点数长度：" + to_wstring(len));
-	}
+	return (llvm::Value*)llvm::ConstantFP::get(this->type->getLLVMType(context), this->value);
 }
 
 inline WorkScript::FloatExpression::FloatExpression(Program * p, FloatType * type, double v)

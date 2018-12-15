@@ -6,21 +6,24 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline UnaryOperatorExpression()
-		{
-		}
+		enum OperatorType {
+			NEGATIVE,NOT
+		};
 
-		inline UnaryOperatorExpression(Expression *subExpression)
+		inline UnaryOperatorExpression(Program *p,OperatorType t, Expression *subExpression)
+			:Expression(p)
 		{
+			this->operatorType = t;
 			this->setSubExpression(subExpression);
 		}
 
 		virtual ~UnaryOperatorExpression();
 
-		//virtual bool equals(Expression *) const override;
 		virtual std::wstring toString() const override;
 		virtual Type * getType() const override;
+		virtual Expression * clone() const override;
 		virtual GenerateResult generateIR(GenerateContext *context) override;
+		virtual ExpressionType getExpressionType() const override;
 
 		inline Expression * getSubExpression() const
 		{
@@ -32,9 +35,9 @@ namespace WorkScript {
 		}
 	protected:
 		Expression *subExpression;
+		OperatorType operatorType;
 
-		virtual std::wstring getOperatorString() const = 0;
-		virtual std::wstring getOperatorFunctionName() const = 0;
+		virtual std::wstring getOperatorString() const;
 	};
 
 }

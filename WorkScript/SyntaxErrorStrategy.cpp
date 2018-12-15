@@ -3,11 +3,11 @@
 #include "RecognitionException.h"
 #include "InputMismatchException.h"
 #include "SyntaxErrorException.h"
-
-#include <boost/locale.hpp>
+#include "Locale.h"
 
 using namespace antlr4;
 using namespace std;
+using namespace WorkScript;
 
 SyntaxErrorStrategy::SyntaxErrorStrategy()
 {
@@ -20,8 +20,8 @@ SyntaxErrorStrategy::~SyntaxErrorStrategy()
 
 void SyntaxErrorStrategy::reportError(antlr4::Parser * recognizer, const antlr4::RecognitionException & e)
 {
-	wstring wmsg = L"\"" + boost::locale::conv::utf_to_utf<wchar_t>(e.getOffendingToken()->getText()) + L"\"是不是放错了位置？";
-	string msg = boost::locale::conv::from_utf(wmsg,LOCAL_BOOST_ENCODING);
+	wstring wmsg = L"\"" + Locale::ansiToUnicode(e.getOffendingToken()->getText()) + L"\"是不是放错了位置？";
+	string msg = Locale::unicodeToANSI(wmsg);
 	recognizer->notifyErrorListeners(e.getOffendingToken(), std::move(msg), make_exception_ptr(e));
 }
 

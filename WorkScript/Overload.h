@@ -19,6 +19,7 @@ namespace WorkScript {
 
 		virtual ~Overload();
 		std::wstring getMangledFunctionName() const;
+		virtual GenerateResult generateLLVMIR(GenerateContext *context) = 0;
 		llvm::Function * getLLVMFunction(GenerateContext *context);
 
 		bool matchByParameters(const std::vector<Type*> &paramTypes);
@@ -47,8 +48,6 @@ namespace WorkScript {
 		{
 			this->function = f;
 		}
-
-		Parameter * getThisParameter();
 
 		inline Type *getReturnType()
 		{

@@ -6,13 +6,12 @@
 #include "Generated/WorkScriptParser.h"
 #include "WorkScriptVisitorImpl.h"
 #include "Expression.h"
-#include "DoubleExpression.h"
 #include "SyntaxErrorException.h"
 #include "SyntaxErrorListener.h"
 #include "SyntaxErrorStrategy.h"
-#include "Pointer.h"
 #include "SyntaxErrorException.h"
 #include "LinkException.h"
+#include "Locale.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -28,15 +27,19 @@ WorkScriptEngine::~WorkScriptEngine()
 
 void WorkScriptEngine::run(const char * filePath)
 {
-	auto wFilePath = boost::locale::conv::to_utf<wchar_t>(filePath, LOCAL_BOOST_ENCODING);
+	auto wFilePath = Locale::ansiToUnicode(filePath);
 	Program program;
 	this->parseFile(wFilePath.c_str(), &program);
 	//TODO JIT运行
+	llvm::LLVMContext llvmContext;
+	llvm::Module llvmModule("main",llvmContext);
+	program.generateLLVMIR(&llvmContext, &llvmModule);
+	llvmModule.dump();
 }
 
 void WorkScriptEngine::parseFile(const wchar_t * fileName, Program * outProgram) //throws SyntaxErrorException
 {
-	FILE *file = fopen(boost::locale::conv::from_utf(fileName, LOCAL_BOOST_ENCODING).c_str(), "r");
+	FILE *file = fopen(Locale::unicodeToANSI(fileName).c_str(), "r");
 	if (file == nullptr) {
 		wprintf(L"文件\"%ls\"不存在！\n", fileName);
 	}
@@ -54,7 +57,7 @@ void WorkScriptEngine::parseFile(const wchar_t * fileName, Program * outProgram)
 		}
 		fclose(file);
 		//转换为Unicode
-		string utf8Str = boost::locale::conv::to_utf<char>(buff, LOCAL_BOOST_ENCODING);
+		string utf8Str = Locale::ansiToUTF8(buff);
 		delete buff;
 		ANTLRInputStream input(utf8Str);
 		WorkScriptLexer lexer(&input);
