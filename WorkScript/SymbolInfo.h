@@ -12,31 +12,14 @@ namespace WorkScript
 
 		inline SymbolInfo(const std::wstring &name, Type *type = nullptr)
 		{
-			this->setType(type);
-			this->setName(name);
+			this->type = type;
+			this->name = name;
 		}
 
 		llvm::Value * getLLVMValue(GenerateContext *context);
 
-		inline const Type * getType() const
-		{
-			return this->type;
-		}
-
-		inline void setType(Type *type)
-		{
-			this->type = type;
-		}
-
-		inline const std::wstring &getName() const
-		{
-			return this->name;
-		}
-
-		inline void setName(const std::wstring &name)
-		{
-			this->name = name;
-		}
+		inline Type * getType() const { return this->type; }
+		inline std::wstring getName() const { return this->name; }
 
 	private:
 		std::wstring name;

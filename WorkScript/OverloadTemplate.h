@@ -17,51 +17,21 @@ namespace WorkScript {
 		}
 
 		virtual ~OverloadTemplate();
-
+		inline Program * getProgram() { return this->function->getProgram(); }
 		bool matchByParameters(const std::vector<Type*> &paramTypes);
 		virtual Overload * createOverload(Function *func, const std::vector<Type*> &paramTypes) const = 0;
 
-		inline size_t getParameterCount() const
-		{
-			return this->parameters.size();
-		}
-
-		inline ParameterTemplate * getParameter(size_t index)
-		{
-			return this->parameters[index];
-		}
-
-		inline void setParameters(const std::vector<ParameterTemplate*> &params)
-		{
-			this->parameters = params;
-		}
-
-		inline FunctionTemplate * getFunction()const
-		{
-			return this->function;
-		}
-
-		inline void setFunction(FunctionTemplate*f)
-		{
-			this->function = f;
-		}
+		inline size_t getParameterCount() const { return this->parameters.size(); }
+		inline ParameterTemplate * getParameter(size_t index) { return this->parameters[index]; }
+		inline void setParameters(const std::vector<ParameterTemplate*> &params) { this->parameters = params; }
+		inline FunctionTemplate * getFunction()const { return this->function; }
+		inline void setFunction(FunctionTemplate*f) { this->function = f; }
 
 		ParameterTemplate * getThisParameter();
 
-		inline Type *getReturnType()
-		{
-			return this->returnType;
-		}
-
-		inline void setReturnType(Type *returnType)
-		{
-			this->returnType;
-		}
-
-		inline SymbolTable * getSymbolTable()
-		{
-			return &this->symbolTable;
-		}
+		inline Type *getReturnType() { return this->returnType; }
+		inline void setReturnType(Type *returnType) { this->returnType; }
+		inline SymbolTable * getSymbolTable() { return &this->symbolTable; }
 	protected:
 		std::vector<ParameterTemplate*> parameters;
 		Type *returnType = nullptr;

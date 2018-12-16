@@ -141,7 +141,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	vector<Expression*> vecConstraints; //函数的限制，由字面声明和语法糖编译两部分组成
 	//首先是语法糖编译，包括约束和默认值
 	for (size_t i = 0; i < paramCount; ++i) {
-		paramInfos[i] = new ParameterTemplate();
+		paramInfos.push_back(new ParameterTemplate());
 		if (paramExpr->getItem(i)->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
 			VariableExpression* varExpr = (VariableExpression*)paramExpr->getItem(i);
 			paramInfos[i]->setName(varExpr->getName());
@@ -164,7 +164,8 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 		//	auto leftVar = (VariableExpression*)leftExpr;
 		//	paramInfos[i].setParameterName(leftVar->getName());
 		//	paramInfos[i].setDefaultValue(assignmentExpr->getRightExpression());
-		//}else{
+//		}
+		//else{
 		//	wstring tmpVarName = L"_" + to_wstring(i);
 		//	paramInfos[i].setParameterName(tmpVarName.c_str());
 		//	const EqualsExpression*constraint = new EqualsExpression();
@@ -404,9 +405,10 @@ antlrcpp::Any WorkScript::WorkScriptVisitorImpl::visitFormalParameterExpression(
 	auto params = ctx->identifier();
 	vector<Expression*> itemExprs;
 	itemExprs.reserve(params.size());
+
 	for (size_t i = 0; i < params.size(); ++i)
 	{
-		itemExprs[i] = params[i]->accept(this).as<ExpressionWrapper>().getExpression();
+		itemExprs.push_back(params[i]->getText());
 	}
 	MultiValueExpression *expr = new MultiValueExpression(program, itemExprs);
 	return ExpressionWrapper(expr);

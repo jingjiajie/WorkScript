@@ -2,37 +2,29 @@
 #include <vector>
 #include "Expression.h"
 #include "OverloadBranch.h"
+#include "OverloadTemplate.h"
+
 namespace WorkScript
 {
 	class OverloadBranchTemplate
 	{
 	public:
-		inline OverloadBranchTemplate(const std::vector<Expression*> &conds, const std::vector<Expression*> &codes)
+		inline OverloadBranchTemplate(OverloadTemplate *overload, const std::vector<Expression*> &conds, const std::vector<Expression*> &codes)
 		{
-			this->setConditions(conds);
-			this->setExpressions(codes);
+			this->conditions = conds;
+			this->expressions = codes;
+			this->overload = overload;
 		}
 
 		~OverloadBranchTemplate();
 
 		OverloadBranch * createOverloadBranch();
 
-		void setConditions(const std::vector<Expression*> &conds)
-		{
-			this->conditions = conds;
-		}
-
-		void setExpressions(const std::vector<Expression*> codes)
-		{
-			this->expressions = codes;
-		}
-
-		inline std::vector<Expression*> * getExpressions()
-		{
-			return &this->expressions;
-		}
+		inline Program * getProgram() { return this->overload->getProgram(); }
+		inline std::vector<Expression*> * getExpressions() { return &this->expressions; }
 	private:
 		std::vector<Expression*> conditions;
 		std::vector<Expression*> expressions;
+		OverloadTemplate *overload;
 	};
 }

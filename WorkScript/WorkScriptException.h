@@ -2,11 +2,8 @@
 #include <exception>
 #include <string>
 
-#include "Defines.h"
-
-#define WORKSCRIPT_EXCEPTION_CONSTRUCTORS(className) \
-	inline className(className &&tmp) :WorkScriptException(std::forward<className>(tmp)) {} \
-	inline className(const wchar_t *const message) : WorkScriptException(message) {} 
+#define EXCEPTION_COMMON_DECL(CLASS_NAME) \
+class CLASS_NAME : public WorkScriptException { public: using WorkScriptException::WorkScriptException; };
 
 class WorkScriptException : public std::exception
 {
@@ -23,4 +20,16 @@ protected:
 	std::wstring message;
 	std::string messageANSI;
 };
+
+EXCEPTION_COMMON_DECL(AccessDeniedException)
+EXCEPTION_COMMON_DECL(DuplicateDeclarationException)
+EXCEPTION_COMMON_DECL(IllegalValueException)
+EXCEPTION_COMMON_DECL(UnassignableExpection)
+EXCEPTION_COMMON_DECL(UncalculatableException)
+EXCEPTION_COMMON_DECL(UncomparableException)
+EXCEPTION_COMMON_DECL(UnimplementedException)
+EXCEPTION_COMMON_DECL(UninvocableException)
+
+
+
 

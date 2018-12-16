@@ -8,13 +8,6 @@ namespace WorkScript
 	class ParameterTemplate
 	{
 	public:
-		inline ParameterTemplate() {}
-
-		inline ParameterTemplate(const std::wstring &name, Type *type = nullptr) {
-			this->setName(name);
-			this->setType(type);
-		}
-
 		inline ParameterTemplate(const std::wstring &name, Type *type = nullptr, Expression *defaultValue = nullptr) {
 			this->setName(name);
 			this->setType(type);
