@@ -35,7 +35,7 @@ std::wstring FloatExpression::toString() const
 
 Expression * WorkScript::FloatExpression::clone() const
 {
-	return new thistype(program, type, this->value);
+	return new thistype(EXPRESSION_MEMBERS, type, this->value);
 }
 
 GenerateResult FloatExpression::generateIR(GenerateContext * context)
@@ -43,8 +43,8 @@ GenerateResult FloatExpression::generateIR(GenerateContext * context)
 	return (llvm::Value*)llvm::ConstantFP::get(this->type->getLLVMType(context), this->value);
 }
 
-inline WorkScript::FloatExpression::FloatExpression(Program * p, FloatType * type, double v)
-	:Expression(p)
+inline WorkScript::FloatExpression::FloatExpression(EXPRESSION_CTOR_FORMAL_PARAMS, FloatType * type, double v)
+	:EXPRESSION_CTOR_CALL
 {
 	this->type = type;
 	this->value = v;
@@ -53,6 +53,11 @@ inline WorkScript::FloatExpression::FloatExpression(Program * p, FloatType * typ
 ExpressionType FloatExpression::getExpressionType() const
 {
 	return ExpressionType::FLOAT_EXPRESSION;
+}
+
+Expression * WorkScript::FloatExpression::instantialize()
+{
+	return this->clone();
 }
 
 Type * WorkScript::FloatExpression::getType() const

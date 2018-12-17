@@ -2,6 +2,10 @@
 #include "Expression.h"
 #include "Type.h"
 
+#define BINARY_OPERATOR_CTOR_FORMAL_PARAMS EXPRESSION_CTOR_FORMAL_PARAMS,Expression *leftExpression, Expression *rightExpression
+#define BINARY_OPERATOR_MEMBERS EXPRESSION_MEMBERS,leftExpression,rightExpression
+#define BINARY_OPERATOR_CTOR_CALL BinaryOperatorExpression(BINARY_OPERATOR_MEMBERS)
+
 namespace WorkScript {
 	class IntegerExpression;
 	class FloatExpression;
@@ -11,39 +15,17 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline BinaryOperatorExpression(Program *p) : Expression(p)
-		{
-		}
-
-		inline BinaryOperatorExpression(Program *p, Expression *left, Expression *right) : Expression(p)
-		{
-			this->setLeftExpression(left);
-			this->setRightExpression(right);
-		}
+		inline BinaryOperatorExpression(BINARY_OPERATOR_CTOR_FORMAL_PARAMS)
+			:EXPRESSION_CTOR_CALL, leftExpression(leftExpression), rightExpression(rightExpression)	{	}
 
 		virtual ~BinaryOperatorExpression();
 
 		virtual std::wstring toString() const override;
 
-		inline Expression * getLeftExpression() const
-		{
-			return this->leftExpression;
-		}
-
-		inline void setLeftExpression(Expression *left)
-		{
-			this->leftExpression = left;
-		}
-
-		inline Expression * getRightExpression() const
-		{
-			return this->rightExpression;
-		}
-
-		inline void setRightExpression(Expression *right)
-		{
-			this->rightExpression = right;
-		}
+		inline Expression * getLeftExpression() const { return this->leftExpression; }
+		inline void setLeftExpression(Expression *left) { this->leftExpression = left; }
+		inline Expression * getRightExpression() const { return this->rightExpression; }
+		inline void setRightExpression(Expression *right) { this->rightExpression = right; }
 	protected:
 		Expression *leftExpression;
 		Expression *rightExpression;

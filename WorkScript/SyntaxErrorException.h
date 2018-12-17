@@ -2,33 +2,26 @@
 #include <string>
 #include <sstream>
 #include "WorkScriptException.h"
-class SyntaxErrorException :
-	public WorkScriptException
-{
-public:
-	inline SyntaxErrorException(SyntaxErrorException &&tmp)
-		:WorkScriptException(std::forward<SyntaxErrorException>(tmp))
+#include "Location.h"
+
+namespace WorkScript {
+	class SyntaxErrorException :
+		public WorkScriptException
 	{
-		this->line = tmp.line;
-		this->column = tmp.column;
-	}
+	public:
+		inline SyntaxErrorException(Location loc, const std::wstring &message)
+			: WorkScriptException(this->makeErrorMessage(loc, message).c_str()), location(loc)
+		{
+		}
 
-	inline SyntaxErrorException(const size_t &line,const size_t &column,const std::wstring &message)
-		: WorkScriptException(this->makeErrorMessage(line,column,message).c_str())
-	{
-		this->line = line;
-		this->column = column;
-	}
+	protected:
+		Location location;
 
-	virtual ~SyntaxErrorException();
+		inline std::wstring makeErrorMessage(Location loc, const std::wstring &msg)const {
+			std::wstringstream ss;
+			ss << L"语法错误（第" << loc.getLine() << L"行, 第" << loc.getColumn() << L"列）：" << msg;
+			return ss.str();
+		}
+	};
 
-protected:
-	size_t line, column;
-
-	inline std::wstring makeErrorMessage(const size_t &line, const size_t &column, const std::wstring &msg)const {
-		std::wstringstream ss;
- 		ss << L"语法错误（第" <<line << L"行, 第" << column << L"列）：" << msg;
-		return ss.str();
-	}
-};
-
+}

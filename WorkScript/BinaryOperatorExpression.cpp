@@ -15,6 +15,12 @@ BinaryOperatorExpression::~BinaryOperatorExpression()
 	delete this->rightExpression;
 }
 
+void WorkScript::BinaryOperatorExpression::bindSymbols()
+{
+	this->leftExpression->bindSymbols();
+	this->rightExpression->bindSymbols();
+}
+
 std::wstring WorkScript::BinaryOperatorExpression::toString() const
 {
 	auto left = this->leftExpression->toString();

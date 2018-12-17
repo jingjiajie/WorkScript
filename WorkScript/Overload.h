@@ -19,50 +19,20 @@ namespace WorkScript {
 
 		virtual ~Overload();
 		std::wstring getMangledFunctionName() const;
+		virtual void bindSymbols() = 0;
 		virtual GenerateResult generateLLVMIR(GenerateContext *context) = 0;
 		llvm::Function * getLLVMFunction(GenerateContext *context);
 
 		bool matchByParameters(const std::vector<Type*> &paramTypes);
 
-		inline size_t getParameterCount() const
-		{
-			return this->parameters.size();
-		}
-
-		inline Parameter * getParameter(size_t index)
-		{
-			return this->parameters[index];
-		}
-
-		inline void setParameters(const std::vector<Parameter*> &params)
-		{
-			this->parameters = params;
-		}
-
-		inline Function *getFunction()const
-		{
-			return this->function;
-		}
-
-		inline void setFunction(Function *f)
-		{
-			this->function = f;
-		}
-
-		inline Type *getReturnType()
-		{
-			return this->returnType;
-		}
-
-		inline void setReturnType(Type *returnType)
-		{
-			this->returnType;
-		}
-
-		inline SymbolTable * getSymbolTable()
-		{
-			return &this->symbolTable;
-		}
+		inline size_t getParameterCount() const { return this->parameters.size(); }
+		inline Parameter * getParameter(size_t index) { return this->parameters[index]; }
+		inline void setParameters(const std::vector<Parameter*> &params) { this->parameters = params; }
+		inline Function *getFunction()const { return this->function; }
+		inline void setFunction(Function *f) { this->function = f; }
+		inline Type *getReturnType() { return this->returnType; }
+		inline void setReturnType(Type *returnType) { this->returnType; }
+		inline SymbolTable * getSymbolTable() { return &this->symbolTable; }
 	protected:
 		std::vector<Parameter*> parameters;
 		Type *returnType = nullptr;

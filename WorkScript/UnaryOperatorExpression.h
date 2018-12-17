@@ -9,16 +9,12 @@ namespace WorkScript {
 		enum OperatorType {
 			NEGATIVE,NOT
 		};
-
-		inline UnaryOperatorExpression(Program *p,OperatorType t, Expression *subExpression)
-			:Expression(p)
-		{
-			this->operatorType = t;
-			this->setSubExpression(subExpression);
-		}
+		inline UnaryOperatorExpression(EXPRESSION_CTOR_FORMAL_PARAMS, Expression *sub, OperatorType t)
+			:EXPRESSION_CTOR_CALL, operatorType(t), subExpression(sub){ }
 
 		virtual ~UnaryOperatorExpression();
 
+		virtual void bindSymbols() override;
 		virtual std::wstring toString() const override;
 		virtual Type * getType() const override;
 		virtual Expression * clone() const override;

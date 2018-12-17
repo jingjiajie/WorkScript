@@ -11,6 +11,11 @@ UnaryOperatorExpression::~UnaryOperatorExpression()
 	delete this->subExpression;
 }
 
+Expression * WorkScript::UnaryOperatorExpression::instantialize()
+{
+	return new UnaryOperatorExpression(program, location, this->subExpression->instantialize(), operatorType);
+}
+
 std::wstring WorkScript::UnaryOperatorExpression::toString() const
 {
 	return this->getOperatorString() + this->subExpression->toString();
@@ -23,7 +28,7 @@ Type * WorkScript::UnaryOperatorExpression::getType() const
 
 Expression * WorkScript::UnaryOperatorExpression::clone() const
 {
-	return new UnaryOperatorExpression(program, operatorType, subExpression);
+	return new UnaryOperatorExpression(EXPRESSION_MEMBERS, subExpression, operatorType);
 }
 
 GenerateResult WorkScript::UnaryOperatorExpression::generateIR(GenerateContext * context)

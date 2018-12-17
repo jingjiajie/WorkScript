@@ -34,7 +34,7 @@ Overload * WorkScript::BranchOverloadTemplate::createOverload(Function * func, c
 	BranchOverload *overload = new BranchOverload(func, params, retType);
 	for (auto br : this->branchTemplates)
 	{
-		overload->addBranch(br->createOverloadBranch());
+		overload->addBranch(br->createOverloadBranch(overload));
 	}
 	
 	return overload;

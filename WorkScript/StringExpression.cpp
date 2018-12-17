@@ -14,7 +14,12 @@ ExpressionType StringExpression::getExpressionType() const
 
 Expression * WorkScript::StringExpression::clone() const
 {
-	return new thistype(program, this->value);
+	return new thistype(EXPRESSION_MEMBERS, this->value);
+}
+
+Expression * WorkScript::StringExpression::instantialize()
+{
+	return this->clone();
 }
 
 std::wstring StringExpression::toString() const

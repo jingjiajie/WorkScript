@@ -13,7 +13,7 @@ SymbolTable::~SymbolTable()
 {
 }
 
-const SymbolInfo * WorkScript::SymbolTable::getSymbolInfo(const std::wstring & name) const
+SymbolInfo * WorkScript::SymbolTable::getSymbolInfo(const std::wstring & name)
 {
 	auto it = this->symbols.find(name);
 	if (it == this->symbols.end())return nullptr;
@@ -22,5 +22,5 @@ const SymbolInfo * WorkScript::SymbolTable::getSymbolInfo(const std::wstring & n
 
 void WorkScript::SymbolTable::setSymbol(const std::wstring & name, Type * type)
 {
-	this->symbols[name].setType(type);
+	this->symbols[name] = SymbolInfo(name, type);
 }

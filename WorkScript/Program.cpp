@@ -73,10 +73,12 @@ Overload * WorkScript::Program::getFunctionOverload(const std::wstring &funcName
 		func = it->second;
 	}
 	else {
+		//如果找不到函数，尝试用模板实例化
 		if (!funcTemplate) return nullptr;
 		func = funcTemplate->createFunction();
 		this->addFunction(func);
 	}
+
 	//获取重载
 	Overload *overload = func->getOverload(paramTypes);
 	if (!overload) {
@@ -117,6 +119,14 @@ void WorkScript::Program::addFunctionTemplate(FunctionTemplate *funcTemplate, Ty
 //{
 //	this->types[type->getName()] = type;
 //}
+
+void WorkScript::Program::bindSymbols()
+{
+	for (auto it : this->functions) {
+		Function *f = it.second;
+		f->bindSymbols();
+	}
+}
 
 void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule)
 {

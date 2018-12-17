@@ -1,8 +1,9 @@
 #pragma once
 #include "Overload.h"
-#include "OverloadBranch.h"
 
 namespace WorkScript {
+	class OverloadBranch;
+
 	class BranchOverload : public Overload {
 	public:
 		virtual ~BranchOverload();
@@ -10,6 +11,7 @@ namespace WorkScript {
 		inline BranchOverload(Function *func, const std::vector<Parameter*> &params, Type *returnType)
 			: Overload(func, params, returnType) {}
 
+		virtual void bindSymbols() override;
 		virtual GenerateResult generateLLVMIR(GenerateContext *context) override;
 
 		inline OverloadBranch * getBranch(size_t index)

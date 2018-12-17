@@ -32,10 +32,8 @@ namespace WorkScript {
 		antlrcpp::Any visitPositiveExpression(WorkScriptParser::PositiveExpressionContext*)override;
 		antlrcpp::Any visitVarargsExpression(WorkScriptParser::VarargsExpressionContext*)override;
 		//antlrcpp::Any visitAccessLevelExpression(WorkScriptParser::AccessLevelExpressionContext*)override;
-		antlrcpp::Any visitFormalParameterExpression(WorkScriptParser::FormalParameterExpressionContext *ctx) override;
 		WorkScriptVisitorImpl(Program* program);
 		virtual ~WorkScriptVisitorImpl();
-		void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, size_t line, size_t column)const;
 
 	private:
 		Program * program;

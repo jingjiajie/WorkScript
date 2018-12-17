@@ -10,7 +10,7 @@ namespace WorkScript {
 		SymbolTable();
 		~SymbolTable();
 
-		const SymbolInfo * getSymbolInfo(const std::wstring &name) const;
+		SymbolInfo * getSymbolInfo(const std::wstring &name);
 		void setSymbol(const std::wstring &name, Type *type);
 	private:
 		std::unordered_map<std::wstring, SymbolInfo> symbols;

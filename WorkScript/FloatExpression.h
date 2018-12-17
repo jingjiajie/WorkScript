@@ -8,7 +8,7 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline FloatExpression(Program *p, FloatType *type, double v);
+		inline FloatExpression(EXPRESSION_CTOR_FORMAL_PARAMS, FloatType *type, double v);
 
 		virtual ExpressionType getExpressionType() const;
 		virtual GenerateResult generateIR(GenerateContext *context);

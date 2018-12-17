@@ -15,6 +15,11 @@ WorkScript::OverloadTemplate::~OverloadTemplate()
 	}
 }
 
+Program * WorkScript::OverloadTemplate::getProgram()
+{
+	return this->function->getProgram();
+}
+
 bool WorkScript::OverloadTemplate::matchByParameters(const std::vector<Type*> &paramTypes)
 {
 	size_t paramCount = paramTypes.size();

@@ -10,11 +10,8 @@ namespace WorkScript {
 			PLUS,MINUS,MULTIPLY,DIVIDE,MODULUS
 		};
 
-		inline BinaryCalculateExpression(Program *p,CalculateType calcType, Expression *left, Expression *right)
-			:BinaryOperatorExpression(p,left, right) 
-		{
-			this->calculateType = calcType;
-		}
+		inline BinaryCalculateExpression(BINARY_OPERATOR_CTOR_FORMAL_PARAMS,CalculateType calcType)
+			:BINARY_OPERATOR_CTOR_CALL, calculateType(calcType)	{	}
 
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual Type * getType() const override;

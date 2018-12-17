@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Type.h"
 #include "Expression.h"
-#include "UnimplementedException.h"
 #include "Program.h"
 #include "Function.h"
 #include "StringExpression.h"

@@ -61,9 +61,6 @@
     <Filter Include="Program\Tree\OperatorExpressions\Sources">
       <UniqueIdentifier>{40527fb0-2f36-4626-b3ca-a48a02e47510}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Program\Tree\ExpressionBase">
-      <UniqueIdentifier>{ba46e2aa-127e-4692-a97d-cdca5e3fad66}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ANTLR">
       <UniqueIdentifier>{a1260af9-bb26-4725-a207-e8b5bdc96136}</UniqueIdentifier>
     </Filter>
@@ -84,6 +81,9 @@
     </Filter>
     <Filter Include="Program\Tree\VariableExpression">
       <UniqueIdentifier>{2da0d308-5334-41f5-98fd-e5062b5f1e3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Program\Tree\Expression">
+      <UniqueIdentifier>{ba46e2aa-127e-4692-a97d-cdca5e3fad66}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -136,9 +136,6 @@
       <Filter>ANTLR\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Type.h">
-      <Filter>Program\Type\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="ExpressionType.h">
       <Filter>Program\Type\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Function.h">
@@ -198,10 +195,6 @@
     <ClInclude Include="FloatPointerType.h">
       <Filter>Program\Type\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Locale.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Location.h" />
     <ClInclude Include="Program.h">
       <Filter>Program</Filter>
     </ClInclude>
@@ -217,9 +210,6 @@
     <ClInclude Include="WorkScriptException.h">
       <Filter>Exceptions</Filter>
     </ClInclude>
-    <ClInclude Include="FormalParametersTemplate.h">
-      <Filter>Program\FunctionTemplate\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="ExpressionWrapper.h">
       <Filter>ANTLR\Headers</Filter>
     </ClInclude>
@@ -233,7 +223,7 @@
       <Filter>Program\Tree\MultiValueExpression</Filter>
     </ClInclude>
     <ClInclude Include="Expression.h">
-      <Filter>Program\Tree\ExpressionBase</Filter>
+      <Filter>Program\Tree\Expression</Filter>
     </ClInclude>
     <ClInclude Include="FloatExpression.h">
       <Filter>Program\Tree\ValueExpressions</Filter>
@@ -246,6 +236,18 @@
     </ClInclude>
     <ClInclude Include="VariableExpression.h">
       <Filter>Program\Tree\VariableExpression</Filter>
+    </ClInclude>
+    <ClInclude Include="Locale.h">
+      <Filter>Util\Locale</Filter>
+    </ClInclude>
+    <ClInclude Include="ExpressionType.h">
+      <Filter>Program\Tree\Expression</Filter>
+    </ClInclude>
+    <ClInclude Include="Location.h">
+      <Filter>Program</Filter>
+    </ClInclude>
+    <ClInclude Include="FormalParametersTemplateResolver.h">
+      <Filter>Program\FunctionTemplate\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -349,9 +351,6 @@
     <ClCompile Include="WorkScriptException.cpp">
       <Filter>Exceptions</Filter>
     </ClCompile>
-    <ClCompile Include="FormalParametersTemplate.cpp">
-      <Filter>Program\FunctionTemplate\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="WorkScriptEngine.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
@@ -362,7 +361,7 @@
       <Filter>Program\Tree\MultiValueExpression</Filter>
     </ClCompile>
     <ClCompile Include="Expression.cpp">
-      <Filter>Program\Tree\ExpressionBase</Filter>
+      <Filter>Program\Tree\Expression</Filter>
     </ClCompile>
     <ClCompile Include="FloatExpression.cpp">
       <Filter>Program\Tree\ValueExpressions</Filter>
@@ -375,6 +374,12 @@
     </ClCompile>
     <ClCompile Include="VariableExpression.cpp">
       <Filter>Program\Tree\VariableExpression</Filter>
+    </ClCompile>
+    <ClCompile Include="Locale.cpp">
+      <Filter>Util\Locale</Filter>
+    </ClCompile>
+    <ClCompile Include="FormalParametersTemplateResolver.cpp">
+      <Filter>Program\FunctionTemplate\Sources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

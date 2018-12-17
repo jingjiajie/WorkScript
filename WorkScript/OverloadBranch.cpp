@@ -1,6 +1,26 @@
 #include "stdafx.h"
 #include "OverloadBranch.h"
 
+WorkScript::OverloadBranch::~OverloadBranch()
+{
+	for (auto expr : this->conditions) {
+		delete expr;
+	}
+	for (auto expr : this->codes) {
+		delete expr;
+	}
+}
+
+void WorkScript::OverloadBranch::bindSymbols()
+{
+	for (Expression *expr : this->conditions) {
+		expr->bindSymbols();
+	}
+	for (Expression *expr : this->codes) {
+		expr->bindSymbols();
+	}
+}
+
 llvm::BasicBlock * WorkScript::OverloadBranch::generateBlock(GenerateContext * context, llvm::Function *llvmFunc, llvm::BasicBlock * falseBlock)
 {
 	auto curFunc = llvmFunc;

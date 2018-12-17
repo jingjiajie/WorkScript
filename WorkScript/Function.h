@@ -13,6 +13,7 @@ namespace WorkScript {
 			for (Overload *overload : this->overloads)delete overload;
 		}
 
+		virtual void bindSymbols();
 		virtual GenerateResult generateLLVMIR(GenerateContext *context);
 
 		Overload * getOverload(const std::vector<Type*> paramTypes)

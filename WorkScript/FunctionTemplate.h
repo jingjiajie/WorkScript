@@ -25,8 +25,7 @@ namespace WorkScript {
 					return this->overloads[i];
 				}
 			}
-			//TODO 应该抛出编译错误
-			throw "无匹配重载";
+			return nullptr;
 		}
 
 		void addOverload(OverloadTemplate *overload)

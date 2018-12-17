@@ -5,12 +5,6 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline MultiValueExpression(Program *p, const std::vector<Expression*> &items)
-			:Expression(p)
-		{
-			this->setItems(items);
-		}
-
 		virtual ~MultiValueExpression();
 
 		virtual Type * getType() const;
@@ -18,6 +12,7 @@ namespace WorkScript {
 
 		virtual std::wstring toString() const override;
 		virtual Expression * clone() const override;
+		virtual void bindSymbols() override;
 		virtual ExpressionType getExpressionType() const override;
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 
@@ -42,7 +37,11 @@ namespace WorkScript {
 		}
 
 		//void flat();
-
+		inline MultiValueExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::vector<Expression*> &items)
+			:EXPRESSION_CTOR_CALL
+		{
+			this->setItems(items);
+		}
 	protected:
 		std::vector<Expression*> items;
 	};

@@ -57,8 +57,18 @@ Expression * WorkScript::MultiValueExpression::clone() const
 	{
 		newItems[i] = this->items[i]->clone();
 	}
-	auto newInstance = new thistype(program, newItems);
+	auto newInstance = new thistype(EXPRESSION_MEMBERS, newItems);
 	return newInstance;
+}
+
+Expression * WorkScript::MultiValueExpression::instantialize()
+{
+	vector<Expression*> newItems;
+	for (Expression *expr : this->items)
+	{
+		newItems.push_back(expr->instantialize());
+	}
+	return new MultiValueExpression(program, location, newItems);
 }
 
 ExpressionType WorkScript::MultiValueExpression::getExpressionType() const

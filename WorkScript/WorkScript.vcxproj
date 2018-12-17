@@ -361,7 +361,7 @@
     <ClInclude Include="FloatExpression.h" />
     <ClInclude Include="FloatPointerType.h" />
     <ClInclude Include="FloatType.h" />
-    <ClInclude Include="FormalParametersTemplate.h" />
+    <ClInclude Include="FormalParametersTemplateResolver.h" />
     <ClInclude Include="Function.h" />
     <ClInclude Include="FunctionTemplate.h" />
     <ClInclude Include="GenerateContext.h" />
@@ -416,7 +416,7 @@
     <ClCompile Include="FloatExpression.cpp" />
     <ClCompile Include="FloatPointerType.cpp" />
     <ClCompile Include="FloatType.cpp" />
-    <ClCompile Include="FormalParametersTemplate.cpp" />
+    <ClCompile Include="FormalParametersTemplateResolver.cpp" />
     <ClCompile Include="Function.cpp" />
     <ClCompile Include="CallExpression.cpp" />
     <ClCompile Include="FunctionTemplate.cpp" />
@@ -427,6 +427,7 @@
     <ClCompile Include="Generated\WorkScriptLexer.cpp" />
     <ClCompile Include="Generated\WorkScriptParser.cpp" />
     <ClCompile Include="Generated\WorkScriptVisitor.cpp" />
+    <ClCompile Include="Locale.cpp" />
     <ClCompile Include="NativeOverload.cpp" />
     <ClCompile Include="Overload.cpp" />
     <ClCompile Include="OverloadBranch.cpp" />

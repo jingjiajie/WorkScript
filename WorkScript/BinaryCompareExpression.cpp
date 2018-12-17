@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "BinaryCompareExpression.h"
-#include "UncomparableException.h"
 #include "IntegerType.h"
 #include "FloatType.h"
 
@@ -40,9 +39,14 @@ IntegerType * WorkScript::BinaryCompareExpression::getType() const
 	return this->program->getUInt1Type();
 }
 
+Expression * WorkScript::BinaryCompareExpression::instantialize()
+{
+	return new BinaryCompareExpression(program, location, leftExpression->instantialize(), rightExpression->instantialize(), compareType);
+}
+
 Expression * WorkScript::BinaryCompareExpression::clone() const
 {
-	return new BinaryCompareExpression(program, compareType, leftExpression, rightExpression);
+	return new BinaryCompareExpression(BINARY_OPERATOR_MEMBERS, compareType);
 }
 
 ExpressionType WorkScript::BinaryCompareExpression::getExpressionType() const

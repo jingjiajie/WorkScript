@@ -36,6 +36,7 @@ namespace WorkScript {
 		//Type * getType(const std::wstring &name) const;
 		//void addType(Type *type);
 
+		void bindSymbols();
 		void generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule);
 
 		inline SymbolTable * getSymbolTable() { return &this->symbolTable; }

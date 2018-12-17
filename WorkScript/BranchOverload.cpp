@@ -1,9 +1,17 @@
 #include "stdafx.h"
 #include "BranchOverload.h"
+#include "OverloadBranch.h"
 
 WorkScript::BranchOverload::~BranchOverload()
 {
 	for (OverloadBranch *br : this->branches)delete br;
+}
+
+void WorkScript::BranchOverload::bindSymbols()
+{
+	for (OverloadBranch *br : this->branches) {
+		br->bindSymbols();
+	}
 }
 
 GenerateResult WorkScript::BranchOverload::generateLLVMIR(GenerateContext * context)

@@ -9,8 +9,8 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline StringExpression(Program *p, const std::wstring &v)
-			:Expression(p), value(v) { }
+		inline StringExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring &v)
+			:EXPRESSION_CTOR_CALL, value(v) { }
 
 		virtual std::wstring toString() const override;
 		virtual Type * getType() const override;

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "AssignmentExpression.h"
 #include "StringExpression.h"
-#include "UnassignableExpection.h"
 #include "VariableExpression.h"
 #include "Utils.h"
 
@@ -27,6 +26,11 @@ GenerateResult WorkScript::AssignmentExpression::generateIR(GenerateContext * co
 	return irBuilder->CreateStore(val, var);
 }
 
+Expression * WorkScript::AssignmentExpression::instantialize()
+{
+	return new AssignmentExpression(program, location, leftExpression->instantialize(), rightExpression->instantialize());
+}
+
 ExpressionType AssignmentExpression::getExpressionType() const
 {
 	return ExpressionType::ASSIGNMENT_EXPRESSION;
@@ -34,7 +38,7 @@ ExpressionType AssignmentExpression::getExpressionType() const
 
 Expression * WorkScript::AssignmentExpression::clone() const
 {
-	return new thistype(program, this->leftExpression, this->rightExpression);
+	return new thistype(BINARY_OPERATOR_MEMBERS);
 }
 
 Type * WorkScript::AssignmentExpression::getType() const

@@ -2,8 +2,3 @@
 #include "Expression.h"
 
 using namespace WorkScript;
-
-Expression::~Expression()
-{
-}
-

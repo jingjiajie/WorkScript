@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 #include <string>
 #include "Expression.h"
 #include "SymbolInfo.h"
@@ -8,10 +9,10 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline VariableExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring &name,Type *type = nullptr)
+		inline VariableExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring &name, Type *type = nullptr)
 			:EXPRESSION_CTOR_CALL, name(name), type(type){ }
 
-		virtual void bindSymbols() override;
+		virtual Expression * instantialize() override;
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual Type * getType() const override;
 		virtual Expression * clone() const override;

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "OverloadBranchTemplate.h"
+#include "OverloadBranch.h"
 
 using namespace WorkScript;
 using namespace std;
@@ -14,7 +15,7 @@ WorkScript::OverloadBranchTemplate::~OverloadBranchTemplate()
 	}
 }
 
-OverloadBranch * WorkScript::OverloadBranchTemplate::createOverloadBranch()
+OverloadBranch * WorkScript::OverloadBranchTemplate::createOverloadBranch(BranchOverload *branchOverload)
 {
 	size_t condSize = this->conditions.size();
 	size_t exprSize = this->expressions.size();
@@ -27,6 +28,6 @@ OverloadBranch * WorkScript::OverloadBranchTemplate::createOverloadBranch()
 	for (size_t i = 0; i < exprSize; ++i) {
 		exprs.push_back(this->expressions[i]->clone());
 	}
-	OverloadBranch *overloadBranch = new OverloadBranch(conds, exprs);
+	OverloadBranch *overloadBranch = new OverloadBranch(branchOverload,location, conds, exprs);
 	return overloadBranch;
 }

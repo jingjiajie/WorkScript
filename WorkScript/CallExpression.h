@@ -11,9 +11,10 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline CallExpression(Program *p, Overload *o, MultiValueExpression *params)
-			:Expression(p), overload(o), parameters(params) { }
+		inline CallExpression(EXPRESSION_CTOR_FORMAL_PARAMS,const std::wstring &funcName, MultiValueExpression *params)
+			:EXPRESSION_CTOR_CALL, parameters(params), functionName(funcName) { }
 
+		virtual void bindSymbols() override;
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual Type * getType() const override;
 		virtual std::wstring toString() const override;
@@ -25,7 +26,8 @@ namespace WorkScript {
 			return this->parameters;
 		}
 	protected:
-		Overload * overload;
+		Overload * bindOverload = nullptr;
+		std::wstring functionName;
 		MultiValueExpression *parameters = nullptr;
 	};
 }

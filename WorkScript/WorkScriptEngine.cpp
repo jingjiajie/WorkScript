@@ -10,7 +10,6 @@
 #include "SyntaxErrorListener.h"
 #include "SyntaxErrorStrategy.h"
 #include "SyntaxErrorException.h"
-#include "LinkException.h"
 #include "Locale.h"
 
 using namespace std;
@@ -30,6 +29,8 @@ void WorkScriptEngine::run(const char * filePath)
 	auto wFilePath = Locale::ansiToUnicode(filePath);
 	Program program;
 	this->parseFile(wFilePath.c_str(), &program);
+	program.getFunctionOverload(L"main", {});
+	program.bindSymbols();
 	//TODO JIT‘À––
 	llvm::LLVMContext llvmContext;
 	llvm::Module llvmModule("main",llvmContext);

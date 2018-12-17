@@ -2,7 +2,7 @@
 #include "WorkScriptVisitorImpl.h"
 #include "ExpressionWrapper.h"
 #include "Type.h"
-#include "MemberEvaluateExpression.h"
+#include "VoidType.h"
 #include "CallExpression.h"
 #include "VariableExpression.h"
 #include "AssignmentExpression.h"
@@ -20,6 +20,8 @@
 #include "BinaryCalculateExpression.h"
 #include "UnaryOperatorExpression.h"
 #include "Locale.h"
+#include "Location.h"
+#include "FormalParametersTemplateResolver.h"
 
 #define FORBID_ASSIGN \
 this->assignable = false; 
@@ -41,6 +43,14 @@ this->assignable = oriAssignable;
 using namespace std;
 using namespace WorkScript;
 
+static void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, Location loc);
+
+inline static Location getLocation(antlr4::ParserRuleContext *ctx) 
+{
+	Location l(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1);
+	return l;
+}
+
 antlrcpp::Any WorkScriptVisitorImpl::visitIncludeCommand(WorkScriptParser::IncludeCommandContext *ctx)
 {
 	return nullptr;
@@ -54,7 +64,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new FloatExpression(program, program->getFloat64Type(), value));
+		return ExpressionWrapper(new FloatExpression(program, getLocation(ctx), program->getFloat64Type(), value));
 	}
 	else {
 		int value = 0;
@@ -62,7 +72,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new IntegerExpression(program,program->getSInt32Type(), value));
+		return ExpressionWrapper(new IntegerExpression(program, getLocation(ctx),program->getSInt32Type(), value));
 	}
 }
 
@@ -74,13 +84,13 @@ antlrcpp::Any WorkScriptVisitorImpl::visitStringExpression(WorkScriptParser::Str
 
 	wchar_t *unescapedText = new wchar_t[wtext.length() + 1];
 	try {
-		this->handleEscapeCharacters(wtext.c_str(), unescapedText, ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1);
+		handleEscapeCharacters(wtext.c_str(), unescapedText, getLocation(ctx));
 	}
 	catch(...){
 		delete[]unescapedText;
 		throw;
 	}
-	auto lpExpr = new StringExpression(program, unescapedText);
+	auto lpExpr = new StringExpression(program, getLocation(ctx), unescapedText);
 	delete[]unescapedText;
 	return ExpressionWrapper(lpExpr);
 }
@@ -89,20 +99,20 @@ antlrcpp::Any WorkScriptVisitorImpl::visitBooleanExpression(WorkScriptParser::Bo
 {
 	string boolStr = ctx->BOOLEAN()->getText();
 	if (boolStr == "true" || boolStr == "yes" || boolStr == "ok" || boolStr == "good") {
-		return ExpressionWrapper(new IntegerExpression(program,program->getUInt1Type(),1));
+		return ExpressionWrapper(new IntegerExpression(program, getLocation(ctx), program->getUInt1Type(), 1));
 	}
 	else if (boolStr == "false" || boolStr == "no" || boolStr == "bad") {
-		return ExpressionWrapper(new IntegerExpression(program, program->getUInt1Type(), 0));
+		return ExpressionWrapper(new IntegerExpression(program, getLocation(ctx), program->getUInt1Type(), 0));
 	}
 	else {
-		throw std::move(SyntaxErrorException(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1, (L"无法识别的布尔值：" + Locale::ansiToUnicode(boolStr))));
+		throw std::move(SyntaxErrorException(getLocation(ctx), L"无法识别的布尔值：" + Locale::ansiToUnicode(boolStr)));
 	}
 }
 
 antlrcpp::Any WorkScriptVisitorImpl::visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx)
 {
 	string varName = ctx->identifier()->getText();
-	auto expr = new VariableExpression(program, Locale::ansiToUnicode(varName));
+	auto expr = new VariableExpression(program, getLocation(ctx), Locale::ansiToUnicode(varName));
 	expr->setDeclarable(this->declarable); //等号左边的变量才可以创建声明
 	auto wrapper = ExpressionWrapper(expr);
 	return wrapper;
@@ -111,10 +121,55 @@ antlrcpp::Any WorkScriptVisitorImpl::visitVariableExpression(WorkScriptParser::V
 antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *ctx)
 {
 	STORE_FORBID_ASSIGN;
-	ALLOW_ASSIGN;
 	/*====深入下一层====*/
 	++this->curDepth;
-	//函数的实现
+
+	/*根据函数名找到或新建相应的函数模板*/
+	auto funcNameCtx = ctx->functionDeclarationExpression()->identifier();
+	wstring funcName;
+	if (funcNameCtx != nullptr) {
+		funcName = Locale::ansiToUnicode(funcNameCtx->getText());
+	}
+	FunctionTemplate* funcTemplate = this->program->getFunctionTemplate(funcName);
+	if (!funcTemplate) {
+		funcTemplate = new FunctionTemplate(this->program, funcName);
+		this->program->addFunctionTemplate(funcTemplate);
+	}
+
+	/*处理函数的参数和限制*/
+	//参数声明
+	auto paramsDeclCtx = ctx->functionDeclarationExpression()->formalParameterExpression()->multiValueExpression()->expression();
+	vector<Expression*> paramDeclExprs;
+	paramDeclExprs.reserve(paramsDeclCtx.size());
+
+	for (size_t i = 0; i < paramsDeclCtx.size(); ++i)
+	{
+		paramDeclExprs.push_back(paramsDeclCtx[i]->accept(this).as<ExpressionWrapper>().getExpression());
+	}
+	//限制声明
+	vector<Expression*> constraintsDecl;
+	auto constraintCtx = ctx->functionConstraintExpression();
+	if (constraintCtx) {
+		if (constraintCtx->expression())
+		{
+			auto expr = constraintCtx->expression()->accept(this).as<ExpressionWrapper>().getExpression();
+			constraintsDecl.push_back(expr);
+		}
+		else {
+			for (auto curCtx : constraintCtx->blockExpression()->expression()) {
+				auto expr = curCtx->accept(this).as<Expression*>();
+				constraintsDecl.push_back(expr);
+			}
+		}
+	}
+	//解析参数和限制
+	auto resolveRes = FormalParametersTemplateResolver::resolve(this->program, getLocation(ctx), paramDeclExprs, constraintsDecl);
+	auto paramTypes = resolveRes.getParameterTypes();
+	auto paramTemplates = resolveRes.getParameterTemplates();
+	auto constraints = resolveRes.getConstraints();
+
+	/*函数的实现*/
+	ALLOW_ASSIGN;
 	vector<Expression*> impls;
 	if (ctx->functionImplementationExpression()->expression() != nullptr) {
 		auto expr = ctx->functionImplementationExpression()->expression()->accept(this).as<ExpressionWrapper>();
@@ -129,87 +184,35 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 			impls[i] = wrapper.getExpression();
 		}
 	}
-	
 	FORBID_ASSIGN;
 
-	//函数的参数和限制
-	ExpressionWrapper paramsWrapper = ctx->functionDeclarationExpression()->formalParameterExpression()->accept(this);
-	auto paramExpr = (MultiValueExpression *)paramsWrapper.getExpression();
-	size_t paramCount = paramExpr->getItems().size();
-	vector<ParameterTemplate*> paramInfos;
-	paramInfos.reserve(paramCount);
-	vector<Expression*> vecConstraints; //函数的限制，由字面声明和语法糖编译两部分组成
-	//首先是语法糖编译，包括约束和默认值
-	for (size_t i = 0; i < paramCount; ++i) {
-		paramInfos.push_back(new ParameterTemplate());
-		if (paramExpr->getItem(i)->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
-			VariableExpression* varExpr = (VariableExpression*)paramExpr->getItem(i);
-			paramInfos[i]->setName(varExpr->getName());
-			paramInfos[i]->setVarargs(varExpr->isVarargs());
-		}
-		//else if (paramExpr->getItem(i)->getExpressionType()->isSubTypeOf(nullptr, Type::BINARY_COMPARE_EXPRESSION)) {
-		//	VariableExpression*leftVar = ((BinaryCompareExpression*)paramExpr->getItem(i))->getLeftVariable();
-		//	if (leftVar == nullptr) {
-		//		throw std::move(SyntaxErrorException(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1, L"函数参数约束左部必须为变量！"));
-		//	}
-		//	vecConstraints.push_back(paramExpr->getItem(i));
-		//	paramInfos[i].setParameterName(leftVar->getName());
-		//}
-		//else if (paramExpr->getItem(i)->getType(nullptr)->isSubTypeOf(nullptr, Type::ASSIGNMENT_EXPRESSION)) {
-		//	AssignmentExpression*assignmentExpr = (AssignmentExpression*)paramExpr->getItem(i);
-		//	auto leftExpr = assignmentExpr->getLeftExpression();
-		//	if (!leftExpr->getType(nullptr)->equals(nullptr, Type::VARIABLE_EXPRESSION)){
-		//		throw std::move(SyntaxErrorException(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1, L"参数默认值左部必须为参数名！"));
-		//	}
-		//	auto leftVar = (VariableExpression*)leftExpr;
-		//	paramInfos[i].setParameterName(leftVar->getName());
-		//	paramInfos[i].setDefaultValue(assignmentExpr->getRightExpression());
-//		}
-		//else{
-		//	wstring tmpVarName = L"_" + to_wstring(i);
-		//	paramInfos[i].setParameterName(tmpVarName.c_str());
-		//	const EqualsExpression*constraint = new EqualsExpression();
-		//	VariableExpression* paramVar = new VariableExpression(tmpVarName.c_str());
-		//	paramVar->setDomain(this->domain);
-		//	paramVar->setDomainAccess(DomainAccess::PUBLIC);
-		//	constraint->setLeftExpression(paramVar);
-		//	constraint->setRightExpression(paramExpr->getItem(i));
-		//	vecConstraints.push_back(constraint);
-		//}
+	/*将函数声明添加到相应的重载分支中*/
+	//寻找重载，同时判断是否和已有返回值类型相同，如果不存在则新建。
+	//TODO 若不相同，可以取两个返回值类型中的更高类型
+	Type * returnType;
+	if (impls.size() == 0) {
+		returnType = this->program->getVoidType();
 	}
-	////然后是字面声明
-	//if (ctx->functionConstraintExpression() != nullptr) {
-	//	if (ctx->functionConstraintExpression()->expression() != nullptr) {
-	//		auto expr = ((ExpressionWrapper)ctx->functionConstraintExpression()->expression()->accept(this)).getExpression();
-	//		vecConstraints.push_back(expr);
-	//	}
-	//	else {
-	//		for (auto &subCtx : ctx->functionConstraintExpression()->blockExpression()->expression()) {
-	//			vecConstraints.push_back(((ExpressionWrapper)subCtx->accept(this)).getExpression());
-	//		}
-	//	}
-	//}
+	else {
+		returnType = impls[impls.size() - 1]->getType();
+	}
+	//TODO 判断，必须是BranchOverloadTemplate才能添加分支。如果是NativeOverload则禁止添加分支
+	BranchOverloadTemplate *overloadTemplate = (BranchOverloadTemplate*)funcTemplate->getOverload(paramTypes);
+	if (overloadTemplate) {
+		Type *overloadReturnType = overloadTemplate->getReturnType();
+		if (!returnType->equals(overloadReturnType)) {
+			throw SyntaxErrorException(getLocation(ctx),L"返回值必须为" + overloadReturnType->getName()+L"类型");
+		}
+	}else{
+		overloadTemplate = new BranchOverloadTemplate(funcTemplate, paramTemplates, returnType);
+		funcTemplate->addOverload(overloadTemplate);
+	}
+	//添加重载分支
+	auto branch = new OverloadBranchTemplate(overloadTemplate, getLocation(ctx), constraints, impls);
+	overloadTemplate->setBranches({ branch });
 
 	/*====恢复上一层====*/
 	--this->curDepth;
-
-	auto funcNameCtx = ctx->functionDeclarationExpression()->identifier();
-	wstring funcName;
-	if(funcNameCtx != nullptr) {
-		funcName = Locale::ansiToUnicode(funcNameCtx->getText());
-	}
-	FunctionTemplate* funcTemplate = this->program->getFunctionTemplate(funcName);
-	if (!funcTemplate) {
-		funcTemplate = new FunctionTemplate(this->program, funcName);
-		this->program->addFunctionTemplate(funcTemplate);
-	}
-	
-	auto overloadTemplate = new BranchOverloadTemplate(funcTemplate, paramInfos);
-	auto branch = new OverloadBranchTemplate(vecConstraints, impls);
-	overloadTemplate->setParameters(paramInfos);
-	overloadTemplate->setBranches({ branch });
-	funcTemplate->addOverload(overloadTemplate);
-
 	RESTORE_ASSIGNABLE;
 	return nullptr;
 }
@@ -220,8 +223,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitCallExpression(WorkScriptParser::CallE
 	ExpressionWrapper paramExpressionWrapper = ctx->multiValueExpression()->accept(this);
 	auto funcName = Locale::ansiToUnicode(ctx->identifier()->getText());
 	auto paramExpr = (MultiValueExpression*)paramExpressionWrapper.getExpression();
-	Overload *overload = program->getFunctionOverload(funcName, paramExpr->getTypes());
-	auto expr = new CallExpression(program, overload, paramExpr);
+	auto expr = new CallExpression(program, getLocation(ctx), funcName, paramExpr);
 	RESTORE_ASSIGNABLE;
 	return ExpressionWrapper(expr);
 }
@@ -246,14 +248,14 @@ antlrcpp::Any WorkScriptVisitorImpl::visitAssignmentOrEqualsExpression(WorkScrip
 		this->declarable = false;
 		auto right = ctx->expression()[1]->accept(this).as<ExpressionWrapper>().getExpression();
 		RESTORE_ASSIGNABLE;
-		return ExpressionWrapper(new AssignmentExpression(program, left, right));
+		return ExpressionWrapper(new AssignmentExpression(program, getLocation(ctx), left, right));
 	}
 	else {
 		STORE_FORBID_ASSIGN;
 		auto left = ((ExpressionWrapper)ctx->expression()[0]->accept(this)).getExpression();
 		auto right = ((ExpressionWrapper)ctx->expression()[1]->accept(this)).getExpression();
 		RESTORE_ASSIGNABLE;
-		return ExpressionWrapper(new BinaryCompareExpression(program, BinaryCompareExpression::CompareType::EQUAL, left, right));
+		return ExpressionWrapper(new BinaryCompareExpression(program, getLocation(ctx), left, right, BinaryCompareExpression::CompareType::EQUAL));
 	}
 }
 
@@ -263,7 +265,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitAssignmentExpression(WorkScriptParser:
 	auto left = ((ExpressionWrapper)ctx->expression()[0]->accept(this)).getExpression();
 	auto right = ((ExpressionWrapper)ctx->expression()[1]->accept(this)).getExpression();
 	RESTORE_ASSIGNABLE;
-	auto expr = new AssignmentExpression(program, left, right);
+	auto expr = new AssignmentExpression(program, getLocation(ctx), left, right);
 	return ExpressionWrapper(expr);
 }
 
@@ -279,7 +281,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMultiValueExpression(WorkScriptParser:
 		auto itemExpr = wrapper.getExpression();
 		items[i] = itemExpr;
 	}
-	auto expr = new WorkScript::MultiValueExpression(program, items);
+	auto expr = new WorkScript::MultiValueExpression(program, getLocation(ctx), items);
 	RESTORE_ASSIGNABLE
 	return ExpressionWrapper(expr);
 }
@@ -304,10 +306,11 @@ antlrcpp::Any WorkScriptVisitorImpl::visitPlusMinusExpression(WorkScriptParser::
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	RESTORE_ASSIGNABLE
 	if (ctx->PLUS()) {
-		return ExpressionWrapper(new BinaryCalculateExpression(program,BinaryCalculateExpression::PLUS,leftExpression, rightExpression));
+		Expression *expr = new BinaryCalculateExpression(program, getLocation(ctx), leftExpression, rightExpression, BinaryCalculateExpression::PLUS);
+		return ExpressionWrapper(expr);
 	}
 	else { //MINUS
-		return ExpressionWrapper(new BinaryCalculateExpression(program, BinaryCalculateExpression::MINUS, leftExpression, rightExpression));
+		return ExpressionWrapper(new BinaryCalculateExpression(program, getLocation(ctx), leftExpression, rightExpression, BinaryCalculateExpression::MINUS));
 	}
 }
 
@@ -320,13 +323,13 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideModulusExpression(WorkSc
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	RESTORE_ASSIGNABLE;
 	if (ctx->MULTIPLY()) {
-		return ExpressionWrapper(new BinaryCalculateExpression(program, BinaryCalculateExpression::MULTIPLY, leftExpression, rightExpression));
+		return ExpressionWrapper(new BinaryCalculateExpression(program, getLocation(ctx), leftExpression, rightExpression, BinaryCalculateExpression::MULTIPLY));
 	}
 	else if (ctx->DIVIDE()) {
-		return ExpressionWrapper(new BinaryCalculateExpression(program, BinaryCalculateExpression::DIVIDE, leftExpression, rightExpression));
+		return ExpressionWrapper(new BinaryCalculateExpression(program, getLocation(ctx), leftExpression, rightExpression, BinaryCalculateExpression::DIVIDE));
 	}
 	else { //MODULUS
-		return ExpressionWrapper(new BinaryCalculateExpression(program, BinaryCalculateExpression::MODULUS, leftExpression, rightExpression));
+		return ExpressionWrapper(new BinaryCalculateExpression(program, getLocation(ctx), leftExpression, rightExpression, BinaryCalculateExpression::MODULUS));
 	}
 }
 
@@ -362,7 +365,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitBinaryCompareExpression(WorkScriptPars
 	else {
 		compareType = BinaryCompareExpression::CompareType::LESS_THAN_EQUAL;
 	}
-	return new BinaryCompareExpression(program, compareType, leftExpression, rightExpression);
+	return new BinaryCompareExpression(program, getLocation(ctx), leftExpression, rightExpression, compareType);
 }
 
 //antlrcpp::Any WorkScriptVisitorImpl::visitListExpression(WorkScriptParser::ListExpressionContext *ctx)
@@ -383,7 +386,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitBinaryCompareExpression(WorkScriptPars
 antlrcpp::Any WorkScriptVisitorImpl::visitNegativeExpression(WorkScriptParser::NegativeExpressionContext *ctx)
 {
 	ExpressionWrapper wrapper = ctx->expression()->accept(this);
-	auto expr = new UnaryOperatorExpression(program, UnaryOperatorExpression::NEGATIVE, wrapper.getExpression());
+	auto expr = new UnaryOperatorExpression(program, getLocation(ctx), wrapper.getExpression(), UnaryOperatorExpression::NEGATIVE);
 	return ExpressionWrapper(expr);
 }
 
@@ -400,20 +403,6 @@ antlrcpp::Any WorkScriptVisitorImpl::visitVarargsExpression(WorkScriptParser::Va
 	return varWrapper;
 }
 
-antlrcpp::Any WorkScript::WorkScriptVisitorImpl::visitFormalParameterExpression(WorkScriptParser::FormalParameterExpressionContext * ctx)
-{
-	auto params = ctx->identifier();
-	vector<Expression*> itemExprs;
-	itemExprs.reserve(params.size());
-
-	for (size_t i = 0; i < params.size(); ++i)
-	{
-		itemExprs.push_back(params[i]->getText());
-	}
-	MultiValueExpression *expr = new MultiValueExpression(program, itemExprs);
-	return ExpressionWrapper(expr);
-}
-
 WorkScriptVisitorImpl::WorkScriptVisitorImpl(Program *lpProgram)
 {
 	this->program = lpProgram;
@@ -423,7 +412,7 @@ WorkScriptVisitorImpl::~WorkScriptVisitorImpl()
 {
 }
 
-void WorkScriptVisitorImpl::handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, size_t line, size_t column)const
+static void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, Location loc)
 {
 #define SINGLE_ESCAPE_CASE(escapedChar,unescapedChar) \
 		case escapedChar: \
@@ -487,9 +476,9 @@ void WorkScriptVisitorImpl::handleEscapeCharacters(const wchar_t *srcStr, wchar_
 				++srcPos;
 				break;
 			case L'\0':
-				throw std::move(SyntaxErrorException(line, column, (L"转义符未结束：\"" + wstring(srcStr) + L"\"").c_str()));
+				throw std::move(SyntaxErrorException(loc, (L"转义符未结束：\"" + wstring(srcStr) + L"\"").c_str()));
 			default:
-				throw std::move(SyntaxErrorException(line, column, (wstring(L"不能识别的转义符\"\\") + srcStr[srcPos] + L"\"").c_str()));
+				throw std::move(SyntaxErrorException(loc, (wstring(L"不能识别的转义符\"\\") + srcStr[srcPos] + L"\"").c_str()));
 			}
 			break;
 		}

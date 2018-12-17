@@ -7,7 +7,7 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline IntegerExpression(Program *program, IntegerType *type, long long v);
+		inline IntegerExpression(EXPRESSION_CTOR_FORMAL_PARAMS, IntegerType *type, long long v);
 
 		virtual GenerateResult generateIR(GenerateContext *context);
 		virtual ExpressionType getExpressionType() const override;

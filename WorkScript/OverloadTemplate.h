@@ -17,7 +17,7 @@ namespace WorkScript {
 		}
 
 		virtual ~OverloadTemplate();
-		inline Program * getProgram() { return this->function->getProgram(); }
+		Program * getProgram();
 		bool matchByParameters(const std::vector<Type*> &paramTypes);
 		virtual Overload * createOverload(Function *func, const std::vector<Type*> &paramTypes) const = 0;
 

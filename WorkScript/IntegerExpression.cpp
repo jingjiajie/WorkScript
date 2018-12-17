@@ -7,11 +7,15 @@
 using namespace std;
 using namespace WorkScript;
 
-inline WorkScript::IntegerExpression::IntegerExpression(Program *program,IntegerType *type, long long v)
-	:Expression(program)
+inline WorkScript::IntegerExpression::IntegerExpression(EXPRESSION_CTOR_FORMAL_PARAMS,IntegerType *type, long long v)
+	:EXPRESSION_CTOR_CALL,type(type),value(v)
 {
-	this->type = type;
-	this->value = v;
+
+}
+
+Expression * WorkScript::IntegerExpression::instantialize()
+{
+	return this->clone();
 }
 
 GenerateResult IntegerExpression::generateIR(GenerateContext * context)
@@ -36,5 +40,5 @@ IntegerType * WorkScript::IntegerExpression::getType() const
 
 Expression * WorkScript::IntegerExpression::clone() const
 {
-	return new thistype(this->program, this->type, this->value);
+	return new thistype(EXPRESSION_MEMBERS, this->type, this->value);
 }

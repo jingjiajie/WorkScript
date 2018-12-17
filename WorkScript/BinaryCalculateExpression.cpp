@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "BinaryCalculateExpression.h"
-#include "UncalculatableException.h"
 #include "IntegerType.h"
 #include "FloatType.h"
 
@@ -42,7 +41,7 @@ Type * WorkScript::BinaryCalculateExpression::getType() const
 
 Expression * WorkScript::BinaryCalculateExpression::clone() const
 {
-	return new BinaryCalculateExpression(program, calculateType, leftExpression, rightExpression);
+	return new BinaryCalculateExpression(BINARY_OPERATOR_MEMBERS, calculateType);
 }
 
 ExpressionType WorkScript::BinaryCalculateExpression::getExpressionType() const
