@@ -49,7 +49,7 @@ std::wstring MultiValueExpression::toString() const
 	return ss.str();
 }
 
-Expression * WorkScript::MultiValueExpression::clone() const
+MultiValueExpression * WorkScript::MultiValueExpression::clone() const
 {
 	vector<Expression*> newItems;
 	newItems.reserve(this->items.size());
@@ -61,19 +61,19 @@ Expression * WorkScript::MultiValueExpression::clone() const
 	return newInstance;
 }
 
-Expression * WorkScript::MultiValueExpression::instantialize()
+MultiValueExpression * WorkScript::MultiValueExpression::instantialize(InstantializeContext *context)
 {
 	vector<Expression*> newItems;
 	for (Expression *expr : this->items)
 	{
-		newItems.push_back(expr->instantialize());
+		newItems.push_back(expr->instantialize(context));
 	}
 	return new MultiValueExpression(program, location, newItems);
 }
 
 ExpressionType WorkScript::MultiValueExpression::getExpressionType() const
 {
-	return ExpressionType::PARAMETER_EXPRESSION;
+	return ExpressionType::MULTI_VALUE_EXPRESSION;
 }
 
 GenerateResult WorkScript::MultiValueExpression::generateIR(GenerateContext * context)

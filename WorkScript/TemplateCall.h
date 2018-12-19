@@ -1,5 +1,6 @@
 #pragma once
 #include "Expression.h"
+#include "OverloadTemplate.h"
 #include "Type.h"
 
 namespace WorkScript {
@@ -7,12 +8,12 @@ namespace WorkScript {
 	class MultiValueExpression;
 	class Overload;
 
-	class CallExpression :
+	class TemplateCallExpression :
 		public Expression
 	{
 	public:
-		inline CallExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring &funcName, Overload *overload, MultiValueExpression *params)
-			:EXPRESSION_CTOR_CALL,bindOverload(overload), parameters(params), functionName(funcName) { }
+		inline TemplateCallExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring &funcName,OverloadTemplate *overloadTemplate, MultiValueExpression *params)
+			:EXPRESSION_CTOR_CALL, bindOverloadTemplate(overloadTemplate), parameters(params), functionName(funcName) { }
 
 		virtual Expression * instantialize(InstantializeContext *context) override;
 		virtual GenerateResult generateIR(GenerateContext *context) override;
@@ -26,7 +27,7 @@ namespace WorkScript {
 			return this->parameters;
 		}
 	protected:
-		Overload * bindOverload = nullptr;
+		OverloadTemplate * bindOverloadTemplate = nullptr;
 		std::wstring functionName;
 		MultiValueExpression *parameters = nullptr;
 	};

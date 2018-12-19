@@ -8,10 +8,8 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline VariableExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring &name,Type *type = nullptr)
-			:EXPRESSION_CTOR_CALL, name(name), type(type){ }
+		inline VariableExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring &name, SymbolTable *symbolTable, Type *type);
 
-		virtual void bindSymbols() override;
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual Type * getType() const override;
 		virtual Expression * clone() const override;
@@ -25,9 +23,8 @@ namespace WorkScript {
 		inline bool isDeclarable() const { return this->declarable; }
 		inline void setDeclarable(bool declarable) { this->declarable = declarable; }
 	protected:
-		SymbolInfo * bindSymbolInfo = nullptr;
+		SymbolTable * bindSymbolTable = nullptr;
 		std::wstring name;
-		Type *type = nullptr;
 		bool varargs = false;
 		bool declarable = false; //可声明变量，如果具有此属性，则遇到该变量时可以创建声明。否则提示找不到符号
 	};

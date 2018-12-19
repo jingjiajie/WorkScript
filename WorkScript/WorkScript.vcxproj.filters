@@ -25,15 +25,6 @@
     <Filter Include="Program\Function\Sources">
       <UniqueIdentifier>{2b5288e1-4b59-4351-aa17-593265049c24}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Program\FunctionTemplate">
-      <UniqueIdentifier>{d64c00db-259b-46a9-956b-572ed55c03c8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Program\FunctionTemplate\Sources">
-      <UniqueIdentifier>{be329e95-8372-4d16-ade1-6e908c9964a4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Program\FunctionTemplate\Headers">
-      <UniqueIdentifier>{042e1a6f-4767-4383-87aa-1e7b01236639}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Program\Type">
       <UniqueIdentifier>{05d88c08-99e9-40b3-a81f-bad098c83120}</UniqueIdentifier>
     </Filter>
@@ -85,6 +76,30 @@
     <Filter Include="Program\Tree\Expression">
       <UniqueIdentifier>{ba46e2aa-127e-4692-a97d-cdca5e3fad66}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Program\Template">
+      <UniqueIdentifier>{1ebda41c-3ba3-45fe-ba84-68e31893ac07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Program\Template\FunctionTemplate">
+      <UniqueIdentifier>{d64c00db-259b-46a9-956b-572ed55c03c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Program\Template\FunctionTemplate\Sources">
+      <UniqueIdentifier>{be329e95-8372-4d16-ade1-6e908c9964a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Program\Template\FunctionTemplate\Headers">
+      <UniqueIdentifier>{042e1a6f-4767-4383-87aa-1e7b01236639}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Program\Template\Tree">
+      <UniqueIdentifier>{165954df-3fbb-4649-ac5e-521e46468256}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Program\Template\Tree\TemplateCall">
+      <UniqueIdentifier>{7ac28635-d33b-4927-9549-de2a235aafac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Program\Template\Tree\TemplateVariable">
+      <UniqueIdentifier>{d2f1ed75-4077-4143-a98f-0625a65dcb63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Program\Template\Tree\Expression">
+      <UniqueIdentifier>{23e3d353-b5fb-4201-9ad6-4e6bc0201445}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Generated\WorkScriptBaseVisitor.h">
@@ -129,12 +144,6 @@
     <ClInclude Include="Generated\stdafx.h">
       <Filter>ANTLR\ANTLRGenerated</Filter>
     </ClInclude>
-    <ClInclude Include="GenerateContext.h">
-      <Filter>ANTLR\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="GenerateResult.h">
-      <Filter>ANTLR\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Type.h">
       <Filter>Program\Type\Headers</Filter>
     </ClInclude>
@@ -160,19 +169,19 @@
       <Filter>Util</Filter>
     </ClInclude>
     <ClInclude Include="FunctionTemplate.h">
-      <Filter>Program\FunctionTemplate\Headers</Filter>
+      <Filter>Program\Template\FunctionTemplate\Headers</Filter>
     </ClInclude>
     <ClInclude Include="OverloadTemplate.h">
-      <Filter>Program\FunctionTemplate\Headers</Filter>
+      <Filter>Program\Template\FunctionTemplate\Headers</Filter>
     </ClInclude>
     <ClInclude Include="ParameterTemplate.h">
-      <Filter>Program\FunctionTemplate\Headers</Filter>
+      <Filter>Program\Template\FunctionTemplate\Headers</Filter>
     </ClInclude>
     <ClInclude Include="BranchOverloadTemplate.h">
-      <Filter>Program\FunctionTemplate\Headers</Filter>
+      <Filter>Program\Template\FunctionTemplate\Headers</Filter>
     </ClInclude>
     <ClInclude Include="OverloadBranchTemplate.h">
-      <Filter>Program\FunctionTemplate\Headers</Filter>
+      <Filter>Program\Template\FunctionTemplate\Headers</Filter>
     </ClInclude>
     <ClInclude Include="IntegerType.h">
       <Filter>Program\Type\Headers</Filter>
@@ -247,7 +256,25 @@
       <Filter>Program</Filter>
     </ClInclude>
     <ClInclude Include="FormalParametersTemplateResolver.h">
-      <Filter>Program\FunctionTemplate\Headers</Filter>
+      <Filter>Program\Template\FunctionTemplate\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TemplateVariable.h">
+      <Filter>Program\Template\Tree\TemplateVariable</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateResult.h">
+      <Filter>Program\Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateContext.h">
+      <Filter>Program\Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="TemplateExpression.h">
+      <Filter>Program\Template\Tree\Expression</Filter>
+    </ClInclude>
+    <ClInclude Include="InstantializeContext.h">
+      <Filter>Program\Template</Filter>
+    </ClInclude>
+    <ClInclude Include="TemplateCall.h">
+      <Filter>Program\Template\Tree\TemplateCall</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -307,19 +334,19 @@
       <Filter>Program\Function\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FunctionTemplate.cpp">
-      <Filter>Program\FunctionTemplate\Sources</Filter>
+      <Filter>Program\Template\FunctionTemplate\Sources</Filter>
     </ClCompile>
     <ClCompile Include="OverloadTemplate.cpp">
-      <Filter>Program\FunctionTemplate\Sources</Filter>
+      <Filter>Program\Template\FunctionTemplate\Sources</Filter>
     </ClCompile>
     <ClCompile Include="ParameterTemplate.cpp">
-      <Filter>Program\FunctionTemplate\Sources</Filter>
+      <Filter>Program\Template\FunctionTemplate\Sources</Filter>
     </ClCompile>
     <ClCompile Include="BranchOverloadTemplate.cpp">
-      <Filter>Program\FunctionTemplate\Sources</Filter>
+      <Filter>Program\Template\FunctionTemplate\Sources</Filter>
     </ClCompile>
     <ClCompile Include="OverloadBranchTemplate.cpp">
-      <Filter>Program\FunctionTemplate\Sources</Filter>
+      <Filter>Program\Template\FunctionTemplate\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FloatType.cpp">
       <Filter>Program\Type\Sources</Filter>
@@ -379,7 +406,13 @@
       <Filter>Util\Locale</Filter>
     </ClCompile>
     <ClCompile Include="FormalParametersTemplateResolver.cpp">
-      <Filter>Program\FunctionTemplate\Sources</Filter>
+      <Filter>Program\Template\FunctionTemplate\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="TemplateVariable.cpp">
+      <Filter>Program\Template\Tree\TemplateVariable</Filter>
+    </ClCompile>
+    <ClCompile Include="TemplateCall.cpp">
+      <Filter>Program\Template\Tree\TemplateCall</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

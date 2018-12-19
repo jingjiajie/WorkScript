@@ -39,9 +39,9 @@ IntegerType * WorkScript::BinaryCompareExpression::getType() const
 	return this->program->getUInt1Type();
 }
 
-Expression * WorkScript::BinaryCompareExpression::instantialize()
+Expression * WorkScript::BinaryCompareExpression::instantialize(InstantializeContext *context)
 {
-	return new BinaryCompareExpression(program, location, leftExpression->instantialize(), rightExpression->instantialize(), compareType);
+	return new BinaryCompareExpression(program, location, leftExpression->instantialize(context), rightExpression->instantialize(context), compareType);
 }
 
 Expression * WorkScript::BinaryCompareExpression::clone() const

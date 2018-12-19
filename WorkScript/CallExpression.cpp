@@ -11,14 +11,9 @@
 using namespace WorkScript;
 using namespace std;
 
-Expression * WorkScript::CallExpression::instantialize()
+Expression * WorkScript::CallExpression::instantialize(InstantializeContext *context)
 {
-	//TODO 实例化要返回新的对象
-	Overload *overload = this->program->getFunctionOverload(this->functionName, this->parameters->getTypes());
-	if (!overload) {
-		throw WorkScriptException(L"无法找到" + this->functionName + L"(" + this->parameters->toString() + L")");
-	}
-	this->bindOverload = overload;
+	throw WorkScriptException(L"非模板调用表达式无法实例化");
 }
 
 GenerateResult WorkScript::CallExpression::generateIR(GenerateContext * context)
@@ -41,13 +36,12 @@ std::wstring CallExpression::toString() const
 
 ExpressionType CallExpression::getExpressionType() const
 {
-	return ExpressionType::FUNCTION_INVOCATION_EXPRESSION;
+	return ExpressionType::CALL_EXPRESSION;
 }
 
 Expression * WorkScript::CallExpression::clone() const
 {
-	auto newInstance = new thistype(EXPRESSION_MEMBERS, functionName, parameters);
+	auto newInstance = new thistype(EXPRESSION_MEMBERS, functionName, this->bindOverload, parameters);
 	newInstance->bindOverload = this->bindOverload;
 	return newInstance;
 }
-

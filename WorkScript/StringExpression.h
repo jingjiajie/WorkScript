@@ -12,6 +12,7 @@ namespace WorkScript {
 		inline StringExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring &v)
 			:EXPRESSION_CTOR_CALL, value(v) { }
 
+		virtual Expression * instantialize(InstantializeContext *context);
 		virtual std::wstring toString() const override;
 		virtual Type * getType() const override;
 		virtual GenerateResult generateIR(GenerateContext *context);

@@ -13,7 +13,7 @@ inline WorkScript::IntegerExpression::IntegerExpression(EXPRESSION_CTOR_FORMAL_P
 
 }
 
-Expression * WorkScript::IntegerExpression::instantialize()
+Expression * WorkScript::IntegerExpression::instantialize(InstantializeContext *context)
 {
 	return this->clone();
 }

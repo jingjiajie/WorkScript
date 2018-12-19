@@ -39,6 +39,11 @@ Type * WorkScript::BinaryCalculateExpression::getType() const
 	return Type::getPromotedType(this->leftExpression->getType(), this->rightExpression->getType());
 }
 
+Expression * WorkScript::BinaryCalculateExpression::instantialize(InstantializeContext *context)
+{
+	return new BinaryCalculateExpression(program, location, leftExpression->instantialize(context), rightExpression->instantialize(context), this->calculateType);
+}
+
 Expression * WorkScript::BinaryCalculateExpression::clone() const
 {
 	return new BinaryCalculateExpression(BINARY_OPERATOR_MEMBERS, calculateType);

@@ -13,13 +13,15 @@
 
 namespace WorkScript {
 	class Type;
+	class InstantializeContext;
 
 	class Expression
 	{
 	public:
 		inline Expression(EXPRESSION_CTOR_FORMAL_PARAMS) :program(program), location(location) {}
-		//绑定符号
-		virtual Expression * instantialize();
+
+		//模板实例化
+		virtual Expression * instantialize(InstantializeContext *context);
 		//生成LLVM字节码的接口函数
 		virtual GenerateResult generateIR(GenerateContext *context) = 0;
 		//需要实现的接口函数
@@ -33,4 +35,11 @@ namespace WorkScript {
 		Program * program;
 		Location location;
 	};
+
+	//class GenericExpression : public Expression{
+	//public:
+	//	inline GenericExpression(EXPRESSION_CTOR_FORMAL_PARAMS): EXPRESSION_CTOR_CALL { }
+	//	//生成LLVM字节码的接口函数
+	//	virtual GenerateResult generateIR(GenerateContext *context) = 0;
+	//};
 }

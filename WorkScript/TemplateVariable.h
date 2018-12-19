@@ -5,14 +5,13 @@
 #include "SymbolInfo.h"
 
 namespace WorkScript {
-	class VariableExpression :
+	class TemplateVariableExpression :
 		public Expression
 	{
 	public:
-		inline VariableExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring &name, Type *type = nullptr)
-			:EXPRESSION_CTOR_CALL, name(name), type(type){ }
+		inline TemplateVariableExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring &name, SymbolTable *symbolTable, Type *type = nullptr);
 
-		virtual Expression * instantialize() override;
+		virtual Expression * instantialize(InstantializeContext *context) override;
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual Type * getType() const override;
 		virtual Expression * clone() const override;
@@ -25,10 +24,10 @@ namespace WorkScript {
 		inline void setVarargs(bool isVarargs) { this->varargs = isVarargs; }
 		inline bool isDeclarable() const { return this->declarable; }
 		inline void setDeclarable(bool declarable) { this->declarable = declarable; }
+		void promoteType(Type *type);
 	protected:
-		SymbolInfo * bindSymbolInfo = nullptr;
 		std::wstring name;
-		Type *type = nullptr;
+		SymbolTable *bindSymbolTable = nullptr;
 		bool varargs = false;
 		bool declarable = false; //可声明变量，如果具有此属性，则遇到该变量时可以创建声明。否则提示找不到符号
 	};

@@ -30,7 +30,7 @@ namespace WorkScript {
 		ParameterTemplate * getThisParameter();
 
 		inline Type *getReturnType() { return this->returnType; }
-		inline void setReturnType(Type *returnType) { this->returnType; }
+		inline void setReturnType(Type *returnType) { this->returnType = returnType; }
 		inline SymbolTable * getSymbolTable() { return &this->symbolTable; }
 	protected:
 		std::vector<ParameterTemplate*> parameters;

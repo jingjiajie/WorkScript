@@ -22,6 +22,10 @@
 #include "Locale.h"
 #include "Location.h"
 #include "FormalParametersTemplateResolver.h"
+#include "TemplateCall.h"
+#include "OverloadTemplate.h"
+#include "TemplateVariable.h"
+#include "OverloadTemplate.h"
 
 #define FORBID_ASSIGN \
 this->assignable = false; 
@@ -112,7 +116,8 @@ antlrcpp::Any WorkScriptVisitorImpl::visitBooleanExpression(WorkScriptParser::Bo
 antlrcpp::Any WorkScriptVisitorImpl::visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx)
 {
 	string varName = ctx->identifier()->getText();
-	auto expr = new VariableExpression(program, getLocation(ctx), Locale::ansiToUnicode(varName));
+	SymbolTable *symbolTable = currentOverloadTemplate->getSymbolTable();
+	auto expr = new TemplateVariableExpression(program, getLocation(ctx), Locale::ansiToUnicode(varName), symbolTable, nullptr);
 	expr->setDeclarable(this->declarable); //等号左边的变量才可以创建声明
 	auto wrapper = ExpressionWrapper(expr);
 	return wrapper;
@@ -163,10 +168,23 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 		}
 	}
 	//解析参数和限制
-	auto resolveRes = FormalParametersTemplateResolver::resolve(this->program, getLocation(ctx), paramDeclExprs, constraintsDecl);
+	auto resolveRes = FormalParametersTemplateResolver::resolve(this->program, getLocation(ctx), this->currentOverloadTemplate->getSymbolTable(), paramDeclExprs, constraintsDecl);
 	auto paramTypes = resolveRes.getParameterTypes();
 	auto paramTemplates = resolveRes.getParameterTemplates();
 	auto constraints = resolveRes.getConstraints();
+
+
+	/*将函数声明添加到相应的重载分支中*/
+	//寻找重载，同时判断是否和已有返回值类型相同，如果不存在则新建。
+	//TODO 判断，必须是BranchOverloadTemplate才能添加分支。如果是NativeOverload则禁止添加分支
+	BranchOverloadTemplate *overloadTemplate = (BranchOverloadTemplate*)funcTemplate->getOverload(paramTypes);
+	if (!overloadTemplate){
+		overloadTemplate = new BranchOverloadTemplate(funcTemplate, paramTemplates, nullptr);
+		funcTemplate->addOverload(overloadTemplate);
+	}
+	auto prevOverloadTemplate = this->currentOverloadTemplate;
+	//将当前重载设置成此次重载
+	this->currentOverloadTemplate = overloadTemplate;
 
 	/*函数的实现*/
 	ALLOW_ASSIGN;
@@ -181,13 +199,14 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 		for (size_t i = 0; i < exprs.size(); ++i)
 		{
 			auto wrapper = exprs[i]->accept(this).as<ExpressionWrapper>();
-			impls[i] = wrapper.getExpression();
+			impls.push_back(wrapper.getExpression());
 		}
 	}
 	FORBID_ASSIGN;
+	//恢复当前重载
+	this->currentOverloadTemplate = prevOverloadTemplate;
 
-	/*将函数声明添加到相应的重载分支中*/
-	//寻找重载，同时判断是否和已有返回值类型相同，如果不存在则新建。
+	/*检查重载和当前重载分支的返回值类型是否相同*/
 	//TODO 若不相同，可以取两个返回值类型中的更高类型
 	Type * returnType;
 	if (impls.size() == 0) {
@@ -196,17 +215,13 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	else {
 		returnType = impls[impls.size() - 1]->getType();
 	}
-	//TODO 判断，必须是BranchOverloadTemplate才能添加分支。如果是NativeOverload则禁止添加分支
-	BranchOverloadTemplate *overloadTemplate = (BranchOverloadTemplate*)funcTemplate->getOverload(paramTypes);
-	if (overloadTemplate) {
-		Type *overloadReturnType = overloadTemplate->getReturnType();
-		if (!returnType->equals(overloadReturnType)) {
-			throw SyntaxErrorException(getLocation(ctx),L"返回值必须为" + overloadReturnType->getName()+L"类型");
-		}
-	}else{
-		overloadTemplate = new BranchOverloadTemplate(funcTemplate, paramTemplates, returnType);
-		funcTemplate->addOverload(overloadTemplate);
+	Type *overloadReturnType = overloadTemplate->getReturnType();
+	if (!overloadReturnType) {
+		overloadTemplate->setReturnType(returnType);
+	}else if (returnType && !returnType->equals(overloadReturnType)) {
+		throw SyntaxErrorException(getLocation(ctx), L"返回值必须为" + overloadReturnType->getName() + L"类型");
 	}
+	
 	//添加重载分支
 	auto branch = new OverloadBranchTemplate(overloadTemplate, getLocation(ctx), constraints, impls);
 	overloadTemplate->setBranches({ branch });
@@ -223,7 +238,9 @@ antlrcpp::Any WorkScriptVisitorImpl::visitCallExpression(WorkScriptParser::CallE
 	ExpressionWrapper paramExpressionWrapper = ctx->multiValueExpression()->accept(this);
 	auto funcName = Locale::ansiToUnicode(ctx->identifier()->getText());
 	auto paramExpr = (MultiValueExpression*)paramExpressionWrapper.getExpression();
-	auto expr = new CallExpression(program, getLocation(ctx), funcName, paramExpr);
+	FunctionTemplate *functionTemplate = program->getFunctionTemplate(funcName);
+	OverloadTemplate *overloadTemplate = functionTemplate->getOverload(paramExpr->getTypes());
+	auto expr = new TemplateCallExpression(program, getLocation(ctx), funcName, overloadTemplate, paramExpr);
 	RESTORE_ASSIGNABLE;
 	return ExpressionWrapper(expr);
 }

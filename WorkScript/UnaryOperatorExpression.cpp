@@ -11,9 +11,9 @@ UnaryOperatorExpression::~UnaryOperatorExpression()
 	delete this->subExpression;
 }
 
-Expression * WorkScript::UnaryOperatorExpression::instantialize()
+Expression * WorkScript::UnaryOperatorExpression::instantialize(InstantializeContext *context)
 {
-	return new UnaryOperatorExpression(program, location, this->subExpression->instantialize(), operatorType);
+	return new UnaryOperatorExpression(program, location, this->subExpression->instantialize(context), operatorType);
 }
 
 std::wstring WorkScript::UnaryOperatorExpression::toString() const

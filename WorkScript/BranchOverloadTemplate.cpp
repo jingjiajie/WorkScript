@@ -20,7 +20,7 @@ Overload * WorkScript::BranchOverloadTemplate::createOverload(Function * func, c
 	params.reserve(paramTypes.size());
 	for (size_t i = 0; i < paramTypes.size(); ++i)
 	{
-		params[i] = new Parameter(this->parameters[i]->getName(), paramTypes[i], this->parameters[i]->getDefaultValue());
+		params.push_back(new Parameter(this->parameters[i]->getName(), paramTypes[i], this->parameters[i]->getDefaultValue()));
 	}
 	Type *retType;
 	if (this->branchTemplates.size() == 0)

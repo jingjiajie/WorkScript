@@ -11,6 +11,9 @@
 #include "SyntaxErrorStrategy.h"
 #include "SyntaxErrorException.h"
 #include "Locale.h"
+#include "llvm/ExecutionEngine/MCJIT.h"
+#include "llvm/ExecutionEngine/Interpreter.h"
+#include "llvm/ExecutionEngine/SectionMemoryManager.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -26,16 +29,32 @@ WorkScriptEngine::~WorkScriptEngine()
 
 void WorkScriptEngine::run(const char * filePath)
 {
+	llvm::InitializeNativeTarget();
+	llvm::InitializeNativeTargetAsmParser();
+	llvm::InitializeNativeTargetAsmPrinter();
 	auto wFilePath = Locale::ansiToUnicode(filePath);
 	Program program;
 	this->parseFile(wFilePath.c_str(), &program);
 	program.getFunctionOverload(L"main", {});
-	program.bindSymbols();
-	//TODO JIT运行
 	llvm::LLVMContext llvmContext;
-	llvm::Module llvmModule("main",llvmContext);
-	program.generateLLVMIR(&llvmContext, &llvmModule);
-	llvmModule.dump();
+	auto llvmModule = unique_ptr<llvm::Module>(new llvm::Module("main", llvmContext));
+	program.generateLLVMIR(&llvmContext, llvmModule.get());
+	llvmModule->dump();
+	//string errorStr;
+	//llvm::EngineBuilder b(std::move(llvmModule));
+	////llvm::RTDyldMemoryManager* RTDyldMM = NULL;
+	//b.setEngineKind(llvm::EngineKind::JIT)
+	//	.setErrorStr(&errorStr);
+	//	//.setVerifyModules(true)
+	//	//.setMCJITMemoryManager(std::unique_ptr<llvm::RTDyldMemoryManager>(RTDyldMM))
+	//	//.setOptLevel(llvm::CodeGenOpt::Default)
+	//auto e = b.create();
+	//e->finalizeObject();
+	//typedef int(*TFMAIN)();
+	//TFMAIN fmain = (TFMAIN)e->getPointerToNamedFunction("main");
+	//int ret = fmain();
+	////printf("WorkScript JIT执行结果：\n");
+	////printf("%d",ret);
 }
 
 void WorkScriptEngine::parseFile(const wchar_t * fileName, Program * outProgram) //throws SyntaxErrorException
@@ -59,11 +78,10 @@ void WorkScriptEngine::parseFile(const wchar_t * fileName, Program * outProgram)
 		fclose(file);
 		//转换为Unicode
 		string utf8Str = Locale::ansiToUTF8(buff);
-		delete buff;
 		ANTLRInputStream input(utf8Str);
 		WorkScriptLexer lexer(&input);
 		CommonTokenStream tokens(&lexer);
-
+		delete buff;
 		//语法分析
 		WorkScriptParser parser(&tokens);
 		Ref<SyntaxErrorStrategy> syntaxErrorStrategy(new SyntaxErrorStrategy);

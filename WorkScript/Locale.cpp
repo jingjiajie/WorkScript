@@ -22,6 +22,7 @@ string Locale::unicodeToANSI(const wstring & str)
 	char *buff = new char[len + 1];
 	WideCharToMultiByte(CP_ACP, 0, str.c_str(), len + 1, buff, len + 1, nullptr, nullptr);
 	string result = buff;
+	delete[] buff;
 	return result;
 }
 
@@ -31,6 +32,7 @@ std::string WorkScript::Locale::unicodeToUTF8(const std::wstring & str)
 	char *buff = new char[len + 1];
 	WideCharToMultiByte(CP_UTF8, 0, str.c_str(), len + 1, buff, len + 1, nullptr, nullptr);
 	string result = buff;
+	delete[] buff;
 	return result;
 }
 

@@ -370,6 +370,7 @@
     <ClInclude Include="Defines.h" />
     <ClInclude Include="ExpressionWrapper.h" />
     <ClInclude Include="CallExpression.h" />
+    <ClInclude Include="InstantializeContext.h" />
     <ClInclude Include="IntegerExpression.h" />
     <ClInclude Include="IntegerPointerType.h" />
     <ClInclude Include="IntegerType.h" />
@@ -396,6 +397,9 @@
     <ClInclude Include="SyntaxErrorException.h" />
     <ClInclude Include="SyntaxErrorListener.h" />
     <ClInclude Include="SyntaxErrorStrategy.h" />
+    <ClInclude Include="TemplateCall.h" />
+    <ClInclude Include="TemplateExpression.h" />
+    <ClInclude Include="TemplateVariable.h" />
     <ClInclude Include="Type.h" />
     <ClInclude Include="TypeClassification.h" />
     <ClInclude Include="UnaryOperatorExpression.h" />
@@ -444,6 +448,8 @@
     <ClCompile Include="SymbolTable.cpp" />
     <ClCompile Include="SyntaxErrorListener.cpp" />
     <ClCompile Include="SyntaxErrorStrategy.cpp" />
+    <ClCompile Include="TemplateCall.cpp" />
+    <ClCompile Include="TemplateVariable.cpp" />
     <ClCompile Include="Type.cpp" />
     <ClCompile Include="UnaryOperatorExpression.cpp" />
     <ClCompile Include="VariableExpression.cpp" />

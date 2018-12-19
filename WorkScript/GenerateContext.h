@@ -24,10 +24,13 @@ namespace WorkScript {
 		inline void setIRBuilder(llvm::IRBuilder<> *irBuilder) { this->irBuilder = irBuilder; }
 		inline SymbolTable * getCurrentSymbolTable() const { return this->currentSymbolTable; }
 		inline void setCurrentSymbolTable(SymbolTable *t) { this->currentSymbolTable = t; }
+		inline bool isLeftValue() const { return this->_isLeftValue; }
+		inline void setLeftValue(bool isLVal) { this->_isLeftValue = isLVal; }
 	private:
 		llvm::LLVMContext * llvmContext = nullptr;
 		llvm::Module * llvmModule = nullptr;
 		llvm::IRBuilder<> * irBuilder = nullptr;
 		SymbolTable *currentSymbolTable;
+		bool _isLeftValue = false;
 	};
 }

@@ -17,7 +17,7 @@ Expression * WorkScript::StringExpression::clone() const
 	return new thistype(EXPRESSION_MEMBERS, this->value);
 }
 
-Expression * WorkScript::StringExpression::instantialize()
+Expression * WorkScript::StringExpression::instantialize(InstantializeContext *context)
 {
 	return this->clone();
 }

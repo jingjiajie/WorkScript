@@ -7,13 +7,6 @@ WorkScript::BranchOverload::~BranchOverload()
 	for (OverloadBranch *br : this->branches)delete br;
 }
 
-void WorkScript::BranchOverload::bindSymbols()
-{
-	for (OverloadBranch *br : this->branches) {
-		br->bindSymbols();
-	}
-}
-
 GenerateResult WorkScript::BranchOverload::generateLLVMIR(GenerateContext * context)
 {
 	llvm::Function *func = this->getLLVMFunction(context);
@@ -28,8 +21,9 @@ GenerateResult WorkScript::BranchOverload::generateLLVMIR(GenerateContext * cont
 		builder.SetInsertPoint(entry);
 		curFalseBlock = this->branches[branchCount - 1 - i]->generateBlock(context, func, curFalseBlock);
 	}
-	//如果全部匹配失败，则抛出错误
+	//如果全部匹配失败，则返回未定义值
 	builder.SetInsertPoint(notMatched);
+	builder.CreateRet(llvm::UndefValue::get(this->returnType->getLLVMType(context)));
 	llvm::verifyFunction(*func);
 	return (llvm::Value*)func;
 }

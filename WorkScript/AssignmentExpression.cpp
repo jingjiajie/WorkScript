@@ -1,11 +1,32 @@
 #include "stdafx.h"
 #include "AssignmentExpression.h"
 #include "StringExpression.h"
-#include "VariableExpression.h"
+#include "TemplateVariable.h"
+#include "SyntaxErrorException.h"
 #include "Utils.h"
+#include "VariableExpression.h"
 
 using namespace std;
 using namespace WorkScript;
+
+WorkScript::AssignmentExpression::AssignmentExpression(BINARY_OPERATOR_CTOR_FORMAL_PARAMS)
+	: BINARY_OPERATOR_CTOR_CALL
+{
+	VariableExpression *leftV = dynamic_cast<VariableExpression*>(this->leftExpression);
+if (leftV)return;
+	TemplateVariableExpression *leftVar = dynamic_cast<TemplateVariableExpression*>(this->leftExpression);
+	if (!leftVar) {
+		throw SyntaxErrorException(location, this->leftExpression->toString() + L"不可以赋值");
+	}
+	Type *rightType = this->rightExpression->getType();
+	Type *varType = leftVar->getType();
+	if (varType && !varType->equals(rightType)) {
+		throw SyntaxErrorException(location, L"不可以将" + rightType->getName() + L"类型的值赋值给" + varType->getName() + L"类型的变量");
+	}
+	else {
+		leftVar->promoteType(rightType);
+	}
+}
 
 GenerateResult WorkScript::AssignmentExpression::generateIR(GenerateContext * context)
 {
@@ -18,17 +39,18 @@ GenerateResult WorkScript::AssignmentExpression::generateIR(GenerateContext * co
 	TypeClassification leftCls = leftType->getClassification();
 	TypeClassification rightCls = rightType->getClassification();
 	Type *promotedType = Type::getPromotedType(leftType, rightType);
-
+	context->setLeftValue(false);
 	llvm::Value *val = Type::generateLLVMTypePromote(context, this->rightExpression, promotedType).getValue();
-
-	//TODO 如果右部也是变量会不会出问题
+	context->setLeftValue(true);
 	llvm::Value *var = this->leftExpression->generateIR(context).getValue();
-	return irBuilder->CreateStore(val, var);
+	context->setLeftValue(false);
+	irBuilder->CreateStore(val, var);
+	return val;
 }
 
-Expression * WorkScript::AssignmentExpression::instantialize()
+Expression * WorkScript::AssignmentExpression::instantialize(InstantializeContext *context)
 {
-	return new AssignmentExpression(program, location, leftExpression->instantialize(), rightExpression->instantialize());
+	return new AssignmentExpression(program, location, leftExpression->instantialize(context), rightExpression->instantialize(context));
 }
 
 ExpressionType AssignmentExpression::getExpressionType() const

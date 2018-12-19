@@ -9,6 +9,7 @@ namespace WorkScript {
 	public:
 		inline IntegerExpression(EXPRESSION_CTOR_FORMAL_PARAMS, IntegerType *type, long long v);
 
+		virtual Expression * instantialize(InstantializeContext *context);
 		virtual GenerateResult generateIR(GenerateContext *context);
 		virtual ExpressionType getExpressionType() const override;
 		virtual IntegerType * getType() const override;

@@ -36,10 +36,9 @@ namespace WorkScript {
 		//Type * getType(const std::wstring &name) const;
 		//void addType(Type *type);
 
-		void bindSymbols();
 		void generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule);
 
-		inline SymbolTable * getSymbolTable() { return &this->symbolTable; }
+		inline SymbolTable * getGlobalSymbolTable() { return &this->globalSymbolTable; }
 
 		inline VoidType * getVoidType() const { return &voidType; }
 		inline IntegerType * getSInt8Type() const { return &sint8; }
@@ -69,7 +68,7 @@ namespace WorkScript {
 		std::unordered_map<std::wstring, Function*> functions;
 		std::unordered_map<std::wstring, FunctionTemplate*> functionTemplates;
 
-		SymbolTable symbolTable;
+		SymbolTable globalSymbolTable;
 
 		static IntegerType sint8, sint16, sint32, sint64, uint1, uint8, uint16, uint32, uint64;
 		static IntegerPointerType sint8ptr, sint16ptr, sint32ptr, sint64ptr, uint1ptr, uint8ptr, uint16ptr, uint32ptr, uint64ptr;

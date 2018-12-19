@@ -17,13 +17,14 @@ namespace WorkScript
 		}
 
 		llvm::Value * getLLVMValue(GenerateContext *context);
+		llvm::Value * getLLVMValuePtr(GenerateContext *context);
 
 		inline Type * getType() const { return this->type; }
 		inline std::wstring getName() const { return this->name; }
-
+		void promoteType(Type *type);
 	private:
 		std::wstring name;
 		Type * type = nullptr;
-		llvm::Value *llvmValue;
+		llvm::Value *llvmValuePtr = nullptr;
 	};
 }

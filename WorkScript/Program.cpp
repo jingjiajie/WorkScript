@@ -120,14 +120,6 @@ void WorkScript::Program::addFunctionTemplate(FunctionTemplate *funcTemplate, Ty
 //	this->types[type->getName()] = type;
 //}
 
-void WorkScript::Program::bindSymbols()
-{
-	for (auto it : this->functions) {
-		Function *f = it.second;
-		f->bindSymbols();
-	}
-}
-
 void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule)
 {
 	GenerateContext ctx(llvmContext, llvmModule, nullptr);

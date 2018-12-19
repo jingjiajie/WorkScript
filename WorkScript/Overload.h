@@ -19,7 +19,6 @@ namespace WorkScript {
 
 		virtual ~Overload();
 		std::wstring getMangledFunctionName() const;
-		virtual void bindSymbols() = 0;
 		virtual GenerateResult generateLLVMIR(GenerateContext *context) = 0;
 		llvm::Function * getLLVMFunction(GenerateContext *context);
 

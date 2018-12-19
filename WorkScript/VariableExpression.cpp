@@ -9,31 +9,43 @@
 using namespace std;
 using namespace WorkScript;
 
-void WorkScript::VariableExpression::bindSymbols()
+inline WorkScript::VariableExpression::VariableExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring & name, SymbolTable * symbolTable, Type *type)
+	:EXPRESSION_CTOR_CALL, bindSymbolTable(symbolTable), name(name) 
 {
-	SymbolInfo *symbolInfo = this->program->getSymbolTable()->getSymbolInfo(this->name);
+	SymbolInfo *symbolInfo = symbolTable->getSymbolInfo(name);
 	if (!symbolInfo) {
-		throw WorkScriptException(L"无法找到符号：" + symbolInfo->getName());
+		symbolTable->setSymbol(name, type);
 	}
-	this->bindSymbolInfo = symbolInfo;
+	else {
+		if (type && !symbolInfo->getType()->equals(type)) {
+			throw WorkScriptException(L"类型推导不符：" + type->getName() + L"和" + symbolInfo->getType()->getName());
+		}
+	}
 }
 
 GenerateResult WorkScript::VariableExpression::generateIR(GenerateContext * context)
 {
-	SymbolTable *table = context->getCurrentSymbolTable();
-	SymbolInfo *symbolInfo = table->getSymbolInfo(this->name);
-	return symbolInfo->getLLVMValue(context);
+	SymbolInfo *symbolInfo = this->bindSymbolTable->getSymbolInfo(name);
+	if (context->isLeftValue()) {
+		return symbolInfo->getLLVMValuePtr(context);
+	}
+	else {
+		return symbolInfo->getLLVMValue(context);
+	}
 }
 
 Type * VariableExpression::getType() const
 {
-	return type;
+	SymbolInfo *symbolInfo = this->bindSymbolTable->getSymbolInfo(name);
+	return symbolInfo->getType();
 }
 
 Expression * WorkScript::VariableExpression::clone() const
 {
-	auto newInstance = new thistype(EXPRESSION_MEMBERS, name, type);
+	SymbolInfo *symbolInfo = this->bindSymbolTable->getSymbolInfo(name);
+	auto newInstance = new thistype(EXPRESSION_MEMBERS, name, bindSymbolTable, symbolInfo->getType());
 	newInstance->varargs = this->varargs;
+	newInstance->declarable = declarable;
 	return newInstance;
 }
 

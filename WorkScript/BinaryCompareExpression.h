@@ -16,6 +16,7 @@ namespace WorkScript {
 
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual IntegerType * getType() const override;
+		virtual Expression * instantialize(InstantializeContext *context) override;
 		virtual Expression * clone() const override;
 		virtual ExpressionType getExpressionType() const override;
 

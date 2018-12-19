@@ -14,7 +14,7 @@ namespace WorkScript {
 
 		virtual ~UnaryOperatorExpression();
 
-		virtual void bindSymbols() override;
+		virtual Expression * instantialize(InstantializeContext *context) override;
 		virtual std::wstring toString() const override;
 		virtual Type * getType() const override;
 		virtual Expression * clone() const override;

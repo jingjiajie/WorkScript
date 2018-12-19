@@ -55,7 +55,7 @@ ExpressionType FloatExpression::getExpressionType() const
 	return ExpressionType::FLOAT_EXPRESSION;
 }
 
-Expression * WorkScript::FloatExpression::instantialize()
+Expression * WorkScript::FloatExpression::instantialize(InstantializeContext *context)
 {
 	return this->clone();
 }

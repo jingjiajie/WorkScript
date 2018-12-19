@@ -11,7 +11,7 @@
 using namespace std;
 using namespace WorkScript;
 
-FormalParametersTemplateResolver::ResolveResult FormalParametersTemplateResolver::resolve(EXPRESSION_CTOR_FORMAL_PARAMS, std::vector<Expression*> declParams, std::vector<Expression*> additionalConstraints)
+FormalParametersTemplateResolver::ResolveResult FormalParametersTemplateResolver::resolve(EXPRESSION_CTOR_FORMAL_PARAMS, SymbolTable *symbolTable, std::vector<Expression*> declParams, std::vector<Expression*> additionalConstraints)
 {
 	size_t paramCount = declParams.size();
 	vector<ParameterTemplate*> paramTemplates(paramCount);
@@ -58,7 +58,7 @@ FormalParametersTemplateResolver::ResolveResult FormalParametersTemplateResolver
 			wstring tmpVarName = L"@" + to_wstring(i);
 			ParameterTemplate *param = new ParameterTemplate(tmpVarName);
 			paramTemplates[i] = param;
-			VariableExpression *var = new VariableExpression(EXPRESSION_MEMBERS, tmpVarName, curType);
+			VariableExpression *var = new VariableExpression(EXPRESSION_MEMBERS, tmpVarName, symbolTable, curType);
 			BinaryCompareExpression *constraint = new BinaryCompareExpression(EXPRESSION_MEMBERS, var, curExpr, BinaryCompareExpression::EQUAL);
 			constraints.push_back(constraint);
 			break;

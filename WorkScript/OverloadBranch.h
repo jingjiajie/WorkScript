@@ -19,7 +19,6 @@ namespace WorkScript
 
 		~OverloadBranch();
 
-		virtual void bindSymbols();
 		llvm::BasicBlock * generateBlock(GenerateContext *context, llvm::Function *llvmFunc, llvm::BasicBlock *falseBlock);
 		inline Location getLocation() const { return this->location; };
 	private:

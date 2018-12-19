@@ -30,6 +30,7 @@ namespace WorkScript {
 	EXCEPTION_COMMON_DECL(UncomparableException);
 	EXCEPTION_COMMON_DECL(UnimplementedException);
 	EXCEPTION_COMMON_DECL(UninvocableException);
+	EXCEPTION_COMMON_DECL(UndefinedSymbolException);
 }
 
 

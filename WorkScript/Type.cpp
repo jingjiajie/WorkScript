@@ -42,6 +42,8 @@ bool WorkScript::Type::equals(const Type * type) const
 
 Type * Type::getPromotedType(Type * left, Type * right)
 {
+	if (!left)return right;
+	if (!right)return left;
 	switch (left->getClassification())
 	{
 	case TypeClassification::INTEGER: {

@@ -11,6 +11,7 @@ namespace WorkScript {
 		inline FloatExpression(EXPRESSION_CTOR_FORMAL_PARAMS, FloatType *type, double v);
 
 		virtual ExpressionType getExpressionType() const;
+		virtual Expression * instantialize(InstantializeContext *context);
 		virtual GenerateResult generateIR(GenerateContext *context);
 		virtual Type * getType() const override;
 		virtual std::wstring toString() const override;
