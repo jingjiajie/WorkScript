@@ -7,7 +7,7 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline IntegerExpression(EXPRESSION_CTOR_FORMAL_PARAMS, IntegerType *type, long long v);
+		inline IntegerExpression(const ExpressionInfo &exprInfo, IntegerType *type, long long v);
 
 		virtual Expression * instantialize(InstantializeContext *context);
 		virtual GenerateResult generateIR(GenerateContext *context);

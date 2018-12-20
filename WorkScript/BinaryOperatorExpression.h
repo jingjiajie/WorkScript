@@ -2,10 +2,6 @@
 #include "Expression.h"
 #include "Type.h"
 
-#define BINARY_OPERATOR_CTOR_FORMAL_PARAMS EXPRESSION_CTOR_FORMAL_PARAMS,Expression *leftExpression, Expression *rightExpression
-#define BINARY_OPERATOR_MEMBERS EXPRESSION_MEMBERS,leftExpression,rightExpression
-#define BINARY_OPERATOR_CTOR_CALL BinaryOperatorExpression(BINARY_OPERATOR_MEMBERS)
-
 namespace WorkScript {
 	class IntegerExpression;
 	class FloatExpression;
@@ -15,8 +11,8 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline BinaryOperatorExpression(BINARY_OPERATOR_CTOR_FORMAL_PARAMS)
-			:EXPRESSION_CTOR_CALL, leftExpression(leftExpression), rightExpression(rightExpression)	{	}
+		inline BinaryOperatorExpression(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression)
+			:Expression(exprInfo), leftExpression(leftExpression), rightExpression(rightExpression)	{	}
 
 		virtual ~BinaryOperatorExpression();
 

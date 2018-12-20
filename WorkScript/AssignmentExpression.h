@@ -7,7 +7,7 @@ namespace WorkScript {
 		public BinaryOperatorExpression
 	{
 	public:
-		AssignmentExpression(BINARY_OPERATOR_CTOR_FORMAL_PARAMS);
+		AssignmentExpression(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression);
 
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual Expression * instantialize(InstantializeContext *context) override;

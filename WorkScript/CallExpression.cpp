@@ -41,7 +41,7 @@ ExpressionType CallExpression::getExpressionType() const
 
 Expression * WorkScript::CallExpression::clone() const
 {
-	auto newInstance = new thistype(EXPRESSION_MEMBERS, functionName, this->bindOverload, parameters);
+	auto newInstance = new thistype(expressionInfo, functionName, this->bindOverload, parameters);
 	newInstance->bindOverload = this->bindOverload;
 	return newInstance;
 }

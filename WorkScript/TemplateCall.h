@@ -12,8 +12,8 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline TemplateCallExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring &funcName,OverloadTemplate *overloadTemplate, MultiValueExpression *params)
-			:EXPRESSION_CTOR_CALL, bindOverloadTemplate(overloadTemplate), parameters(params), functionName(funcName) { }
+		inline TemplateCallExpression(const ExpressionInfo &exprInfo, const std::wstring &funcName,OverloadTemplate *overloadTemplate, MultiValueExpression *params)
+			:Expression(exprInfo), bindOverloadTemplate(overloadTemplate), parameters(params), functionName(funcName) { }
 
 		virtual Expression * instantialize(InstantializeContext *context) override;
 		virtual GenerateResult generateIR(GenerateContext *context) override;

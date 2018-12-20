@@ -9,8 +9,8 @@ namespace WorkScript {
 		enum OperatorType {
 			NEGATIVE,NOT
 		};
-		inline UnaryOperatorExpression(EXPRESSION_CTOR_FORMAL_PARAMS, Expression *sub, OperatorType t)
-			:EXPRESSION_CTOR_CALL, operatorType(t), subExpression(sub){ }
+		inline UnaryOperatorExpression(const ExpressionInfo &exprInfo, Expression *sub, OperatorType t)
+			:Expression(exprInfo), operatorType(t), subExpression(sub){ }
 
 		virtual ~UnaryOperatorExpression();
 

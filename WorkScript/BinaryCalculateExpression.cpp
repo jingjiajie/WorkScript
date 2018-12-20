@@ -41,12 +41,12 @@ Type * WorkScript::BinaryCalculateExpression::getType() const
 
 Expression * WorkScript::BinaryCalculateExpression::instantialize(InstantializeContext *context)
 {
-	return new BinaryCalculateExpression(program, location, leftExpression->instantialize(context), rightExpression->instantialize(context), this->calculateType);
+	return new BinaryCalculateExpression(expressionInfo, leftExpression->instantialize(context), rightExpression->instantialize(context), this->calculateType);
 }
 
 Expression * WorkScript::BinaryCalculateExpression::clone() const
 {
-	return new BinaryCalculateExpression(BINARY_OPERATOR_MEMBERS, calculateType);
+	return new BinaryCalculateExpression(expressionInfo,leftExpression,rightExpression, calculateType);
 }
 
 ExpressionType WorkScript::BinaryCalculateExpression::getExpressionType() const

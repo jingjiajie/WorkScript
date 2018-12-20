@@ -9,8 +9,8 @@
 using namespace std;
 using namespace WorkScript;
 
-inline WorkScript::VariableExpression::VariableExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring & name, SymbolTable * symbolTable, Type *type)
-	:EXPRESSION_CTOR_CALL, bindSymbolTable(symbolTable), name(name) 
+inline WorkScript::VariableExpression::VariableExpression(const ExpressionInfo &exprInfo, const std::wstring & name, SymbolTable * symbolTable, Type *type)
+	:Expression(exprInfo), bindSymbolTable(symbolTable), name(name) 
 {
 	SymbolInfo *symbolInfo = symbolTable->getSymbolInfo(name);
 	if (!symbolInfo) {
@@ -43,7 +43,7 @@ Type * VariableExpression::getType() const
 Expression * WorkScript::VariableExpression::clone() const
 {
 	SymbolInfo *symbolInfo = this->bindSymbolTable->getSymbolInfo(name);
-	auto newInstance = new thistype(EXPRESSION_MEMBERS, name, bindSymbolTable, symbolInfo->getType());
+	auto newInstance = new thistype(expressionInfo, name, bindSymbolTable, symbolInfo->getType());
 	newInstance->varargs = this->varargs;
 	newInstance->declarable = declarable;
 	return newInstance;

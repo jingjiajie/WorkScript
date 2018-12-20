@@ -36,17 +36,17 @@ UNSUPPORTED:
 
 IntegerType * WorkScript::BinaryCompareExpression::getType() const
 {
-	return this->program->getUInt1Type();
+	return this->getProgram()->getUInt1Type();
 }
 
 Expression * WorkScript::BinaryCompareExpression::instantialize(InstantializeContext *context)
 {
-	return new BinaryCompareExpression(program, location, leftExpression->instantialize(context), rightExpression->instantialize(context), compareType);
+	return new BinaryCompareExpression(expressionInfo, leftExpression->instantialize(context), rightExpression->instantialize(context), compareType);
 }
 
 Expression * WorkScript::BinaryCompareExpression::clone() const
 {
-	return new BinaryCompareExpression(BINARY_OPERATOR_MEMBERS, compareType);
+	return new BinaryCompareExpression(expressionInfo,leftExpression,rightExpression, compareType);
 }
 
 ExpressionType WorkScript::BinaryCompareExpression::getExpressionType() const

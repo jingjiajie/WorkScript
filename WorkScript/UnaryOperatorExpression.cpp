@@ -13,7 +13,7 @@ UnaryOperatorExpression::~UnaryOperatorExpression()
 
 Expression * WorkScript::UnaryOperatorExpression::instantialize(InstantializeContext *context)
 {
-	return new UnaryOperatorExpression(program, location, this->subExpression->instantialize(context), operatorType);
+	return new UnaryOperatorExpression(expressionInfo, this->subExpression->instantialize(context), operatorType);
 }
 
 std::wstring WorkScript::UnaryOperatorExpression::toString() const
@@ -28,7 +28,7 @@ Type * WorkScript::UnaryOperatorExpression::getType() const
 
 Expression * WorkScript::UnaryOperatorExpression::clone() const
 {
-	return new UnaryOperatorExpression(EXPRESSION_MEMBERS, subExpression, operatorType);
+	return new UnaryOperatorExpression(expressionInfo, subExpression, operatorType);
 }
 
 GenerateResult WorkScript::UnaryOperatorExpression::generateIR(GenerateContext * context)

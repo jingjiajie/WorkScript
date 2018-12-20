@@ -14,7 +14,7 @@ ExpressionType StringExpression::getExpressionType() const
 
 Expression * WorkScript::StringExpression::clone() const
 {
-	return new thistype(EXPRESSION_MEMBERS, this->value);
+	return new thistype(expressionInfo, this->value);
 }
 
 Expression * WorkScript::StringExpression::instantialize(InstantializeContext *context)
@@ -29,7 +29,7 @@ std::wstring StringExpression::toString() const
 
 Type * StringExpression::getType() const
 {
-	return program->getUInt8PtrType();
+	return this->getProgram()->getUInt8PtrType();
 }
 
 GenerateResult StringExpression::generateIR(GenerateContext * context)

@@ -357,6 +357,7 @@
     <ClInclude Include="BranchOverload.h" />
     <ClInclude Include="BranchOverloadTemplate.h" />
     <ClInclude Include="BinaryCompareExpression.h" />
+    <ClInclude Include="ExpressionInfo.h" />
     <ClInclude Include="ExpressionType.h" />
     <ClInclude Include="FloatExpression.h" />
     <ClInclude Include="FloatPointerType.h" />

@@ -11,8 +11,8 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline CallExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring &funcName, Overload *overload, MultiValueExpression *params)
-			:EXPRESSION_CTOR_CALL,bindOverload(overload), parameters(params), functionName(funcName) { }
+		inline CallExpression(const ExpressionInfo &exprInfo, const std::wstring &funcName, Overload *overload, MultiValueExpression *params)
+			:Expression(exprInfo),bindOverload(overload), parameters(params), functionName(funcName) { }
 
 		virtual Expression * instantialize(InstantializeContext *context) override;
 		virtual GenerateResult generateIR(GenerateContext *context) override;

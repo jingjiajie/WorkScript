@@ -4,7 +4,7 @@
 //namespace WorkScript {
 //	class TemplateExpression : public Expression {
 //	public:
-//		inline TemplateExpression(EXPRESSION_CTOR_FORMAL_PARAMS): EXPRESSION_CTOR_CALL	{ }
+//		inline TemplateExpression(const ExpressionInfo &exprInfo): Expression(exprInfo)	{ }
 //		//Ä£°åÊµÀý»¯
 //		virtual GenericExpression * instantialize() = 0;
 //	};

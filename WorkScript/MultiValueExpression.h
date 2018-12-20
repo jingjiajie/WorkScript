@@ -37,8 +37,8 @@ namespace WorkScript {
 		}
 
 		//void flat();
-		inline MultiValueExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::vector<Expression*> &items)
-			:EXPRESSION_CTOR_CALL
+		inline MultiValueExpression(const ExpressionInfo &exprInfo, const std::vector<Expression*> &items)
+			:Expression(exprInfo)
 		{
 			this->setItems(items);
 		}

@@ -8,8 +8,8 @@ using namespace std;
 
 Expression * WorkScript::TemplateCallExpression::instantialize(InstantializeContext * context)
 {
-	Overload *overload = program->getFunctionOverload(functionName, parameters->getTypes());
-	return new CallExpression(EXPRESSION_MEMBERS, functionName, overload, parameters->instantialize(context));
+	Overload *overload = getProgram()->getFunctionOverload(functionName, parameters->getTypes());
+	return new CallExpression(expressionInfo, functionName, overload, parameters->instantialize(context));
 }
 
 GenerateResult WorkScript::TemplateCallExpression::generateIR(GenerateContext * context)
@@ -34,5 +34,5 @@ ExpressionType WorkScript::TemplateCallExpression::getExpressionType() const
 
 Expression * WorkScript::TemplateCallExpression::clone() const
 {
-	return new TemplateCallExpression(EXPRESSION_MEMBERS, this->functionName, bindOverloadTemplate, this->parameters->clone());
+	return new TemplateCallExpression(expressionInfo, this->functionName, bindOverloadTemplate, this->parameters->clone());
 }

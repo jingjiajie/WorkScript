@@ -6,10 +6,7 @@
 #include "ExpressionType.h"
 #include "Location.h"
 #include "Program.h"
-
-#define EXPRESSION_CTOR_FORMAL_PARAMS Program *program, Location location
-#define EXPRESSION_MEMBERS program, location
-#define EXPRESSION_CTOR_CALL Expression(EXPRESSION_MEMBERS)
+#include "ExpressionInfo.h"
 
 namespace WorkScript {
 	class Type;
@@ -18,7 +15,7 @@ namespace WorkScript {
 	class Expression
 	{
 	public:
-		inline Expression(EXPRESSION_CTOR_FORMAL_PARAMS) :program(program), location(location) {}
+		inline Expression(const ExpressionInfo &exprInfo) :expressionInfo(exprInfo) {}
 
 		//模板实例化
 		virtual Expression * instantialize(InstantializeContext *context);
@@ -30,16 +27,9 @@ namespace WorkScript {
 		virtual std::wstring toString() const = 0;
 		virtual Expression * clone() const = 0;
 
-		inline Location getLocation() const { return this->location; };
+		inline Location getLocation() const { return this->expressionInfo.getLocation(); };
+		inline Program * getProgram() const { return this->expressionInfo.getProgram(); }
 	protected:
-		Program * program;
-		Location location;
+		ExpressionInfo expressionInfo;
 	};
-
-	//class GenericExpression : public Expression{
-	//public:
-	//	inline GenericExpression(EXPRESSION_CTOR_FORMAL_PARAMS): EXPRESSION_CTOR_CALL { }
-	//	//生成LLVM字节码的接口函数
-	//	virtual GenerateResult generateIR(GenerateContext *context) = 0;
-	//};
 }

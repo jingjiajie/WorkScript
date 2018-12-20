@@ -276,6 +276,9 @@
     <ClInclude Include="TemplateCall.h">
       <Filter>Program\Template\Tree\TemplateCall</Filter>
     </ClInclude>
+    <ClInclude Include="ExpressionInfo.h">
+      <Filter>Program\Tree\Expression</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WorkScript.cpp" />

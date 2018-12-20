@@ -9,7 +9,7 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline TemplateVariableExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring &name, SymbolTable *symbolTable, Type *type = nullptr);
+		inline TemplateVariableExpression(const ExpressionInfo &exprInfo, const std::wstring &name, SymbolTable *symbolTable, Type *type = nullptr);
 
 		virtual Expression * instantialize(InstantializeContext *context) override;
 		virtual GenerateResult generateIR(GenerateContext *context) override;

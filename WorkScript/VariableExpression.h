@@ -8,7 +8,7 @@ namespace WorkScript {
 		public Expression
 	{
 	public:
-		inline VariableExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring &name, SymbolTable *symbolTable, Type *type);
+		inline VariableExpression(const ExpressionInfo &exprInfo, const std::wstring &name, SymbolTable *symbolTable, Type *type);
 
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual Type * getType() const override;

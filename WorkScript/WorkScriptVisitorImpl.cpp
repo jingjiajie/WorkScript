@@ -68,7 +68,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new FloatExpression(program, getLocation(ctx), program->getFloat64Type(), value));
+		return ExpressionWrapper(new FloatExpression(ExpressionInfo(program, getLocation(ctx)), program->getFloat64Type(), value));
 	}
 	else {
 		int value = 0;
@@ -76,7 +76,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new IntegerExpression(program, getLocation(ctx),program->getSInt32Type(), value));
+		return ExpressionWrapper(new IntegerExpression(ExpressionInfo(program, getLocation(ctx)),program->getSInt32Type(), value));
 	}
 }
 
@@ -94,7 +94,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitStringExpression(WorkScriptParser::Str
 		delete[]unescapedText;
 		throw;
 	}
-	auto lpExpr = new StringExpression(program, getLocation(ctx), unescapedText);
+	auto lpExpr = new StringExpression(ExpressionInfo(program, getLocation(ctx)), unescapedText);
 	delete[]unescapedText;
 	return ExpressionWrapper(lpExpr);
 }
@@ -103,10 +103,10 @@ antlrcpp::Any WorkScriptVisitorImpl::visitBooleanExpression(WorkScriptParser::Bo
 {
 	string boolStr = ctx->BOOLEAN()->getText();
 	if (boolStr == "true" || boolStr == "yes" || boolStr == "ok" || boolStr == "good") {
-		return ExpressionWrapper(new IntegerExpression(program, getLocation(ctx), program->getUInt1Type(), 1));
+		return ExpressionWrapper(new IntegerExpression(ExpressionInfo(program, getLocation(ctx)), program->getUInt1Type(), 1));
 	}
 	else if (boolStr == "false" || boolStr == "no" || boolStr == "bad") {
-		return ExpressionWrapper(new IntegerExpression(program, getLocation(ctx), program->getUInt1Type(), 0));
+		return ExpressionWrapper(new IntegerExpression(ExpressionInfo(program, getLocation(ctx)), program->getUInt1Type(), 0));
 	}
 	else {
 		throw std::move(SyntaxErrorException(getLocation(ctx), L"无法识别的布尔值：" + Locale::ansiToUnicode(boolStr)));
@@ -117,7 +117,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitVariableExpression(WorkScriptParser::V
 {
 	string varName = ctx->identifier()->getText();
 	SymbolTable *symbolTable = currentOverloadTemplate->getSymbolTable();
-	auto expr = new TemplateVariableExpression(program, getLocation(ctx), Locale::ansiToUnicode(varName), symbolTable, nullptr);
+	auto expr = new TemplateVariableExpression(ExpressionInfo(program, getLocation(ctx)), Locale::ansiToUnicode(varName), symbolTable, nullptr);
 	expr->setDeclarable(this->declarable); //等号左边的变量才可以创建声明
 	auto wrapper = ExpressionWrapper(expr);
 	return wrapper;
@@ -168,7 +168,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 		}
 	}
 	//解析参数和限制
-	auto resolveRes = FormalParametersTemplateResolver::resolve(this->program, getLocation(ctx), this->currentOverloadTemplate->getSymbolTable(), paramDeclExprs, constraintsDecl);
+	auto resolveRes = FormalParametersTemplateResolver::resolve(ExpressionInfo(program, getLocation(ctx)), this->currentOverloadTemplate->getSymbolTable(), paramDeclExprs, constraintsDecl);
 	auto paramTypes = resolveRes.getParameterTypes();
 	auto paramTemplates = resolveRes.getParameterTemplates();
 	auto constraints = resolveRes.getConstraints();
@@ -240,7 +240,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitCallExpression(WorkScriptParser::CallE
 	auto paramExpr = (MultiValueExpression*)paramExpressionWrapper.getExpression();
 	FunctionTemplate *functionTemplate = program->getFunctionTemplate(funcName);
 	OverloadTemplate *overloadTemplate = functionTemplate->getOverload(paramExpr->getTypes());
-	auto expr = new TemplateCallExpression(program, getLocation(ctx), funcName, overloadTemplate, paramExpr);
+	auto expr = new TemplateCallExpression(ExpressionInfo(program, getLocation(ctx)), funcName, overloadTemplate, paramExpr);
 	RESTORE_ASSIGNABLE;
 	return ExpressionWrapper(expr);
 }
@@ -265,14 +265,14 @@ antlrcpp::Any WorkScriptVisitorImpl::visitAssignmentOrEqualsExpression(WorkScrip
 		this->declarable = false;
 		auto right = ctx->expression()[1]->accept(this).as<ExpressionWrapper>().getExpression();
 		RESTORE_ASSIGNABLE;
-		return ExpressionWrapper(new AssignmentExpression(program, getLocation(ctx), left, right));
+		return ExpressionWrapper(new AssignmentExpression(ExpressionInfo(program, getLocation(ctx)), left, right));
 	}
 	else {
 		STORE_FORBID_ASSIGN;
 		auto left = ((ExpressionWrapper)ctx->expression()[0]->accept(this)).getExpression();
 		auto right = ((ExpressionWrapper)ctx->expression()[1]->accept(this)).getExpression();
 		RESTORE_ASSIGNABLE;
-		return ExpressionWrapper(new BinaryCompareExpression(program, getLocation(ctx), left, right, BinaryCompareExpression::CompareType::EQUAL));
+		return ExpressionWrapper(new BinaryCompareExpression(ExpressionInfo(program, getLocation(ctx)), left, right, BinaryCompareExpression::CompareType::EQUAL));
 	}
 }
 
@@ -282,7 +282,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitAssignmentExpression(WorkScriptParser:
 	auto left = ((ExpressionWrapper)ctx->expression()[0]->accept(this)).getExpression();
 	auto right = ((ExpressionWrapper)ctx->expression()[1]->accept(this)).getExpression();
 	RESTORE_ASSIGNABLE;
-	auto expr = new AssignmentExpression(program, getLocation(ctx), left, right);
+	auto expr = new AssignmentExpression(ExpressionInfo(program, getLocation(ctx)), left, right);
 	return ExpressionWrapper(expr);
 }
 
@@ -298,7 +298,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMultiValueExpression(WorkScriptParser:
 		auto itemExpr = wrapper.getExpression();
 		items[i] = itemExpr;
 	}
-	auto expr = new WorkScript::MultiValueExpression(program, getLocation(ctx), items);
+	auto expr = new WorkScript::MultiValueExpression(ExpressionInfo(program, getLocation(ctx)), items);
 	RESTORE_ASSIGNABLE
 	return ExpressionWrapper(expr);
 }
@@ -323,11 +323,11 @@ antlrcpp::Any WorkScriptVisitorImpl::visitPlusMinusExpression(WorkScriptParser::
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	RESTORE_ASSIGNABLE
 	if (ctx->PLUS()) {
-		Expression *expr = new BinaryCalculateExpression(program, getLocation(ctx), leftExpression, rightExpression, BinaryCalculateExpression::PLUS);
+		Expression *expr = new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx)), leftExpression, rightExpression, BinaryCalculateExpression::PLUS);
 		return ExpressionWrapper(expr);
 	}
 	else { //MINUS
-		return ExpressionWrapper(new BinaryCalculateExpression(program, getLocation(ctx), leftExpression, rightExpression, BinaryCalculateExpression::MINUS));
+		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx)), leftExpression, rightExpression, BinaryCalculateExpression::MINUS));
 	}
 }
 
@@ -340,13 +340,13 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideModulusExpression(WorkSc
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	RESTORE_ASSIGNABLE;
 	if (ctx->MULTIPLY()) {
-		return ExpressionWrapper(new BinaryCalculateExpression(program, getLocation(ctx), leftExpression, rightExpression, BinaryCalculateExpression::MULTIPLY));
+		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx)), leftExpression, rightExpression, BinaryCalculateExpression::MULTIPLY));
 	}
 	else if (ctx->DIVIDE()) {
-		return ExpressionWrapper(new BinaryCalculateExpression(program, getLocation(ctx), leftExpression, rightExpression, BinaryCalculateExpression::DIVIDE));
+		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx)), leftExpression, rightExpression, BinaryCalculateExpression::DIVIDE));
 	}
 	else { //MODULUS
-		return ExpressionWrapper(new BinaryCalculateExpression(program, getLocation(ctx), leftExpression, rightExpression, BinaryCalculateExpression::MODULUS));
+		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx)), leftExpression, rightExpression, BinaryCalculateExpression::MODULUS));
 	}
 }
 
@@ -382,7 +382,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitBinaryCompareExpression(WorkScriptPars
 	else {
 		compareType = BinaryCompareExpression::CompareType::LESS_THAN_EQUAL;
 	}
-	return new BinaryCompareExpression(program, getLocation(ctx), leftExpression, rightExpression, compareType);
+	return new BinaryCompareExpression(ExpressionInfo(program, getLocation(ctx)), leftExpression, rightExpression, compareType);
 }
 
 //antlrcpp::Any WorkScriptVisitorImpl::visitListExpression(WorkScriptParser::ListExpressionContext *ctx)
@@ -403,7 +403,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitBinaryCompareExpression(WorkScriptPars
 antlrcpp::Any WorkScriptVisitorImpl::visitNegativeExpression(WorkScriptParser::NegativeExpressionContext *ctx)
 {
 	ExpressionWrapper wrapper = ctx->expression()->accept(this);
-	auto expr = new UnaryOperatorExpression(program, getLocation(ctx), wrapper.getExpression(), UnaryOperatorExpression::NEGATIVE);
+	auto expr = new UnaryOperatorExpression(ExpressionInfo(program, getLocation(ctx)), wrapper.getExpression(), UnaryOperatorExpression::NEGATIVE);
 	return ExpressionWrapper(expr);
 }
 

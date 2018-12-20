@@ -9,19 +9,19 @@
 using namespace std;
 using namespace WorkScript;
 
-WorkScript::AssignmentExpression::AssignmentExpression(BINARY_OPERATOR_CTOR_FORMAL_PARAMS)
-	: BINARY_OPERATOR_CTOR_CALL
+WorkScript::AssignmentExpression::AssignmentExpression(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression)
+	: BinaryOperatorExpression(exprInfo,leftExpression,rightExpression)
 {
 	VariableExpression *leftV = dynamic_cast<VariableExpression*>(this->leftExpression);
 if (leftV)return;
 	TemplateVariableExpression *leftVar = dynamic_cast<TemplateVariableExpression*>(this->leftExpression);
 	if (!leftVar) {
-		throw SyntaxErrorException(location, this->leftExpression->toString() + L"不可以赋值");
+		throw SyntaxErrorException(getLocation(), this->leftExpression->toString() + L"不可以赋值");
 	}
 	Type *rightType = this->rightExpression->getType();
 	Type *varType = leftVar->getType();
 	if (varType && !varType->equals(rightType)) {
-		throw SyntaxErrorException(location, L"不可以将" + rightType->getName() + L"类型的值赋值给" + varType->getName() + L"类型的变量");
+		throw SyntaxErrorException(getLocation(), L"不可以将" + rightType->getName() + L"类型的值赋值给" + varType->getName() + L"类型的变量");
 	}
 	else {
 		leftVar->promoteType(rightType);
@@ -50,7 +50,7 @@ GenerateResult WorkScript::AssignmentExpression::generateIR(GenerateContext * co
 
 Expression * WorkScript::AssignmentExpression::instantialize(InstantializeContext *context)
 {
-	return new AssignmentExpression(program, location, leftExpression->instantialize(context), rightExpression->instantialize(context));
+	return new AssignmentExpression(expressionInfo, leftExpression->instantialize(context), rightExpression->instantialize(context));
 }
 
 ExpressionType AssignmentExpression::getExpressionType() const
@@ -60,7 +60,7 @@ ExpressionType AssignmentExpression::getExpressionType() const
 
 Expression * WorkScript::AssignmentExpression::clone() const
 {
-	return new thistype(BINARY_OPERATOR_MEMBERS);
+	return new thistype(expressionInfo,leftExpression,rightExpression);
 }
 
 Type * WorkScript::AssignmentExpression::getType() const

@@ -7,8 +7,8 @@
 using namespace std;
 using namespace WorkScript;
 
-inline WorkScript::IntegerExpression::IntegerExpression(EXPRESSION_CTOR_FORMAL_PARAMS,IntegerType *type, long long v)
-	:EXPRESSION_CTOR_CALL,type(type),value(v)
+inline WorkScript::IntegerExpression::IntegerExpression(const ExpressionInfo &exprInfo,IntegerType *type, long long v)
+	:Expression(exprInfo),type(type),value(v)
 {
 
 }
@@ -40,5 +40,5 @@ IntegerType * WorkScript::IntegerExpression::getType() const
 
 Expression * WorkScript::IntegerExpression::clone() const
 {
-	return new thistype(EXPRESSION_MEMBERS, this->type, this->value);
+	return new thistype(expressionInfo, this->type, this->value);
 }

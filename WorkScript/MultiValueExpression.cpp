@@ -57,7 +57,7 @@ MultiValueExpression * WorkScript::MultiValueExpression::clone() const
 	{
 		newItems[i] = this->items[i]->clone();
 	}
-	auto newInstance = new thistype(EXPRESSION_MEMBERS, newItems);
+	auto newInstance = new thistype(expressionInfo, newItems);
 	return newInstance;
 }
 
@@ -68,7 +68,7 @@ MultiValueExpression * WorkScript::MultiValueExpression::instantialize(Instantia
 	{
 		newItems.push_back(expr->instantialize(context));
 	}
-	return new MultiValueExpression(program, location, newItems);
+	return new MultiValueExpression(expressionInfo, newItems);
 }
 
 ExpressionType WorkScript::MultiValueExpression::getExpressionType() const

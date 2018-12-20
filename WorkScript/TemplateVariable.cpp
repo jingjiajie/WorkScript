@@ -8,8 +8,8 @@
 using namespace WorkScript;
 using namespace std;
 
-inline WorkScript::TemplateVariableExpression::TemplateVariableExpression(EXPRESSION_CTOR_FORMAL_PARAMS, const std::wstring & name, SymbolTable * symbolTable, Type * type)
-	:EXPRESSION_CTOR_CALL, bindSymbolTable(symbolTable), name(name)
+inline WorkScript::TemplateVariableExpression::TemplateVariableExpression(const ExpressionInfo &exprInfo, const std::wstring & name, SymbolTable * symbolTable, Type * type)
+	:Expression(exprInfo), bindSymbolTable(symbolTable), name(name)
 {
 	SymbolInfo *symbolInfo = symbolTable->getSymbolInfo(name);
 	if (!symbolInfo) {
@@ -26,7 +26,7 @@ Expression * WorkScript::TemplateVariableExpression::instantialize(Instantialize
 {
 	SymbolTable *targetSymbolTable = context->getCurrentSymbolTable();
 	SymbolInfo *mySymbolInfo = this->bindSymbolTable->getSymbolInfo(name);
-	return new VariableExpression(EXPRESSION_MEMBERS, name, targetSymbolTable, mySymbolInfo->getType());
+	return new VariableExpression(expressionInfo, name, targetSymbolTable, mySymbolInfo->getType());
 }
 
 GenerateResult WorkScript::TemplateVariableExpression::generateIR(GenerateContext * context)
@@ -42,7 +42,7 @@ Type * WorkScript::TemplateVariableExpression::getType() const
 
 Expression * WorkScript::TemplateVariableExpression::clone() const
 {
-	return new TemplateVariableExpression(EXPRESSION_MEMBERS, this->name, bindSymbolTable);
+	return new TemplateVariableExpression(expressionInfo, this->name, bindSymbolTable);
 }
 
 std::wstring WorkScript::TemplateVariableExpression::toString() const

@@ -30,7 +30,7 @@ using namespace std;
 //
 //void WorkScript::Type::addMemberFunction(Function * func)
 //{
-//	this->program->addFunction(func);
+//	this->getProgram()->addFunction(func);
 //	this->memberFunctions[func->getName()] = func;
 //}
 

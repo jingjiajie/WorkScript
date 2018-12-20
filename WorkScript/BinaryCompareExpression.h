@@ -11,8 +11,8 @@ namespace WorkScript {
 		enum CompareType {
 			EQUAL, GREATER_THAN, GREATER_THAN_EQUAL, LESS_THAN, LESS_THAN_EQUAL
 		};
-		inline BinaryCompareExpression(BINARY_OPERATOR_CTOR_FORMAL_PARAMS,CompareType t)
-			:BINARY_OPERATOR_CTOR_CALL,compareType(t) { }
+		inline BinaryCompareExpression(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression,CompareType t)
+			:BinaryOperatorExpression(exprInfo,leftExpression,rightExpression),compareType(t) { }
 
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual IntegerType * getType() const override;
