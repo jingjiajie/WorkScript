@@ -1,6 +1,5 @@
 #pragma once
 #include "Expression.h"
-#include "StringExpression.h"
 namespace WorkScript {
 	class UnaryOperatorExpression :
 		public Expression
@@ -14,9 +13,8 @@ namespace WorkScript {
 
 		virtual ~UnaryOperatorExpression();
 
-		virtual Expression * instantialize(InstantializeContext *context) override;
 		virtual std::wstring toString() const override;
-		virtual Type * getType() const override;
+		virtual Type * getType(InstantializeContext *context) const override;
 		virtual Expression * clone() const override;
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual ExpressionType getExpressionType() const override;

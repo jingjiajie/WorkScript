@@ -11,8 +11,8 @@ GenerateResult WorkScript::BinaryCompareExpression::generateIR(GenerateContext *
 	llvm::LLVMContext &llvmCtx = *context->getLLVMContext();
 	auto leftExpr = this->getLeftExpression();
 	auto rightExpr = this->getRightExpression();
-	Type *leftType = leftExpr->getType();
-	Type *rightType = rightExpr->getType();
+	Type *leftType = leftExpr->getType(context->getInstantializeContext());
+	Type *rightType = rightExpr->getType(context->getInstantializeContext());
 	TypeClassification leftCls = leftType->getClassification();
 	TypeClassification rightCls = rightType->getClassification();
 	Type *promotedType = Type::getPromotedType(leftType, rightType);
@@ -34,14 +34,9 @@ UNSUPPORTED:
 	throw WorkScriptException(L"双目比较运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
 }
 
-IntegerType * WorkScript::BinaryCompareExpression::getType() const
+IntegerType * WorkScript::BinaryCompareExpression::getType(InstantializeContext *context) const
 {
 	return this->getProgram()->getUInt1Type();
-}
-
-Expression * WorkScript::BinaryCompareExpression::instantialize(InstantializeContext *context)
-{
-	return new BinaryCompareExpression(expressionInfo, leftExpression->instantialize(context), rightExpression->instantialize(context), compareType);
 }
 
 Expression * WorkScript::BinaryCompareExpression::clone() const

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "MultiValueExpression.h"
 #include "Type.h"
-#include "StringExpression.h"
 #include "AssignmentExpression.h"
 #include "Utils.h"
 
@@ -16,18 +15,19 @@ MultiValueExpression::~MultiValueExpression()
 	}
 }
 
-Type * MultiValueExpression::getType() const
+Type * MultiValueExpression::getType(InstantializeContext *context) const
 {
 	return nullptr;
 }
 
-std::vector<Type*> WorkScript::MultiValueExpression::getTypes() const
+std::vector<Type*> WorkScript::MultiValueExpression::getTypes(InstantializeContext *context) const
 {
 	vector<Type*> paramTypes;
 	paramTypes.reserve(items.size());
 	for (size_t i = 0; i<items.size(); ++i)
 	{
-		paramTypes[i] = this->items[i]->getType();
+		Type *type = this->items[i]->getType(context);
+		paramTypes.push_back(type);
 	}
 	return paramTypes;
 }
@@ -61,16 +61,6 @@ MultiValueExpression * WorkScript::MultiValueExpression::clone() const
 	return newInstance;
 }
 
-MultiValueExpression * WorkScript::MultiValueExpression::instantialize(InstantializeContext *context)
-{
-	vector<Expression*> newItems;
-	for (Expression *expr : this->items)
-	{
-		newItems.push_back(expr->instantialize(context));
-	}
-	return new MultiValueExpression(expressionInfo, newItems);
-}
-
 ExpressionType WorkScript::MultiValueExpression::getExpressionType() const
 {
 	return ExpressionType::MULTI_VALUE_EXPRESSION;
@@ -87,7 +77,7 @@ std::vector<llvm::Value*> WorkScript::MultiValueExpression::getLLVMArgs(Generate
 	args.reserve(this->items.size());
 	for (size_t i = 0; i < this->items.size(); ++i)
 	{
-		args[i] = this->items[i]->generateIR(context).getValue();
+		args.push_back(this->items[i]->generateIR(context).getValue());
 	}
 	return args;
 }

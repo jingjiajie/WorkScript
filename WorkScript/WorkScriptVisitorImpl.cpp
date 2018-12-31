@@ -7,25 +7,22 @@
 #include "VariableExpression.h"
 #include "AssignmentExpression.h"
 #include "MultiValueExpression.h"
-#include "IntegerExpression.h"
-#include "FloatExpression.h"
-#include "StringExpression.h"
 #include "SyntaxErrorException.h"
 #include "Parameter.h"
 #include "Function.h"
-#include "FunctionTemplate.h"
-#include "BranchOverloadTemplate.h"
+#include "BranchFunction.h"
+#include "FunctionBranch.h"
 #include "Program.h"
 #include "BinaryCompareExpression.h"
 #include "BinaryCalculateExpression.h"
 #include "UnaryOperatorExpression.h"
 #include "Locale.h"
 #include "Location.h"
-#include "FormalParametersTemplateResolver.h"
-#include "TemplateCall.h"
-#include "OverloadTemplate.h"
-#include "TemplateVariable.h"
-#include "OverloadTemplate.h"
+#include "FormalParametersResolver.h"
+#include "ConstantExpression.h"
+#include "FloatConstant.h"
+#include "IntegerConstant.h"
+#include "StringConstant.h"
 
 #define FORBID_ASSIGN \
 this->assignable = false; 
@@ -68,7 +65,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new FloatExpression(ExpressionInfo(program, getLocation(ctx)), program->getFloat64Type(), value));
+		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx)), new FloatConstant(program->getFloat64Type(), value)));
 	}
 	else {
 		int value = 0;
@@ -76,7 +73,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new IntegerExpression(ExpressionInfo(program, getLocation(ctx)),program->getSInt32Type(), value));
+		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx)), new IntegerConstant(program->getSInt32Type(), value)));
 	}
 }
 
@@ -94,7 +91,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitStringExpression(WorkScriptParser::Str
 		delete[]unescapedText;
 		throw;
 	}
-	auto lpExpr = new StringExpression(ExpressionInfo(program, getLocation(ctx)), unescapedText);
+	auto lpExpr = new ConstantExpression(ExpressionInfo(program, getLocation(ctx)), new StringConstant(unescapedText));
 	delete[]unescapedText;
 	return ExpressionWrapper(lpExpr);
 }
@@ -103,10 +100,10 @@ antlrcpp::Any WorkScriptVisitorImpl::visitBooleanExpression(WorkScriptParser::Bo
 {
 	string boolStr = ctx->BOOLEAN()->getText();
 	if (boolStr == "true" || boolStr == "yes" || boolStr == "ok" || boolStr == "good") {
-		return ExpressionWrapper(new IntegerExpression(ExpressionInfo(program, getLocation(ctx)), program->getUInt1Type(), 1));
+		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx)), new IntegerConstant(program->getUInt1Type(), 1)));
 	}
 	else if (boolStr == "false" || boolStr == "no" || boolStr == "bad") {
-		return ExpressionWrapper(new IntegerExpression(ExpressionInfo(program, getLocation(ctx)), program->getUInt1Type(), 0));
+		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx)), new IntegerConstant(program->getUInt1Type(), 0)));
 	}
 	else {
 		throw std::move(SyntaxErrorException(getLocation(ctx), L"无法识别的布尔值：" + Locale::ansiToUnicode(boolStr)));
@@ -116,8 +113,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitBooleanExpression(WorkScriptParser::Bo
 antlrcpp::Any WorkScriptVisitorImpl::visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx)
 {
 	string varName = ctx->identifier()->getText();
-	SymbolTable *symbolTable = currentOverloadTemplate->getSymbolTable();
-	auto expr = new TemplateVariableExpression(ExpressionInfo(program, getLocation(ctx)), Locale::ansiToUnicode(varName), symbolTable, nullptr);
+	auto expr = new VariableExpression(ExpressionInfo(program, getLocation(ctx)), Locale::ansiToUnicode(varName));
 	expr->setDeclarable(this->declarable); //等号左边的变量才可以创建声明
 	auto wrapper = ExpressionWrapper(expr);
 	return wrapper;
@@ -135,11 +131,6 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	if (funcNameCtx != nullptr) {
 		funcName = Locale::ansiToUnicode(funcNameCtx->getText());
 	}
-	FunctionTemplate* funcTemplate = this->program->getFunctionTemplate(funcName);
-	if (!funcTemplate) {
-		funcTemplate = new FunctionTemplate(this->program, funcName);
-		this->program->addFunctionTemplate(funcTemplate);
-	}
 
 	/*处理函数的参数和限制*/
 	//参数声明
@@ -151,6 +142,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	{
 		paramDeclExprs.push_back(paramsDeclCtx[i]->accept(this).as<ExpressionWrapper>().getExpression());
 	}
+
 	//限制声明
 	vector<Expression*> constraintsDecl;
 	auto constraintCtx = ctx->functionConstraintExpression();
@@ -168,23 +160,28 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 		}
 	}
 	//解析参数和限制
-	auto resolveRes = FormalParametersTemplateResolver::resolve(ExpressionInfo(program, getLocation(ctx)), this->currentOverloadTemplate->getSymbolTable(), paramDeclExprs, constraintsDecl);
+	auto resolveRes = FormalParametersResolver::resolve(ExpressionInfo(program, getLocation(ctx)), currentSymbolTable, paramDeclExprs, constraintsDecl);
 	auto paramTypes = resolveRes.getParameterTypes();
-	auto paramTemplates = resolveRes.getParameterTemplates();
+	auto params = resolveRes.getParameters();
 	auto constraints = resolveRes.getConstraints();
 
+	//TODO 检查是否为extern函数
+	BranchFunction* func = (BranchFunction*)this->program->getFunction(funcName, paramTypes);
+	if (!func) {
+		//此时还不知道返回值类型
+		func = new BranchFunction(this->program, funcName, paramTypes, nullptr);
+		this->program->addFunction(func);
+	}
+	//添加函数分支
+	auto branch = new FunctionBranch(func, getLocation(ctx));
+	branch->setParameters(params);
+	func->addBranch(branch);
 
 	/*将函数声明添加到相应的重载分支中*/
 	//寻找重载，同时判断是否和已有返回值类型相同，如果不存在则新建。
-	//TODO 判断，必须是BranchOverloadTemplate才能添加分支。如果是NativeOverload则禁止添加分支
-	BranchOverloadTemplate *overloadTemplate = (BranchOverloadTemplate*)funcTemplate->getOverload(paramTypes);
-	if (!overloadTemplate){
-		overloadTemplate = new BranchOverloadTemplate(funcTemplate, paramTemplates, nullptr);
-		funcTemplate->addOverload(overloadTemplate);
-	}
-	auto prevOverloadTemplate = this->currentOverloadTemplate;
-	//将当前重载设置成此次重载
-	this->currentOverloadTemplate = overloadTemplate;
+	auto prevSymbolTable = this->currentSymbolTable;
+	//将当前函数分支设置成此次分支
+	this->currentSymbolTable = branch->getAbstractSymbolTable();
 
 	/*函数的实现*/
 	ALLOW_ASSIGN;
@@ -202,30 +199,30 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 			impls.push_back(wrapper.getExpression());
 		}
 	}
+
+	branch->setConstraints(constraints);
+	branch->setImplements(impls);
 	FORBID_ASSIGN;
-	//恢复当前重载
-	this->currentOverloadTemplate = prevOverloadTemplate;
+	//恢复当前分支
+	this->currentSymbolTable = prevSymbolTable;
 
 	/*检查重载和当前重载分支的返回值类型是否相同*/
 	//TODO 若不相同，可以取两个返回值类型中的更高类型
-	Type * returnType;
+	FunctionInstantializeContext instCtx(currentSymbolTable);
+	Type * returnType = nullptr;
 	if (impls.size() == 0) {
 		returnType = this->program->getVoidType();
 	}
 	else {
-		returnType = impls[impls.size() - 1]->getType();
+		returnType = impls[impls.size() - 1]->getType(&instCtx);
 	}
-	Type *overloadReturnType = overloadTemplate->getReturnType();
-	if (!overloadReturnType) {
-		overloadTemplate->setReturnType(returnType);
-	}else if (returnType && !returnType->equals(overloadReturnType)) {
-		throw SyntaxErrorException(getLocation(ctx), L"返回值必须为" + overloadReturnType->getName() + L"类型");
+	Type *funcReturnType = func->getReturnType(&instCtx);
+	if (!funcReturnType) {
+		func->setReturnType(returnType);
+	}else if (returnType && !returnType->equals(funcReturnType)) {
+		throw SyntaxErrorException(getLocation(ctx), L"返回值必须为" + funcReturnType->getName() + L"类型");
 	}
 	
-	//添加重载分支
-	auto branch = new OverloadBranchTemplate(overloadTemplate, getLocation(ctx), constraints, impls);
-	overloadTemplate->setBranches({ branch });
-
 	/*====恢复上一层====*/
 	--this->curDepth;
 	RESTORE_ASSIGNABLE;
@@ -238,9 +235,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitCallExpression(WorkScriptParser::CallE
 	ExpressionWrapper paramExpressionWrapper = ctx->multiValueExpression()->accept(this);
 	auto funcName = Locale::ansiToUnicode(ctx->identifier()->getText());
 	auto paramExpr = (MultiValueExpression*)paramExpressionWrapper.getExpression();
-	FunctionTemplate *functionTemplate = program->getFunctionTemplate(funcName);
-	OverloadTemplate *overloadTemplate = functionTemplate->getOverload(paramExpr->getTypes());
-	auto expr = new TemplateCallExpression(ExpressionInfo(program, getLocation(ctx)), funcName, overloadTemplate, paramExpr);
+	auto expr = new CallExpression(ExpressionInfo(program, getLocation(ctx)), funcName, paramExpr);
 	RESTORE_ASSIGNABLE;
 	return ExpressionWrapper(expr);
 }
@@ -265,6 +260,12 @@ antlrcpp::Any WorkScriptVisitorImpl::visitAssignmentOrEqualsExpression(WorkScrip
 		this->declarable = false;
 		auto right = ctx->expression()[1]->accept(this).as<ExpressionWrapper>().getExpression();
 		RESTORE_ASSIGNABLE;
+		//将赋值变量加入符号表
+		InstantializeContext instCtx(this->currentSymbolTable);
+		if (left->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
+			auto leftVar = (VariableExpression*)left;
+			this->currentSymbolTable->setSymbol(leftVar->getName(), right->getType(&instCtx));
+		}
 		return ExpressionWrapper(new AssignmentExpression(ExpressionInfo(program, getLocation(ctx)), left, right));
 	}
 	else {
@@ -296,7 +297,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMultiValueExpression(WorkScriptParser:
 	for (size_t i = 0; i < subContextCount; ++i) {
 		ExpressionWrapper wrapper = subContext[i]->accept(this);
 		auto itemExpr = wrapper.getExpression();
-		items[i] = itemExpr;
+		items.push_back(itemExpr);
 	}
 	auto expr = new WorkScript::MultiValueExpression(ExpressionInfo(program, getLocation(ctx)), items);
 	RESTORE_ASSIGNABLE
@@ -423,6 +424,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitVarargsExpression(WorkScriptParser::Va
 WorkScriptVisitorImpl::WorkScriptVisitorImpl(Program *lpProgram)
 {
 	this->program = lpProgram;
+	this->currentSymbolTable = lpProgram->getGlobalSymbolTable();
 }
 
 WorkScriptVisitorImpl::~WorkScriptVisitorImpl()

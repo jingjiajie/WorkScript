@@ -5,7 +5,7 @@
 
 namespace WorkScript {
 	class FunctionTemplate;
-	class Overload;
+	class Function;
 	class Function;
 	class OverloadTemplate {
 	public:
@@ -19,7 +19,7 @@ namespace WorkScript {
 		virtual ~OverloadTemplate();
 		Program * getProgram();
 		bool matchByParameters(const std::vector<Type*> &paramTypes);
-		virtual Overload * createOverload(Function *func, const std::vector<Type*> &paramTypes) const = 0;
+		virtual Function * createOverload(Function *func, const std::vector<Type*> &paramTypes) const = 0;
 
 		inline size_t getParameterCount() const { return this->parameters.size(); }
 		inline ParameterTemplate * getParameter(size_t index) { return this->parameters[index]; }

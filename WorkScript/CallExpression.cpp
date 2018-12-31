@@ -3,28 +3,41 @@
 #include "VariableExpression.h"
 #include "Program.h"
 #include "MultiValueExpression.h"
-#include "StringExpression.h"
-#include "Overload.h"
 #include "Utils.h"
 #include "Function.h"
+#include "InstantializeContext.h"
 
 using namespace WorkScript;
 using namespace std;
 
-Expression * WorkScript::CallExpression::instantialize(InstantializeContext *context)
-{
-	throw WorkScriptException(L"非模板调用表达式无法实例化");
-}
-
 GenerateResult WorkScript::CallExpression::generateIR(GenerateContext * context)
 {
+	//获取函数声明
+	auto paramTypes = this->parameters->getTypes(context->getInstantializeContext());
+	Function *func = this->getProgram()->getFunction(this->functionName, paramTypes);
+	if (!func) {
+		throw WorkScriptException(L"未找到函数：" + func->getName());
+	}
+	//生成LLVM函数调用
 	auto builder = context->getIRBuilder();
-	return builder->CreateCall(bindOverload->getLLVMFunction(context));
+	FunctionInstantializeContext funcInstCtx(this->parameters->getTypes(context->getInstantializeContext()));
+	auto prevInstCtx = context->getInstantializeContext();
+	context->setInstantializeContext(&funcInstCtx);
+	llvm::Function *llvmFunc = func->getLLVMFunction(context);
+	auto ret = builder->CreateCall(llvmFunc, this->parameters->getLLVMArgs(context));
+	context->setInstantializeContext(prevInstCtx);
+	return ret;
 }
 
-Type * CallExpression::getType() const
+Type * CallExpression::getType(InstantializeContext *context) const
 {
-	return bindOverload->getReturnType();
+	auto paramTypes = this->parameters->getTypes(context);
+	Function *func = this->getProgram()->getFunction(this->functionName, paramTypes);
+	if (!func) {
+		throw WorkScriptException(L"未找到函数：" + func->getName());
+	}
+	FunctionInstantializeContext funcInstCtx(this->parameters->getTypes(context));
+	return func->getReturnType(&funcInstCtx);
 }
 
 std::wstring CallExpression::toString() const
@@ -41,7 +54,6 @@ ExpressionType CallExpression::getExpressionType() const
 
 Expression * WorkScript::CallExpression::clone() const
 {
-	auto newInstance = new thistype(expressionInfo, functionName, this->bindOverload, parameters);
-	newInstance->bindOverload = this->bindOverload;
+	auto newInstance = new thistype(expressionInfo, functionName, parameters);
 	return newInstance;
 }

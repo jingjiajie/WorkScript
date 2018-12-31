@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "UnaryOperatorExpression.h"
 #include "Type.h"
-#include "Overload.h"
 #include "Function.h"
 
 using namespace WorkScript;
@@ -11,19 +10,14 @@ UnaryOperatorExpression::~UnaryOperatorExpression()
 	delete this->subExpression;
 }
 
-Expression * WorkScript::UnaryOperatorExpression::instantialize(InstantializeContext *context)
-{
-	return new UnaryOperatorExpression(expressionInfo, this->subExpression->instantialize(context), operatorType);
-}
-
 std::wstring WorkScript::UnaryOperatorExpression::toString() const
 {
 	return this->getOperatorString() + this->subExpression->toString();
 }
 
-Type * WorkScript::UnaryOperatorExpression::getType() const
+Type * WorkScript::UnaryOperatorExpression::getType(InstantializeContext *context) const
 {
-	return this->subExpression->getType();
+	return this->subExpression->getType(context);
 }
 
 Expression * WorkScript::UnaryOperatorExpression::clone() const

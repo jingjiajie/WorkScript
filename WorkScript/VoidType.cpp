@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "VoidType.h"
+#include "GenerateContext.h"
 
 using namespace WorkScript;
 using namespace std;

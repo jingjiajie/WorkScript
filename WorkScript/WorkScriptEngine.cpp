@@ -35,7 +35,6 @@ void WorkScriptEngine::run(const char * filePath)
 	auto wFilePath = Locale::ansiToUnicode(filePath);
 	Program program;
 	this->parseFile(wFilePath.c_str(), &program);
-	program.getFunctionOverload(L"main", {});
 	llvm::LLVMContext llvmContext;
 	auto llvmModule = unique_ptr<llvm::Module>(new llvm::Module("main", llvmContext));
 	program.generateLLVMIR(&llvmContext, llvmModule.get());

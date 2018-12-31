@@ -5,18 +5,17 @@
 namespace WorkScript {
 	class FunctionExpression;
 	class MultiValueExpression;
-	class Overload;
+	class Function;
 
 	class CallExpression :
 		public Expression
 	{
 	public:
-		inline CallExpression(const ExpressionInfo &exprInfo, const std::wstring &funcName, Overload *overload, MultiValueExpression *params)
-			:Expression(exprInfo),bindOverload(overload), parameters(params), functionName(funcName) { }
+		inline CallExpression(const ExpressionInfo &exprInfo, const std::wstring &funcName, MultiValueExpression *params)
+			:Expression(exprInfo), parameters(params), functionName(funcName) { }
 
-		virtual Expression * instantialize(InstantializeContext *context) override;
 		virtual GenerateResult generateIR(GenerateContext *context) override;
-		virtual Type * getType() const override;
+		virtual Type * getType(InstantializeContext *context) const override;
 		virtual std::wstring toString() const override;
 		virtual ExpressionType getExpressionType() const override;
 		virtual Expression * clone() const;
@@ -26,7 +25,6 @@ namespace WorkScript {
 			return this->parameters;
 		}
 	protected:
-		Overload * bindOverload = nullptr;
 		std::wstring functionName;
 		MultiValueExpression *parameters = nullptr;
 	};

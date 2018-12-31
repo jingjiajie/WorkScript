@@ -3,8 +3,6 @@
 #include "IntegerType.h"
 #include "FloatType.h"
 #include "Function.h"
-#include "IntegerExpression.h"
-#include "FloatExpression.h"
 
 using namespace std;
 using namespace WorkScript;

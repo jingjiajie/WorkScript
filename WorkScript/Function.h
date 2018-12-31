@@ -1,50 +1,48 @@
 #pragma once
 #include <vector>
-#include "Overload.h"
+
+#include "Parameter.h"
+#include "GenerateContext.h"
+#include "GenerateResult.h"
+#include "SymbolTable.h"
+#include "Constant.h"
 
 namespace WorkScript {
+	class FunctionType;
+
+	class ParamTypesAndLLVMFunction {
+	public:
+		ParamTypesAndLLVMFunction(std::vector<Type*> types, llvm::Function* func)
+			:parameterTypes(types), llvmFunction(func) {}
+
+		bool match(std::vector<Type*> paramTypes);
+		inline llvm::Function *getLLVMFunction() { return this->llvmFunction; }
+	protected:
+		std::vector<Type*> parameterTypes; 
+		llvm::Function* llvmFunction;
+	};
+
 	class Function {
 	public:
-		inline Function(Program *program, const std::wstring &name)
-			:program(program), name(name) {}
+		Function(Program *program, const std::wstring &name, const std::vector<Type*> &paramTypes, Type *returnType);
 
-		inline ~Function()
-		{
-			for (Overload *overload : this->overloads)delete overload;
-		}
+		virtual ~Function();
+		std::wstring getMangledFunctionName(FunctionInstantializeContext *ctx) const;
+		virtual GenerateResult generateLLVMIR(GenerateContext *context) = 0;
+		llvm::Function * getLLVMFunction(GenerateContext *context, bool declareOnly = false);
 
-		virtual GenerateResult generateLLVMIR(GenerateContext *context);
+		inline FunctionType *getType() { return this->abstractType; }
+		virtual Type *getReturnType(FunctionInstantializeContext *instCtx) = 0;
+		virtual void setReturnType(Type *type);
+		bool matchByParameters(const std::vector<Type*> &paramTypes);
 
-		Overload * getOverload(const std::vector<Type*> paramTypes)
-		{
-			for (size_t i = 0; i < this->overloads.size(); ++i)
-			{
-				if (this->overloads[i]->matchByParameters(paramTypes))
-				{
-					return this->overloads[i];
-				}
-			}
-			return nullptr;
-		}
-
-		void addOverload(Overload *overload)
-		{
-			this->overloads.push_back(overload);
-		}
-
-		inline const std::wstring & getName()const
-		{
-			return name;
-		}
-
-		inline void setName(const std::wstring &funcName)
-		{
-			this->name = funcName;
-		}
-
-	private:
+		inline size_t getParameterCount() const { return this->abstractType->getParameterCount(); }
+		inline std::vector<Type*> getParameterTypes(FunctionInstantializeContext *context) const;
+		inline std::wstring getName() const { return this->name; }
+	protected:
 		std::wstring name;
-		std::vector<WorkScript::Overload*> overloads;
-		Program *program;
+		Program *program = nullptr;
+		std::vector<ParamTypesAndLLVMFunction> llvmFunctions;
+		FunctionType *abstractType;
 	};
 }

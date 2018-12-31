@@ -10,10 +10,9 @@ namespace WorkScript {
 		AssignmentExpression(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression);
 
 		virtual GenerateResult generateIR(GenerateContext *context) override;
-		virtual Expression * instantialize(InstantializeContext *context) override;
 		virtual ExpressionType getExpressionType() const override;
 		virtual Expression * clone() const override;
-		virtual Type * getType() const override;
+		virtual Type * getType(InstantializeContext *context) const override;
 
 	protected:
 		virtual std::wstring getOperatorString() const override;

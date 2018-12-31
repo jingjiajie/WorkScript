@@ -11,8 +11,8 @@ GenerateResult WorkScript::BinaryCalculateExpression::generateIR(GenerateContext
 	llvm::LLVMContext &llvmCtx = *context->getLLVMContext();
 	auto leftExpr = this->getLeftExpression();
 	auto rightExpr = this->getRightExpression();
-	Type *leftType = leftExpr->getType();
-	Type *rightType = rightExpr->getType();
+	Type *leftType = leftExpr->getType(context->getInstantializeContext());
+	Type *rightType = rightExpr->getType(context->getInstantializeContext());
 	TypeClassification leftCls = leftType->getClassification();
 	TypeClassification rightCls = rightType->getClassification();
 	Type *promotedType = Type::getPromotedType(leftType, rightType);
@@ -34,14 +34,9 @@ UNSUPPORTED:
 	throw WorkScriptException(L"双目运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
 }
 
-Type * WorkScript::BinaryCalculateExpression::getType() const
+Type * WorkScript::BinaryCalculateExpression::getType(InstantializeContext *context) const
 {
-	return Type::getPromotedType(this->leftExpression->getType(), this->rightExpression->getType());
-}
-
-Expression * WorkScript::BinaryCalculateExpression::instantialize(InstantializeContext *context)
-{
-	return new BinaryCalculateExpression(expressionInfo, leftExpression->instantialize(context), rightExpression->instantialize(context), this->calculateType);
+	return Type::getPromotedType(this->leftExpression->getType(context), this->rightExpression->getType(context));
 }
 
 Expression * WorkScript::BinaryCalculateExpression::clone() const

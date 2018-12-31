@@ -1,31 +1,25 @@
 #include "stdafx.h"
 #include "VariableExpression.h"
 #include "Type.h"
-#include "StringExpression.h"
 #include "Utils.h"
 #include "SymbolTable.h"
 #include "SymbolInfo.h"
+#include "InstantializeContext.h"
 
 using namespace std;
 using namespace WorkScript;
 
-inline WorkScript::VariableExpression::VariableExpression(const ExpressionInfo &exprInfo, const std::wstring & name, SymbolTable * symbolTable, Type *type)
-	:Expression(exprInfo), bindSymbolTable(symbolTable), name(name) 
-{
-	SymbolInfo *symbolInfo = symbolTable->getSymbolInfo(name);
-	if (!symbolInfo) {
-		symbolTable->setSymbol(name, type);
-	}
-	else {
-		if (type && !symbolInfo->getType()->equals(type)) {
-			throw WorkScriptException(L"类型推导不符：" + type->getName() + L"和" + symbolInfo->getType()->getName());
-		}
-	}
-}
+inline WorkScript::VariableExpression::VariableExpression(const ExpressionInfo &exprInfo, const std::wstring & name)
+	:Expression(exprInfo), name(name) {}
 
 GenerateResult WorkScript::VariableExpression::generateIR(GenerateContext * context)
 {
-	SymbolInfo *symbolInfo = this->bindSymbolTable->getSymbolInfo(name);
+	auto instantializeContext = context->getInstantializeContext();
+	SymbolInfo *symbolInfo = instantializeContext->getSymbolInfo(this->name);
+	if (!symbolInfo) {
+		throw WorkScriptException(L"无法找到符号：" + this->name);
+	}
+
 	if (context->isLeftValue()) {
 		return symbolInfo->getLLVMValuePtr(context);
 	}
@@ -34,16 +28,16 @@ GenerateResult WorkScript::VariableExpression::generateIR(GenerateContext * cont
 	}
 }
 
-Type * VariableExpression::getType() const
+Type * VariableExpression::getType(InstantializeContext *context) const
 {
-	SymbolInfo *symbolInfo = this->bindSymbolTable->getSymbolInfo(name);
+	SymbolInfo *symbolInfo = context->getSymbolInfo(this->name);
+	if (!symbolInfo)return nullptr;
 	return symbolInfo->getType();
 }
 
 Expression * WorkScript::VariableExpression::clone() const
 {
-	SymbolInfo *symbolInfo = this->bindSymbolTable->getSymbolInfo(name);
-	auto newInstance = new thistype(expressionInfo, name, bindSymbolTable, symbolInfo->getType());
+	auto newInstance = new thistype(expressionInfo, name);
 	newInstance->varargs = this->varargs;
 	newInstance->declarable = declarable;
 	return newInstance;

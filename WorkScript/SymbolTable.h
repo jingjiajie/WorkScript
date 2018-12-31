@@ -11,7 +11,8 @@ namespace WorkScript {
 		~SymbolTable();
 
 		SymbolInfo * getSymbolInfo(const std::wstring &name);
-		void setSymbol(const std::wstring &name, Type *type);
+		SymbolInfo * setSymbol(const std::wstring &name, Type *type);
+		inline void clear() { this->symbols.clear(); }
 	private:
 		std::unordered_map<std::wstring, SymbolInfo> symbols;
 	};

@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "IntegerType.h"
-#include "Function.h"
-#include "NativeOverload.h"
 #include "Program.h"
+#include "WorkScriptException.h"
 
 using namespace std;
 using namespace WorkScript;

@@ -20,7 +20,8 @@ SymbolInfo * WorkScript::SymbolTable::getSymbolInfo(const std::wstring & name)
 	else return &this->symbols.at(name);
 }
 
-void WorkScript::SymbolTable::setSymbol(const std::wstring & name, Type * type)
+SymbolInfo * WorkScript::SymbolTable::setSymbol(const std::wstring & name, Type * type)
 {
 	this->symbols[name] = SymbolInfo(name, type);
+	return &this->symbols[name];
 }

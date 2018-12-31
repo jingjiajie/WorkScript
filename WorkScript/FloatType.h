@@ -10,10 +10,7 @@ namespace WorkScript {
 		virtual llvm::Type* getLLVMType(GenerateContext *context) const override;
 		virtual bool equals(const Type *type) const override;
 
-		inline unsigned char getLength() const
-		{
-			return this->length;
-		}
+		inline unsigned char getLength() const { return this->length; }
 	protected:
 		unsigned char length;
 	};

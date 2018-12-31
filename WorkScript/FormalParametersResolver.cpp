@@ -1,34 +1,34 @@
 #include "stdafx.h"
-#include "FormalParametersTemplateResolver.h"
+#include "FormalParametersResolver.h"
 #include "Expression.h"
-#include "ParameterTemplate.h"
+#include "Parameter.h"
 #include "VariableExpression.h"
 #include "BinaryCompareExpression.h"
 #include "SyntaxErrorException.h"
 #include "AssignmentExpression.h"
-#include "OverloadBranchTemplate.h"
 
 using namespace std;
 using namespace WorkScript;
 
-FormalParametersTemplateResolver::ResolveResult FormalParametersTemplateResolver::resolve(const ExpressionInfo &exprInfo, SymbolTable *symbolTable, std::vector<Expression*> declParams, std::vector<Expression*> additionalConstraints)
+FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(const ExpressionInfo &exprInfo, SymbolTable *abstractSymbolTable, std::vector<Expression*> declParams, std::vector<Expression*> additionalConstraints)
 {
 	size_t paramCount = declParams.size();
-	vector<ParameterTemplate*> paramTemplates(paramCount);
+	vector<Parameter*> paramTemplates(paramCount);
 	vector<Type*> paramTypes(paramCount);
 	vector<Expression*> constraints;
+	InstantializeContext ctx(abstractSymbolTable);
 
 	//处理参数声明，将参数和限制分别放入参数列表和限制列表中
 	for (size_t i = 0; i < paramCount; ++i) {
 		Expression *curExpr = declParams[i];
-		Type *curType = curExpr->getType();
+		Type *curType = curExpr->getType(&ctx);
 		paramTypes[i] = curType;
 
 		switch (curExpr->getExpressionType())
 		{
 		case ExpressionType::VARIABLE_EXPRESSION: {
 			VariableExpression* varExpr = (VariableExpression*)curExpr;
-			ParameterTemplate *param = new ParameterTemplate(varExpr->getName(),varExpr->getType());
+			Parameter *param = new Parameter(varExpr->getName(),varExpr->getType(&ctx));
 			paramTemplates[i] = param;
 			break;
 		}
@@ -38,7 +38,7 @@ FormalParametersTemplateResolver::ResolveResult FormalParametersTemplateResolver
 				throw std::move(SyntaxErrorException(curExpr->getLocation(), L"函数参数约束左部必须为变量！"));
 			}
 			VariableExpression *leftVar = (VariableExpression*)left;
-			ParameterTemplate *param = new ParameterTemplate(leftVar->getName(), leftVar->getType());
+			Parameter *param = new Parameter(leftVar->getName(), leftVar->getType(&ctx));
 			paramTemplates[i] = param;
 			constraints.push_back(curExpr);
 			break;
@@ -50,15 +50,16 @@ FormalParametersTemplateResolver::ResolveResult FormalParametersTemplateResolver
 				throw std::move(SyntaxErrorException(curExpr->getLocation(), L"参数默认值左部必须为参数名！"));
 			}
 			auto leftVar = (VariableExpression*)leftExpr;
-			ParameterTemplate *param = new ParameterTemplate(leftVar->getName(), leftVar->getType(), assignmentExpr->getRightExpression());
+			//TODO 参数默认值处理
+			Parameter *param = new Parameter(leftVar->getName(), leftVar->getType(&ctx), nullptr);
 			paramTemplates[i] = param;
 			break;
 		}
 		default: {
 			wstring tmpVarName = L"@" + to_wstring(i);
-			ParameterTemplate *param = new ParameterTemplate(tmpVarName);
+			Parameter *param = new Parameter(tmpVarName, curType);
 			paramTemplates[i] = param;
-			VariableExpression *var = new VariableExpression(exprInfo, tmpVarName, symbolTable, curType);
+			VariableExpression *var = new VariableExpression(exprInfo, tmpVarName);
 			BinaryCompareExpression *constraint = new BinaryCompareExpression(exprInfo, var, curExpr, BinaryCompareExpression::EQUAL);
 			constraints.push_back(constraint);
 			break;

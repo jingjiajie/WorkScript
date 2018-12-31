@@ -3,7 +3,6 @@
 #include "Expression.h"
 #include "Program.h"
 #include "Function.h"
-#include "StringExpression.h"
 #include "IntegerType.h"
 #include "FloatType.h"
 
@@ -11,11 +10,11 @@ using namespace WorkScript;
 using namespace std;
 
 
-//bool Type::isSubTypeOf(const Type *type) const
+//bool Type::isSubTypeOf(const Type *abstractType) const
 //{
 //	const Type *curType = this;
 //	while (curType) {
-//		if (curType->equals(type)) {
+//		if (curType->equals(abstractType)) {
 //			return true;
 //		}
 //		if (curType->baseType != nullptr && curType->baseType != curType) {
@@ -95,8 +94,8 @@ UNSUPPORTED:
 GenerateResult Type::generateLLVMTypePromote(GenerateContext * context, Expression * left, Expression * right, Type *promotedType)
 {
 	auto builder = context->getIRBuilder();
-	Type *leftType = left->getType();
-	Type *rightType = right->getType();
+	Type *leftType = left->getType(context->getInstantializeContext());
+	Type *rightType = right->getType(context->getInstantializeContext());
 	if (promotedType->equals(leftType)) { //类型提升到左部类型
 		return GenerateResult(left->generateIR(context).getValue(), Type::generateLLVMTypePromote(context, right, promotedType).getValue());
 	}
@@ -113,7 +112,7 @@ GenerateResult Type::generateLLVMTypePromote(GenerateContext * context, Expressi
 
 GenerateResult Type::generateLLVMTypePromote(GenerateContext * context, Expression * expr, Type * targetType)
 {
-	Type *srcType = expr->getType();
+	Type *srcType = expr->getType(context->getInstantializeContext());
 	llvm::Value *srcValue = expr->generateIR(context).getValue();
 	if (targetType->equals(srcType)) {
 		return GenerateResult(srcValue);

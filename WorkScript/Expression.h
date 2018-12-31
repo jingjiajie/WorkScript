@@ -17,12 +17,10 @@ namespace WorkScript {
 	public:
 		inline Expression(const ExpressionInfo &exprInfo) :expressionInfo(exprInfo) {}
 
-		//模板实例化
-		virtual Expression * instantialize(InstantializeContext *context);
 		//生成LLVM字节码的接口函数
 		virtual GenerateResult generateIR(GenerateContext *context) = 0;
 		//需要实现的接口函数
-		virtual Type* getType() const = 0;
+		virtual Type* getType(InstantializeContext *context) const = 0;
 		virtual ExpressionType getExpressionType() const = 0;
 		virtual std::wstring toString() const = 0;
 		virtual Expression * clone() const = 0;

@@ -7,12 +7,11 @@ namespace WorkScript {
 	public:
 		virtual ~MultiValueExpression();
 
-		virtual Type * getType() const;
-		std::vector<Type*> getTypes() const;
+		virtual Type * getType(InstantializeContext *context) const;
+		std::vector<Type*> getTypes(InstantializeContext *context) const;
 
 		virtual std::wstring toString() const override;
 		virtual MultiValueExpression * clone() const override;
-		virtual MultiValueExpression * instantialize(InstantializeContext *context) override;
 		virtual ExpressionType getExpressionType() const override;
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 

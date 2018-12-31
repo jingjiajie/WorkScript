@@ -6,7 +6,7 @@
 
 namespace WorkScript {
 	class Program;
-	class OverloadTemplate;
+	class FunctionBranch;
 
 	class WorkScriptVisitorImpl :
 		public WorkScriptBaseVisitor
@@ -38,7 +38,7 @@ namespace WorkScript {
 
 	private:
 		Program * program = nullptr;
-		OverloadTemplate *currentOverloadTemplate = nullptr;
+		SymbolTable *currentSymbolTable = nullptr;
 		bool assignable = true;
 		bool declarable = false;
 		size_t curDepth = 0;

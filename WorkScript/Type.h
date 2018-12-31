@@ -1,10 +1,13 @@
 #pragma once
 #include "stdafx.h"
-#include "Expression.h"
 #include "TypeClassification.h"
+#include "GenerateResult.h"
+#include "GenerateContext.h"
 
 namespace WorkScript {
+	class Expression;
 	class Program;
+
 	class Type
 	{
 	public:
@@ -24,18 +27,11 @@ namespace WorkScript {
 		virtual llvm::Type* getLLVMType(GenerateContext *context) const = 0;
 
 		//ÀàÃû
-		inline const std::wstring & getName() const
-		{
-			return this->name;
-		}
-
-		inline void setName(const std::wstring &name)
-		{
-			this->name = name;
-		}
+		inline const std::wstring & getName() const { return this->name; }
+		inline void setName(const std::wstring &name) { this->name = name; }
 
 	protected:
 		std::wstring name;
-		Program *program;
+		Program *program = nullptr;
 	};
 }
