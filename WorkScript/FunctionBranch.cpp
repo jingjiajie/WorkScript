@@ -22,7 +22,7 @@ Type * WorkScript::FunctionBranch::getReturnType(InstantializeContext * ctx)
 {
 	size_t implCount = this->implements.size();
 	if (implCount == 0)return Program::getVoidType();
-	SymbolTable instSymbolTable;
+	BlockSymbolTable instSymbolTable(this->branchID);
 	for (size_t i = 0; i < this->parameters.size(); ++i) {
 		//获取@n的符号信息
 		SymbolInfo *stdParamInfo = ctx->getSymbolInfo(L"@" + to_wstring(i));
@@ -30,7 +30,7 @@ Type * WorkScript::FunctionBranch::getReturnType(InstantializeContext * ctx)
 		Parameter *myParam = this->parameters[i];
 		SymbolInfo *myParamInfo = instSymbolTable.setSymbol(myParam->getName(), stdParamInfo->getType());
 	}
-	InstantializeContext newCtx(&this->abstractSymbolTable, &instSymbolTable);
+	InstantializeContext newCtx(this->branchID, &this->abstractSymbolTable, &instSymbolTable);
 	return this->implements[implCount - 1]->getType(&newCtx);
 }
 
@@ -54,12 +54,15 @@ void WorkScript::FunctionBranch::setImplements(const std::vector<Expression*> im
 	this->implements = implements;
 }
 
-llvm::BasicBlock * WorkScript::FunctionBranch::generateBlock(GenerateContext * context, llvm::Function *llvmFunc, llvm::BasicBlock * falseBlock)
+llvm::BasicBlock * WorkScript::FunctionBranch::generateBlock(GenerateContext * context, llvm::Function *llvmFunc, llvm::BasicBlock *falseBlock)
 {
+	llvm::Function *curFunc = llvmFunc;
+	llvm::BasicBlock *branch = llvm::BasicBlock::Create(*context->getLLVMContext(), "branch", curFunc);
+	llvm::IRBuilder<> &builder = *context->getIRBuilder();
+	builder.SetInsertPoint(branch);
 	//遍历参数，将参数@0,@1...赋值到本分支函数的参数符号
 	auto prevInstCtx = context->getInstantializeContext();
-	llvm::IRBuilder<> &builder = *context->getIRBuilder();
-	SymbolTable instSymbolTable;
+	BlockSymbolTable instSymbolTable(this->branchID);
 	for (size_t i = 0; i < this->parameters.size();++i) {
 		//获取@n的符号信息
 		SymbolInfo *stdParamInfo = prevInstCtx->getSymbolInfo(L"@" + to_wstring(i));
@@ -71,18 +74,14 @@ llvm::BasicBlock * WorkScript::FunctionBranch::generateBlock(GenerateContext * c
 		llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(context);
 		builder.CreateStore(stdLLVMParam, myLLVMParamPtr);
 	}
-	InstantializeContext newInstCtx(&this->abstractSymbolTable, &instSymbolTable);
+	InstantializeContext newInstCtx(this->branchID, &this->abstractSymbolTable, &instSymbolTable);
 	context->setInstantializeContext(&newInstCtx);
 
-	llvm::Function *curFunc = llvmFunc;
 	size_t condCount = this->constraints.size();
 	size_t codeCount = this->implements.size();
 	llvm::BasicBlock *ret = nullptr;
 	if (condCount > 0) {
-		llvm::BasicBlock *branch = llvm::BasicBlock::Create(*context->getLLVMContext(), "branch_cond", curFunc);
 		llvm::BasicBlock *matched = llvm::BasicBlock::Create(*context->getLLVMContext(), "matched", curFunc);
-		builder.CreateBr(branch);
-		builder.SetInsertPoint(branch);
 		for (size_t i = 0; i < this->constraints.size(); ++i)
 		{
 			llvm::Value *res = this->constraints[i]->generateIR(context).getValue();
@@ -100,9 +99,6 @@ llvm::BasicBlock * WorkScript::FunctionBranch::generateBlock(GenerateContext * c
 		ret = branch;
 	}
 	else { //condCount == 0
-		llvm::BasicBlock *matched = llvm::BasicBlock::Create(*context->getLLVMContext(), "branch", curFunc);
-		builder.CreateBr(matched);
-		builder.SetInsertPoint(matched);
 		for (size_t i = 0; i < this->implements.size(); ++i)
 		{
 			llvm::Value *res = this->implements[i]->generateIR(context).getValue();
@@ -111,7 +107,7 @@ llvm::BasicBlock * WorkScript::FunctionBranch::generateBlock(GenerateContext * c
 				builder.CreateRet(res);
 			}
 		}
-		ret = matched;
+		ret = branch;
 	}
 	context->setInstantializeContext(prevInstCtx);
 	return ret;

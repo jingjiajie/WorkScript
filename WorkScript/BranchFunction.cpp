@@ -5,12 +5,15 @@
 using namespace WorkScript;
 using namespace std;
 
-WorkScript::BranchFunction::~BranchFunction()
+BranchFunction::~BranchFunction()
 {
-	for (FunctionBranch *br : this->branches)delete br;
+	for (auto br : this->branches)
+	{
+		delete br;
+	}
 }
 
-Type * WorkScript::BranchFunction::getReturnType(FunctionInstantializeContext * instCtx)
+Type * WorkScript::BranchFunction::getReturnType(InstantializeContext * instCtx)
 {
 	//TODO 如何推导返回值？
 	SymbolTable instSymbolTable;
@@ -27,7 +30,7 @@ Type * WorkScript::BranchFunction::getReturnType(FunctionInstantializeContext * 
 
 GenerateResult WorkScript::BranchFunction::generateLLVMIR(GenerateContext * context)
 {
-	FunctionInstantializeContext *instCtx = (FunctionInstantializeContext*)context->getInstantializeContext();
+	InstantializeContext *instCtx = context->getInstantializeContext();
 	auto prevTable = instCtx->getInstanceSymbolTable();
 	llvm::IRBuilder<> *prevBuilder = context->getIRBuilder();
 	llvm::Function *llvmFunc = this->getLLVMFunction(context, true);
@@ -46,14 +49,15 @@ GenerateResult WorkScript::BranchFunction::generateLLVMIR(GenerateContext * cont
 	}
 	instCtx->setInstanceSymbolTable(&instSymbolTable);
 	size_t branchCount = this->branches.size();
-	llvm::BasicBlock *curFalseBlock = notMatched;
+	llvm::BasicBlock *prevBlock = notMatched;
 	//遍历分支，为每个分支生成代码
 	for (size_t i = 0; i < this->branches.size(); ++i)
 	{
 		FunctionBranch *curBranch = this->branches[branchCount - 1 - i];
-		builder.SetInsertPoint(entry);
-		curFalseBlock = curBranch->generateBlock(context, llvmFunc, curFalseBlock);
+		prevBlock = curBranch->generateBlock(context, llvmFunc, prevBlock);
 	}
+	builder.SetInsertPoint(entry);
+	builder.CreateBr(prevBlock);
 	//如果全部匹配失败，则返回未定义值
 	builder.SetInsertPoint(notMatched);
 	builder.CreateRet(llvm::UndefValue::get(this->getReturnType(instCtx)->getLLVMType(context)));
@@ -64,11 +68,13 @@ GenerateResult WorkScript::BranchFunction::generateLLVMIR(GenerateContext * cont
 	return (llvm::Value*)llvmFunc;
 }
 
-void WorkScript::BranchFunction::addBranch(FunctionBranch * branch)
+size_t WorkScript::BranchFunction::addBranch(FunctionBranch *branch)
 {
 	auto params = branch->getParameters();
 	if (params.size() != this->getParameterCount()) {
 		throw WorkScriptException(L"函数参数不匹配！");
 	}
 	this->branches.push_back(branch);
+	return this->branches.size() - 1;
 }
+

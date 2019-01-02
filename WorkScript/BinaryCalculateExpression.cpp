@@ -13,6 +13,7 @@ GenerateResult WorkScript::BinaryCalculateExpression::generateIR(GenerateContext
 	auto rightExpr = this->getRightExpression();
 	Type *leftType = leftExpr->getType(context->getInstantializeContext());
 	Type *rightType = rightExpr->getType(context->getInstantializeContext());
+
 	TypeClassification leftCls = leftType->getClassification();
 	TypeClassification rightCls = rightType->getClassification();
 	Type *promotedType = Type::getPromotedType(leftType, rightType);

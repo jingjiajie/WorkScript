@@ -24,7 +24,8 @@ namespace WorkScript {
 
 		inline SymbolTable * getGlobalSymbolTable() { return &this->globalSymbolTable; }
 		void addFunction(Function *func);
-		Function * getFunction(const std::wstring &name, std::vector<Type*> paramTypes);
+		Function* getFirstFunction(const std::wstring &name, std::vector<Type*> paramTypes);
+		std::vector<Function*> getFunctions(const std::wstring &name, std::vector<Type*> paramTypes);
 
 		FunctionType * getFunctionType(std::vector<Type*> paramTypes, Type *returnType);
 		inline static VoidType * getVoidType() { return &voidType; }

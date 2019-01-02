@@ -160,69 +160,75 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 		}
 	}
 	//解析参数和限制
-	auto resolveRes = FormalParametersResolver::resolve(ExpressionInfo(program, getLocation(ctx)), currentSymbolTable, paramDeclExprs, constraintsDecl);
+	auto resolveRes = FormalParametersResolver::resolve(ExpressionInfo(program, getLocation(ctx)), this->symbolTables.top(), paramDeclExprs, constraintsDecl);
 	auto paramTypes = resolveRes.getParameterTypes();
 	auto params = resolveRes.getParameters();
 	auto constraints = resolveRes.getConstraints();
 
 	//TODO 检查是否为extern函数
-	BranchFunction* func = (BranchFunction*)this->program->getFunction(funcName, paramTypes);
-	if (!func) {
+	auto funcs = this->program->getFunctions(funcName, paramTypes);
+	if (funcs.size() == 0) {
 		//此时还不知道返回值类型
-		func = new BranchFunction(this->program, funcName, paramTypes, nullptr);
-		this->program->addFunction(func);
+		auto newFunc = new BranchFunction(this->program, funcName, paramTypes, nullptr);
+		funcs.push_back(newFunc);
+		this->program->addFunction(newFunc);
 	}
-	//添加函数分支
-	auto branch = new FunctionBranch(func, getLocation(ctx));
-	branch->setParameters(params);
-	func->addBranch(branch);
+	//为所有符合条件的函数重载添加函数分支
+	for (size_t i = 0; i < funcs.size(); ++i) {
+		BranchFunction *func = (BranchFunction*)funcs[i];
+		size_t branchID = func->getBranchCount();
+		auto branch = new FunctionBranch(func, branchID, getLocation(ctx));
+		branch->setParameters(params);
+		func->addBranch(branch);
+		this->branchIDs.push(branchID);
+		this->symbolTables.push(branch->getAbstractSymbolTable());
 
-	/*将函数声明添加到相应的重载分支中*/
-	//寻找重载，同时判断是否和已有返回值类型相同，如果不存在则新建。
-	auto prevSymbolTable = this->currentSymbolTable;
-	//将当前函数分支设置成此次分支
-	this->currentSymbolTable = branch->getAbstractSymbolTable();
+		/*将函数声明添加到相应的重载分支中*/
+		//寻找重载，同时判断是否和已有返回值类型相同，如果不存在则新建。
 
-	/*函数的实现*/
-	ALLOW_ASSIGN;
-	vector<Expression*> impls;
-	if (ctx->functionImplementationExpression()->expression() != nullptr) {
-		auto expr = ctx->functionImplementationExpression()->expression()->accept(this).as<ExpressionWrapper>();
-		impls.push_back(expr.getExpression());
-	}
-	else {
-		auto exprs = ctx->functionImplementationExpression()->blockExpression()->expression();
-		impls.reserve(exprs.size());
-		for (size_t i = 0; i < exprs.size(); ++i)
-		{
-			auto wrapper = exprs[i]->accept(this).as<ExpressionWrapper>();
-			impls.push_back(wrapper.getExpression());
+		/*函数的实现*/
+		ALLOW_ASSIGN;
+		vector<Expression*> impls;
+		if (ctx->functionImplementationExpression()->expression() != nullptr) {
+			auto expr = ctx->functionImplementationExpression()->expression()->accept(this).as<ExpressionWrapper>();
+			impls.push_back(expr.getExpression());
+		}
+		else {
+			auto exprs = ctx->functionImplementationExpression()->blockExpression()->expression();
+			impls.reserve(exprs.size());
+			for (size_t i = 0; i < exprs.size(); ++i)
+			{
+				auto wrapper = exprs[i]->accept(this).as<ExpressionWrapper>();
+				impls.push_back(wrapper.getExpression());
+			}
+		}
+
+		branch->setConstraints(constraints);
+		branch->setImplements(impls);
+		FORBID_ASSIGN;
+		InstantializeContext innerInstCtx(this->branchIDs.top(), this->symbolTables.top());
+		//恢复当前分支
+		this->symbolTables.pop();
+		this->branchIDs.pop();
+
+		/*检查重载和当前重载分支的返回值类型是否相同*/
+		//TODO 若不相同，可以取两个返回值类型中的更高类型
+		InstantializeContext outerInstCtx(this->branchIDs.top(), this->symbolTables.top());
+		Type * returnType = nullptr;
+		if (impls.size() == 0) {
+			returnType = this->program->getVoidType();
+		}
+		else {
+			returnType = impls[impls.size() - 1]->getType(&innerInstCtx);
+		}
+		Type *funcReturnType = func->getReturnType(&outerInstCtx);
+		if (!funcReturnType) {
+			func->setReturnType(returnType);
+		}
+		else if (returnType && !returnType->equals(funcReturnType)) {
+			throw SyntaxErrorException(getLocation(ctx), L"返回值必须为" + funcReturnType->getName() + L"类型");
 		}
 	}
-
-	branch->setConstraints(constraints);
-	branch->setImplements(impls);
-	FORBID_ASSIGN;
-	//恢复当前分支
-	this->currentSymbolTable = prevSymbolTable;
-
-	/*检查重载和当前重载分支的返回值类型是否相同*/
-	//TODO 若不相同，可以取两个返回值类型中的更高类型
-	FunctionInstantializeContext instCtx(currentSymbolTable);
-	Type * returnType = nullptr;
-	if (impls.size() == 0) {
-		returnType = this->program->getVoidType();
-	}
-	else {
-		returnType = impls[impls.size() - 1]->getType(&instCtx);
-	}
-	Type *funcReturnType = func->getReturnType(&instCtx);
-	if (!funcReturnType) {
-		func->setReturnType(returnType);
-	}else if (returnType && !returnType->equals(funcReturnType)) {
-		throw SyntaxErrorException(getLocation(ctx), L"返回值必须为" + funcReturnType->getName() + L"类型");
-	}
-	
 	/*====恢复上一层====*/
 	--this->curDepth;
 	RESTORE_ASSIGNABLE;
@@ -261,10 +267,10 @@ antlrcpp::Any WorkScriptVisitorImpl::visitAssignmentOrEqualsExpression(WorkScrip
 		auto right = ctx->expression()[1]->accept(this).as<ExpressionWrapper>().getExpression();
 		RESTORE_ASSIGNABLE;
 		//将赋值变量加入符号表
-		InstantializeContext instCtx(this->currentSymbolTable);
+		InstantializeContext instCtx(this->branchIDs.top(), this->symbolTables.top());
 		if (left->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
 			auto leftVar = (VariableExpression*)left;
-			this->currentSymbolTable->setSymbol(leftVar->getName(), right->getType(&instCtx));
+			this->symbolTables.top()->setSymbol(leftVar->getName(), right->getType(&instCtx));
 		}
 		return ExpressionWrapper(new AssignmentExpression(ExpressionInfo(program, getLocation(ctx)), left, right));
 	}
@@ -424,7 +430,8 @@ antlrcpp::Any WorkScriptVisitorImpl::visitVarargsExpression(WorkScriptParser::Va
 WorkScriptVisitorImpl::WorkScriptVisitorImpl(Program *lpProgram)
 {
 	this->program = lpProgram;
-	this->currentSymbolTable = lpProgram->getGlobalSymbolTable();
+	this->symbolTables.push(lpProgram->getGlobalSymbolTable());
+	this->branchIDs.push(0);
 }
 
 WorkScriptVisitorImpl::~WorkScriptVisitorImpl()

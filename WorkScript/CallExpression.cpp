@@ -14,17 +14,26 @@ GenerateResult WorkScript::CallExpression::generateIR(GenerateContext * context)
 {
 	//获取函数声明
 	auto paramTypes = this->parameters->getTypes(context->getInstantializeContext());
-	Function *func = this->getProgram()->getFunction(this->functionName, paramTypes);
+	Function *func = this->getProgram()->getFirstFunction(this->functionName, paramTypes);
 	if (!func) {
 		throw WorkScriptException(L"未找到函数：" + func->getName());
 	}
 	//生成LLVM函数调用
-	auto builder = context->getIRBuilder();
-	FunctionInstantializeContext funcInstCtx(this->parameters->getTypes(context->getInstantializeContext()));
+	auto llvmArgs = this->parameters->getLLVMArgs(context);
 	auto prevInstCtx = context->getInstantializeContext();
-	context->setInstantializeContext(&funcInstCtx);
+	auto builder = context->getIRBuilder();
+	size_t blockID = prevInstCtx->getBranchID();
+	InstantializeContext newInstCtx(blockID);
+	SymbolTable newInstTable;
+	newInstCtx.setInstanceSymbolTable(&newInstTable);
+	for (size_t i = 0; i < paramTypes.size(); ++i)
+	{
+		Type *paramType = paramTypes[i];
+		newInstTable.setSymbol(Function::getStdParameterName(i), paramType);
+	}
+	context->setInstantializeContext(&newInstCtx);
 	llvm::Function *llvmFunc = func->getLLVMFunction(context);
-	auto ret = builder->CreateCall(llvmFunc, this->parameters->getLLVMArgs(context));
+	auto ret = builder->CreateCall(llvmFunc, llvmArgs);
 	context->setInstantializeContext(prevInstCtx);
 	return ret;
 }
@@ -32,12 +41,20 @@ GenerateResult WorkScript::CallExpression::generateIR(GenerateContext * context)
 Type * CallExpression::getType(InstantializeContext *context) const
 {
 	auto paramTypes = this->parameters->getTypes(context);
-	Function *func = this->getProgram()->getFunction(this->functionName, paramTypes);
+	Function *func = this->getProgram()->getFirstFunction(this->functionName, paramTypes);
 	if (!func) {
-		throw WorkScriptException(L"未找到函数：" + func->getName());
+		throw WorkScriptException(L"未找到函数：" + this->functionName);
 	}
-	FunctionInstantializeContext funcInstCtx(this->parameters->getTypes(context));
-	return func->getReturnType(&funcInstCtx);
+	size_t blockID = context->getBranchID();
+	InstantializeContext newInstCtx(blockID);
+	SymbolTable newInstTable;
+	newInstCtx.setInstanceSymbolTable(&newInstTable);
+	for (size_t i = 0; i < paramTypes.size(); ++i)
+	{
+		Type *paramType = paramTypes[i];
+		newInstTable.setSymbol(Function::getStdParameterName(i), paramType);
+	}
+	return func->getReturnType(&newInstCtx);
 }
 
 std::wstring CallExpression::toString() const

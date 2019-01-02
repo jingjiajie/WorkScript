@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <stack>
 #include "Generated/WorkScriptBaseVisitor.h"
 #include "VariableExpression.h"
 
@@ -38,9 +39,10 @@ namespace WorkScript {
 
 	private:
 		Program * program = nullptr;
-		SymbolTable *currentSymbolTable = nullptr;
 		bool assignable = true;
 		bool declarable = false;
 		size_t curDepth = 0;
+		std::stack<size_t> branchIDs;
+		std::stack<SymbolTable*> symbolTables;
 	};
 }

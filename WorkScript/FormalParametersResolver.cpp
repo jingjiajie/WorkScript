@@ -16,7 +16,8 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(const 
 	vector<Parameter*> paramTemplates(paramCount);
 	vector<Type*> paramTypes(paramCount);
 	vector<Expression*> constraints;
-	InstantializeContext ctx(abstractSymbolTable);
+	//TODO 分支ID要传入正确的数值
+	InstantializeContext ctx(0, abstractSymbolTable);
 
 	//处理参数声明，将参数和限制分别放入参数列表和限制列表中
 	for (size_t i = 0; i < paramCount; ++i) {
@@ -56,7 +57,7 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(const 
 			break;
 		}
 		default: {
-			wstring tmpVarName = L"@" + to_wstring(i);
+			wstring tmpVarName = L"@_" + to_wstring(i);
 			Parameter *param = new Parameter(tmpVarName, curType);
 			paramTemplates[i] = param;
 			VariableExpression *var = new VariableExpression(exprInfo, tmpVarName);

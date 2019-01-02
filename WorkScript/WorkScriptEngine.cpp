@@ -38,22 +38,22 @@ void WorkScriptEngine::run(const char * filePath)
 	llvm::LLVMContext llvmContext;
 	auto llvmModule = unique_ptr<llvm::Module>(new llvm::Module("main", llvmContext));
 	program.generateLLVMIR(&llvmContext, llvmModule.get());
-	llvmModule->dump();
-	//string errorStr;
-	//llvm::EngineBuilder b(std::move(llvmModule));
-	////llvm::RTDyldMemoryManager* RTDyldMM = NULL;
-	//b.setEngineKind(llvm::EngineKind::JIT)
-	//	.setErrorStr(&errorStr);
-	//	//.setVerifyModules(true)
-	//	//.setMCJITMemoryManager(std::unique_ptr<llvm::RTDyldMemoryManager>(RTDyldMM))
-	//	//.setOptLevel(llvm::CodeGenOpt::Default)
-	//auto e = b.create();
-	//e->finalizeObject();
-	//typedef int(*TFMAIN)();
-	//TFMAIN fmain = (TFMAIN)e->getPointerToNamedFunction("main");
-	//int ret = fmain();
-	////printf("WorkScript JIT执行结果：\n");
-	////printf("%d",ret);
+	//llvmModule->dump();
+	string errorStr;
+	llvm::EngineBuilder b(std::move(llvmModule));
+	//llvm::RTDyldMemoryManager* RTDyldMM = NULL;
+	b.setEngineKind(llvm::EngineKind::JIT)
+		.setErrorStr(&errorStr);
+		//.setVerifyModules(true)
+		//.setMCJITMemoryManager(std::unique_ptr<llvm::RTDyldMemoryManager>(RTDyldMM))
+		//.setOptLevel(llvm::CodeGenOpt::Default)
+	auto e = b.create();
+	e->finalizeObject();
+	typedef int(*TFMAIN)();
+	TFMAIN fmain = (TFMAIN)e->getPointerToNamedFunction("main");
+	int ret = fmain();
+	printf("WorkScript JIT执行结果：\n");
+	printf("%d",ret);
 }
 
 void WorkScriptEngine::parseFile(const wchar_t * fileName, Program * outProgram) //throws SyntaxErrorException

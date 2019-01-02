@@ -19,8 +19,8 @@ SymbolInfo * WorkScript::InstantializeContext::getSymbolInfo(const std::wstring 
 	}
 	return nullptr;
 }
-
-std::vector<Type*> WorkScript::FunctionInstantializeContext::getRealParameterTypes()
-{
-	return this->realParameterTypes;
-}
+//
+//std::vector<Type*> WorkScript::FunctionInstantializeContext::getRealParameterTypes()
+//{
+//	return this->realParameterTypes;
+//}

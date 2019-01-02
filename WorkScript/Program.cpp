@@ -73,9 +73,9 @@ Program::~Program()
 void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule)
 {
 	GenerateContext ctx(llvmContext, llvmModule, nullptr);
-	FunctionInstantializeContext funcInstCtx(&this->globalSymbolTable);
+	InstantializeContext funcInstCtx(0, &this->globalSymbolTable);
 	ctx.setInstantializeContext(&funcInstCtx);
-	Function *funcMain = this->getFunction(L"main", {});
+	Function *funcMain = this->getFirstFunction(L"main", {});
 	funcMain->generateLLVMIR(&ctx);
 }
 
@@ -85,7 +85,7 @@ void WorkScript::Program::addFunction(Function * func)
 	this->functions[name].push_back(func);
 }
 
-Function * WorkScript::Program::getFunction(const std::wstring & name, std::vector<Type*> paramTypes)
+Function * WorkScript::Program::getFirstFunction(const std::wstring & name, std::vector<Type*> paramTypes)
 {
 	auto it = this->functions.find(name);
 	if (it == this->functions.end())return nullptr;
@@ -97,6 +97,21 @@ Function * WorkScript::Program::getFunction(const std::wstring & name, std::vect
 		}
 	}
 	return nullptr;
+}
+
+std::vector<Function*> WorkScript::Program::getFunctions(const std::wstring & name, std::vector<Type*> paramTypes)
+{
+	std::vector<Function*> result;
+	auto it = this->functions.find(name);
+	if (it == this->functions.end())return result;
+	vector<Function*> functions = it->second;
+	for (size_t i = 0; i < functions.size(); ++i)
+	{
+		if (functions[i]->matchByParameters(paramTypes)) {
+			result.push_back(functions[i]);
+		}
+	}
+	return result;
 }
 
 FunctionType * WorkScript::Program::getFunctionType(std::vector<Type*> paramTypes, Type * returnType)

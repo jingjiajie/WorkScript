@@ -19,7 +19,12 @@ WorkScript::Function::~Function()
 
 }
 
-std::wstring WorkScript::Function::getMangledFunctionName(FunctionInstantializeContext *ctx) const
+std::wstring WorkScript::Function::getStdParameterName(size_t paramIndex)
+{
+	return L"@" + to_wstring(paramIndex);
+}
+
+std::wstring WorkScript::Function::getMangledFunctionName(InstantializeContext *ctx) const
 {
 	wstringstream ss;
 	ss << this->getName();
@@ -31,7 +36,7 @@ std::wstring WorkScript::Function::getMangledFunctionName(FunctionInstantializeC
 
 llvm::Function * WorkScript::Function::getLLVMFunction(GenerateContext * context, bool declareOnly)
 {
-	FunctionInstantializeContext *instCtx = (FunctionInstantializeContext*)context->getInstantializeContext();
+	InstantializeContext *instCtx = context->getInstantializeContext();
 	auto paramTypes = this->getParameterTypes(instCtx);
 	llvm::Function *matchedFunc = nullptr;
 	for (size_t i = 0; i < this->llvmFunctions.size(); ++i)
@@ -80,25 +85,41 @@ bool WorkScript::Function::matchByParameters(const std::vector<Type*> &paramType
 	size_t paramCount = paramTypes.size();
 
 	if (paramCount != this->getParameterCount())return false;
-	auto myParamTypes = this->getParameterTypes(nullptr);
+	auto declParamTypes = this->abstractType->getParameterTypes();
 	for (size_t i = 0; i < paramCount; ++i)
 	{
-		Type *formalParamType = myParamTypes[i];
+		Type *formalParamType = declParamTypes[i];
+		if (!paramTypes[i])continue;
 		if (formalParamType && !formalParamType->equals(paramTypes[i]))return false;
 	}
 	return true;
 }
 
-inline std::vector<Type*> WorkScript::Function::getParameterTypes(FunctionInstantializeContext * context) const
+inline std::vector<Type*> WorkScript::Function::getParameterTypes(InstantializeContext * context) const
 {
 	auto declParamTypes = this->abstractType->getParameterTypes();
 	if (!context)return declParamTypes;
-	auto realParamTypes = context->getRealParameterTypes();
-	if (realParamTypes.size() == 0)return declParamTypes;
-	size_t paramCount = declParamTypes.size();
-	if (paramCount != realParamTypes.size()) {
-		throw WorkScriptException(L"参数个数不匹配！");
+	vector<Type*> realParamTypes;
+	size_t paramCount = this->getParameterCount();
+	realParamTypes.reserve(paramCount);
+	for (size_t i = 0; i < paramCount; ++i)
+	{
+		wstring curParamName = Function::getStdParameterName(i);
+		SymbolInfo *info = context->getSymbolInfo(curParamName);
+		if (!info) {
+			if (i == 0) { 
+				realParamTypes = declParamTypes;
+				break; 
+			}
+			else {
+				throw WorkScriptException(L"参数不匹配！");
+			}
+		}
+		else {
+			realParamTypes.push_back(info->getType());
+		}
 	}
+
 	std::vector<Type*> result;
 	result.reserve(paramCount);
 	for (size_t i = 0; i < paramCount; ++i) {
