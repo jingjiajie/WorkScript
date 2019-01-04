@@ -22,10 +22,8 @@ GenerateResult WorkScript::CallExpression::generateIR(GenerateContext * context)
 	auto llvmArgs = this->parameters->getLLVMArgs(context);
 	auto prevInstCtx = context->getInstantializeContext();
 	auto builder = context->getIRBuilder();
-	size_t blockID = prevInstCtx->getBranchID();
-	InstantializeContext newInstCtx(blockID);
 	SymbolTable newInstTable;
-	newInstCtx.setInstanceSymbolTable(&newInstTable);
+	InstantializeContext newInstCtx(this->expressionInfo.getAbstractContext(), this->expressionInfo.getProgram()->getFunctionCache(), &newInstTable);
 	for (size_t i = 0; i < paramTypes.size(); ++i)
 	{
 		Type *paramType = paramTypes[i];
@@ -45,10 +43,8 @@ Type * CallExpression::getType(InstantializeContext *context) const
 	if (!func) {
 		throw WorkScriptException(L"Î´ÕÒµ½º¯Êý£º" + this->functionName);
 	}
-	size_t blockID = context->getBranchID();
-	InstantializeContext newInstCtx(blockID);
 	SymbolTable newInstTable;
-	newInstCtx.setInstanceSymbolTable(&newInstTable);
+	InstantializeContext newInstCtx(this->expressionInfo.getAbstractContext(), this->getProgram()->getFunctionCache(), &newInstTable);
 	for (size_t i = 0; i < paramTypes.size(); ++i)
 	{
 		Type *paramType = paramTypes[i];

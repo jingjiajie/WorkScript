@@ -54,7 +54,8 @@ llvm::Function * WorkScript::Function::getLLVMFunction(GenerateContext * context
 			Type *paramType = paramTypes[i];
 			llvmParamTypes.push_back(paramType->getLLVMType(context));
 		}
-		llvm::FunctionType *funcType = llvm::FunctionType::get(this->getReturnType(instCtx)->getLLVMType(context), llvmParamTypes, false);
+		Type *myReturnType = this->getReturnType(instCtx);
+		llvm::FunctionType *funcType = llvm::FunctionType::get(myReturnType->getLLVMType(context), llvmParamTypes, false);
 		//创建函数声明
 		llvm::Function *func = llvm::Function::Create(funcType,
 			llvm::Function::ExternalLinkage,
@@ -80,19 +81,23 @@ void WorkScript::Function::setReturnType(Type * returnType)
 	this->abstractType = program->getFunctionType(this->abstractType->getParameterTypes(), returnType);
 }
 
-bool WorkScript::Function::matchByParameters(const std::vector<Type*> &paramTypes)
+bool WorkScript::Function::matchByParameters(const std::vector<Type*>& declParamTypes, const std::vector<Type*>& realParamTypes)
 {
-	size_t paramCount = paramTypes.size();
-
-	if (paramCount != this->getParameterCount())return false;
-	auto declParamTypes = this->abstractType->getParameterTypes();
+	size_t paramCount = declParamTypes.size();
+	if (paramCount != realParamTypes.size())return false;
 	for (size_t i = 0; i < paramCount; ++i)
 	{
 		Type *formalParamType = declParamTypes[i];
-		if (!paramTypes[i])continue;
-		if (formalParamType && !formalParamType->equals(paramTypes[i]))return false;
+		if (!realParamTypes[i])continue;
+		if (formalParamType && !formalParamType->equals(realParamTypes[i]))return false;
 	}
 	return true;
+}
+
+bool WorkScript::Function::matchByParameters(const std::vector<Type*> &paramTypes)
+{
+	auto declParamTypes = this->abstractType->getParameterTypes();
+	return Function::matchByParameters(declParamTypes, paramTypes);
 }
 
 inline std::vector<Type*> WorkScript::Function::getParameterTypes(InstantializeContext * context) const

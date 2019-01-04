@@ -6,6 +6,7 @@
 #include "VoidType.h"
 #include "FunctionType.h"
 #include "Function.h"
+#include "FunctionCache.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -72,9 +73,9 @@ Program::~Program()
 
 void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule)
 {
-	GenerateContext ctx(llvmContext, llvmModule, nullptr);
-	InstantializeContext funcInstCtx(0, &this->globalSymbolTable);
-	ctx.setInstantializeContext(&funcInstCtx);
+	FunctionCache funcCache;
+	InstantializeContext funcInstCtx(&this->globalAbstractContext, &funcCache);
+	GenerateContext ctx(llvmContext, llvmModule, nullptr, &funcInstCtx);
 	Function *funcMain = this->getFirstFunction(L"main", {});
 	funcMain->generateLLVMIR(&ctx);
 }

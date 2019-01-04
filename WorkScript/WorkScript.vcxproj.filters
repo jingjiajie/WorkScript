@@ -79,6 +79,9 @@
     <Filter Include="Program\Function\Sources">
       <UniqueIdentifier>{2b5288e1-4b59-4351-aa17-593265049c24}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Program\Context">
+      <UniqueIdentifier>{cea6ce8b-36e6-4a1d-b3ac-e5b0108c0411}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Generated\WorkScriptBaseVisitor.h">
@@ -189,17 +192,8 @@
     <ClInclude Include="Location.h">
       <Filter>Program</Filter>
     </ClInclude>
-    <ClInclude Include="GenerateResult.h">
-      <Filter>Program\Tree</Filter>
-    </ClInclude>
-    <ClInclude Include="GenerateContext.h">
-      <Filter>Program\Tree</Filter>
-    </ClInclude>
     <ClInclude Include="ExpressionInfo.h">
       <Filter>Program\Tree\Expression</Filter>
-    </ClInclude>
-    <ClInclude Include="InstantializeContext.h">
-      <Filter>Program\Tree</Filter>
     </ClInclude>
     <ClInclude Include="FunctionType.h">
       <Filter>Program\Type\Headers</Filter>
@@ -236,6 +230,21 @@
     </ClInclude>
     <ClInclude Include="FormalParametersResolver.h">
       <Filter>Program\Function\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionCache.h">
+      <Filter>Program\Function\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="InstantializeContext.h">
+      <Filter>Program\Context</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateResult.h">
+      <Filter>Program\Context</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateContext.h">
+      <Filter>Program\Context</Filter>
+    </ClInclude>
+    <ClInclude Include="AbstractContext.h">
+      <Filter>Program\Context</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -339,9 +348,6 @@
     <ClCompile Include="ConstantExpression.cpp">
       <Filter>Program\Tree\ConstantExpression</Filter>
     </ClCompile>
-    <ClCompile Include="InstantializeContext.cpp">
-      <Filter>Program\Tree</Filter>
-    </ClCompile>
     <ClCompile Include="Function.cpp">
       <Filter>Program\Function\Sources</Filter>
     </ClCompile>
@@ -360,6 +366,13 @@
     <ClCompile Include="Parameter.cpp">
       <Filter>Program\Function\Sources</Filter>
     </ClCompile>
+    <ClCompile Include="FunctionCache.cpp">
+      <Filter>Program\Function\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="InstantializeContext.cpp">
+      <Filter>Program\Context</Filter>
+    </ClCompile>
+    <ClCompile Include="AbstractContext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

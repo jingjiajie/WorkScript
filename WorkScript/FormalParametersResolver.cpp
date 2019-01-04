@@ -10,26 +10,24 @@
 using namespace std;
 using namespace WorkScript;
 
-FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(const ExpressionInfo &exprInfo, SymbolTable *abstractSymbolTable, std::vector<Expression*> declParams, std::vector<Expression*> additionalConstraints)
+FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(const ExpressionInfo &exprInfo, InstantializeContext *ctx, std::vector<Expression*> declParams, std::vector<Expression*> additionalConstraints)
 {
 	size_t paramCount = declParams.size();
 	vector<Parameter*> paramTemplates(paramCount);
 	vector<Type*> paramTypes(paramCount);
 	vector<Expression*> constraints;
-	//TODO 分支ID要传入正确的数值
-	InstantializeContext ctx(0, abstractSymbolTable);
 
 	//处理参数声明，将参数和限制分别放入参数列表和限制列表中
 	for (size_t i = 0; i < paramCount; ++i) {
 		Expression *curExpr = declParams[i];
-		Type *curType = curExpr->getType(&ctx);
+		Type *curType = curExpr->getType(ctx);
 		paramTypes[i] = curType;
 
 		switch (curExpr->getExpressionType())
 		{
 		case ExpressionType::VARIABLE_EXPRESSION: {
 			VariableExpression* varExpr = (VariableExpression*)curExpr;
-			Parameter *param = new Parameter(varExpr->getName(),varExpr->getType(&ctx));
+			Parameter *param = new Parameter(varExpr->getName(),varExpr->getType(ctx));
 			paramTemplates[i] = param;
 			break;
 		}
@@ -39,7 +37,7 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(const 
 				throw std::move(SyntaxErrorException(curExpr->getLocation(), L"函数参数约束左部必须为变量！"));
 			}
 			VariableExpression *leftVar = (VariableExpression*)left;
-			Parameter *param = new Parameter(leftVar->getName(), leftVar->getType(&ctx));
+			Parameter *param = new Parameter(leftVar->getName(), leftVar->getType(ctx));
 			paramTemplates[i] = param;
 			constraints.push_back(curExpr);
 			break;
@@ -52,7 +50,7 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(const 
 			}
 			auto leftVar = (VariableExpression*)leftExpr;
 			//TODO 参数默认值处理
-			Parameter *param = new Parameter(leftVar->getName(), leftVar->getType(&ctx), nullptr);
+			Parameter *param = new Parameter(leftVar->getName(), leftVar->getType(ctx), nullptr);
 			paramTemplates[i] = param;
 			break;
 		}

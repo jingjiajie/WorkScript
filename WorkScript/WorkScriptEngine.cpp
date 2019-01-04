@@ -38,7 +38,9 @@ void WorkScriptEngine::run(const char * filePath)
 	llvm::LLVMContext llvmContext;
 	auto llvmModule = unique_ptr<llvm::Module>(new llvm::Module("main", llvmContext));
 	program.generateLLVMIR(&llvmContext, llvmModule.get());
-	//llvmModule->dump();
+	printf("IR dump:\n");
+	llvmModule->dump();
+	printf("\n\n");
 	string errorStr;
 	llvm::EngineBuilder b(std::move(llvmModule));
 	//llvm::RTDyldMemoryManager* RTDyldMM = NULL;
@@ -51,9 +53,9 @@ void WorkScriptEngine::run(const char * filePath)
 	e->finalizeObject();
 	typedef int(*TFMAIN)();
 	TFMAIN fmain = (TFMAIN)e->getPointerToNamedFunction("main");
-	int ret = fmain();
+	auto ret = fmain();
 	printf("WorkScript JITÖ´ÐÐ½á¹û£º\n");
-	printf("%d",ret);
+	printf("int value: %d\ndouble value:%lf", ret, ret);
 }
 
 void WorkScriptEngine::parseFile(const wchar_t * fileName, Program * outProgram) //throws SyntaxErrorException

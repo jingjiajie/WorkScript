@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
 #include "Expression.h"
+#include "AbstractContext.h"
 
-namespace WorkScript 
-{
+namespace WorkScript {
 	class BranchFunction;
 	class Parameter;
 
@@ -11,21 +11,19 @@ namespace WorkScript
 	{
 	public:
 		inline FunctionBranch(BranchFunction *function, size_t branchID, Location loc)
-			:abstractSymbolTable(branchID)
+			:abstractContext(branchID)
 		{
 			this->function = function;
 			this->location = loc;
-			this->branchID = branchID;
 		}
 
 		inline FunctionBranch(BranchFunction *function, size_t branchID, Location loc, const std::vector<Expression*> &constraints, const std::vector<Expression*> &implements)
-			:abstractSymbolTable(branchID)
+			:abstractContext(branchID)
 		{
 			this->function = function;
 			this->location = loc;
 			this->constraints = constraints;
 			this->implements = implements;
-			this->branchID = branchID;
 		}
 
 		~FunctionBranch();
@@ -35,18 +33,17 @@ namespace WorkScript
 		void setImplements(const std::vector<Expression*> implements);
 		llvm::BasicBlock * generateBlock(GenerateContext *context, llvm::Function *llvmFunc, llvm::BasicBlock *falseBlock);
 		inline Location getLocation() const { return this->location; };
-		inline SymbolTable * getAbstractSymbolTable() { return &this->abstractSymbolTable; }
+		inline SymbolTable * getAbstractSymbolTable() { return this->abstractContext.getAbstractSymbolTable(); }
 		inline Parameter * getParameter(size_t index) { return this->parameters[index]; }
 		inline std::vector<Parameter*> getParameters() { return this->parameters; }
 		inline void setParameters(const std::vector<Parameter*> &params) { this->parameters = params; }
-		inline size_t getBranchID() const { return this->branchID; }
+		inline size_t getBlockID() const { return this->abstractContext.getBlockID(); }
 	private:
 		BranchFunction * function;
-		size_t branchID = 0;
 		std::vector<Parameter*> parameters;
 		std::vector<Expression*> constraints;
 		std::vector<Expression*> implements;
 		Location location;
-		BlockSymbolTable abstractSymbolTable;
+		BlockAbstractContext abstractContext;
 	};
 }

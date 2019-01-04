@@ -3,24 +3,38 @@
 #include "SymbolInfo.h"
 #include "SymbolTable.h"
 #include "WorkScriptException.h"
+#include "Function.h"
+#include "FunctionCache.h"
+#include "AbstractContext.h"
 
 using namespace WorkScript;
 using namespace std;
 
 SymbolInfo * WorkScript::InstantializeContext::getSymbolInfo(const std::wstring & name)
 {
-	if (this->abstractSymbolTable) {
-		SymbolInfo *info = this->abstractSymbolTable->getSymbolInfo(name);
-		if (info) return info;
-	}
+	SymbolInfo *info = this->abstractContext->getSymbolInfo(name);
+	if (info) return info;
 	if (this->instanceSymbolTable) {
 		SymbolInfo *info = this->instanceSymbolTable->getSymbolInfo(name);
-		if(info) return info;
+		if (info) return info;
 	}
 	return nullptr;
 }
-//
-//std::vector<Type*> WorkScript::FunctionInstantializeContext::getRealParameterTypes()
-//{
-//	return this->realParameterTypes;
-//}
+
+void WorkScript::InstantializeContext::setFunctionTypeCache(Function *func, const std::vector<Type*>& paramTypes, Type * cacheReturnType)
+{
+	if (!this->functionCache)
+	{
+		throw WorkScriptException(L"Î´Ö¸¶¨º¯Êý»º´æÆ÷£¡");
+	}
+	this->functionCache->setFunctionTypeCache(func, paramTypes, cacheReturnType);
+}
+
+bool WorkScript::InstantializeContext::getFunctionTypeCache(Function *func, const std::vector<Type*>& paramTypes, Type ** outReturnType)
+{
+	if (!this->functionCache)
+	{
+		throw WorkScriptException(L"Î´Ö¸¶¨º¯Êý»º´æÆ÷£¡");
+	}
+	return this->functionCache->getFunctionTypeCache(func, paramTypes, outReturnType);
+}

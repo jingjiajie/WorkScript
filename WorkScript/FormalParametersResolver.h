@@ -22,6 +22,6 @@ namespace WorkScript {
 			std::vector<Type*> parameterTypes;
 		};
 
-		static ResolveResult resolve(const ExpressionInfo &exprInfo, SymbolTable *abstractSymbolTable, std::vector<Expression*> declParams, std::vector<Expression*> constraints);
+		static ResolveResult resolve(const ExpressionInfo &exprInfo, InstantializeContext *ctx, std::vector<Expression*> declParams, std::vector<Expression*> constraints);
 	};
 }

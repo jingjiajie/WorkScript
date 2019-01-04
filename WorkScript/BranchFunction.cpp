@@ -15,7 +15,11 @@ BranchFunction::~BranchFunction()
 
 Type * WorkScript::BranchFunction::getReturnType(InstantializeContext * instCtx)
 {
-	//TODO 如何推导返回值？
+	/*	推导返回值：
+	*	遍历所有函数分支，忽略所有nullptr（未知）的返回值
+	*	取所有可推导返回值中类型最高的作为函数返回值，	其他分支在返回时视情况做相应的类型转换
+	*	如果所有分支返回值都为nullptr（未知），则函数返回值为nullptr
+	*/
 	SymbolTable instSymbolTable;
 	auto paramTypes = this->getParameterTypes(instCtx);
 	for (size_t i = 0; i < this->getParameterCount(); ++i) {
@@ -23,9 +27,19 @@ Type * WorkScript::BranchFunction::getReturnType(InstantializeContext * instCtx)
 	}
 	auto prevTable = instCtx->getInstanceSymbolTable();
 	instCtx->setInstanceSymbolTable(&instSymbolTable);
-	auto ret = this->branches[0]->getReturnType(instCtx);
+	Type *returnType = nullptr;
+	if (!instCtx->getFunctionTypeCache(this, paramTypes, &returnType)) {
+		instCtx->setFunctionTypeCache(this, paramTypes, nullptr);
+		//推导每个分支的返回值，取最高类型
+		for (size_t i = 0; i < this->branches.size(); ++i) {
+			Type *curReturnType = this->branches[i]->getReturnType(instCtx);
+			if (!curReturnType) continue;
+			returnType = Type::getPromotedType(curReturnType, returnType);
+		}
+	}
 	instCtx->setInstanceSymbolTable(prevTable);
-	return ret;
+	instCtx->setFunctionTypeCache(this, paramTypes, returnType);
+	return returnType;
 }
 
 GenerateResult WorkScript::BranchFunction::generateLLVMIR(GenerateContext * context)

@@ -42,7 +42,6 @@ namespace WorkScript {
 		bool assignable = true;
 		bool declarable = false;
 		size_t curDepth = 0;
-		std::stack<size_t> branchIDs;
-		std::stack<SymbolTable*> symbolTables;
+		std::stack<AbstractContext*> abstractContexts;
 	};
 }

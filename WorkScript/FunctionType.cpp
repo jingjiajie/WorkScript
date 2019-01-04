@@ -39,9 +39,10 @@ std::wstring WorkScript::FunctionType::getName(const std::vector<Type*>& paramTy
 {
 	wstringstream ss;
 	ss << L"f";
-	if (returnType) {
-		ss << L"@" << returnType->getName();
-	}
+	//TODO 返回值必须和参数区分，否则参数和返回值类型同名会造成混淆
+	//if (returnType) {
+	//	ss << L"@" << returnType->getName();
+	//}
 	for (size_t i = 0; i < paramTypes.size(); ++i) {
 		ss << L"@" << (paramTypes[i] ? paramTypes[i]->getName() : L"?");
 	}

@@ -65,7 +65,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx)), new FloatConstant(program->getFloat64Type(), value)));
+		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new FloatConstant(program->getFloat64Type(), value)));
 	}
 	else {
 		int value = 0;
@@ -73,7 +73,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitNumberExpression(WorkScriptParser::Num
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx)), new IntegerConstant(program->getSInt32Type(), value)));
+		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new IntegerConstant(program->getSInt32Type(), value)));
 	}
 }
 
@@ -91,7 +91,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitStringExpression(WorkScriptParser::Str
 		delete[]unescapedText;
 		throw;
 	}
-	auto lpExpr = new ConstantExpression(ExpressionInfo(program, getLocation(ctx)), new StringConstant(unescapedText));
+	auto lpExpr = new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new StringConstant(unescapedText));
 	delete[]unescapedText;
 	return ExpressionWrapper(lpExpr);
 }
@@ -100,10 +100,10 @@ antlrcpp::Any WorkScriptVisitorImpl::visitBooleanExpression(WorkScriptParser::Bo
 {
 	string boolStr = ctx->BOOLEAN()->getText();
 	if (boolStr == "true" || boolStr == "yes" || boolStr == "ok" || boolStr == "good") {
-		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx)), new IntegerConstant(program->getUInt1Type(), 1)));
+		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new IntegerConstant(program->getUInt1Type(), 1)));
 	}
 	else if (boolStr == "false" || boolStr == "no" || boolStr == "bad") {
-		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx)), new IntegerConstant(program->getUInt1Type(), 0)));
+		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new IntegerConstant(program->getUInt1Type(), 0)));
 	}
 	else {
 		throw std::move(SyntaxErrorException(getLocation(ctx), L"无法识别的布尔值：" + Locale::ansiToUnicode(boolStr)));
@@ -113,7 +113,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitBooleanExpression(WorkScriptParser::Bo
 antlrcpp::Any WorkScriptVisitorImpl::visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx)
 {
 	string varName = ctx->identifier()->getText();
-	auto expr = new VariableExpression(ExpressionInfo(program, getLocation(ctx)), Locale::ansiToUnicode(varName));
+	auto expr = new VariableExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), Locale::ansiToUnicode(varName));
 	expr->setDeclarable(this->declarable); //等号左边的变量才可以创建声明
 	auto wrapper = ExpressionWrapper(expr);
 	return wrapper;
@@ -160,7 +160,8 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 		}
 	}
 	//解析参数和限制
-	auto resolveRes = FormalParametersResolver::resolve(ExpressionInfo(program, getLocation(ctx)), this->symbolTables.top(), paramDeclExprs, constraintsDecl);
+	InstantializeContext instCtx(this->abstractContexts.top(), this->program->getFunctionCache(), nullptr);
+	auto resolveRes = FormalParametersResolver::resolve(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), &instCtx, paramDeclExprs, constraintsDecl);
 	auto paramTypes = resolveRes.getParameterTypes();
 	auto params = resolveRes.getParameters();
 	auto constraints = resolveRes.getConstraints();
@@ -176,12 +177,11 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 	//为所有符合条件的函数重载添加函数分支
 	for (size_t i = 0; i < funcs.size(); ++i) {
 		BranchFunction *func = (BranchFunction*)funcs[i];
-		size_t branchID = func->getBranchCount();
+		size_t branchID = func->getBranchCount() + 1; //blockID从1开始
 		auto branch = new FunctionBranch(func, branchID, getLocation(ctx));
 		branch->setParameters(params);
-		func->addBranch(branch);
-		this->branchIDs.push(branchID);
-		this->symbolTables.push(branch->getAbstractSymbolTable());
+		BlockAbstractContext *newAbstractCtx = new BlockAbstractContext(branchID);
+		this->abstractContexts.push(newAbstractCtx);
 
 		/*将函数声明添加到相应的重载分支中*/
 		//寻找重载，同时判断是否和已有返回值类型相同，如果不存在则新建。
@@ -206,28 +206,29 @@ antlrcpp::Any WorkScriptVisitorImpl::visitFunctionExpression(WorkScriptParser::F
 		branch->setConstraints(constraints);
 		branch->setImplements(impls);
 		FORBID_ASSIGN;
-		InstantializeContext innerInstCtx(this->branchIDs.top(), this->symbolTables.top());
 		//恢复当前分支
-		this->symbolTables.pop();
-		this->branchIDs.pop();
+		this->abstractContexts.pop();
 
-		/*检查重载和当前重载分支的返回值类型是否相同*/
-		//TODO 若不相同，可以取两个返回值类型中的更高类型
-		InstantializeContext outerInstCtx(this->branchIDs.top(), this->symbolTables.top());
-		Type * returnType = nullptr;
-		if (impls.size() == 0) {
-			returnType = this->program->getVoidType();
-		}
-		else {
-			returnType = impls[impls.size() - 1]->getType(&innerInstCtx);
-		}
-		Type *funcReturnType = func->getReturnType(&outerInstCtx);
-		if (!funcReturnType) {
-			func->setReturnType(returnType);
-		}
-		else if (returnType && !returnType->equals(funcReturnType)) {
-			throw SyntaxErrorException(getLocation(ctx), L"返回值必须为" + funcReturnType->getName() + L"类型");
-		}
+		///*检查重载和当前重载分支的返回值类型是否相同*/
+		////TODO 若不相同，可以取两个返回值类型中的更高类型
+		//InstantializeContext &outerInstCtx = instCtx;
+		//InstantializeContext innerInstCtx(newAbstractCtx, program->getFunctionCache());
+		//Type * returnType = nullptr;
+		//if (impls.size() == 0) {
+		//	returnType = this->program->getVoidType();
+		//}
+		//else {
+		//	returnType = impls[impls.size() - 1]->getType(&innerInstCtx);
+		//}
+		//Type *funcReturnType = func->getReturnType(&outerInstCtx);
+		//if (!funcReturnType) {
+		//	func->setReturnType(returnType);
+		//	program->getFunctionCache()->setFunctionTypeCache(func, paramTypes, returnType);
+		//}
+		//else if (returnType && !returnType->equals(funcReturnType)) {
+		//	throw SyntaxErrorException(getLocation(ctx), L"返回值必须为" + funcReturnType->getName() + L"类型");
+		//}
+		func->addBranch(branch);
 	}
 	/*====恢复上一层====*/
 	--this->curDepth;
@@ -241,7 +242,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitCallExpression(WorkScriptParser::CallE
 	ExpressionWrapper paramExpressionWrapper = ctx->multiValueExpression()->accept(this);
 	auto funcName = Locale::ansiToUnicode(ctx->identifier()->getText());
 	auto paramExpr = (MultiValueExpression*)paramExpressionWrapper.getExpression();
-	auto expr = new CallExpression(ExpressionInfo(program, getLocation(ctx)), funcName, paramExpr);
+	auto expr = new CallExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), funcName, paramExpr);
 	RESTORE_ASSIGNABLE;
 	return ExpressionWrapper(expr);
 }
@@ -267,19 +268,19 @@ antlrcpp::Any WorkScriptVisitorImpl::visitAssignmentOrEqualsExpression(WorkScrip
 		auto right = ctx->expression()[1]->accept(this).as<ExpressionWrapper>().getExpression();
 		RESTORE_ASSIGNABLE;
 		//将赋值变量加入符号表
-		InstantializeContext instCtx(this->branchIDs.top(), this->symbolTables.top());
+		InstantializeContext instCtx(this->abstractContexts.top(), program->getFunctionCache());
 		if (left->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
 			auto leftVar = (VariableExpression*)left;
-			this->symbolTables.top()->setSymbol(leftVar->getName(), right->getType(&instCtx));
+			this->abstractContexts.top()->setSymbol(leftVar->getName(), right->getType(&instCtx));
 		}
-		return ExpressionWrapper(new AssignmentExpression(ExpressionInfo(program, getLocation(ctx)), left, right));
+		return ExpressionWrapper(new AssignmentExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), left, right));
 	}
 	else {
 		STORE_FORBID_ASSIGN;
 		auto left = ((ExpressionWrapper)ctx->expression()[0]->accept(this)).getExpression();
 		auto right = ((ExpressionWrapper)ctx->expression()[1]->accept(this)).getExpression();
 		RESTORE_ASSIGNABLE;
-		return ExpressionWrapper(new BinaryCompareExpression(ExpressionInfo(program, getLocation(ctx)), left, right, BinaryCompareExpression::CompareType::EQUAL));
+		return ExpressionWrapper(new BinaryCompareExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), left, right, BinaryCompareExpression::CompareType::EQUAL));
 	}
 }
 
@@ -289,7 +290,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitAssignmentExpression(WorkScriptParser:
 	auto left = ((ExpressionWrapper)ctx->expression()[0]->accept(this)).getExpression();
 	auto right = ((ExpressionWrapper)ctx->expression()[1]->accept(this)).getExpression();
 	RESTORE_ASSIGNABLE;
-	auto expr = new AssignmentExpression(ExpressionInfo(program, getLocation(ctx)), left, right);
+	auto expr = new AssignmentExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), left, right);
 	return ExpressionWrapper(expr);
 }
 
@@ -305,21 +306,10 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMultiValueExpression(WorkScriptParser:
 		auto itemExpr = wrapper.getExpression();
 		items.push_back(itemExpr);
 	}
-	auto expr = new WorkScript::MultiValueExpression(ExpressionInfo(program, getLocation(ctx)), items);
+	auto expr = new WorkScript::MultiValueExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), items);
 	RESTORE_ASSIGNABLE
 	return ExpressionWrapper(expr);
 }
-
-//antlrcpp::Any WorkScriptVisitorImpl::visitMemberEvaluateExpression(WorkScriptParser::MemberEvaluateExpressionContext *ctx)
-//{
-//	auto objExprCtx = ctx->expression()[0];
-//	ExpressionWrapper objExprWrapper = objExprCtx->accept(this);
-//	auto objExpr = objExprWrapper.getExpression();
-//	auto memberExprCtx = ctx->expression()[1];
-//	ExpressionWrapper memberExprWrapper = memberExprCtx->accept(this);
-//	auto memberExpr = memberExprWrapper.getExpression();
-//	return ExpressionWrapper(Expression*(new MemberEvaluateExpression(this->context,objExpr,memberExpr)));
-//}
 
 antlrcpp::Any WorkScriptVisitorImpl::visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *ctx)
 {
@@ -330,11 +320,11 @@ antlrcpp::Any WorkScriptVisitorImpl::visitPlusMinusExpression(WorkScriptParser::
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	RESTORE_ASSIGNABLE
 	if (ctx->PLUS()) {
-		Expression *expr = new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx)), leftExpression, rightExpression, BinaryCalculateExpression::PLUS);
+		Expression *expr = new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculateExpression::PLUS);
 		return ExpressionWrapper(expr);
 	}
 	else { //MINUS
-		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx)), leftExpression, rightExpression, BinaryCalculateExpression::MINUS));
+		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculateExpression::MINUS));
 	}
 }
 
@@ -347,13 +337,13 @@ antlrcpp::Any WorkScriptVisitorImpl::visitMultiplyDivideModulusExpression(WorkSc
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	RESTORE_ASSIGNABLE;
 	if (ctx->MULTIPLY()) {
-		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx)), leftExpression, rightExpression, BinaryCalculateExpression::MULTIPLY));
+		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculateExpression::MULTIPLY));
 	}
 	else if (ctx->DIVIDE()) {
-		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx)), leftExpression, rightExpression, BinaryCalculateExpression::DIVIDE));
+		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculateExpression::DIVIDE));
 	}
 	else { //MODULUS
-		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx)), leftExpression, rightExpression, BinaryCalculateExpression::MODULUS));
+		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculateExpression::MODULUS));
 	}
 }
 
@@ -389,7 +379,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitBinaryCompareExpression(WorkScriptPars
 	else {
 		compareType = BinaryCompareExpression::CompareType::LESS_THAN_EQUAL;
 	}
-	return new BinaryCompareExpression(ExpressionInfo(program, getLocation(ctx)), leftExpression, rightExpression, compareType);
+	return new BinaryCompareExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, compareType);
 }
 
 //antlrcpp::Any WorkScriptVisitorImpl::visitListExpression(WorkScriptParser::ListExpressionContext *ctx)
@@ -410,7 +400,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitBinaryCompareExpression(WorkScriptPars
 antlrcpp::Any WorkScriptVisitorImpl::visitNegativeExpression(WorkScriptParser::NegativeExpressionContext *ctx)
 {
 	ExpressionWrapper wrapper = ctx->expression()->accept(this);
-	auto expr = new UnaryOperatorExpression(ExpressionInfo(program, getLocation(ctx)), wrapper.getExpression(), UnaryOperatorExpression::NEGATIVE);
+	auto expr = new UnaryOperatorExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), wrapper.getExpression(), UnaryOperatorExpression::NEGATIVE);
 	return ExpressionWrapper(expr);
 }
 
@@ -430,8 +420,7 @@ antlrcpp::Any WorkScriptVisitorImpl::visitVarargsExpression(WorkScriptParser::Va
 WorkScriptVisitorImpl::WorkScriptVisitorImpl(Program *lpProgram)
 {
 	this->program = lpProgram;
-	this->symbolTables.push(lpProgram->getGlobalSymbolTable());
-	this->branchIDs.push(0);
+	this->abstractContexts.push(program->getGlobalAbstractContext());
 }
 
 WorkScriptVisitorImpl::~WorkScriptVisitorImpl()

@@ -6,11 +6,12 @@ namespace WorkScript {
 	class GenerateContext
 	{
 	public:
-		inline GenerateContext(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule, llvm::IRBuilder<> *irBuilder)
+		inline GenerateContext(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule, llvm::IRBuilder<> *irBuilder, InstantializeContext *instCtx)
 		{
 			this->setIRBuilder(irBuilder);
 			this->setLLVMContext(llvmContext);
 			this->setLLVMModule(llvmModule);
+			this->setInstantializeContext(instCtx);
 		}
 
 		inline llvm::LLVMContext * getLLVMContext() const { return this->llvmContext; }

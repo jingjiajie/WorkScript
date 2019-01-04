@@ -7,6 +7,8 @@
 #include "FloatType.h"
 #include "PointerType.h"
 #include "VoidType.h"
+#include "FunctionCache.h"
+#include "AbstractContext.h"
 
 namespace WorkScript {
 	class Function;
@@ -22,10 +24,12 @@ namespace WorkScript {
 
 		void generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule);
 
-		inline SymbolTable * getGlobalSymbolTable() { return &this->globalSymbolTable; }
+		inline SymbolTable * getGlobalSymbolTable() { return this->globalAbstractContext.getAbstractSymbolTable(); }
+		inline CommonAbstractContext * getGlobalAbstractContext() { return &this->globalAbstractContext; }
 		void addFunction(Function *func);
 		Function* getFirstFunction(const std::wstring &name, std::vector<Type*> paramTypes);
 		std::vector<Function*> getFunctions(const std::wstring &name, std::vector<Type*> paramTypes);
+		inline FunctionCache *getFunctionCache() { return &this->functionCache; }
 
 		FunctionType * getFunctionType(std::vector<Type*> paramTypes, Type *returnType);
 		inline static VoidType * getVoidType() { return &voidType; }
@@ -53,7 +57,8 @@ namespace WorkScript {
 		inline static PointerType * getFloat64PtrType() { return &float64ptr; }
 
 	protected:
-		SymbolTable globalSymbolTable;
+		CommonAbstractContext globalAbstractContext;
+		FunctionCache functionCache;
 		std::unordered_map<std::wstring, Type*> types;
 		std::unordered_map<std::wstring, std::vector<Function*>> functions;
 

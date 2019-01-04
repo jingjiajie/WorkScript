@@ -35,8 +35,11 @@ namespace WorkScript {
 		inline FunctionType *getType() { return this->abstractType; }
 		virtual Type *getReturnType(InstantializeContext *instCtx) = 0;
 		virtual void setReturnType(Type *type);
+		//CommonAbstractContext * getAbstractContext() { return &this->abstractContext; }
+		static bool matchByParameters(const std::vector<Type*> &declParamTypes, const std::vector<Type*> &realParamTypes);
 		bool matchByParameters(const std::vector<Type*> &paramTypes);
 
+		Program * getProgram() const { return this->program; }
 		inline size_t getParameterCount() const { return this->abstractType->getParameterCount(); }
 		inline std::vector<Type*> getParameterTypes(InstantializeContext *context) const;
 		inline std::wstring getName() const { return this->name; }
@@ -45,5 +48,6 @@ namespace WorkScript {
 		Program *program = nullptr;
 		std::vector<ParamTypesAndLLVMFunction> llvmFunctions;
 		FunctionType *abstractType;
+		//CommonAbstractContext abstractContext;
 	};
 }

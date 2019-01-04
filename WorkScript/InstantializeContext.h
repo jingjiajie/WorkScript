@@ -1,44 +1,38 @@
 #pragma once
 #include <vector>
+#include <memory>
 
 namespace WorkScript {
 	class SymbolTable;
 	class SymbolInfo;
 	class Type;
+	class Function;
+	class FunctionCache;
+	class AbstractContext;
 
 	class InstantializeContext {
 	public:
-		inline InstantializeContext(size_t branchID) :branchID(branchID) {}
-		inline InstantializeContext(size_t branchID, SymbolTable *abstractSymbolTable)
-			: abstractSymbolTable(abstractSymbolTable), branchID(branchID) {}
+		inline InstantializeContext(AbstractContext *abstractContext, FunctionCache *cache, SymbolTable *instanceSymbolTable = nullptr)
+			:abstractContext(abstractContext),
+			instanceSymbolTable(instanceSymbolTable),
+			functionCache(cache) {}
 
-		inline InstantializeContext(size_t blockID, SymbolTable *abstractSymbolTable, SymbolTable *instanceSymbolTable)
-			: abstractSymbolTable(abstractSymbolTable), instanceSymbolTable(instanceSymbolTable), branchID(branchID) {}
+		inline InstantializeContext(const InstantializeContext &c)
+			: abstractContext(c.abstractContext),
+			instanceSymbolTable(c.instanceSymbolTable),
+			functionCache(c.functionCache) {}
 
-		inline SymbolTable * getAbstractSymbolTable() { return this->abstractSymbolTable; }
-		inline void setAbstractSymbolTable(SymbolTable *table) { this->abstractSymbolTable = table; }
+		inline void setAbstractContext(AbstractContext *ctx) { this->abstractContext = ctx; }
 		inline SymbolTable * getInstanceSymbolTable() { return this->instanceSymbolTable; }
 		inline void setInstanceSymbolTable(SymbolTable *table) { this->instanceSymbolTable = table; }
-		inline void setBranchID(size_t branchID) { this->branchID = branchID; }
-		inline size_t getBranchID()const { return this->branchID; }
+
 		SymbolInfo * getSymbolInfo(const std::wstring &name);
 
+		void setFunctionTypeCache(Function *func, const std::vector<Type*> &paramTypes, Type *cacheReturnType);
+		bool getFunctionTypeCache(Function *func, const std::vector<Type*> &paramTypes, Type **outReturnType);
 	protected:
-		SymbolTable * abstractSymbolTable = nullptr;
+		AbstractContext * abstractContext = nullptr;
 		SymbolTable * instanceSymbolTable = nullptr;
-		size_t branchID = 0;
+		FunctionCache *functionCache = nullptr;
 	};
-/*
-	class FunctionInstantializeContext : public InstantializeContext{
-	public:
-		using InstantializeContext::InstantializeContext;
-		FunctionInstantializeContext(SymbolTable *abstractSymbolTable, SymbolTable *instanceSymbolTable, const std::vector<Type*> &realParamTypes)
-			:InstantializeContext(abstractSymbolTable, instanceSymbolTable), realParameterTypes(realParamTypes) { }
-		FunctionInstantializeContext(const std::vector<Type*> &realParamTypes) 
-			:realParameterTypes(realParamTypes)	{ }
-
-		std::vector<Type*> getRealParameterTypes();
-	protected:
-		std::vector<Type*> realParameterTypes;
-	};*/
 }
