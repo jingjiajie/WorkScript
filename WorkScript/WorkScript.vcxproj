@@ -391,6 +391,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StringConstant.h" />
     <ClInclude Include="ConstantExpression.h" />
+    <ClInclude Include="SymbolCollectVisitor.h" />
     <ClInclude Include="SymbolInfo.h" />
     <ClInclude Include="SymbolTable.h" />
     <ClInclude Include="SyntaxErrorException.h" />
@@ -404,7 +405,7 @@
     <ClInclude Include="VoidType.h" />
     <ClInclude Include="WorkScriptEngine.h" />
     <ClInclude Include="WorkScriptException.h" />
-    <ClInclude Include="WorkScriptVisitorImpl.h" />
+    <ClInclude Include="TreeCreateVisitor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AbstractContext.cpp" />
@@ -451,7 +452,7 @@
     <ClCompile Include="Expression.cpp" />
     <ClCompile Include="WorkScriptEngine.cpp" />
     <ClCompile Include="WorkScriptException.cpp" />
-    <ClCompile Include="WorkScriptVisitorImpl.cpp">
+    <ClCompile Include="TreeCreateVisitor.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>

@@ -96,9 +96,6 @@
     <ClInclude Include="Generated\WorkScriptVisitor.h">
       <Filter>ANTLR\ANTLRGenerated</Filter>
     </ClInclude>
-    <ClInclude Include="WorkScriptVisitorImpl.h">
-      <Filter>ANTLR\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="AssignmentExpression.h">
       <Filter>Program\Tree\OperatorExpressions\Headers</Filter>
     </ClInclude>
@@ -246,6 +243,12 @@
     <ClInclude Include="AbstractContext.h">
       <Filter>Program\Context</Filter>
     </ClInclude>
+    <ClInclude Include="SymbolCollectVisitor.h">
+      <Filter>ANTLR\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TreeCreateVisitor.h">
+      <Filter>ANTLR\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WorkScript.cpp" />
@@ -260,9 +263,6 @@
     </ClCompile>
     <ClCompile Include="Generated\WorkScriptVisitor.cpp">
       <Filter>ANTLR\ANTLRGenerated</Filter>
-    </ClCompile>
-    <ClCompile Include="WorkScriptVisitorImpl.cpp">
-      <Filter>ANTLR\Sources</Filter>
     </ClCompile>
     <ClCompile Include="AssignmentExpression.cpp">
       <Filter>Program\Tree\OperatorExpressions\Sources</Filter>
@@ -373,6 +373,9 @@
       <Filter>Program\Context</Filter>
     </ClCompile>
     <ClCompile Include="AbstractContext.cpp" />
+    <ClCompile Include="TreeCreateVisitor.cpp">
+      <Filter>ANTLR\Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

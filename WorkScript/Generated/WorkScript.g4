@@ -55,9 +55,18 @@ functionExpression:
 		functionConstraintExpression;
 
 functionDeclarationExpression:
-	identifier? LEFT_PARENTHESE formalParameterExpression RIGHT_PARENTHESE;
+	(functionName? | typeName functionName) LEFT_PARENTHESE formalParameterExpression RIGHT_PARENTHESE;
 
-formalParameterExpression: multiValueExpression; //TODO 函数的参数类型
+typeName: identifier;
+functionName: identifier;
+
+formalParameterExpression: (
+		NEWLINE* formalParameterItem (
+			NEWLINE* (NEWLINE | COMMA) NEWLINE* formalParameterItem
+		)*
+	)? NEWLINE* COMMA? NEWLINE*;
+
+formalParameterItem: typeName? expression;
 
 functionImplementationExpression:
 	(EQUALS | RIGHT_ARROW) expression

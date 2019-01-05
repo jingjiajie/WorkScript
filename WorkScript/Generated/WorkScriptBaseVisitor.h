@@ -111,7 +111,19 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitTypeName(WorkScriptParser::TypeNameContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitFunctionName(WorkScriptParser::FunctionNameContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitFormalParameterExpression(WorkScriptParser::FormalParameterExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitFormalParameterItem(WorkScriptParser::FormalParameterItemContext *ctx) override {
     return visitChildren(ctx);
   }
 

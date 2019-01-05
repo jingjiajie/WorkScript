@@ -86,7 +86,8 @@ size_t WorkScript::BranchFunction::addBranch(FunctionBranch *branch)
 {
 	auto params = branch->getParameters();
 	if (params.size() != this->getParameterCount()) {
-		throw WorkScriptException(L"函数参数不匹配！");
+		//Location信息
+		throw WorkScriptException(Location(), L"函数参数不匹配！");
 	}
 	this->branches.push_back(branch);
 	return this->branches.size() - 1;

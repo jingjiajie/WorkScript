@@ -19,9 +19,11 @@ namespace WorkScript {
 
 		virtual bool equals(const Type *type) const;
 
-		static GenerateResult generateLLVMTypePromote(GenerateContext *context, Expression *expr, Type *targetType);
-		static GenerateResult generateLLVMTypePromote(GenerateContext *context, Expression *left, Expression *right, Type *promotedType);
+		static GenerateResult generateLLVMTypeConvert(GenerateContext *context, Expression *expr, Type *targetType);
+		static GenerateResult generateLLVMTypeConvert(GenerateContext *context, Expression *left, Expression *right, Type *promotedType);
 		static Type * getPromotedType(Type *type1, Type *type2);
+		static bool convertableTo(Type *src, Type *target);
+		bool convertableTo(Type *target);
 
 		virtual inline TypeClassification getClassification() const = 0;
 		virtual llvm::Type* getLLVMType(GenerateContext *context) const = 0;

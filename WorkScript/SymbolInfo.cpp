@@ -27,7 +27,8 @@ llvm::Value * WorkScript::SymbolInfo::getLLVMValuePtr(GenerateContext * context)
 	if (!this->llvmValuePtr)
 	{
 		if(this->llvmValue){
-			throw WorkScriptException(L"变量"+this->name+L"不可赋值！");
+			//TODO Location信息
+			throw WorkScriptException(Location(), L"变量"+this->name+L"不可赋值！");
 		}
 		auto builder = context->getIRBuilder();
 		this->llvmValuePtr = builder->CreateAlloca(this->type->getLLVMType(context), nullptr, Locale::unicodeToUTF8(this->name));

@@ -88,29 +88,59 @@ Type * Type::getPromotedType(Type * left, Type * right)
 	}
 
 UNSUPPORTED:
-	throw WorkScriptException(L"不支持的类型转换" + left->getName() + L" 和 " + right->getName());
+	//TODO Location信息
+	throw WorkScriptException(Location(), L"不支持的类型转换" + left->getName() + L" 和 " + right->getName());
 }
 
-GenerateResult Type::generateLLVMTypePromote(GenerateContext * context, Expression * left, Expression * right, Type *promotedType)
+bool WorkScript::Type::convertableTo(Type * src, Type * target)
+{
+	if (src->equals(target))return true;
+	switch (src->getClassification())
+	{
+	case TypeClassification::FLOAT:
+	case TypeClassification::INTEGER:
+	{
+		switch (target->getClassification())
+		{
+		case TypeClassification::FLOAT:
+		case TypeClassification::INTEGER:
+		{
+			return true;
+		}
+		default:
+			return false;
+		}
+	}
+	default:
+		return false;
+	}
+}
+
+bool WorkScript::Type::convertableTo(Type * target)
+{
+	return Type::convertableTo(this, target);
+}
+
+GenerateResult Type::generateLLVMTypeConvert(GenerateContext * context, Expression * left, Expression * right, Type *promotedType)
 {
 	auto builder = context->getIRBuilder();
 	Type *leftType = left->getType(context->getInstantializeContext());
 	Type *rightType = right->getType(context->getInstantializeContext());
 	if (promotedType->equals(leftType)) { //类型提升到左部类型
-		return GenerateResult(left->generateIR(context).getValue(), Type::generateLLVMTypePromote(context, right, promotedType).getValue());
+		return GenerateResult(left->generateIR(context).getValue(), Type::generateLLVMTypeConvert(context, right, promotedType).getValue());
 	}
 	else if (promotedType->equals(rightType)) { //类型提升到右部类型
-		return GenerateResult(Type::generateLLVMTypePromote(context, left, promotedType).getValue(), right->generateIR(context).getValue());
+		return GenerateResult(Type::generateLLVMTypeConvert(context, left, promotedType).getValue(), right->generateIR(context).getValue());
 	}
 	else { //两边都需要提升
 		return GenerateResult(
-			Type::generateLLVMTypePromote(context, left, promotedType).getValue(),
-			Type::generateLLVMTypePromote(context, right, promotedType).getValue()
+			Type::generateLLVMTypeConvert(context, left, promotedType).getValue(),
+			Type::generateLLVMTypeConvert(context, right, promotedType).getValue()
 		);
 	}
 }
 
-GenerateResult Type::generateLLVMTypePromote(GenerateContext * context, Expression * expr, Type * targetType)
+GenerateResult Type::generateLLVMTypeConvert(GenerateContext * context, Expression * expr, Type * targetType)
 {
 	Type *srcType = expr->getType(context->getInstantializeContext());
 	llvm::Value *srcValue = expr->generateIR(context).getValue();
@@ -158,7 +188,7 @@ GenerateResult Type::generateLLVMTypePromote(GenerateContext * context, Expressi
 			else return irBuilder->CreateFPToUI(srcValue, targetLLVMType);
 		}
 		case TypeClassification::FLOAT: /*目标类型为Float*/ {
-			return irBuilder->CreateFPExt(srcValue, targetLLVMType);
+			return irBuilder->CreateFPCast(srcValue, targetLLVMType);
 		}
 		default:
 			goto UNSUPPORTED;
@@ -170,5 +200,6 @@ GenerateResult Type::generateLLVMTypePromote(GenerateContext * context, Expressi
 	}
 
 UNSUPPORTED:
-	throw WorkScriptException(L"不支持的类型转换：" + srcType->getName() + L" 到 " + targetType->getName());
+	//Location 信息
+	throw WorkScriptException(Location(), L"不支持的类型转换：" + srcType->getName() + L" 到 " + targetType->getName());
 }

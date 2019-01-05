@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PointerType.h"
 #include "WorkScriptException.h"
+#include "Location.h"
 
 using namespace WorkScript;
 using namespace std;
@@ -30,7 +31,8 @@ llvm::Type * PointerType::getLLVMType(GenerateContext * ctx) const
 	//default:
 	//	throw WorkScriptException(L"不支持的整数长度：" + this->length);
 	//}
-	throw UnimplementedException(L"未实现");
+	//TODO Location信息
+	throw UnimplementedException(Location(), L"未实现");
 }
 
 bool PointerType::equals(const Type * type) const

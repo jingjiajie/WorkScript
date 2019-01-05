@@ -17,7 +17,7 @@ GenerateResult WorkScript::BinaryCalculateExpression::generateIR(GenerateContext
 	TypeClassification leftCls = leftType->getClassification();
 	TypeClassification rightCls = rightType->getClassification();
 	Type *promotedType = Type::getPromotedType(leftType, rightType);
-	GenerateResult res = Type::generateLLVMTypePromote(context, leftExpr, rightExpr, promotedType);
+	GenerateResult res = Type::generateLLVMTypeConvert(context, leftExpr, rightExpr, promotedType);
 	switch (promotedType->getClassification())
 	{
 	case TypeClassification::INTEGER: {
@@ -32,7 +32,7 @@ GenerateResult WorkScript::BinaryCalculateExpression::generateIR(GenerateContext
 	}
 
 UNSUPPORTED:
-	throw WorkScriptException(L"双目运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
+	throw WorkScriptException(this->expressionInfo.getLocation(), L"双目运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
 }
 
 Type * WorkScript::BinaryCalculateExpression::getType(InstantializeContext *context) const
@@ -70,7 +70,7 @@ std::wstring WorkScript::BinaryCalculateExpression::getOperatorString() const
 		return L"%";
 		break;
 	default:
-		throw WorkScriptException(L"未知操作符");
+		throw WorkScriptException(this->expressionInfo.getLocation(), L"未知操作符");
 	}
 }
 
@@ -106,7 +106,7 @@ GenerateResult WorkScript::BinaryCalculateExpression::generateLLVMIRInteger(Gene
 		}
 		break;
 	default:
-		throw WorkScriptException(L"未知操作符");
+		throw WorkScriptException(this->expressionInfo.getLocation(), L"未知操作符");
 	}
 
 	return res;
@@ -134,7 +134,7 @@ GenerateResult WorkScript::BinaryCalculateExpression::generateLLVMIRFloat(Genera
 			res = irBuilder->CreateFRem(left, right);
 		break;
 	default:
-		throw WorkScriptException(L"未知操作符");
+		throw WorkScriptException(this->expressionInfo.getLocation(), L"未知操作符");
 	}
 
 	return res;

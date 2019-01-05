@@ -1,6 +1,7 @@
 #pragma once
 #include <exception>
 #include <string>
+#include "Location.h"
 
 #define EXCEPTION_COMMON_DECL(CLASS_NAME) \
 class CLASS_NAME : public WorkScriptException { public: using WorkScriptException::WorkScriptException; };
@@ -9,7 +10,8 @@ namespace WorkScript {
 	class WorkScriptException : public std::exception
 	{
 	public:
-		inline WorkScriptException(const std::wstring &wmsg)
+		inline WorkScriptException(Location loc, const std::wstring &wmsg)
+			:location(loc)
 		{
 			this->setMessage(wmsg.c_str());
 		}
@@ -18,6 +20,7 @@ namespace WorkScript {
 
 		void setMessage(const std::wstring &msg);
 	protected:
+		Location location;
 		std::wstring message;
 		std::string messageANSI;
 	};
@@ -31,6 +34,7 @@ namespace WorkScript {
 	EXCEPTION_COMMON_DECL(UnimplementedException);
 	EXCEPTION_COMMON_DECL(UninvocableException);
 	EXCEPTION_COMMON_DECL(UndefinedSymbolException);
+	EXCEPTION_COMMON_DECL(TypeNotFoundException);
 }
 
 

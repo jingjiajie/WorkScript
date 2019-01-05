@@ -39,7 +39,7 @@ GenerateResult WorkScript::UnaryOperatorExpression::generateIR(GenerateContext *
 		res = irBuilder->CreateNot(subValue);
 		break;
 	default:
-		throw WorkScriptException(L"未知的单目运算符");
+		throw WorkScriptException(this->expressionInfo.getLocation(), L"未知的单目运算符");
 	}
 
 	return res;
@@ -59,6 +59,6 @@ std::wstring WorkScript::UnaryOperatorExpression::getOperatorString() const
 	case OperatorType::NOT:
 		return L"!";
 	default:
-		throw WorkScriptException(L"未知的单目运算符");
+		throw WorkScriptException(this->expressionInfo.getLocation(), L"未知的单目运算符");
 	}
 }

@@ -67,7 +67,13 @@ public:
 
     virtual antlrcpp::Any visitFunctionDeclarationExpression(WorkScriptParser::FunctionDeclarationExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitTypeName(WorkScriptParser::TypeNameContext *context) = 0;
+
+    virtual antlrcpp::Any visitFunctionName(WorkScriptParser::FunctionNameContext *context) = 0;
+
     virtual antlrcpp::Any visitFormalParameterExpression(WorkScriptParser::FormalParameterExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitFormalParameterItem(WorkScriptParser::FormalParameterItemContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionImplementationExpression(WorkScriptParser::FunctionImplementationExpressionContext *context) = 0;
 

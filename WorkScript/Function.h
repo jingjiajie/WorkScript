@@ -10,6 +10,10 @@
 namespace WorkScript {
 	class FunctionType;
 
+	enum MatchResult {
+		MISMATCHED, MATCHED, COMPROMISE_MATCHED,
+	};
+
 	class ParamTypesAndLLVMFunction {
 	public:
 		ParamTypesAndLLVMFunction(std::vector<Type*> types, llvm::Function* func)
@@ -36,8 +40,8 @@ namespace WorkScript {
 		virtual Type *getReturnType(InstantializeContext *instCtx) = 0;
 		virtual void setReturnType(Type *type);
 		//CommonAbstractContext * getAbstractContext() { return &this->abstractContext; }
-		static bool matchByParameters(const std::vector<Type*> &declParamTypes, const std::vector<Type*> &realParamTypes);
-		bool matchByParameters(const std::vector<Type*> &paramTypes);
+		static MatchResult matchByParameters(const std::vector<Type*> &declParamTypes, const std::vector<Type*> &realParamTypes);
+		MatchResult matchByParameters(const std::vector<Type*> &paramTypes);
 
 		Program * getProgram() const { return this->program; }
 		inline size_t getParameterCount() const { return this->abstractType->getParameterCount(); }

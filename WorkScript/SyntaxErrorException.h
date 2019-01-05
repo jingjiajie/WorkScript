@@ -10,13 +10,11 @@ namespace WorkScript {
 	{
 	public:
 		inline SyntaxErrorException(Location loc, const std::wstring &message)
-			: WorkScriptException(this->makeErrorMessage(loc, message).c_str()), location(loc)
+			: WorkScriptException(loc, this->makeErrorMessage(loc, message).c_str())
 		{
 		}
 
 	protected:
-		Location location;
-
 		inline std::wstring makeErrorMessage(Location loc, const std::wstring &msg)const {
 			std::wstringstream ss;
 			ss << L"语法错误（第" << loc.getLine() << L"行, 第" << loc.getColumn() << L"列）：" << msg;

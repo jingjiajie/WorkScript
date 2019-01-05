@@ -41,7 +41,7 @@ PointerType Program::float64ptr(nullptr, L"float64ptr", &Program::float64);
 
 Program::Program()
 {
-
+	this->initPrimitiveTypes();
 }
 
 Program::~Program()
@@ -55,21 +55,25 @@ Program::~Program()
 	}
 	for (auto itType : this->types) 
 	{
-		delete itType.second;
+		Type *type = itType.second;
+		if (type->getClassification() == TypeClassification::CLASS
+			|| type->getClassification() == TypeClassification::FUNCTION) {
+			delete type;
+		}
 	}
 }
 
-//Type * WorkScript::Program::getType(const std::wstring & name) const
-//{
-//	auto it = this->types.find(name);
-//	if (it == this->types.end()) return nullptr;
-//	else return it->second;
-//}
-//
-//void WorkScript::Program::addType(Type * abstractType)
-//{
-//	this->types[abstractType->getName()] = abstractType;
-//}
+Type * WorkScript::Program::getType(const std::wstring & name) const
+{
+	auto it = this->types.find(name);
+	if (it == this->types.end()) return nullptr;
+	else return it->second;
+}
+
+void WorkScript::Program::addType(const std::wstring &name, Type * type)
+{
+	this->types[name] = type;
+}
 
 void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule)
 {
@@ -91,16 +95,22 @@ Function * WorkScript::Program::getFirstFunction(const std::wstring & name, std:
 	auto it = this->functions.find(name);
 	if (it == this->functions.end())return nullptr;
 	vector<Function*> functions = it->second;
+	Function *compromiseFunction = nullptr;
 	for (size_t i = 0; i < functions.size(); ++i)
 	{
-		if (functions[i]->matchByParameters(paramTypes)) {
+		MatchResult res = functions[i]->matchByParameters(paramTypes);
+		switch (res)
+		{
+		case WorkScript::MATCHED:
 			return functions[i];
+		case WorkScript::COMPROMISE_MATCHED:
+			if (!compromiseFunction) compromiseFunction = functions[i];
 		}
 	}
-	return nullptr;
+	return compromiseFunction;
 }
 
-std::vector<Function*> WorkScript::Program::getFunctions(const std::wstring & name, std::vector<Type*> paramTypes)
+std::vector<Function*> WorkScript::Program::getFunctions(const std::wstring & name, std::vector<Type*> paramTypes, bool compromise)
 {
 	std::vector<Function*> result;
 	auto it = this->functions.find(name);
@@ -108,7 +118,8 @@ std::vector<Function*> WorkScript::Program::getFunctions(const std::wstring & na
 	vector<Function*> functions = it->second;
 	for (size_t i = 0; i < functions.size(); ++i)
 	{
-		if (functions[i]->matchByParameters(paramTypes)) {
+		MatchResult res = functions[i]->matchByParameters(paramTypes);
+		if (res == MatchResult::MATCHED || (compromise && res == MatchResult::COMPROMISE_MATCHED)) {
 			result.push_back(functions[i]);
 		}
 	}
@@ -125,4 +136,20 @@ FunctionType * WorkScript::Program::getFunctionType(std::vector<Type*> paramType
 	FunctionType *funcType = new FunctionType(this, paramTypes, returnType);
 	this->types[funcType->getName()] = funcType;
 	return funcType;
+}
+
+void WorkScript::Program::initPrimitiveTypes()
+{
+	this->addType(L"char", &sint8);
+	this->addType(L"short", &sint16);
+	this->addType(L"int", &sint32);
+	this->addType(L"long", &sint64);
+	this->addType(L"bool", &uint1);
+	this->addType(L"unsigned char", &uint8);
+	this->addType(L"unsigned short", &uint16);
+	this->addType(L"unsigned int", &uint32);
+	this->addType(L"unsigned long", &uint64);
+	this->addType(L"float", &float32);
+	this->addType(L"double",&float64);
+	this->addType(L"void", &voidType);
 }

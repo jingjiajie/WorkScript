@@ -21,6 +21,9 @@ namespace WorkScript {
 			this->expression = expression;
 		}
 
+		operator Expression*() {
+			return this->expression;
+		}
 	protected:
 		Expression * expression;
 	};

@@ -100,7 +100,7 @@ llvm::BasicBlock * WorkScript::FunctionBranch::generateBlock(GenerateContext * c
 			Type *branchReturnType = curExpr->getType(&newInstCtx);
 			Type *finalReturnType = Type::getPromotedType(branchReturnType, returnType);
 			if (!finalReturnType->equals(branchReturnType)) {
-				res = Type::generateLLVMTypePromote(context, curExpr, finalReturnType).getValue();
+				res = Type::generateLLVMTypeConvert(context, curExpr, finalReturnType).getValue();
 			}
 			builder.CreateRet(res);
 		}

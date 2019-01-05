@@ -303,6 +303,30 @@ public class WorkScriptBaseListener implements WorkScriptListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTypeName(WorkScriptParser.TypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTypeName(WorkScriptParser.TypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFunctionName(WorkScriptParser.FunctionNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunctionName(WorkScriptParser.FunctionNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFormalParameterExpression(WorkScriptParser.FormalParameterExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -310,6 +334,18 @@ public class WorkScriptBaseListener implements WorkScriptListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFormalParameterExpression(WorkScriptParser.FormalParameterExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFormalParameterItem(WorkScriptParser.FormalParameterItemContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFormalParameterItem(WorkScriptParser.FormalParameterItemContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

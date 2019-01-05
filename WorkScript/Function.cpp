@@ -81,20 +81,24 @@ void WorkScript::Function::setReturnType(Type * returnType)
 	this->abstractType = program->getFunctionType(this->abstractType->getParameterTypes(), returnType);
 }
 
-bool WorkScript::Function::matchByParameters(const std::vector<Type*>& declParamTypes, const std::vector<Type*>& realParamTypes)
+MatchResult WorkScript::Function::matchByParameters(const std::vector<Type*>& declParamTypes, const std::vector<Type*>& realParamTypes)
 {
+	bool compromised = false;
 	size_t paramCount = declParamTypes.size();
-	if (paramCount != realParamTypes.size())return false;
+	if (paramCount != realParamTypes.size())return MISMATCHED;
 	for (size_t i = 0; i < paramCount; ++i)
 	{
 		Type *formalParamType = declParamTypes[i];
 		if (!realParamTypes[i])continue;
-		if (formalParamType && !formalParamType->equals(realParamTypes[i]))return false;
+		if (formalParamType && !formalParamType->equals(realParamTypes[i])) {
+			if (Type::convertableTo(realParamTypes[i], formalParamType)) compromised = true;
+			else return MISMATCHED;
+		}
 	}
-	return true;
+	return compromised ? COMPROMISE_MATCHED : MATCHED;
 }
 
-bool WorkScript::Function::matchByParameters(const std::vector<Type*> &paramTypes)
+MatchResult WorkScript::Function::matchByParameters(const std::vector<Type*> &paramTypes)
 {
 	auto declParamTypes = this->abstractType->getParameterTypes();
 	return Function::matchByParameters(declParamTypes, paramTypes);
@@ -117,7 +121,8 @@ inline std::vector<Type*> WorkScript::Function::getParameterTypes(InstantializeC
 				break; 
 			}
 			else {
-				throw WorkScriptException(L"参数不匹配！");
+				//TODO 函数包含Location信息
+				throw WorkScriptException(Location(), L"参数不匹配！");
 			}
 		}
 		else {
@@ -131,11 +136,12 @@ inline std::vector<Type*> WorkScript::Function::getParameterTypes(InstantializeC
 		if (declParamTypes[i] == nullptr) {
 			result.push_back(realParamTypes[i]);
 		}
-		else if (declParamTypes[i]->equals(realParamTypes[i])) {
-			result.push_back(realParamTypes[i]);
+		else if (realParamTypes[i]->convertableTo(declParamTypes[i])) {
+			result.push_back(declParamTypes[i]);
 		}
 		else {
-			throw WorkScriptException(L"参数类型不匹配！");
+			//TODO Location信息
+			throw WorkScriptException(Location(), L"参数类型不匹配！");
 		}
 	}
 	return result;

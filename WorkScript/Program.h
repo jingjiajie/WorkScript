@@ -19,8 +19,8 @@ namespace WorkScript {
 		Program();
 		~Program();
 
-		//Type * getType(const std::wstring &name) const;
-		//void addType(Type *abstractType);
+		Type * getType(const std::wstring &name) const;
+		void addType(const std::wstring &name, Type *type);
 
 		void generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule);
 
@@ -28,7 +28,7 @@ namespace WorkScript {
 		inline CommonAbstractContext * getGlobalAbstractContext() { return &this->globalAbstractContext; }
 		void addFunction(Function *func);
 		Function* getFirstFunction(const std::wstring &name, std::vector<Type*> paramTypes);
-		std::vector<Function*> getFunctions(const std::wstring &name, std::vector<Type*> paramTypes);
+		std::vector<Function*> getFunctions(const std::wstring &name, std::vector<Type*> paramTypes, bool compromise = false);
 		inline FunctionCache *getFunctionCache() { return &this->functionCache; }
 
 		FunctionType * getFunctionType(std::vector<Type*> paramTypes, Type *returnType);
@@ -57,6 +57,8 @@ namespace WorkScript {
 		inline static PointerType * getFloat64PtrType() { return &float64ptr; }
 
 	protected:
+		void initPrimitiveTypes();
+
 		CommonAbstractContext globalAbstractContext;
 		FunctionCache functionCache;
 		std::unordered_map<std::wstring, Type*> types;

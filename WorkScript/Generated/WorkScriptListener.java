@@ -277,6 +277,26 @@ public interface WorkScriptListener extends ParseTreeListener {
 	 */
 	void exitFunctionDeclarationExpression(WorkScriptParser.FunctionDeclarationExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link WorkScriptParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeName(WorkScriptParser.TypeNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link WorkScriptParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeName(WorkScriptParser.TypeNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link WorkScriptParser#functionName}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunctionName(WorkScriptParser.FunctionNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link WorkScriptParser#functionName}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunctionName(WorkScriptParser.FunctionNameContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link WorkScriptParser#formalParameterExpression}.
 	 * @param ctx the parse tree
 	 */
@@ -286,6 +306,16 @@ public interface WorkScriptListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFormalParameterExpression(WorkScriptParser.FormalParameterExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link WorkScriptParser#formalParameterItem}.
+	 * @param ctx the parse tree
+	 */
+	void enterFormalParameterItem(WorkScriptParser.FormalParameterItemContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link WorkScriptParser#formalParameterItem}.
+	 * @param ctx the parse tree
+	 */
+	void exitFormalParameterItem(WorkScriptParser.FormalParameterItemContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link WorkScriptParser#functionImplementationExpression}.
 	 * @param ctx the parse tree

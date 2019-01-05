@@ -9,7 +9,7 @@ namespace WorkScript {
 	class Program;
 	class FunctionBranch;
 
-	class WorkScriptVisitorImpl :
+	class TreeCreateVisitor :
 		public WorkScriptBaseVisitor
 	{
 	public:
@@ -34,8 +34,8 @@ namespace WorkScript {
 		antlrcpp::Any visitPositiveExpression(WorkScriptParser::PositiveExpressionContext*)override;
 		antlrcpp::Any visitVarargsExpression(WorkScriptParser::VarargsExpressionContext*)override;
 		//antlrcpp::Any visitAccessLevelExpression(WorkScriptParser::AccessLevelExpressionContext*)override;
-		WorkScriptVisitorImpl(Program* program);
-		virtual ~WorkScriptVisitorImpl();
+		TreeCreateVisitor(Program* program);
+		virtual ~TreeCreateVisitor();
 
 	private:
 		Program * program = nullptr;

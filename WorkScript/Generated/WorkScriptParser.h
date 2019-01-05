@@ -26,9 +26,10 @@ public:
     RuleProgram = 0, RuleIncludeCommand = 1, RuleExpression = 2, RuleCallExpression = 3, 
     RuleMultiValueExpression = 4, RuleNumberExpression = 5, RuleStringExpression = 6, 
     RuleVariableExpression = 7, RuleFunctionExpression = 8, RuleFunctionDeclarationExpression = 9, 
-    RuleFormalParameterExpression = 10, RuleFunctionImplementationExpression = 11, 
-    RuleFunctionConstraintExpression = 12, RuleBlockExpression = 13, RuleBooleanExpression = 14, 
-    RuleVarargsExpression = 15, RuleIdentifier = 16
+    RuleTypeName = 10, RuleFunctionName = 11, RuleFormalParameterExpression = 12, 
+    RuleFormalParameterItem = 13, RuleFunctionImplementationExpression = 14, 
+    RuleFunctionConstraintExpression = 15, RuleBlockExpression = 16, RuleBooleanExpression = 17, 
+    RuleVarargsExpression = 18, RuleIdentifier = 19
   };
 
   WorkScriptParser(antlr4::TokenStream *input);
@@ -51,7 +52,10 @@ public:
   class VariableExpressionContext;
   class FunctionExpressionContext;
   class FunctionDeclarationExpressionContext;
+  class TypeNameContext;
+  class FunctionNameContext;
   class FormalParameterExpressionContext;
+  class FormalParameterItemContext;
   class FunctionImplementationExpressionContext;
   class FunctionConstraintExpressionContext;
   class BlockExpressionContext;
@@ -342,7 +346,8 @@ public:
     antlr4::tree::TerminalNode *LEFT_PARENTHESE();
     FormalParameterExpressionContext *formalParameterExpression();
     antlr4::tree::TerminalNode *RIGHT_PARENTHESE();
-    IdentifierContext *identifier();
+    TypeNameContext *typeName();
+    FunctionNameContext *functionName();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
@@ -350,17 +355,59 @@ public:
 
   FunctionDeclarationExpressionContext* functionDeclarationExpression();
 
+  class  TypeNameContext : public antlr4::ParserRuleContext {
+  public:
+    TypeNameContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    IdentifierContext *identifier();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  TypeNameContext* typeName();
+
+  class  FunctionNameContext : public antlr4::ParserRuleContext {
+  public:
+    FunctionNameContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    IdentifierContext *identifier();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  FunctionNameContext* functionName();
+
   class  FormalParameterExpressionContext : public antlr4::ParserRuleContext {
   public:
     FormalParameterExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    MultiValueExpressionContext *multiValueExpression();
+    std::vector<FormalParameterItemContext *> formalParameterItem();
+    FormalParameterItemContext* formalParameterItem(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> NEWLINE();
+    antlr4::tree::TerminalNode* NEWLINE(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> COMMA();
+    antlr4::tree::TerminalNode* COMMA(size_t i);
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
   };
 
   FormalParameterExpressionContext* formalParameterExpression();
+
+  class  FormalParameterItemContext : public antlr4::ParserRuleContext {
+  public:
+    FormalParameterItemContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    ExpressionContext *expression();
+    TypeNameContext *typeName();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  FormalParameterItemContext* formalParameterItem();
 
   class  FunctionImplementationExpressionContext : public antlr4::ParserRuleContext {
   public:

@@ -4,7 +4,7 @@
 #include "antlr4-runtime.h"
 #include "Generated/WorkScriptLexer.h"
 #include "Generated/WorkScriptParser.h"
-#include "WorkScriptVisitorImpl.h"
+#include "TreeCreateVisitor.h"
 #include "Expression.h"
 #include "SyntaxErrorException.h"
 #include "SyntaxErrorListener.h"
@@ -55,7 +55,7 @@ void WorkScriptEngine::run(const char * filePath)
 	TFMAIN fmain = (TFMAIN)e->getPointerToNamedFunction("main");
 	auto ret = fmain();
 	printf("WorkScript JIT执行结果：\n");
-	printf("int value: %d\ndouble value:%lf", ret, ret);
+	printf("int value: %d\n", ret);
 }
 
 void WorkScriptEngine::parseFile(const wchar_t * fileName, Program * outProgram) //throws SyntaxErrorException
@@ -93,7 +93,7 @@ void WorkScriptEngine::parseFile(const wchar_t * fileName, Program * outProgram)
 		tree::ParseTree *tree = parser.program();
 
 		//遍历语法树，生成Program
-		WorkScriptVisitorImpl visitor(outProgram);
+		TreeCreateVisitor visitor(outProgram);
 		visitor.visit(tree);
 	}
 }

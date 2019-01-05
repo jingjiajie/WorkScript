@@ -25,7 +25,8 @@ void WorkScript::InstantializeContext::setFunctionTypeCache(Function *func, cons
 {
 	if (!this->functionCache)
 	{
-		throw WorkScriptException(L"未指定函数缓存器！");
+		//TODO Location信息
+		throw WorkScriptException(Location(), L"未指定函数缓存器！");
 	}
 	this->functionCache->setFunctionTypeCache(func, paramTypes, cacheReturnType);
 }
@@ -34,7 +35,8 @@ bool WorkScript::InstantializeContext::getFunctionTypeCache(Function *func, cons
 {
 	if (!this->functionCache)
 	{
-		throw WorkScriptException(L"未指定函数缓存器！");
+		//TODO Location信息
+		throw WorkScriptException(Location(), L"未指定函数缓存器！");
 	}
 	return this->functionCache->getFunctionTypeCache(func, paramTypes, outReturnType);
 }

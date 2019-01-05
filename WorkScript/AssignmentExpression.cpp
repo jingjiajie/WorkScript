@@ -28,7 +28,7 @@ GenerateResult WorkScript::AssignmentExpression::generateIR(GenerateContext * co
 	TypeClassification rightCls = rightType->getClassification();
 	Type *promotedType = Type::getPromotedType(leftType, rightType);
 	context->setLeftValue(false);
-	llvm::Value *val = Type::generateLLVMTypePromote(context, this->rightExpression, promotedType).getValue();
+	llvm::Value *val = Type::generateLLVMTypeConvert(context, this->rightExpression, promotedType).getValue();
 	context->setLeftValue(true);
 	llvm::Value *var = this->leftExpression->generateIR(context).getValue();
 	context->setLeftValue(false);

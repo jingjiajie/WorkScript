@@ -71,13 +71,24 @@ GenerateResult WorkScript::MultiValueExpression::generateIR(GenerateContext * co
 	throw "请调用getLLVMArgs()";
 }
 
-std::vector<llvm::Value*> WorkScript::MultiValueExpression::getLLVMArgs(GenerateContext * context) const
+std::vector<llvm::Value*> WorkScript::MultiValueExpression::getLLVMArgs(GenerateContext * context, const vector<Type*> &formalParamTypes) const
 {
 	vector<llvm::Value*> args;
 	args.reserve(this->items.size());
 	for (size_t i = 0; i < this->items.size(); ++i)
 	{
-		args.push_back(this->items[i]->generateIR(context).getValue());
+		Type *curItemType = this->items[i]->getType(context->getInstantializeContext());
+		if (!curItemType) {
+			throw WorkScriptException(this->expressionInfo.getLocation(), L"无法推导参数类型！");
+		}
+		if (curItemType->equals(formalParamTypes[i])) {
+			llvm::Value *curLLVMParam = this->items[i]->generateIR(context).getValue();
+			args.push_back(curLLVMParam);
+		}
+		else {
+			llvm::Value *convertedLLVMParam = Type::generateLLVMTypeConvert(context, this->items[i], formalParamTypes[i]).getValue();
+			args.push_back(convertedLLVMParam);
+		}
 	}
 	return args;
 }
