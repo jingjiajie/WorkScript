@@ -426,10 +426,18 @@
     <ClCompile Include="Parameter.cpp" />
     <ClCompile Include="PointerType.cpp" />
     <ClCompile Include="IntegerType.cpp" />
-    <ClCompile Include="Generated\WorkScriptBaseVisitor.cpp" />
-    <ClCompile Include="Generated\WorkScriptLexer.cpp" />
-    <ClCompile Include="Generated\WorkScriptParser.cpp" />
-    <ClCompile Include="Generated\WorkScriptVisitor.cpp" />
+    <ClCompile Include="Generated\WorkScriptBaseVisitor.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Generated\WorkScriptLexer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Generated\WorkScriptParser.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Generated\WorkScriptVisitor.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Locale.cpp" />
     <ClCompile Include="NativeFunction.cpp" />
     <ClCompile Include="Function.cpp" />

@@ -26,18 +26,18 @@ IntegerType Program::uint64(nullptr, L"uint64", 64, false);
 FloatType Program::float32(nullptr, L"float32", 32);
 FloatType Program::float64(nullptr, L"float64", 64);
 
-PointerType Program::sint8ptr(nullptr, L"sint8ptr", &Program::sint8);
-PointerType Program::sint16ptr(nullptr, L"sint16ptr", &Program::sint16);
-PointerType Program::sint32ptr(nullptr, L"sint32ptr", &Program::sint32);
-PointerType Program::sint64ptr(nullptr, L"sint64ptr", &Program::sint64);
-PointerType Program::uint1ptr(nullptr, L"uint1ptr", &Program::uint1);
-PointerType Program::uint8ptr(nullptr, L"uint8ptr", &Program::uint8);
-PointerType Program::uint16ptr(nullptr, L"uint16ptr", &Program::uint16);
-PointerType Program::uint32ptr(nullptr, L"uint32ptr", &Program::uint32);
-PointerType Program::uint64ptr(nullptr, L"uint64ptr", &Program::uint64);
+PointerType Program::sint8ptr(nullptr, L"sint8*", &Program::sint8);
+PointerType Program::sint16ptr(nullptr, L"sint16*", &Program::sint16);
+PointerType Program::sint32ptr(nullptr, L"sint32*", &Program::sint32);
+PointerType Program::sint64ptr(nullptr, L"sint64*", &Program::sint64);
+PointerType Program::uint1ptr(nullptr, L"uint1*", &Program::uint1);
+PointerType Program::uint8ptr(nullptr, L"uint8*", &Program::uint8);
+PointerType Program::uint16ptr(nullptr, L"uint16*", &Program::uint16);
+PointerType Program::uint32ptr(nullptr, L"uint32*", &Program::uint32);
+PointerType Program::uint64ptr(nullptr, L"uint64*", &Program::uint64);
 
-PointerType Program::float32ptr(nullptr, L"float32ptr", &Program::float32);
-PointerType Program::float64ptr(nullptr, L"float64ptr", &Program::float64);
+PointerType Program::float32ptr(nullptr, L"float32*", &Program::float32);
+PointerType Program::float64ptr(nullptr, L"float64*", &Program::float64);
 
 Program::Program()
 {
@@ -63,11 +63,17 @@ Program::~Program()
 	}
 }
 
-Type * WorkScript::Program::getType(const std::wstring & name) const
+Type * WorkScript::Program::getType(const std::wstring & name, size_t pointerLevel)
 {
+	Type *returnType = nullptr;
 	auto it = this->types.find(name);
-	if (it == this->types.end()) return nullptr;
-	else return it->second;
+	if (it == this->types.end()) returnType = nullptr;
+	else returnType = it->second;
+
+	if (pointerLevel > 0) {
+		returnType = this->getPointerType(returnType, pointerLevel);
+	}
+	return returnType;
 }
 
 void WorkScript::Program::addType(const std::wstring &name, Type * type)
@@ -126,6 +132,17 @@ std::vector<Function*> WorkScript::Program::getFunctions(const std::wstring & na
 	return result;
 }
 
+std::vector<Function*> WorkScript::Program::getFunctions(const std::wstring & name)
+{
+	auto it = this->functions.find(name);
+	if (it == this->functions.end()) {
+		return std::vector<Function*>();
+	}
+	else {
+		return it->second;
+	}
+}
+
 FunctionType * WorkScript::Program::getFunctionType(std::vector<Type*> paramTypes, Type * returnType)
 {
 	wstring typeName = FunctionType::getName(paramTypes, returnType);
@@ -136,6 +153,24 @@ FunctionType * WorkScript::Program::getFunctionType(std::vector<Type*> paramType
 	FunctionType *funcType = new FunctionType(this, paramTypes, returnType);
 	this->types[funcType->getName()] = funcType;
 	return funcType;
+}
+
+PointerType * WorkScript::Program::getPointerType(Type * targetType, size_t pointerLevel)
+{
+	wstring pointerTypeName = targetType->getName();
+	for (size_t j = 0; j < pointerLevel; ++j) {
+		pointerTypeName += L"*";
+	}
+	auto itType = this->types.find(pointerTypeName);
+	PointerType *type = nullptr;
+	if (itType == this->types.end()) {
+		type = new PointerType(this, pointerTypeName, targetType, pointerLevel);
+		this->addType(pointerTypeName, type);
+	}
+	else {
+		type = (PointerType*)itType->second;
+	}
+	return type;
 }
 
 void WorkScript::Program::initPrimitiveTypes()

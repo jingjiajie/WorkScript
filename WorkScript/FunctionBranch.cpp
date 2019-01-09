@@ -96,11 +96,10 @@ llvm::BasicBlock * WorkScript::FunctionBranch::generateBlock(GenerateContext * c
 		llvm::Value *res = curExpr->generateIR(context).getValue();
 		if (i == this->implements.size() - 1)
 		{
-			//如果分支返回值类型小于函数返回值类型，则生成类型转换
+			//如果分支返回值类型与函数返回值类型不同，则生成类型转换
 			Type *branchReturnType = curExpr->getType(&newInstCtx);
-			Type *finalReturnType = Type::getPromotedType(branchReturnType, returnType);
-			if (!finalReturnType->equals(branchReturnType)) {
-				res = Type::generateLLVMTypeConvert(context, curExpr, finalReturnType).getValue();
+			if (!branchReturnType->equals(returnType)) {
+				res = Type::generateLLVMTypeConvert(context, curExpr, returnType).getValue();
 			}
 			builder.CreateRet(res);
 		}

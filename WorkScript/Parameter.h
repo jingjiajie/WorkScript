@@ -11,15 +11,10 @@ namespace WorkScript
 	public:
 		inline Parameter() {}
 
-		inline Parameter(const std::wstring &name, Type *type) {
+		inline Parameter(const std::wstring &name, Type *type, bool isDeclaredType = false) {
 			this->setName(name);
 			this->setType(type);
-		}
-
-		inline Parameter(const std::wstring &name, Type *type, Constant *defaultValue) {
-			this->setName(name);
-			this->setType(type);
-			this->setDefaultValue(defaultValue);
+			this->setDeclaredType(isDeclaredType);
 		}
 
 		~Parameter() { if (this->defaultValue)delete this->defaultValue; }
@@ -37,11 +32,13 @@ namespace WorkScript
 		inline void setVarargs(bool isVarargs) { this->varargs = isVarargs; }
 		Type * getType(InstantializeContext *ctx = nullptr);
 		inline void setType(Type *type) { this->type = type; }
-
+		inline bool isDeclaredType() const{ return this->declaredType; }
+		inline void setDeclaredType(bool isDeclaredType) { this->declaredType = isDeclaredType; }
 	private:
 		std::wstring name;
 		Type *type = nullptr;
 		Constant *defaultValue = nullptr;
 		bool varargs = false;
+		bool declaredType = false;
 	};
 }

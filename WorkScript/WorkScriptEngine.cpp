@@ -51,11 +51,11 @@ void WorkScriptEngine::run(const char * filePath)
 		//.setOptLevel(llvm::CodeGenOpt::Default)
 	auto e = b.create();
 	e->finalizeObject();
+	printf("开始JIT执行：\n\n");
 	typedef int(*TFMAIN)();
 	TFMAIN fmain = (TFMAIN)e->getPointerToNamedFunction("main");
 	auto ret = fmain();
-	printf("WorkScript JIT执行结果：\n");
-	printf("int value: %d\n", ret);
+	printf("执行完毕，返回值：%d\n", ret);
 }
 
 void WorkScriptEngine::parseFile(const wchar_t * fileName, Program * outProgram) //throws SyntaxErrorException

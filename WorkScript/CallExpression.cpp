@@ -16,7 +16,7 @@ GenerateResult WorkScript::CallExpression::generateIR(GenerateContext * context)
 	auto paramTypes = this->parameters->getTypes(context->getInstantializeContext());
 	Function *func = this->getProgram()->getFirstFunction(this->functionName, paramTypes);
 	if (!func) {
-		throw WorkScriptException(this->expressionInfo.getLocation(), L"未找到函数：" + func->getName());
+		throw WorkScriptException(this->expressionInfo.getLocation(), L"未找到函数：" + this->functionName);
 	}
 	//生成LLVM函数调用
 	auto prevInstCtx = context->getInstantializeContext();

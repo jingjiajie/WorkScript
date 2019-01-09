@@ -81,7 +81,7 @@ antlrcpp::Any TreeCreateVisitor::visitStringExpression(WorkScriptParser::StringE
 {
 	string text = ctx->STRING()->getText();
 	text = text.substr(1, text.length() - 2);
-	wstring wtext = Locale::ansiToUnicode(text);
+	wstring wtext = Locale::utf8ToUnicode(text);
 
 	wchar_t *unescapedText = new wchar_t[wtext.length() + 1];
 	try {
@@ -135,8 +135,13 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 	/*读取返回值类型名*/
 	auto returnTypeNameCtx = ctx->functionDeclarationExpression()->typeName();
 	wstring returnTypeName;
+	Type *declReturnType = nullptr;
 	if (returnTypeNameCtx) {
 		returnTypeName = Locale::ansiToUnicode(returnTypeNameCtx->identifier()->getText());
+		declReturnType = this->program->getType(returnTypeName);
+		if (!declReturnType) {
+			throw TypeNotFoundException(getLocation(ctx), L"无法找到类型：" + returnTypeName);
+		}
 	}
 
 	/*读取参数声明*/
@@ -144,6 +149,9 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 	size_t paramCount = paramItemsDeclCtx.size();
 	vector<Expression*> paramDeclExprs(paramCount, nullptr);
 	vector<Type*> paramDeclTypes(paramCount, nullptr);
+	//TODO 运行时变参处理
+	//bool isRuntimeVarargs = ctx->functionDeclarationExpression()->formalParameterExpression()->APOSTROPHE() != nullptr;
+	bool isRuntimeVarargs = false;
 
 	for (size_t i = 0; i < paramCount; ++i)
 	{
@@ -153,6 +161,10 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 			Type *type = this->program->getType(typeName);
 			if (!type) {
 				throw TypeNotFoundException(getLocation(ctx), L"无法找到类型：" + type->getName());
+			}
+			size_t pointerLevel = paramItemsDeclCtx[i]->STAR().size();
+			if (pointerLevel > 0) {
+				type = program->getPointerType(type, pointerLevel);
 			}
 			paramDeclTypes[i] = type;
 		}
@@ -181,17 +193,20 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 	auto params = resolveRes.getParameters();
 	auto constraints = resolveRes.getConstraints();
 
-	//TODO 检查是否为extern函数
 	auto funcs = this->program->getFunctions(funcName, paramTypes);
 	if (funcs.size() == 0) {
 		//此时还不知道返回值类型
-		auto newFunc = new BranchFunction(this->program, funcName, paramTypes, nullptr);
+		auto newFunc = new BranchFunction(this->program, funcName, paramTypes, declReturnType, declReturnType != nullptr, isRuntimeVarargs);
 		funcs.push_back(newFunc);
 		this->program->addFunction(newFunc);
 	}
 	//为所有符合条件的函数重载添加函数分支
 	for (size_t i = 0; i < funcs.size(); ++i) {
 		BranchFunction *func = (BranchFunction*)funcs[i];
+		if (func->isDeclaredReturnType() && !func->getType()->getReturnType()->equals(declReturnType)) {
+			throw TypeMismatchedException(getLocation(ctx), L"函数" + funcName + L"的返回值类型" + declReturnType->getName()
+				+ L"与之前声明的不符：" + func->getType()->getReturnType()->getName());
+		}
 		size_t branchID = func->getBranchCount() + 1; //blockID从1开始
 		auto branch = new FunctionBranch(func, branchID, getLocation(ctx));
 		branch->setParameters(params);
@@ -223,31 +238,52 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 		FORBID_ASSIGN;
 		//恢复当前分支
 		this->abstractContexts.pop();
-
-		///*检查重载和当前重载分支的返回值类型是否相同*/
-		////TODO 若不相同，可以取两个返回值类型中的更高类型
-		//InstantializeContext &outerInstCtx = instCtx;
-		//InstantializeContext innerInstCtx(newAbstractCtx, program->getFunctionCache());
-		//Type * returnType = nullptr;
-		//if (impls.size() == 0) {
-		//	returnType = this->program->getVoidType();
-		//}
-		//else {
-		//	returnType = impls[impls.size() - 1]->getType(&innerInstCtx);
-		//}
-		//Type *funcReturnType = func->getReturnType(&outerInstCtx);
-		//if (!funcReturnType) {
-		//	func->setReturnType(returnType);
-		//	program->getFunctionCache()->setFunctionTypeCache(func, paramTypes, returnType);
-		//}
-		//else if (returnType && !returnType->equals(funcReturnType)) {
-		//	throw SyntaxErrorException(getLocation(ctx), L"返回值必须为" + funcReturnType->getName() + L"类型");
-		//}
 		func->addBranch(branch);
 	}
 	/*====恢复上一层====*/
 	--this->curDepth;
 	RESTORE_ASSIGNABLE;
+	return nullptr;
+}
+
+antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDeclExpression(WorkScriptParser::StdFunctionDeclExpressionContext *ctx)
+{
+	/*读取函数名*/
+	auto funcNameCtx = ctx->functionName();
+	wstring funcName = Locale::ansiToUnicode(funcNameCtx->getText());
+
+	/*读取返回值类型名*/
+	auto returnTypeNameCtx = ctx->typeName();
+	wstring returnTypeName = Locale::ansiToUnicode(returnTypeNameCtx->identifier()->getText());
+	int pointerLevel = ctx->STAR().size();
+	Type *returnType = this->program->getType(returnTypeName, pointerLevel);
+	if (!returnType) {
+		throw TypeNotFoundException(getLocation(ctx), L"无法找到类型：" + returnTypeName);
+	}
+
+	auto paramItemsCtx = ctx->stdFormalParameterExpression()->stdFormalParameterItem();
+	vector<Parameter*> params;
+	vector<Type*> paramTypes;
+	for (size_t i = 0; i < paramItemsCtx.size(); ++i) {
+		wstring paramName;
+		if (paramItemsCtx[i]->identifier()) {
+			paramName = Locale::ansiToUnicode(paramItemsCtx[i]->identifier()->getText());
+		}
+		wstring paramTypeName = Locale::ansiToUnicode(paramItemsCtx[i]->typeName()->getText());
+		size_t pointerLevel = paramItemsCtx[i]->STAR().size();
+		Type *paramType = this->program->getType(paramTypeName, pointerLevel);
+		if (!paramType) {
+			throw TypeNotFoundException(getLocation(ctx), L"无法找到类型：" + paramTypeName);
+		}
+		params.push_back(new Parameter(paramName, paramType, true));
+		paramTypes.push_back(paramType);
+	}
+	Function *func = this->program->getFirstFunction(funcName, paramTypes);
+	if (!func) {
+		//TODO 本地函数单独处理？
+		func = new BranchFunction(this->program, funcName, paramTypes, returnType);
+		this->program->addFunction(func);
+	}
 	return nullptr;
 }
 
@@ -351,10 +387,10 @@ antlrcpp::Any TreeCreateVisitor::visitMultiplyDivideModulusExpression(WorkScript
 	const ExpressionWrapper &rightExpressionWrapper = ctx->expression()[1]->accept(this);
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	RESTORE_ASSIGNABLE;
-	if (ctx->MULTIPLY()) {
+	if (ctx->STAR()) {
 		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculateExpression::MULTIPLY));
 	}
-	else if (ctx->DIVIDE()) {
+	else if (ctx->SLASH()) {
 		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculateExpression::DIVIDE));
 	}
 	else { //MODULUS

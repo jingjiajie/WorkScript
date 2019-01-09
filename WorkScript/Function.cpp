@@ -7,8 +7,15 @@
 using namespace std;
 using namespace WorkScript;
 
-WorkScript::Function::Function(Program *program, const std::wstring &name, const std::vector<Type*>& paramTypes, Type * returnType)
-	:program(program),name(name)
+WorkScript::Function::Function(
+	Program *program, 
+	const std::wstring &name, 
+	const std::vector<Type*>& paramTypes, 
+	Type * returnType,
+	bool declaredReturnType,
+	bool isRuntimeVarargs,
+	bool isStaticVarargs)
+	:program(program),name(name), declaredReturnType(declaredReturnType),runtimeVarargs(isRuntimeVarargs),staticVarargs(isStaticVarargs)
 {	
 	FunctionType *funcType = program->getFunctionType(paramTypes, returnType);
 	this->abstractType = funcType;
@@ -55,11 +62,19 @@ llvm::Function * WorkScript::Function::getLLVMFunction(GenerateContext * context
 			llvmParamTypes.push_back(paramType->getLLVMType(context));
 		}
 		Type *myReturnType = this->getReturnType(instCtx);
-		llvm::FunctionType *funcType = llvm::FunctionType::get(myReturnType->getLLVMType(context), llvmParamTypes, false);
+		llvm::FunctionType *funcType = llvm::FunctionType::get(myReturnType->getLLVMType(context), llvmParamTypes, this->runtimeVarargs);
 		//创建函数声明
+		wstring funcName;
+		if (this->program->getFunctions(this->name).size() > 1) {
+			funcName = this->getMangledFunctionName(instCtx);
+		}
+		else {
+			funcName = this->name;
+		}
+
 		llvm::Function *func = llvm::Function::Create(funcType,
 			llvm::Function::ExternalLinkage,
-			Locale::unicodeToUTF8(this->getMangledFunctionName(instCtx)),
+			Locale::unicodeToANSI(funcName),
 			context->getLLVMModule()
 		);
 		//添加函数参数名

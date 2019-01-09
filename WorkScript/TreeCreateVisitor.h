@@ -19,6 +19,7 @@ namespace WorkScript {
 		antlrcpp::Any visitBooleanExpression(WorkScriptParser::BooleanExpressionContext*)override;
 		antlrcpp::Any visitVariableExpression(WorkScriptParser::VariableExpressionContext*) override;
 		antlrcpp::Any visitFunctionExpression(WorkScriptParser::FunctionExpressionContext*) override;
+		antlrcpp::Any visitStdFunctionDeclExpression(WorkScriptParser::StdFunctionDeclExpressionContext*)override;
 		antlrcpp::Any visitCallExpression(WorkScriptParser::CallExpressionContext*) override;
 		antlrcpp::Any visitProgram(WorkScriptParser::ProgramContext*) override;
 		antlrcpp::Any visitAssignmentOrEqualsExpression(WorkScriptParser::AssignmentOrEqualsExpressionContext*)override;

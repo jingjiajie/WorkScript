@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "StringConstant.h"
+#include "Locale.h"
 
 using namespace WorkScript;
 
 GenerateResult WorkScript::StringConstant::generateLLVMIR(GenerateContext * context)
 {
 	auto irBuilder = context->getIRBuilder();
-	return irBuilder->CreateGlobalStringPtr((char*)this->value.c_str());
+	return irBuilder->CreateGlobalStringPtr(Locale::unicodeToANSI(this->value.c_str()));
 }
 
 std::wstring WorkScript::StringConstant::toString() const
@@ -21,5 +22,5 @@ Constant * WorkScript::StringConstant::clone() const
 
 Type * WorkScript::StringConstant::getType()
 {
-	return Program::getUInt8PtrType();
+	return Program::getSInt8PtrType();
 }

@@ -67,6 +67,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitStdFunctionDeclExpression_(WorkScriptParser::StdFunctionDeclExpression_Context *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitPositiveExpression(WorkScriptParser::PositiveExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -100,6 +104,18 @@ public:
   }
 
   virtual antlrcpp::Any visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitStdFunctionDeclExpression(WorkScriptParser::StdFunctionDeclExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitStdFormalParameterExpression(WorkScriptParser::StdFormalParameterExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitStdFormalParameterItem(WorkScriptParser::StdFormalParameterItemContext *ctx) override {
     return visitChildren(ctx);
   }
 

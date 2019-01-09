@@ -159,6 +159,18 @@ public interface WorkScriptListener extends ParseTreeListener {
 	 */
 	void exitAssignmentExpression(WorkScriptParser.AssignmentExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code StdFunctionDeclExpression_}
+	 * labeled alternative in {@link WorkScriptParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterStdFunctionDeclExpression_(WorkScriptParser.StdFunctionDeclExpression_Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StdFunctionDeclExpression_}
+	 * labeled alternative in {@link WorkScriptParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitStdFunctionDeclExpression_(WorkScriptParser.StdFunctionDeclExpression_Context ctx);
+	/**
 	 * Enter a parse tree produced by the {@code PositiveExpression}
 	 * labeled alternative in {@link WorkScriptParser#expression}.
 	 * @param ctx the parse tree
@@ -256,6 +268,36 @@ public interface WorkScriptListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitVariableExpression(WorkScriptParser.VariableExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link WorkScriptParser#stdFunctionDeclExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterStdFunctionDeclExpression(WorkScriptParser.StdFunctionDeclExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link WorkScriptParser#stdFunctionDeclExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitStdFunctionDeclExpression(WorkScriptParser.StdFunctionDeclExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link WorkScriptParser#stdFormalParameterExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterStdFormalParameterExpression(WorkScriptParser.StdFormalParameterExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link WorkScriptParser#stdFormalParameterExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitStdFormalParameterExpression(WorkScriptParser.StdFormalParameterExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link WorkScriptParser#stdFormalParameterItem}.
+	 * @param ctx the parse tree
+	 */
+	void enterStdFormalParameterItem(WorkScriptParser.StdFormalParameterItemContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link WorkScriptParser#stdFormalParameterItem}.
+	 * @param ctx the parse tree
+	 */
+	void exitStdFormalParameterItem(WorkScriptParser.StdFormalParameterItemContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link WorkScriptParser#functionExpression}.
 	 * @param ctx the parse tree

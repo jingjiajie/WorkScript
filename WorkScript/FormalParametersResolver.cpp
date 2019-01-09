@@ -32,12 +32,13 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 			paramTypes[i] = curExpr->getType(ctx);
 		}
 		Type *curType = paramTypes[i];
+		bool isDeclaredType = paramDeclTypes[i] != nullptr;
 
 		switch (curExpr->getExpressionType())
 		{
 		case ExpressionType::VARIABLE_EXPRESSION: {
 			VariableExpression* varExpr = (VariableExpression*)curExpr;
-			Parameter *param = new Parameter(varExpr->getName(), curType);
+			Parameter *param = new Parameter(varExpr->getName(), curType, isDeclaredType);
 			params[i] = param;
 			break;
 		}
@@ -47,7 +48,7 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 				throw std::move(SyntaxErrorException(curExpr->getLocation(), L"函数参数约束左部必须为变量！"));
 			}
 			VariableExpression *leftVar = (VariableExpression*)left;
-			Parameter *param = new Parameter(leftVar->getName(), curType);
+			Parameter *param = new Parameter(leftVar->getName(), curType, isDeclaredType);
 			params[i] = param;
 			constraints.push_back(curExpr);
 			break;
@@ -67,7 +68,7 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 		//}
 		default: {
 			wstring tmpVarName = L"@_" + to_wstring(i);
-			Parameter *param = new Parameter(tmpVarName, curType);
+			Parameter *param = new Parameter(tmpVarName, curType, isDeclaredType);
 			params[i] = param;
 			VariableExpression *var = new VariableExpression(exprInfo, tmpVarName);
 			BinaryCompareExpression *constraint = new BinaryCompareExpression(exprInfo, var, curExpr, BinaryCompareExpression::EQUAL);

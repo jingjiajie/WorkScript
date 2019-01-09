@@ -19,7 +19,7 @@ namespace WorkScript {
 		Program();
 		~Program();
 
-		Type * getType(const std::wstring &name) const;
+		Type * getType(const std::wstring &name, size_t pointerLevel = 0);
 		void addType(const std::wstring &name, Type *type);
 
 		void generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule);
@@ -29,9 +29,11 @@ namespace WorkScript {
 		void addFunction(Function *func);
 		Function* getFirstFunction(const std::wstring &name, std::vector<Type*> paramTypes);
 		std::vector<Function*> getFunctions(const std::wstring &name, std::vector<Type*> paramTypes, bool compromise = false);
+		std::vector<Function*> getFunctions(const std::wstring &name);
 		inline FunctionCache *getFunctionCache() { return &this->functionCache; }
 
 		FunctionType * getFunctionType(std::vector<Type*> paramTypes, Type *returnType);
+		PointerType * getPointerType(Type *targetType, size_t pointerLevel);
 		inline static VoidType * getVoidType() { return &voidType; }
 		inline static IntegerType * getSInt8Type() { return &sint8; }
 		inline static IntegerType * getSInt16Type() { return &sint16; }

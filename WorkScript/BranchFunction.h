@@ -7,8 +7,7 @@ namespace WorkScript {
 
 	class BranchFunction : public Function {
 	public:
-		inline BranchFunction(Program *program, const std::wstring &name, const std::vector<Type*> &paramTypes, Type *returnType)
-			: Function(program, name, paramTypes, returnType) {}
+		using Function::Function;
 
 		~BranchFunction();
 

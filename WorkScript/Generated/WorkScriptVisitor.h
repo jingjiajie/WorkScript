@@ -45,6 +45,8 @@ public:
 
     virtual antlrcpp::Any visitAssignmentExpression(WorkScriptParser::AssignmentExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitStdFunctionDeclExpression_(WorkScriptParser::StdFunctionDeclExpression_Context *context) = 0;
+
     virtual antlrcpp::Any visitPositiveExpression(WorkScriptParser::PositiveExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionExpression_(WorkScriptParser::FunctionExpression_Context *context) = 0;
@@ -62,6 +64,12 @@ public:
     virtual antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitVariableExpression(WorkScriptParser::VariableExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitStdFunctionDeclExpression(WorkScriptParser::StdFunctionDeclExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitStdFormalParameterExpression(WorkScriptParser::StdFormalParameterExpressionContext *context) = 0;
+
+    virtual antlrcpp::Any visitStdFormalParameterItem(WorkScriptParser::StdFormalParameterItemContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *context) = 0;
 

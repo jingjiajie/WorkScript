@@ -171,6 +171,18 @@ public class WorkScriptBaseListener implements WorkScriptListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterStdFunctionDeclExpression_(WorkScriptParser.StdFunctionDeclExpression_Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStdFunctionDeclExpression_(WorkScriptParser.StdFunctionDeclExpression_Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPositiveExpression(WorkScriptParser.PositiveExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -274,6 +286,42 @@ public class WorkScriptBaseListener implements WorkScriptListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitVariableExpression(WorkScriptParser.VariableExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterStdFunctionDeclExpression(WorkScriptParser.StdFunctionDeclExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStdFunctionDeclExpression(WorkScriptParser.StdFunctionDeclExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterStdFormalParameterExpression(WorkScriptParser.StdFormalParameterExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStdFormalParameterExpression(WorkScriptParser.StdFormalParameterExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterStdFormalParameterItem(WorkScriptParser.StdFormalParameterItemContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStdFormalParameterItem(WorkScriptParser.StdFormalParameterItemContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

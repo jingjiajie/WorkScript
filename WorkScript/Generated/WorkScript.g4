@@ -12,15 +12,16 @@ expression:
 	| LEFT_PARENTHESE expression RIGHT_PARENTHESE	# ParentheseExpression
 	// | LEFT_BRACKET (expression (COMMA expression)*)? RIGHT_BRACKET # ListExpression | expression
 	// POINT identifier # MemberEvaluateExpression
-	| functionExpression									# FunctionExpression_
-	| callExpression										# CallExpression_
-	| expression (MULTIPLY | DIVIDE | MODULUS) expression	# MultiplyDivideModulusExpression
-	| expression (PLUS | MINUS) expression					# PlusMinusExpression
-	| numberExpression										# NumberExpression_
-	| MINUS expression										# NegativeExpression
-	| PLUS expression										# PositiveExpression
-	| expression ASSIGN expression							# AssignmentExpression
-	| expression EQUALS expression							# AssignmentOrEqualsExpression
+	| stdFunctionDeclExpression							# StdFunctionDeclExpression_
+	| functionExpression								# FunctionExpression_
+	| callExpression									# CallExpression_
+	| expression (STAR | SLASH | PERCENT) expression	# MultiplyDivideModulusExpression
+	| expression (PLUS | MINUS) expression				# PlusMinusExpression
+	| numberExpression									# NumberExpression_
+	| MINUS expression									# NegativeExpression
+	| PLUS expression									# PositiveExpression
+	| expression ASSIGN expression						# AssignmentExpression
+	| expression EQUALS expression						# AssignmentOrEqualsExpression
 	| expression (
 		DOUBLE_EQUAL
 		| GREATER_THAN
@@ -46,6 +47,18 @@ numberExpression: (PLUS | MINUS)? (DOUBLE | INTEGER);
 stringExpression: STRING;
 variableExpression: identifier;
 
+stdFunctionDeclExpression:
+	typeName STAR* functionName LEFT_PARENTHESE stdFormalParameterExpression RIGHT_PARENTHESE;
+
+stdFormalParameterExpression:
+	NEWLINE* (
+		stdFormalParameterItem (
+			NEWLINE* (NEWLINE | COMMA) NEWLINE* stdFormalParameterItem
+		)*
+	)? (NEWLINE* (NEWLINE | COMMA) NEWLINE* APOSTROPHE)? NEWLINE* COMMA? NEWLINE*;
+
+stdFormalParameterItem: typeName STAR* identifier;
+
 functionExpression:
 	(functionConstraintExpression NEWLINE*)? functionDeclarationExpression NEWLINE*
 		functionImplementationExpression
@@ -55,18 +68,20 @@ functionExpression:
 		functionConstraintExpression;
 
 functionDeclarationExpression:
-	(functionName? | typeName functionName) LEFT_PARENTHESE formalParameterExpression RIGHT_PARENTHESE;
+	(functionName? | typeName STAR* functionName) LEFT_PARENTHESE formalParameterExpression
+		RIGHT_PARENTHESE;
 
 typeName: identifier;
 functionName: identifier;
 
-formalParameterExpression: (
-		NEWLINE* formalParameterItem (
+formalParameterExpression:
+	NEWLINE* (
+		formalParameterItem (
 			NEWLINE* (NEWLINE | COMMA) NEWLINE* formalParameterItem
 		)*
 	)? NEWLINE* COMMA? NEWLINE*;
 
-formalParameterItem: typeName? expression;
+formalParameterItem: (typeName STAR*)? expression;
 
 functionImplementationExpression:
 	(EQUALS | RIGHT_ARROW) expression
@@ -124,9 +139,9 @@ ASSIGN: ':=';
 COLON: ':';
 PLUS: '+';
 MINUS: '-';
-MULTIPLY: '*';
-DIVIDE: '/';
-MODULUS: '%';
+STAR: '*';
+SLASH: '/';
+PERCENT: '%';
 HASH: '#';
 GREATER_THAN: '>';
 GREATER_THAN_EQUAL: '>=';

@@ -6,8 +6,8 @@
 using namespace WorkScript;
 using namespace std;
 
-PointerType::PointerType(Program * program, const std::wstring & name, Type *targetType)
-	:Type(program, name), targetType(targetType) {}
+PointerType::PointerType(Program * program, const std::wstring & name, Type *targetType, unsigned int level)
+	:Type(program, name), targetType(targetType) ,level(level){}
 
 TypeClassification PointerType::getClassification() const
 {
@@ -16,28 +16,16 @@ TypeClassification PointerType::getClassification() const
 
 llvm::Type * PointerType::getLLVMType(GenerateContext * ctx) const
 {
-	//switch (this->length)
-	//{
-	//case 1:
-	//	return llvm::IntegerType::getInt1PtrTy(*ctx->getLLVMContext());
-	//case 8:
-	//	return llvm::IntegerType::getInt8PtrTy(*ctx->getLLVMContext());
-	//case 16:
-	//	return llvm::IntegerType::getInt16PtrTy(*ctx->getLLVMContext());
-	//case 32:
-	//	return llvm::IntegerType::getInt32PtrTy(*ctx->getLLVMContext());
-	//case 64:
-	//	return llvm::IntegerType::getInt64PtrTy(*ctx->getLLVMContext());
-	//default:
-	//	throw WorkScriptException(L"不支持的整数长度：" + this->length);
-	//}
-	//TODO Location信息
-	throw UnimplementedException(Location(), L"未实现");
+	llvm::Type *llvmType = this->targetType->getLLVMType(ctx);
+	for (unsigned i = 0; i < this->level; ++i) {
+		llvmType = llvm::PointerType::get(llvmType, 0U);
+	}
+	return llvmType;
 }
 
 bool PointerType::equals(const Type * type) const
 {
 	if (!Type::equals(type))return false;
 	PointerType *target = (PointerType*)type;
-	return this->targetType->equals(target->targetType);
+	return this->level == target->level && this->targetType->equals(target->targetType);
 }

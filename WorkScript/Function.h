@@ -28,7 +28,13 @@ namespace WorkScript {
 
 	class Function {
 	public:
-		Function(Program *program, const std::wstring &name, const std::vector<Type*> &paramTypes, Type *returnType);
+		Function(Program *program, 
+			const std::wstring &name, 
+			const std::vector<Type*> &paramTypes, 
+			Type *returnType, 
+			bool declaredReturnType = false,
+			bool isRuntimeVarargs = false, 
+			bool isStaticVarargs = false);
 
 		virtual ~Function();
 		std::wstring getMangledFunctionName(InstantializeContext *ctx) const;
@@ -47,11 +53,17 @@ namespace WorkScript {
 		inline size_t getParameterCount() const { return this->abstractType->getParameterCount(); }
 		inline std::vector<Type*> getParameterTypes(InstantializeContext *context) const;
 		inline std::wstring getName() const { return this->name; }
+		inline bool isDeclaredReturnType()const { return this->declaredReturnType; }
+		inline bool isRuntimeVarargs() const { return this->runtimeVarargs; }
+		inline bool isStaticVarargs() const { return this->staticVarargs; }
 	protected:
 		std::wstring name;
 		Program *program = nullptr;
 		std::vector<ParamTypesAndLLVMFunction> llvmFunctions;
 		FunctionType *abstractType;
+		bool declaredReturnType = false;
+		bool runtimeVarargs = false;
+		bool staticVarargs = false;
 		//CommonAbstractContext abstractContext;
 	};
 }
