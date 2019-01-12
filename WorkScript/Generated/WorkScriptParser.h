@@ -13,23 +13,23 @@ class  WorkScriptParser : public antlr4::Parser {
 public:
   enum {
     ACCESS_LEVEL = 1, INCLUDE = 2, WHEN = 3, BOOLEAN = 4, IDENTIFIER = 5, 
-    DOUBLE = 6, INTEGER = 7, STRING = 8, POINT = 9, COMMA = 10, LEFT_PARENTHESE = 11, 
-    RIGHT_PARENTHESE = 12, LEFT_BRACE = 13, RIGHT_BRACE = 14, LEFT_BRACKET = 15, 
-    RIGHT_BRACKET = 16, DOUBLE_EQUAL = 17, EQUALS = 18, RIGHT_ARROW = 19, 
-    ASSIGN = 20, COLON = 21, PLUS = 22, MINUS = 23, STAR = 24, SLASH = 25, 
-    PERCENT = 26, HASH = 27, GREATER_THAN = 28, GREATER_THAN_EQUAL = 29, 
-    LESS_THAN = 30, LESS_THAN_EQUAL = 31, SINGLE_LINE_COMMENT = 32, MULTILINE_COMMENT = 33, 
-    APOSTROPHE = 34, NEWLINE = 35, WS = 36
+    DOUBLE = 6, INTEGER = 7, STRING = 8, SEMICOLON = 9, POINT = 10, COMMA = 11, 
+    LEFT_PARENTHESE = 12, RIGHT_PARENTHESE = 13, LEFT_BRACE = 14, RIGHT_BRACE = 15, 
+    LEFT_BRACKET = 16, RIGHT_BRACKET = 17, DOUBLE_EQUAL = 18, EQUALS = 19, 
+    RIGHT_ARROW = 20, ASSIGN = 21, COLON = 22, PLUS = 23, MINUS = 24, STAR = 25, 
+    SLASH = 26, PERCENT = 27, HASH = 28, GREATER_THAN = 29, GREATER_THAN_EQUAL = 30, 
+    LESS_THAN = 31, LESS_THAN_EQUAL = 32, SINGLE_LINE_COMMENT = 33, MULTILINE_COMMENT = 34, 
+    APOSTROPHE = 35, NEWLINE = 36, WS = 37
   };
 
   enum {
-    RuleProgram = 0, RuleIncludeCommand = 1, RuleExpression = 2, RuleCallExpression = 3, 
+    RuleProgram = 0, RuleLine = 1, RuleExpression = 2, RuleCallExpression = 3, 
     RuleMultiValueExpression = 4, RuleNumberExpression = 5, RuleStringExpression = 6, 
     RuleVariableExpression = 7, RuleStdFunctionDeclExpression = 8, RuleStdFormalParameterExpression = 9, 
     RuleStdFormalParameterItem = 10, RuleFunctionExpression = 11, RuleFunctionDeclarationExpression = 12, 
     RuleTypeName = 13, RuleFunctionName = 14, RuleFormalParameterExpression = 15, 
     RuleFormalParameterItem = 16, RuleFunctionImplementationExpression = 17, 
-    RuleFunctionConstraintExpression = 18, RuleBlockExpression = 19, RuleBooleanExpression = 20, 
+    RuleFunctionConstraintExpression = 18, RuleBlock = 19, RuleBooleanExpression = 20, 
     RuleVarargsExpression = 21, RuleIdentifier = 22
   };
 
@@ -44,7 +44,7 @@ public:
 
 
   class ProgramContext;
-  class IncludeCommandContext;
+  class LineContext;
   class ExpressionContext;
   class CallExpressionContext;
   class MultiValueExpressionContext;
@@ -62,7 +62,7 @@ public:
   class FormalParameterItemContext;
   class FunctionImplementationExpressionContext;
   class FunctionConstraintExpressionContext;
-  class BlockExpressionContext;
+  class BlockContext;
   class BooleanExpressionContext;
   class VarargsExpressionContext;
   class IdentifierContext; 
@@ -72,12 +72,8 @@ public:
     ProgramContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *EOF();
-    std::vector<IncludeCommandContext *> includeCommand();
-    IncludeCommandContext* includeCommand(size_t i);
-    std::vector<antlr4::tree::TerminalNode *> NEWLINE();
-    antlr4::tree::TerminalNode* NEWLINE(size_t i);
-    std::vector<ExpressionContext *> expression();
-    ExpressionContext* expression(size_t i);
+    std::vector<LineContext *> line();
+    LineContext* line(size_t i);
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
@@ -85,19 +81,21 @@ public:
 
   ProgramContext* program();
 
-  class  IncludeCommandContext : public antlr4::ParserRuleContext {
+  class  LineContext : public antlr4::ParserRuleContext {
   public:
-    IncludeCommandContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    LineContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *HASH();
-    antlr4::tree::TerminalNode *INCLUDE();
-    antlr4::tree::TerminalNode *STRING();
+    std::vector<ExpressionContext *> expression();
+    ExpressionContext* expression(size_t i);
+    antlr4::tree::TerminalNode *NEWLINE();
+    std::vector<antlr4::tree::TerminalNode *> SEMICOLON();
+    antlr4::tree::TerminalNode* SEMICOLON(size_t i);
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
   };
 
-  IncludeCommandContext* includeCommand();
+  LineContext* line();
 
   class  ExpressionContext : public antlr4::ParserRuleContext {
   public:
@@ -483,7 +481,7 @@ public:
     ExpressionContext *expression();
     antlr4::tree::TerminalNode *EQUALS();
     antlr4::tree::TerminalNode *RIGHT_ARROW();
-    BlockExpressionContext *blockExpression();
+    BlockContext *block();
     std::vector<antlr4::tree::TerminalNode *> NEWLINE();
     antlr4::tree::TerminalNode* NEWLINE(size_t i);
 
@@ -498,7 +496,7 @@ public:
     FunctionConstraintExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *WHEN();
-    BlockExpressionContext *blockExpression();
+    BlockContext *block();
     ExpressionContext *expression();
     std::vector<antlr4::tree::TerminalNode *> NEWLINE();
     antlr4::tree::TerminalNode* NEWLINE(size_t i);
@@ -509,22 +507,20 @@ public:
 
   FunctionConstraintExpressionContext* functionConstraintExpression();
 
-  class  BlockExpressionContext : public antlr4::ParserRuleContext {
+  class  BlockContext : public antlr4::ParserRuleContext {
   public:
-    BlockExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    BlockContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *LEFT_BRACE();
     antlr4::tree::TerminalNode *RIGHT_BRACE();
-    std::vector<antlr4::tree::TerminalNode *> NEWLINE();
-    antlr4::tree::TerminalNode* NEWLINE(size_t i);
-    std::vector<ExpressionContext *> expression();
-    ExpressionContext* expression(size_t i);
+    std::vector<LineContext *> line();
+    LineContext* line(size_t i);
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
   };
 
-  BlockExpressionContext* blockExpression();
+  BlockContext* block();
 
   class  BooleanExpressionContext : public antlr4::ParserRuleContext {
   public:

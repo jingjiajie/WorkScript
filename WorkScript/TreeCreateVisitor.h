@@ -13,7 +13,8 @@ namespace WorkScript {
 		public WorkScriptBaseVisitor
 	{
 	public:
-		antlrcpp::Any visitIncludeCommand(WorkScriptParser::IncludeCommandContext*) override;
+		antlrcpp::Any visitBlock(WorkScriptParser::BlockContext*)override;
+		antlrcpp::Any visitLine(WorkScriptParser::LineContext*)override;
 		antlrcpp::Any visitNumberExpression(WorkScriptParser::NumberExpressionContext*) override;
 		antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext*) override;
 		antlrcpp::Any visitBooleanExpression(WorkScriptParser::BooleanExpressionContext*)override;

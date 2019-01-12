@@ -52,9 +52,29 @@ inline static Location getLocation(antlr4::ParserRuleContext *ctx)
 	return l;
 }
 
-antlrcpp::Any TreeCreateVisitor::visitIncludeCommand(WorkScriptParser::IncludeCommandContext *ctx)
+antlrcpp::Any WorkScript::TreeCreateVisitor::visitBlock(WorkScriptParser::BlockContext *ctx)
 {
-	return nullptr;
+	vector<Expression*> exprs;
+	size_t lineCount = ctx->line().size();
+	exprs.reserve((size_t)(lineCount*1.5));
+	for (auto c : ctx->line()) {
+		vector<Expression*> curLineExprs = c->accept(this);
+		exprs.insert(exprs.end(), curLineExprs.begin(), curLineExprs.end());
+	}
+	return exprs;
+}
+
+antlrcpp::Any WorkScript::TreeCreateVisitor::visitLine(WorkScriptParser::LineContext *ctx)
+{
+	vector<Expression*> exprs;
+	exprs.reserve(ctx->expression().size());
+	for (auto c : ctx->expression()) {
+		auto ret = c->accept(this);
+		if (ret.isNotNull()) {
+			exprs.push_back(ret.as<ExpressionWrapper>());
+		}
+	}
+	return exprs;
 }
 
 antlrcpp::Any TreeCreateVisitor::visitNumberExpression(WorkScriptParser::NumberExpressionContext *ctx)
@@ -180,10 +200,7 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 			constraintsDecl.push_back(expr);
 		}
 		else {
-			for (auto curCtx : constraintCtx->blockExpression()->expression()) {
-				auto expr = curCtx->accept(this).as<Expression*>();
-				constraintsDecl.push_back(expr);
-			}
+			constraintsDecl = constraintCtx->block()->accept(this).as<decltype(constraintsDecl)>();
 		}
 	}
 	//解析参数和限制
@@ -224,15 +241,8 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 			impls.push_back(expr.getExpression());
 		}
 		else {
-			auto exprs = ctx->functionImplementationExpression()->blockExpression()->expression();
-			impls.reserve(exprs.size());
-			for (size_t i = 0; i < exprs.size(); ++i)
-			{
-				auto wrapper = exprs[i]->accept(this).as<ExpressionWrapper>();
-				impls.push_back(wrapper.getExpression());
-			}
+			impls = ctx->functionImplementationExpression()->block()->accept(this).as<decltype(impls)>();
 		}
-
 		branch->setConstraints(constraints);
 		branch->setImplements(impls);
 		FORBID_ASSIGN;
@@ -302,11 +312,11 @@ antlrcpp::Any TreeCreateVisitor::visitCallExpression(WorkScriptParser::CallExpre
 
 antlrcpp::Any TreeCreateVisitor::visitProgram(WorkScriptParser::ProgramContext *ctx)
 {
-	auto exprs = ctx->expression();
-	for (auto &expr : exprs)
+	auto lines = ctx->line();
+	for (auto &line : lines)
 	{
 		ALLOW_ASSIGN; //每次新的一行都允许赋值
-		expr->accept(this); //假设只有函数声明，会自动加入到program里
+		line->accept(this); //假设只有函数声明，会自动加入到program里 TODO:不只有函数声明，还有普通的执行语句！
 	}
 	return nullptr;
 }

@@ -27,13 +27,13 @@ public class WorkScriptBaseListener implements WorkScriptListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIncludeCommand(WorkScriptParser.IncludeCommandContext ctx) { }
+	@Override public void enterLine(WorkScriptParser.LineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIncludeCommand(WorkScriptParser.IncludeCommandContext ctx) { }
+	@Override public void exitLine(WorkScriptParser.LineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -423,13 +423,13 @@ public class WorkScriptBaseListener implements WorkScriptListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBlockExpression(WorkScriptParser.BlockExpressionContext ctx) { }
+	@Override public void enterBlock(WorkScriptParser.BlockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBlockExpression(WorkScriptParser.BlockExpressionContext ctx) { }
+	@Override public void exitBlock(WorkScriptParser.BlockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

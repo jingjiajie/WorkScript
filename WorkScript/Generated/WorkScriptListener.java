@@ -17,15 +17,15 @@ public interface WorkScriptListener extends ParseTreeListener {
 	 */
 	void exitProgram(WorkScriptParser.ProgramContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link WorkScriptParser#includeCommand}.
+	 * Enter a parse tree produced by {@link WorkScriptParser#line}.
 	 * @param ctx the parse tree
 	 */
-	void enterIncludeCommand(WorkScriptParser.IncludeCommandContext ctx);
+	void enterLine(WorkScriptParser.LineContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link WorkScriptParser#includeCommand}.
+	 * Exit a parse tree produced by {@link WorkScriptParser#line}.
 	 * @param ctx the parse tree
 	 */
-	void exitIncludeCommand(WorkScriptParser.IncludeCommandContext ctx);
+	void exitLine(WorkScriptParser.LineContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code AccessLevelExpression}
 	 * labeled alternative in {@link WorkScriptParser#expression}.
@@ -379,15 +379,15 @@ public interface WorkScriptListener extends ParseTreeListener {
 	 */
 	void exitFunctionConstraintExpression(WorkScriptParser.FunctionConstraintExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link WorkScriptParser#blockExpression}.
+	 * Enter a parse tree produced by {@link WorkScriptParser#block}.
 	 * @param ctx the parse tree
 	 */
-	void enterBlockExpression(WorkScriptParser.BlockExpressionContext ctx);
+	void enterBlock(WorkScriptParser.BlockContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link WorkScriptParser#blockExpression}.
+	 * Exit a parse tree produced by {@link WorkScriptParser#block}.
 	 * @param ctx the parse tree
 	 */
-	void exitBlockExpression(WorkScriptParser.BlockExpressionContext ctx);
+	void exitBlock(WorkScriptParser.BlockContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link WorkScriptParser#booleanExpression}.
 	 * @param ctx the parse tree

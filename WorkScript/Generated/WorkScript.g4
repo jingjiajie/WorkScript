@@ -1,11 +1,8 @@
 grammar WorkScript;
 
-program: (includeCommand NEWLINE? | NEWLINE)* (
-		expression NEWLINE?
-		| NEWLINE
-	)* EOF;
+program: line* EOF;
 
-includeCommand: HASH INCLUDE STRING;
+line: (SEMICOLON* expression SEMICOLON*)+ NEWLINE? | SEMICOLON+ NEWLINE? | NEWLINE;
 
 expression:
 	ACCESS_LEVEL COLON								# AccessLevelExpression
@@ -85,13 +82,13 @@ formalParameterItem: (typeName STAR*)? expression;
 
 functionImplementationExpression:
 	(EQUALS | RIGHT_ARROW) expression
-	| NEWLINE* (EQUALS | RIGHT_ARROW)? NEWLINE* blockExpression;
+	| NEWLINE* (EQUALS | RIGHT_ARROW)? NEWLINE* block;
 
 functionConstraintExpression:
-	WHEN NEWLINE* (blockExpression | expression);
+	WHEN NEWLINE* (block | expression);
 
-blockExpression:
-	LEFT_BRACE NEWLINE* ((expression NEWLINE+)* expression)? NEWLINE* RIGHT_BRACE;
+block:
+	LEFT_BRACE line* RIGHT_BRACE;
 
 booleanExpression: BOOLEAN;
 
@@ -124,6 +121,7 @@ IDENTIFIER:
 DOUBLE: [0-9]+ POINT [0-9]+;
 INTEGER: [0-9]+;
 STRING: '"' ~'"'* '"' | ['] ~[']* ['];
+SEMICOLON: ';';
 POINT: '.';
 COMMA: ',';
 LEFT_PARENTHESE: '(';

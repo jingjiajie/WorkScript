@@ -19,7 +19,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitIncludeCommand(WorkScriptParser::IncludeCommandContext *ctx) override {
+  virtual antlrcpp::Any visitLine(WorkScriptParser::LineContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -151,7 +151,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitBlockExpression(WorkScriptParser::BlockExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitBlock(WorkScriptParser::BlockContext *ctx) override {
     return visitChildren(ctx);
   }
 

@@ -21,7 +21,7 @@ public:
    */
     virtual antlrcpp::Any visitProgram(WorkScriptParser::ProgramContext *context) = 0;
 
-    virtual antlrcpp::Any visitIncludeCommand(WorkScriptParser::IncludeCommandContext *context) = 0;
+    virtual antlrcpp::Any visitLine(WorkScriptParser::LineContext *context) = 0;
 
     virtual antlrcpp::Any visitAccessLevelExpression(WorkScriptParser::AccessLevelExpressionContext *context) = 0;
 
@@ -87,7 +87,7 @@ public:
 
     virtual antlrcpp::Any visitFunctionConstraintExpression(WorkScriptParser::FunctionConstraintExpressionContext *context) = 0;
 
-    virtual antlrcpp::Any visitBlockExpression(WorkScriptParser::BlockExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitBlock(WorkScriptParser::BlockContext *context) = 0;
 
     virtual antlrcpp::Any visitBooleanExpression(WorkScriptParser::BooleanExpressionContext *context) = 0;
 
