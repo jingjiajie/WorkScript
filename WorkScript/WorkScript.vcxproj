@@ -352,6 +352,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AbstractContext.h" />
+    <ClInclude Include="ArrayType.h" />
     <ClInclude Include="AssignmentExpression.h" />
     <ClInclude Include="BinaryCalculateExpression.h" />
     <ClInclude Include="BinaryOperatorExpression.h" />
@@ -409,6 +410,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AbstractContext.cpp" />
+    <ClCompile Include="ArrayType.cpp" />
     <ClCompile Include="AssignmentExpression.cpp" />
     <ClCompile Include="BinaryCalculateExpression.cpp" />
     <ClCompile Include="BinaryOperatorExpression.cpp" />

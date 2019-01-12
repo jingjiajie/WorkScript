@@ -28,8 +28,8 @@ namespace WorkScript {
 
 		SymbolInfo * getSymbolInfo(const std::wstring &name);
 
-		void setFunctionTypeCache(Function *func, const std::vector<Type*> &paramTypes, Type *cacheReturnType);
-		bool getFunctionTypeCache(Function *func, const std::vector<Type*> &paramTypes, Type **outReturnType);
+		void setFunctionTypeCache(Function *func, const std::vector<Type*> &paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type *cacheReturnType);
+		bool getFunctionTypeCache(Function *func, const std::vector<Type*> &paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type **outReturnType);
 	protected:
 		AbstractContext * abstractContext = nullptr;
 		SymbolTable * instanceSymbolTable = nullptr;

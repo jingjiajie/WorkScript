@@ -4,6 +4,9 @@
 using namespace WorkScript;
 using namespace std;
 
+std::unordered_map<std::wstring, FunctionType*> FunctionType::types;
+Finalizer FunctionType::staticFinalizer(&FunctionType::releaseTypes);
+
 TypeClassification FunctionType::getClassification() const
 {
 	return TypeClassification::FUNCTION;
@@ -35,16 +38,68 @@ bool WorkScript::FunctionType::equals(const Type * type) const
 	return true;
 }
 
-std::wstring WorkScript::FunctionType::getName(const std::vector<Type*>& paramTypes, Type * returnType)
+std::wstring WorkScript::FunctionType::getName() const
+{
+	wstringstream ss;
+	if (this->returnType) {
+		ss << this->returnType->getName();
+	}
+	ss << L"(";
+	size_t paramCount = this->paramTypes.size();
+	for (size_t i = 0; i < paramCount; ++i) {
+		if (paramTypes[i]) {
+			ss << paramTypes[i]->getName();
+		}
+		if (i != paramCount) { ss << L", "; }
+	}
+	ss << L")";
+	if (this->_const) { ss << L" const"; }
+	if (this->_volatile) { ss << L" volatile"; }
+	return ss.str();
+}
+
+std::wstring WorkScript::FunctionType::getIdentifierString() const
+{
+	return FunctionType::getIdentifierString(this->paramTypes, this->returnType, this->rumtimeVarargs, this->staticVarargs, this->_const, this->_volatile);
+}
+
+std::wstring WorkScript::FunctionType::getIdentifierString(const std::vector<Type*>& paramTypes, Type * returnType, bool isRuntimeVarargs, bool isStaticVarargs, bool isConst, bool isVolatile)
 {
 	wstringstream ss;
 	ss << L"f";
-	//TODO 返回值必须和参数区分，否则参数和返回值类型同名会造成混淆
-	//if (returnType) {
-	//	ss << L"@" << returnType->getName();
-	//}
+	if (returnType) {
+		ss << L".r@" << returnType->getName();
+	}
+	ss << L".p";
 	for (size_t i = 0; i < paramTypes.size(); ++i) {
 		ss << L"@" << (paramTypes[i] ? paramTypes[i]->getName() : L"?");
 	}
+	if (isRuntimeVarargs) {
+		ss << L"@...";
+	}
+	if (isStaticVarargs) {
+		ss << L"@...s";
+	}
+	if (isConst) {
+		ss << L"@.c";
+	}
+	if (isVolatile) {
+		ss << L"@.v";
+	}
 	return ss.str();
+}
+
+FunctionType * WorkScript::FunctionType::get(std::vector<Type*> paramTypes, Type * returnType, bool isRuntimeVarargs, bool isStaticVarargs, bool isConst, bool isVolatile)
+{
+	wstring idStr = FunctionType::getIdentifierString(paramTypes, returnType, isRuntimeVarargs, isStaticVarargs);
+	auto it = types.find(idStr);
+	if (it != types.end()) return it->second;
+	else return (types[idStr] = new FunctionType(paramTypes, returnType, isRuntimeVarargs, isStaticVarargs, isConst, isVolatile));
+}
+
+void WorkScript::FunctionType::releaseTypes()
+{
+	for (auto it : types) {
+		delete it.second;
+	}
 }

@@ -7,16 +7,19 @@
 namespace WorkScript {
 	class Expression;
 	class Program;
+	class VoidType;
+	class IntegerType;
+	class FloatType;
+	class PointerType;
 
 	class Type
 	{
 	public:
-		inline Type(Program *program, const std::wstring &name)
-		{
-			this->setName(name);
-			this->program = program;
-		}
+		Type(bool isConst, bool isVolatile)
+			:_const(isConst), _volatile(isVolatile) { }
 
+		virtual std::wstring getName() const = 0;
+		virtual std::wstring getIdentifierString() const = 0;
 		virtual bool equals(const Type *type) const;
 
 		static GenerateResult generateLLVMTypeConvert(GenerateContext *context, Expression *expr, Type *targetType);
@@ -25,15 +28,14 @@ namespace WorkScript {
 		static bool convertableTo(Type *src, Type *target);
 		bool convertableTo(Type *target);
 
+		inline bool isConst() const { return this->_const; }
+		inline bool isVolatile() const { return this->_volatile; }
+
 		virtual inline TypeClassification getClassification() const = 0;
 		virtual llvm::Type* getLLVMType(GenerateContext *context) const = 0;
 
-		//ÀàÃû
-		inline const std::wstring & getName() const { return this->name; }
-		inline void setName(const std::wstring &name) { this->name = name; }
-
 	protected:
-		std::wstring name;
-		Program *program = nullptr;
+		bool _const = false;
+		bool _volatile = false;
 	};
 }

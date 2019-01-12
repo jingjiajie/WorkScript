@@ -7,12 +7,34 @@
 using namespace std;
 using namespace WorkScript;
 
+IntegerType IntegerType::sint8(L"sint8", 8, true);
+IntegerType IntegerType::sint16(L"sint16", 16, true);
+IntegerType IntegerType::sint32(L"sint32", 32, true);
+IntegerType IntegerType::sint64(L"sint64", 64, true);
+IntegerType IntegerType::uint1(L"uint1", 1, false);
+IntegerType IntegerType::uint8(L"uint8", 8, false);
+IntegerType IntegerType::uint16(L"uint16", 16, false);
+IntegerType IntegerType::uint32(L"uint32", 32, false);
+IntegerType IntegerType::uint64(L"uint64", 64, false);
 
-WorkScript::IntegerType::IntegerType(Program * program, const std::wstring & name, unsigned char length, bool isSigned)
-	:Type(program,name)
+WorkScript::IntegerType::IntegerType(const std::wstring & name, unsigned char length, bool isSigned, bool isConst, bool isVolatile)
+	:Type(isConst, isVolatile), name(name)
 {
 	this->length = length;
 	this->_signed = isSigned;
+}
+
+std::wstring WorkScript::IntegerType::getName() const
+{
+	return this->name;
+}
+
+std::wstring WorkScript::IntegerType::getIdentifierString() const
+{
+	wstring str = (this->_signed ? L"si" : L"ui") + to_wstring(this->length);
+	if (this->isConst())str += L".c";
+	if (this->isVolatile()) str += L".v";
+	return str;
 }
 
 TypeClassification WorkScript::IntegerType::getClassification() const

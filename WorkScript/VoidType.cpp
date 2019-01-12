@@ -5,6 +5,18 @@
 using namespace WorkScript;
 using namespace std;
 
+VoidType VoidType::type;
+
+std::wstring WorkScript::VoidType::getName() const
+{
+	return L"void";
+}
+
+std::wstring WorkScript::VoidType::getIdentifierString() const
+{
+	return L"v";
+}
+
 TypeClassification WorkScript::VoidType::getClassification() const
 {
 	return TypeClassification::VOID;

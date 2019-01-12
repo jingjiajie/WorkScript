@@ -8,10 +8,21 @@
 using namespace std;
 using namespace WorkScript;
 
-FloatType::FloatType(Program * program, const std::wstring & name, unsigned char length)
-	:Type(program,name)
+FloatType FloatType::float32(L"float32", 32);
+FloatType FloatType::float64(L"float64", 64);
+
+FloatType::FloatType(const std::wstring & name, unsigned char length, bool isConst, bool isVolatile)
+	:Type(isConst,isVolatile),name(name)
 {
 	this->length = length;
+}
+
+std::wstring WorkScript::FloatType::getIdentifierString() const
+{
+	wstring str = L"f" + to_wstring(this->length);
+	if (this->isConst())str += L".c";
+	if (this->isVolatile()) str += L".v";
+	return str;
 }
 
 TypeClassification WorkScript::FloatType::getClassification() const

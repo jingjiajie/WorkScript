@@ -36,6 +36,7 @@ namespace WorkScript {
 	EXCEPTION_COMMON_DECL(UndefinedSymbolException);
 	EXCEPTION_COMMON_DECL(TypeNotFoundException);
 	EXCEPTION_COMMON_DECL(TypeMismatchedException);
+	EXCEPTION_COMMON_DECL(InternalException);
 }
 
 

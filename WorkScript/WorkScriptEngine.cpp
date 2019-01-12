@@ -46,9 +46,9 @@ void WorkScriptEngine::run(const char * filePath)
 	//llvm::RTDyldMemoryManager* RTDyldMM = NULL;
 	b.setEngineKind(llvm::EngineKind::JIT)
 		.setErrorStr(&errorStr);
-		//.setVerifyModules(true)
-		//.setMCJITMemoryManager(std::unique_ptr<llvm::RTDyldMemoryManager>(RTDyldMM))
-		//.setOptLevel(llvm::CodeGenOpt::Default)
+	//.setVerifyModules(true)
+	//.setMCJITMemoryManager(std::unique_ptr<llvm::RTDyldMemoryManager>(RTDyldMM))
+	//.setOptLevel(llvm::CodeGenOpt::Default)
 	auto e = b.create();
 	e->finalizeObject();
 	printf("¿ªÊ¼JITÖ´ÐÐ£º\n\n");

@@ -5,10 +5,10 @@
 #include "Function.h"
 #include "IntegerType.h"
 #include "FloatType.h"
+#include "VoidType.h"
 
 using namespace WorkScript;
 using namespace std;
-
 
 //bool Type::isSubTypeOf(const Type *abstractType) const
 //{
@@ -35,7 +35,9 @@ using namespace std;
 
 bool WorkScript::Type::equals(const Type * type) const
 {
-	return (this->getClassification() == type->getClassification()) && (this->name == type->name);
+	return (this->getClassification() == type->getClassification()) 
+		&& (this->_const == type->_const)
+		&& (this->_volatile == type->_volatile);
 }
 
 

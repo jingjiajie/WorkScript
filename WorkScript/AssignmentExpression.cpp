@@ -19,13 +19,10 @@ WorkScript::AssignmentExpression::AssignmentExpression(const ExpressionInfo &exp
 GenerateResult WorkScript::AssignmentExpression::generateIR(GenerateContext * context)
 {
 	llvm::LLVMContext &llvmCtx = *context->getLLVMContext();
+	auto instCtx = context->getInstantializeContext();
 	auto irBuilder = context->getIRBuilder();
-	auto leftExpr = this->getLeftExpression();
-	auto rightExpr = this->getRightExpression();
-	Type *leftType = leftExpr->getType(context->getInstantializeContext());
-	Type *rightType = rightExpr->getType(context->getInstantializeContext());
-	TypeClassification leftCls = leftType->getClassification();
-	TypeClassification rightCls = rightType->getClassification();
+	Type *leftType = this->getType(context->getInstantializeContext());
+	Type *rightType = this->rightExpression->getType(context->getInstantializeContext());
 	Type *promotedType = Type::getPromotedType(leftType, rightType);
 	context->setLeftValue(false);
 	llvm::Value *val = Type::generateLLVMTypeConvert(context, this->rightExpression, promotedType).getValue();
@@ -48,10 +45,29 @@ Expression * WorkScript::AssignmentExpression::clone() const
 
 Type * WorkScript::AssignmentExpression::getType(InstantializeContext *context) const
 {
+	auto leftExpr = this->getLeftExpression();
+	auto rightExpr = this->getRightExpression();
+	Type *leftType = leftExpr->getType(context);
+	if (leftType)return leftType;
+	if (this->leftExpression->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
+		auto leftVar = (VariableExpression*)leftExpr;
+		this->makeSymbolOfRightType(leftVar->getName(), context);
+	}
+	else {
+		throw WorkScriptException(this->getLocation(), L"无法推导" + this->leftExpression->toString() + L"的类型");
+	}
 	return this->rightExpression->getType(context);
 }
 
 std::wstring WorkScript::AssignmentExpression::getOperatorString() const
 {
 	return L":=";
+}
+
+Type * WorkScript::AssignmentExpression::makeSymbolOfRightType(const wstring &name, InstantializeContext *ctx) const
+{
+	auto rightExpr = this->getRightExpression();
+	Type *rightType = rightExpr->getType(ctx);
+	ctx->getInstanceSymbolTable()->setSymbol(name, rightType);
+	return rightType;
 }

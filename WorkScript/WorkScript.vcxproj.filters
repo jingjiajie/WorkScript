@@ -249,6 +249,9 @@
     <ClInclude Include="TreeCreateVisitor.h">
       <Filter>ANTLR\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="ArrayType.h">
+      <Filter>Program\Type\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WorkScript.cpp" />
@@ -372,9 +375,14 @@
     <ClCompile Include="InstantializeContext.cpp">
       <Filter>Program\Context</Filter>
     </ClCompile>
-    <ClCompile Include="AbstractContext.cpp" />
     <ClCompile Include="TreeCreateVisitor.cpp">
       <Filter>ANTLR\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="AbstractContext.cpp">
+      <Filter>Program\Context</Filter>
+    </ClCompile>
+    <ClCompile Include="ArrayType.cpp">
+      <Filter>Program\Type\Sources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -3,32 +3,37 @@
 #include "SymbolTable.h"
 
 namespace WorkScript {
+	class FunctionType;
+	class PointerType;
+
 	class AbstractContext {
 	public:
-		inline SymbolInfo * getSymbolInfo(const std::wstring &name) { return this->getAbstractSymbolTable()->getSymbolInfo(name); }
-		inline SymbolInfo * setSymbol(const std::wstring &name, Type *type) { return this->getAbstractSymbolTable()->setSymbol(name, type); }
-
-		virtual SymbolTable * getAbstractSymbolTable() = 0;
-	};
-
-	class CommonAbstractContext : public AbstractContext {
-	public:
-		virtual SymbolTable * getAbstractSymbolTable() override;
+		AbstractContext(AbstractContext *base, size_t blockID);
+		~AbstractContext();
 		inline size_t getBlockID() const { return this->blockID; }
+		inline SymbolInfo * getSymbolInfo(const std::wstring &name) { return this->abstractSymbolTable.getSymbolInfo(name); }
+		inline SymbolInfo * setSymbol(const std::wstring &name, Type *type) { return this->abstractSymbolTable.setSymbol(name, type); }
+		inline SymbolTable * getSymbolTable() { return &this->abstractSymbolTable; }
+
+		void addFunction(Function *func);
+		Function* getFirstFunction(const std::wstring &name, std::vector<Type*> paramTypes);
+		std::vector<Function*> getLocalFunctions(const std::wstring &name, std::vector<Type*> paramTypes, bool compromise = false);
+		std::vector<Function*> getLocalFunctions(const std::wstring &name);
+		std::vector<Function*> getFunctions(const std::wstring &name, std::vector<Type*> paramTypes, bool compromise = false);
+		std::vector<Function*> getFunctions(const std::wstring &name);
+
+
+		Type * getType(const std::wstring &name, size_t pointerLevel = 0);
+		Type * getLocalType(const std::wstring &name, size_t pointerLevel = 0);
+		void addType(const std::wstring &name, Type *type);
+		void addType(Type *type);
+
 	protected:
+		AbstractContext * base;
 		size_t blockID = 0;
+		std::wstring prefix;
 		SymbolTable abstractSymbolTable;
-	};
-
-	class BlockAbstractContext : public AbstractContext{
-	public:
-		BlockAbstractContext(size_t blockID)
-			:blockID(blockID), abstractSymbolTable(BlockSymbolTable(blockID)) { }
-
-		virtual BlockSymbolTable * getAbstractSymbolTable() override;
-		inline size_t getBlockID() const { return this->blockID; }
-	protected:
-		size_t blockID = 0;
-		BlockSymbolTable abstractSymbolTable;
+		std::unordered_map<std::wstring, std::vector<Function*>> functions;
+		std::unordered_map<std::wstring, Type*> types;
 	};
 }

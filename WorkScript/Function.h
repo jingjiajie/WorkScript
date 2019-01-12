@@ -28,7 +28,7 @@ namespace WorkScript {
 
 	class Function {
 	public:
-		Function(Program *program, 
+		Function(AbstractContext *baseContext, 
 			const std::wstring &name, 
 			const std::vector<Type*> &paramTypes, 
 			Type *returnType, 
@@ -46,7 +46,7 @@ namespace WorkScript {
 		virtual Type *getReturnType(InstantializeContext *instCtx) = 0;
 		virtual void setReturnType(Type *type);
 		//CommonAbstractContext * getAbstractContext() { return &this->abstractContext; }
-		static MatchResult matchByParameters(const std::vector<Type*> &declParamTypes, const std::vector<Type*> &realParamTypes);
+		static MatchResult matchByParameters(const std::vector<Type*> &declParamTypes, const std::vector<Type*> &realParamTypes, bool isRuntimeVarargs, bool isStaticVarargs);
 		MatchResult matchByParameters(const std::vector<Type*> &paramTypes);
 
 		Program * getProgram() const { return this->program; }
@@ -56,6 +56,7 @@ namespace WorkScript {
 		inline bool isDeclaredReturnType()const { return this->declaredReturnType; }
 		inline bool isRuntimeVarargs() const { return this->runtimeVarargs; }
 		inline bool isStaticVarargs() const { return this->staticVarargs; }
+		inline AbstractContext * getBaseContext() { return this->baseContext; }
 	protected:
 		std::wstring name;
 		Program *program = nullptr;
@@ -64,6 +65,6 @@ namespace WorkScript {
 		bool declaredReturnType = false;
 		bool runtimeVarargs = false;
 		bool staticVarargs = false;
-		//CommonAbstractContext abstractContext;
+		AbstractContext *baseContext;
 	};
 }

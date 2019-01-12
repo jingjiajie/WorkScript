@@ -65,7 +65,7 @@ antlrcpp::Any TreeCreateVisitor::visitNumberExpression(WorkScriptParser::NumberE
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new FloatConstant(program->getFloat64Type(), value)));
+		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new FloatConstant(FloatType::getFloat64Type(), value)));
 	}
 	else {
 		int value = 0;
@@ -73,7 +73,7 @@ antlrcpp::Any TreeCreateVisitor::visitNumberExpression(WorkScriptParser::NumberE
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new IntegerConstant(program->getSInt32Type(), value)));
+		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new IntegerConstant(IntegerType::getSInt32Type(), value)));
 	}
 }
 
@@ -100,20 +100,20 @@ antlrcpp::Any TreeCreateVisitor::visitBooleanExpression(WorkScriptParser::Boolea
 {
 	string boolStr = ctx->BOOLEAN()->getText();
 	if (boolStr == "true" || boolStr == "yes" || boolStr == "ok" || boolStr == "good") {
-		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new IntegerConstant(program->getUInt1Type(), 1)));
+		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new IntegerConstant(IntegerType::getUInt1Type(), 1)));
 	}
 	else if (boolStr == "false" || boolStr == "no" || boolStr == "bad") {
-		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new IntegerConstant(program->getUInt1Type(), 0)));
+		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new IntegerConstant(IntegerType::getUInt1Type(), 0)));
 	}
 	else {
-		throw std::move(SyntaxErrorException(getLocation(ctx), L"无法识别的布尔值：" + Locale::ansiToUnicode(boolStr)));
+		throw std::move(SyntaxErrorException(getLocation(ctx), L"无法识别的布尔值：" + Locale::utf8ToUnicode(boolStr)));
 	}
 }
 
 antlrcpp::Any TreeCreateVisitor::visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx)
 {
 	string varName = ctx->identifier()->getText();
-	auto expr = new VariableExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), Locale::ansiToUnicode(varName));
+	auto expr = new VariableExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), Locale::utf8ToUnicode(varName));
 	expr->setDeclarable(this->declarable); //等号左边的变量才可以创建声明
 	auto wrapper = ExpressionWrapper(expr);
 	return wrapper;
@@ -124,12 +124,12 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 	STORE_FORBID_ASSIGN;
 	/*====深入下一层====*/
 	++this->curDepth;
-
+	AbstractContext *outerAbstractContext = this->abstractContexts.top();
 	/*读取函数名*/
 	auto funcNameCtx = ctx->functionDeclarationExpression()->functionName()->identifier();
 	wstring funcName;
 	if (funcNameCtx != nullptr) {
-		funcName = Locale::ansiToUnicode(funcNameCtx->getText());
+		funcName = Locale::utf8ToUnicode(funcNameCtx->getText());
 	}
 
 	/*读取返回值类型名*/
@@ -137,8 +137,8 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 	wstring returnTypeName;
 	Type *declReturnType = nullptr;
 	if (returnTypeNameCtx) {
-		returnTypeName = Locale::ansiToUnicode(returnTypeNameCtx->identifier()->getText());
-		declReturnType = this->program->getType(returnTypeName);
+		returnTypeName = Locale::utf8ToUnicode(returnTypeNameCtx->identifier()->getText());
+		declReturnType = outerAbstractContext->getType(returnTypeName);
 		if (!declReturnType) {
 			throw TypeNotFoundException(getLocation(ctx), L"无法找到类型：" + returnTypeName);
 		}
@@ -157,14 +157,14 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 	{
 		paramDeclExprs[i] = paramItemsDeclCtx[i]->expression()->accept(this).as<ExpressionWrapper>();
 		if (paramItemsDeclCtx[i]->typeName()) {
-			wstring typeName = Locale::ansiToUnicode(paramItemsDeclCtx[i]->typeName()->getText());
-			Type *type = this->program->getType(typeName);
+			wstring typeName = Locale::utf8ToUnicode(paramItemsDeclCtx[i]->typeName()->getText());
+			Type *type = outerAbstractContext->getType(typeName);
 			if (!type) {
 				throw TypeNotFoundException(getLocation(ctx), L"无法找到类型：" + type->getName());
 			}
 			size_t pointerLevel = paramItemsDeclCtx[i]->STAR().size();
 			if (pointerLevel > 0) {
-				type = program->getPointerType(type, pointerLevel);
+				type = PointerType::get(type, pointerLevel);
 			}
 			paramDeclTypes[i] = type;
 		}
@@ -193,12 +193,12 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 	auto params = resolveRes.getParameters();
 	auto constraints = resolveRes.getConstraints();
 
-	auto funcs = this->program->getFunctions(funcName, paramTypes);
+	auto funcs = outerAbstractContext->getFunctions(funcName, paramTypes);
 	if (funcs.size() == 0) {
 		//此时还不知道返回值类型
-		auto newFunc = new BranchFunction(this->program, funcName, paramTypes, declReturnType, declReturnType != nullptr, isRuntimeVarargs);
+		auto newFunc = new BranchFunction(outerAbstractContext, funcName, paramTypes, declReturnType, declReturnType != nullptr, isRuntimeVarargs);
 		funcs.push_back(newFunc);
-		this->program->addFunction(newFunc);
+		outerAbstractContext->addFunction(newFunc);
 	}
 	//为所有符合条件的函数重载添加函数分支
 	for (size_t i = 0; i < funcs.size(); ++i) {
@@ -210,8 +210,8 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 		size_t branchID = func->getBranchCount() + 1; //blockID从1开始
 		auto branch = new FunctionBranch(func, branchID, getLocation(ctx));
 		branch->setParameters(params);
-		BlockAbstractContext *newAbstractCtx = new BlockAbstractContext(branchID);
-		this->abstractContexts.push(newAbstractCtx);
+		AbstractContext *innerAbstractCtx = branch->getContext();
+		this->abstractContexts.push(innerAbstractCtx);
 
 		/*将函数声明添加到相应的重载分支中*/
 		//寻找重载，同时判断是否和已有返回值类型相同，如果不存在则新建。
@@ -248,15 +248,16 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 
 antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDeclExpression(WorkScriptParser::StdFunctionDeclExpressionContext *ctx)
 {
+	AbstractContext *outerAbstractContext = this->abstractContexts.top();
 	/*读取函数名*/
 	auto funcNameCtx = ctx->functionName();
-	wstring funcName = Locale::ansiToUnicode(funcNameCtx->getText());
+	wstring funcName = Locale::utf8ToUnicode(funcNameCtx->getText());
 
 	/*读取返回值类型名*/
 	auto returnTypeNameCtx = ctx->typeName();
-	wstring returnTypeName = Locale::ansiToUnicode(returnTypeNameCtx->identifier()->getText());
+	wstring returnTypeName = Locale::utf8ToUnicode(returnTypeNameCtx->identifier()->getText());
 	int pointerLevel = ctx->STAR().size();
-	Type *returnType = this->program->getType(returnTypeName, pointerLevel);
+	Type *returnType = outerAbstractContext->getType(returnTypeName, pointerLevel);
 	if (!returnType) {
 		throw TypeNotFoundException(getLocation(ctx), L"无法找到类型：" + returnTypeName);
 	}
@@ -267,22 +268,23 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDeclExpression(Work
 	for (size_t i = 0; i < paramItemsCtx.size(); ++i) {
 		wstring paramName;
 		if (paramItemsCtx[i]->identifier()) {
-			paramName = Locale::ansiToUnicode(paramItemsCtx[i]->identifier()->getText());
+			paramName = Locale::utf8ToUnicode(paramItemsCtx[i]->identifier()->getText());
 		}
-		wstring paramTypeName = Locale::ansiToUnicode(paramItemsCtx[i]->typeName()->getText());
+		wstring paramTypeName = Locale::utf8ToUnicode(paramItemsCtx[i]->typeName()->getText());
 		size_t pointerLevel = paramItemsCtx[i]->STAR().size();
-		Type *paramType = this->program->getType(paramTypeName, pointerLevel);
+		Type *paramType = outerAbstractContext->getType(paramTypeName, pointerLevel);
 		if (!paramType) {
 			throw TypeNotFoundException(getLocation(ctx), L"无法找到类型：" + paramTypeName);
 		}
 		params.push_back(new Parameter(paramName, paramType, true));
 		paramTypes.push_back(paramType);
 	}
-	Function *func = this->program->getFirstFunction(funcName, paramTypes);
+	bool isRuntimeVarargs = ctx->stdFormalParameterExpression()->APOSTROPHE() != nullptr;
+	Function *func = outerAbstractContext->getFirstFunction(funcName, paramTypes);
 	if (!func) {
 		//TODO 本地函数单独处理？
-		func = new BranchFunction(this->program, funcName, paramTypes, returnType);
-		this->program->addFunction(func);
+		func = new BranchFunction(outerAbstractContext, funcName, paramTypes, returnType,true,isRuntimeVarargs);
+		outerAbstractContext->addFunction(func);
 	}
 	return nullptr;
 }
@@ -291,7 +293,7 @@ antlrcpp::Any TreeCreateVisitor::visitCallExpression(WorkScriptParser::CallExpre
 {
 	STORE_FORBID_ASSIGN;
 	ExpressionWrapper paramExpressionWrapper = ctx->multiValueExpression()->accept(this);
-	auto funcName = Locale::ansiToUnicode(ctx->identifier()->getText());
+	auto funcName = Locale::utf8ToUnicode(ctx->identifier()->getText());
 	auto paramExpr = (MultiValueExpression*)paramExpressionWrapper.getExpression();
 	auto expr = new CallExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), funcName, paramExpr);
 	RESTORE_ASSIGNABLE;

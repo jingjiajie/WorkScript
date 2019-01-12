@@ -21,22 +21,22 @@ SymbolInfo * WorkScript::InstantializeContext::getSymbolInfo(const std::wstring 
 	return nullptr;
 }
 
-void WorkScript::InstantializeContext::setFunctionTypeCache(Function *func, const std::vector<Type*>& paramTypes, Type * cacheReturnType)
+void WorkScript::InstantializeContext::setFunctionTypeCache(Function *func, const std::vector<Type*>& paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type * cacheReturnType)
 {
 	if (!this->functionCache)
 	{
 		//TODO Location信息
 		throw WorkScriptException(Location(), L"未指定函数缓存器！");
 	}
-	this->functionCache->setFunctionTypeCache(func, paramTypes, cacheReturnType);
+	this->functionCache->setFunctionTypeCache(func, paramTypes, isRuntimeVarargs, isStaticVarargs, cacheReturnType);
 }
 
-bool WorkScript::InstantializeContext::getFunctionTypeCache(Function *func, const std::vector<Type*>& paramTypes, Type ** outReturnType)
+bool WorkScript::InstantializeContext::getFunctionTypeCache(Function *func, const std::vector<Type*>& paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type ** outReturnType)
 {
 	if (!this->functionCache)
 	{
 		//TODO Location信息
 		throw WorkScriptException(Location(), L"未指定函数缓存器！");
 	}
-	return this->functionCache->getFunctionTypeCache(func, paramTypes, outReturnType);
+	return this->functionCache->getFunctionTypeCache(func, paramTypes, isRuntimeVarargs, isStaticVarargs, outReturnType);
 }

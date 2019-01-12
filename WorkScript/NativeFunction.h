@@ -6,8 +6,8 @@ namespace WorkScript {
 	public:
 		typedef GenerateResult(*TFuncGenerateIR)(NativeFunction *, GenerateContext*);
 
-		inline NativeFunction(Program *program, const std::wstring &name, const std::vector<Type*> &paramTypes, Type *returnType, TFuncGenerateIR f)
-			: Function(program,name, paramTypes, returnType), funcGenerateIR(f) {}
+		inline NativeFunction(AbstractContext *ctx, const std::wstring &name, const std::vector<Type*> &paramTypes, Type *returnType, TFuncGenerateIR f)
+			: Function(ctx, name, paramTypes, returnType), funcGenerateIR(f) {}
 		
 		virtual GenerateResult generateLLVMIR(GenerateContext *context) override;
 	private:

@@ -7,6 +7,7 @@ namespace WorkScript {
 		POINTER,
 		STRING,
 		FUNCTION,
+		ARRAY,
 		CLASS
 	};
 }

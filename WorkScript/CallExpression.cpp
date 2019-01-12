@@ -14,33 +14,33 @@ GenerateResult WorkScript::CallExpression::generateIR(GenerateContext * context)
 {
 	//获取函数声明
 	auto paramTypes = this->parameters->getTypes(context->getInstantializeContext());
-	Function *func = this->getProgram()->getFirstFunction(this->functionName, paramTypes);
+	Function *func = this->expressionInfo.getAbstractContext()->getFirstFunction(this->functionName, paramTypes);
 	if (!func) {
 		throw WorkScriptException(this->expressionInfo.getLocation(), L"未找到函数：" + this->functionName);
 	}
 	//生成LLVM函数调用
-	auto prevInstCtx = context->getInstantializeContext();
+	auto outerInstCtx = context->getInstantializeContext();
 	auto builder = context->getIRBuilder();
 	SymbolTable newInstTable;
-	InstantializeContext newInstCtx(this->expressionInfo.getAbstractContext(), this->expressionInfo.getProgram()->getFunctionCache(), &newInstTable);
+	InstantializeContext innerInstCtx(this->expressionInfo.getAbstractContext(), this->expressionInfo.getProgram()->getFunctionCache(), &newInstTable);
 	//使用符号表传参
 	for (size_t i = 0; i < paramTypes.size(); ++i)
 	{
 		Type *paramType = paramTypes[i];
 		newInstTable.setSymbol(Function::getStdParameterName(i), paramType);
 	}
-	context->setInstantializeContext(&newInstCtx);
+	auto llvmArgs = this->parameters->getLLVMArgs(context, func->getParameterTypes(&innerInstCtx)); //这个必须在context设置innerInstCtx之前执行
+	context->setInstantializeContext(&innerInstCtx);
 	llvm::Function *llvmFunc = func->getLLVMFunction(context);
-	auto llvmArgs = this->parameters->getLLVMArgs(context, func->getParameterTypes(&newInstCtx));
 	auto ret = builder->CreateCall(llvmFunc, llvmArgs);
-	context->setInstantializeContext(prevInstCtx);
+	context->setInstantializeContext(outerInstCtx);
 	return ret;
 }
 
 Type * CallExpression::getType(InstantializeContext *context) const
 {
 	auto paramTypes = this->parameters->getTypes(context);
-	Function *func = this->getProgram()->getFirstFunction(this->functionName, paramTypes);
+	Function *func = this->expressionInfo.getAbstractContext()->getFirstFunction(this->functionName, paramTypes);
 	if (!func) {
 		throw WorkScriptException(this->expressionInfo.getLocation(), L"未找到函数：" + this->functionName);
 	}

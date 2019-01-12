@@ -8,16 +8,16 @@ using namespace std;
 using namespace WorkScript;
 
 WorkScript::Function::Function(
-	Program *program, 
+	AbstractContext *baseContext,
 	const std::wstring &name, 
 	const std::vector<Type*>& paramTypes, 
 	Type * returnType,
 	bool declaredReturnType,
 	bool isRuntimeVarargs,
 	bool isStaticVarargs)
-	:program(program),name(name), declaredReturnType(declaredReturnType),runtimeVarargs(isRuntimeVarargs),staticVarargs(isStaticVarargs)
+	:program(program),name(name), baseContext(baseContext),declaredReturnType(declaredReturnType),runtimeVarargs(isRuntimeVarargs),staticVarargs(isStaticVarargs)
 {	
-	FunctionType *funcType = program->getFunctionType(paramTypes, returnType);
+	FunctionType *funcType = FunctionType::get(paramTypes, returnType);
 	this->abstractType = funcType;
 }
 
@@ -43,8 +43,8 @@ std::wstring WorkScript::Function::getMangledFunctionName(InstantializeContext *
 
 llvm::Function * WorkScript::Function::getLLVMFunction(GenerateContext * context, bool declareOnly)
 {
-	InstantializeContext *instCtx = context->getInstantializeContext();
-	auto paramTypes = this->getParameterTypes(instCtx);
+	InstantializeContext *outerInstCtx = context->getInstantializeContext();
+	auto paramTypes = this->getParameterTypes(outerInstCtx);
 	llvm::Function *matchedFunc = nullptr;
 	for (size_t i = 0; i < this->llvmFunctions.size(); ++i)
 	{
@@ -61,12 +61,12 @@ llvm::Function * WorkScript::Function::getLLVMFunction(GenerateContext * context
 			Type *paramType = paramTypes[i];
 			llvmParamTypes.push_back(paramType->getLLVMType(context));
 		}
-		Type *myReturnType = this->getReturnType(instCtx);
+		Type *myReturnType = this->getReturnType(outerInstCtx);
 		llvm::FunctionType *funcType = llvm::FunctionType::get(myReturnType->getLLVMType(context), llvmParamTypes, this->runtimeVarargs);
 		//创建函数声明
 		wstring funcName;
-		if (this->program->getFunctions(this->name).size() > 1) {
-			funcName = this->getMangledFunctionName(instCtx);
+		if (this->baseContext->getFunctions(this->name).size() > 1) {
+			funcName = this->getMangledFunctionName(outerInstCtx);
 		}
 		else {
 			funcName = this->name;
@@ -93,15 +93,19 @@ llvm::Function * WorkScript::Function::getLLVMFunction(GenerateContext * context
 
 void WorkScript::Function::setReturnType(Type * returnType)
 {
-	this->abstractType = program->getFunctionType(this->abstractType->getParameterTypes(), returnType);
+	this->abstractType = FunctionType::get(this->abstractType->getParameterTypes(), returnType);
 }
 
-MatchResult WorkScript::Function::matchByParameters(const std::vector<Type*>& declParamTypes, const std::vector<Type*>& realParamTypes)
+MatchResult WorkScript::Function::matchByParameters(const std::vector<Type*>& declParamTypes, const std::vector<Type*>& realParamTypes, bool isRuntimeVarargs, bool isStaticVarargs)
 {
 	bool compromised = false;
-	size_t paramCount = declParamTypes.size();
-	if (paramCount != realParamTypes.size())return MISMATCHED;
-	for (size_t i = 0; i < paramCount; ++i)
+	size_t declParamCount = declParamTypes.size();
+	//TODO 需要考虑参数默认值
+	if (realParamTypes.size() < declParamCount)return MISMATCHED;
+	if (declParamCount != realParamTypes.size()
+		&& !isRuntimeVarargs
+		&& !isStaticVarargs)return MISMATCHED;
+	for (size_t i = 0; i < declParamCount; ++i)
 	{
 		Type *formalParamType = declParamTypes[i];
 		if (!realParamTypes[i])continue;
@@ -116,7 +120,7 @@ MatchResult WorkScript::Function::matchByParameters(const std::vector<Type*>& de
 MatchResult WorkScript::Function::matchByParameters(const std::vector<Type*> &paramTypes)
 {
 	auto declParamTypes = this->abstractType->getParameterTypes();
-	return Function::matchByParameters(declParamTypes, paramTypes);
+	return Function::matchByParameters(declParamTypes, paramTypes, this->runtimeVarargs, this->staticVarargs);
 }
 
 inline std::vector<Type*> WorkScript::Function::getParameterTypes(InstantializeContext * context) const
