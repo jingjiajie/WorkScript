@@ -5,7 +5,6 @@
 #include "GenerateContext.h"
 #include "GenerateResult.h"
 #include "SymbolTable.h"
-#include "Constant.h"
 
 namespace WorkScript {
 	class FunctionType;

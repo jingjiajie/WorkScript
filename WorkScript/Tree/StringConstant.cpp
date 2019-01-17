@@ -3,7 +3,7 @@
 
 using namespace WorkScript;
 
-GenerateResult WorkScript::StringConstant::generateLLVMIR(GenerateContext * context)
+GenerateResult WorkScript::StringConstant::generateIR(GenerateContext * context)
 {
 	auto irBuilder = context->getIRBuilder();
 	return irBuilder->CreateGlobalStringPtr(Locale::fromWideChar(Encoding::ANSI, this->value.c_str()));
@@ -16,10 +16,10 @@ std::wstring WorkScript::StringConstant::toString() const
 
 Constant * WorkScript::StringConstant::clone() const
 {
-	return new StringConstant(this->value);
+	return new StringConstant(expressionInfo, this->value);
 }
 
-Type * WorkScript::StringConstant::getType()
+Type * WorkScript::StringConstant::getType() const
 {
 	return PointerType::get(IntegerType::getSInt8Type(),1);
 }

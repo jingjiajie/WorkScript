@@ -23,95 +23,83 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitAccessLevelExpression(WorkScriptParser::AccessLevelExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitBinaryCompare(WorkScriptParser::BinaryCompareContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitVariable(WorkScriptParser::VariableContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitCallExpression_(WorkScriptParser::CallExpression_Context *ctx) override {
+  virtual antlrcpp::Any visitMultiplyDivideModulus(WorkScriptParser::MultiplyDivideModulusContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitStringExpression_(WorkScriptParser::StringExpression_Context *ctx) override {
+  virtual antlrcpp::Any visitStdFunctionDecl_(WorkScriptParser::StdFunctionDecl_Context *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMultiplyDivideModulusExpression(WorkScriptParser::MultiplyDivideModulusExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitAssignmentOrEquals(WorkScriptParser::AssignmentOrEqualsContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitVariableExpression_(WorkScriptParser::VariableExpression_Context *ctx) override {
+  virtual antlrcpp::Any visitString(WorkScriptParser::StringContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitBinaryCompareExpression(WorkScriptParser::BinaryCompareExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitAccessLevel(WorkScriptParser::AccessLevelContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitBooleanExpression_(WorkScriptParser::BooleanExpression_Context *ctx) override {
+  virtual antlrcpp::Any visitPlusMinus(WorkScriptParser::PlusMinusContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitAssignmentOrEqualsExpression(WorkScriptParser::AssignmentOrEqualsExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitAssignment(WorkScriptParser::AssignmentContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitNumberExpression_(WorkScriptParser::NumberExpression_Context *ctx) override {
+  virtual antlrcpp::Any visitNumber(WorkScriptParser::NumberContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitAssignmentExpression(WorkScriptParser::AssignmentExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitNegative(WorkScriptParser::NegativeContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitStdFunctionDeclExpression_(WorkScriptParser::StdFunctionDeclExpression_Context *ctx) override {
+  virtual antlrcpp::Any visitPositive(WorkScriptParser::PositiveContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitPositiveExpression(WorkScriptParser::PositiveExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitFunction_(WorkScriptParser::Function_Context *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFunctionExpression_(WorkScriptParser::FunctionExpression_Context *ctx) override {
+  virtual antlrcpp::Any visitParenthese(WorkScriptParser::ParentheseContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitCall_(WorkScriptParser::Call_Context *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitNegativeExpression(WorkScriptParser::NegativeExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitBoolean(WorkScriptParser::BooleanContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitCallExpression(WorkScriptParser::CallExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitCall(WorkScriptParser::CallContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMultiValueExpression(WorkScriptParser::MultiValueExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitMultiValue(WorkScriptParser::MultiValueContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitNumberExpression(WorkScriptParser::NumberExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitStdFunctionDecl(WorkScriptParser::StdFunctionDeclContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitStdFunctionDeclExpression(WorkScriptParser::StdFunctionDeclExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitStdFormalParameterExpression(WorkScriptParser::StdFormalParameterExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitStdFormalParameter(WorkScriptParser::StdFormalParameterContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -119,11 +107,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitFunction(WorkScriptParser::FunctionContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFunctionDeclarationExpression(WorkScriptParser::FunctionDeclarationExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitFunctionDeclaration(WorkScriptParser::FunctionDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -135,7 +123,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFormalParameterExpression(WorkScriptParser::FormalParameterExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitFormalParameter(WorkScriptParser::FormalParameterContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -143,11 +131,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFunctionImplementationExpression(WorkScriptParser::FunctionImplementationExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitFunctionImplementation(WorkScriptParser::FunctionImplementationContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFunctionConstraintExpression(WorkScriptParser::FunctionConstraintExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitFunctionConstraint(WorkScriptParser::FunctionConstraintContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -155,11 +143,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitBooleanExpression(WorkScriptParser::BooleanExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitStaticVarargs(WorkScriptParser::StaticVarargsContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitVarargsExpression(WorkScriptParser::VarargsExpressionContext *ctx) override {
+  virtual antlrcpp::Any visitNewlineOrComma(WorkScriptParser::NewlineOrCommaContext *ctx) override {
     return visitChildren(ctx);
   }
 

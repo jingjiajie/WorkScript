@@ -5,6 +5,7 @@
 #include "Function.h"
 #include "FunctionCache.h"
 #include "AbstractContext.h"
+#include "Constant.h"
 
 using namespace WorkScript;
 using namespace std;

@@ -1,17 +1,16 @@
 #pragma once
 #include "Expression.h"
 #include "Type.h"
+#include "MultiValue.h"
 
 namespace WorkScript {
-	class FunctionExpression;
-	class MultiValueExpression;
 	class Function;
 
-	class CallExpression :
+	class Call :
 		public Expression
 	{
 	public:
-		inline CallExpression(const ExpressionInfo &exprInfo, const std::wstring &funcName, MultiValueExpression *params)
+		inline Call(const ExpressionInfo &exprInfo, const std::wstring &funcName, MultiValue *params)
 			:Expression(exprInfo), functionName(funcName), parameters(params){ }
 
 		virtual GenerateResult generateIR(GenerateContext *context) override;
@@ -26,6 +25,6 @@ namespace WorkScript {
 		}
 	protected:
 		std::wstring functionName;
-		MultiValueExpression *parameters = nullptr;
+		MultiValue *parameters = nullptr;
 	};
 }

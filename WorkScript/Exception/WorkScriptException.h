@@ -14,10 +14,10 @@ namespace WorkScript
 		inline WorkScriptException(Location loc, const std::wstring &wmsg)
 				: location(loc)
 		{
-			this->setMessage(wmsg.c_str());
+			std::wstring str = L"第" + std::to_wstring(loc.getLine())+ L"行，第" + std::to_wstring(loc.getColumn()) + L"列：" + wmsg;
+			this->setMessage(str);
 		}
-
-		virtual const char *what() const noexcept override;
+		const char *what() const noexcept override;
 
 		void setMessage(const std::wstring &msg);
 
@@ -50,6 +50,7 @@ namespace WorkScript
 	EXCEPTION_COMMON_DECL(TypeMismatchedException)
 
 	EXCEPTION_COMMON_DECL(InternalException)
+	EXCEPTION_COMMON_DECL(IncompatibleTypeException)
 }
 
 

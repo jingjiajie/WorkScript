@@ -1,10 +1,10 @@
 #include "FormalParametersResolver.h"
 #include "Expression.h"
 #include "Parameter.h"
-#include "VariableExpression.h"
-#include "BinaryCompareExpression.h"
+#include "Variable.h"
+#include "BinaryCompare.h"
 #include "SyntaxErrorException.h"
-#include "AssignmentExpression.h"
+#include "Assignment.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -36,17 +36,17 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 		switch (curExpr->getExpressionType())
 		{
 		case ExpressionType::VARIABLE_EXPRESSION: {
-			VariableExpression* varExpr = (VariableExpression*)curExpr;
+			Variable* varExpr = (Variable*)curExpr;
 			Parameter *param = new Parameter(varExpr->getName(), curType, isDeclaredType);
 			params[i] = param;
 			break;
 		}
 		case ExpressionType::BINARY_COMPARE_EXPRESSION: {
-			Expression* left = ((BinaryCompareExpression*)curExpr)->getLeftExpression();
+			Expression* left = ((BinaryCompare*)curExpr)->getLeftExpression();
 			if (left->getExpressionType() != ExpressionType::VARIABLE_EXPRESSION) {
 				throw std::move(SyntaxErrorException(curExpr->getLocation(), L"函数参数约束左部必须为变量！"));
 			}
-			VariableExpression *leftVar = (VariableExpression*)left;
+			Variable *leftVar = (Variable*)left;
 			Parameter *param = new Parameter(leftVar->getName(), curType, isDeclaredType);
 			params[i] = param;
 			constraints.push_back(curExpr);
@@ -54,12 +54,12 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 		}
 		//TODO 默认参数如何处理
 		//case ExpressionType::ASSIGNMENT_EXPRESSION: {
-		//	AssignmentExpression* assignmentExpr = (AssignmentExpression*)curExpr;
+		//	Assignment* assignmentExpr = (Assignment*)curExpr;
 		//	auto leftExpr = assignmentExpr->getLeftExpression();
 		//	if (leftExpr->getExpressionType() != ExpressionType::VARIABLE_EXPRESSION) {
 		//		throw std::move(SyntaxErrorException(curExpr->getLocation(), L"参数默认值左部必须为参数名！"));
 		//	}
-		//	auto leftVar = (VariableExpression*)leftExpr;
+		//	auto leftVar = (Variable*)leftExpr;
 		//	//TODO 参数默认值处理
 		//	Parameter *param = new Parameter(leftVar->getName(), leftVar->getType(ctx), nullptr);
 		//	params[i] = param;
@@ -69,8 +69,8 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 			wstring tmpVarName = L"@_" + to_wstring(i);
 			Parameter *param = new Parameter(tmpVarName, curType, isDeclaredType);
 			params[i] = param;
-			VariableExpression *var = new VariableExpression(exprInfo, tmpVarName);
-			BinaryCompareExpression *constraint = new BinaryCompareExpression(exprInfo, var, curExpr, BinaryCompareExpression::EQUAL);
+			Variable *var = new Variable(exprInfo, tmpVarName);
+			BinaryCompare *constraint = new BinaryCompare(exprInfo, var, curExpr, BinaryCompare::EQUAL);
 			constraints.push_back(constraint);
 			break;
 		}

@@ -1,20 +1,27 @@
 #pragma once
 #include "GenerateResult.h"
 #include "GenerateContext.h"
+#include "Expression.h"
 
 namespace WorkScript {
-	class Type;
-	class Program;
+    class Type;
+    class InstantializeContext;
 
-	class Constant {
+	class Constant : public Expression
+	{
 	public:
-		virtual ~Constant(){};
-		virtual Type * getType() = 0;
-		virtual GenerateResult generateLLVMIR(GenerateContext *context) = 0;
-		virtual std::wstring toString() const = 0;
-		virtual Constant * clone() const = 0;
+		inline Constant(const ExpressionInfo &exprInfo)
+				: Expression(exprInfo)
+		{}
+
+		virtual Type *getType() const = 0;
+		virtual Type* getType(InstantializeContext *context) const override;
+		virtual std::wstring toString() const override = 0;
+		virtual Constant *clone() const override = 0;
+		virtual GenerateResult generateIR(GenerateContext *context) override = 0;
+		virtual ExpressionType getExpressionType() const override;
 
 	protected:
-		Program * program;
+		Program *program;
 	};
 }

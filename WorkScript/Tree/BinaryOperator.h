@@ -7,14 +7,14 @@ namespace WorkScript {
 	class FloatExpression;
 	class StringExpression;
 
-	class BinaryOperatorExpression :
+	class BinaryOperator :
 		public Expression
 	{
 	public:
-		inline BinaryOperatorExpression(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression)
+		inline BinaryOperator(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression)
 			:Expression(exprInfo), leftExpression(leftExpression), rightExpression(rightExpression)	{	}
 
-		virtual ~BinaryOperatorExpression();
+		virtual ~BinaryOperator();
 
 		virtual std::wstring toString() const override;
 

@@ -1,17 +1,17 @@
 #pragma once
 #include "Expression.h"
 namespace WorkScript {
-	class UnaryOperatorExpression :
+	class UnaryOperator :
 		public Expression
 	{
 	public:
 		enum OperatorType {
 			NEGATIVE,NOT
 		};
-		inline UnaryOperatorExpression(const ExpressionInfo &exprInfo, Expression *sub, OperatorType t)
+		inline UnaryOperator(const ExpressionInfo &exprInfo, Expression *sub, OperatorType t)
 			:Expression(exprInfo), subExpression(sub), operatorType(t){ }
 
-		virtual ~UnaryOperatorExpression();
+		virtual ~UnaryOperator();
 
 		virtual std::wstring toString() const override;
 		virtual Type * getType(InstantializeContext *context) const override;

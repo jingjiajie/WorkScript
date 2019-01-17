@@ -5,6 +5,7 @@
 #include "FloatType.h"
 #include "PointerType.h"
 #include "FunctionType.h"
+#include "Constant.h"
 
 using namespace WorkScript;
 using namespace std;

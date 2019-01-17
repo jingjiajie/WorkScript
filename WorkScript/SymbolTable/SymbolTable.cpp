@@ -1,4 +1,5 @@
 #include "SymbolTable.h"
+#include "Constant.h"
 
 using namespace WorkScript;
 using namespace std;

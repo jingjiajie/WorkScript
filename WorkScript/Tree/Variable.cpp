@@ -1,4 +1,4 @@
-#include "VariableExpression.h"
+#include "Variable.h"
 #include "Type.h"
 #include "Utils.h"
 #include "SymbolTable.h"
@@ -8,10 +8,10 @@
 using namespace std;
 using namespace WorkScript;
 
-VariableExpression::VariableExpression(const ExpressionInfo &exprInfo, const std::wstring & name)
+Variable::Variable(const ExpressionInfo &exprInfo, const std::wstring & name)
 	:Expression(exprInfo), name(name) {}
 
-GenerateResult WorkScript::VariableExpression::generateIR(GenerateContext * context)
+GenerateResult WorkScript::Variable::generateIR(GenerateContext * context)
 {
 	auto instantializeContext = context->getInstantializeContext();
 	SymbolInfo *symbolInfo = instantializeContext->getSymbolInfo(this->name);
@@ -27,14 +27,14 @@ GenerateResult WorkScript::VariableExpression::generateIR(GenerateContext * cont
 	}
 }
 
-Type * VariableExpression::getType(InstantializeContext *context) const
+Type * Variable::getType(InstantializeContext *context) const
 {
 	SymbolInfo *symbolInfo = context->getSymbolInfo(this->name);
 	if (!symbolInfo)return nullptr;
 	return symbolInfo->getType();
 }
 
-Expression * WorkScript::VariableExpression::clone() const
+Expression * WorkScript::Variable::clone() const
 {
 	auto newInstance = new thistype(expressionInfo, name);
 	newInstance->varargs = this->varargs;
@@ -42,12 +42,12 @@ Expression * WorkScript::VariableExpression::clone() const
 	return newInstance;
 }
 
-std::wstring VariableExpression::toString() const
+std::wstring Variable::toString() const
 {
 	return this->name;
 }
 
-ExpressionType VariableExpression::getExpressionType() const
+ExpressionType Variable::getExpressionType() const
 {
 	return ExpressionType::VARIABLE_EXPRESSION;
 }

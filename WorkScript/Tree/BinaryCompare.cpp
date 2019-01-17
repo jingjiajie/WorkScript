@@ -1,4 +1,4 @@
-#include "BinaryCompareExpression.h"
+#include "BinaryCompare.h"
 #include "IntegerType.h"
 #include "FloatType.h"
 #include "WorkScriptException.h"
@@ -6,7 +6,7 @@
 using namespace std;
 using namespace WorkScript;
 
-GenerateResult WorkScript::BinaryCompareExpression::generateIR(GenerateContext * context)
+GenerateResult WorkScript::BinaryCompare::generateIR(GenerateContext * context)
 {
 	auto leftExpr = this->getLeftExpression();
 	auto rightExpr = this->getRightExpression();
@@ -31,22 +31,22 @@ UNSUPPORTED:
 	throw WorkScriptException(this->expressionInfo.getLocation(), L"双目比较运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
 }
 
-IntegerType * WorkScript::BinaryCompareExpression::getType(InstantializeContext *context) const
+IntegerType * WorkScript::BinaryCompare::getType(InstantializeContext *context) const
 {
 	return IntegerType::getUInt1Type();
 }
 
-Expression * WorkScript::BinaryCompareExpression::clone() const
+Expression * WorkScript::BinaryCompare::clone() const
 {
-	return new BinaryCompareExpression(expressionInfo,leftExpression,rightExpression, compareType);
+	return new BinaryCompare(expressionInfo,leftExpression,rightExpression, compareType);
 }
 
-ExpressionType WorkScript::BinaryCompareExpression::getExpressionType() const
+ExpressionType WorkScript::BinaryCompare::getExpressionType() const
 {
 	return ExpressionType::BINARY_COMPARE_EXPRESSION;
 }
 
-GenerateResult WorkScript::BinaryCompareExpression::generateLLVMIRInteger(GenerateContext * context, llvm::Value * left, llvm::Value * right, IntegerType * promotedType) const
+GenerateResult WorkScript::BinaryCompare::generateLLVMIRInteger(GenerateContext * context, llvm::Value * left, llvm::Value * right, IntegerType * promotedType) const
 {
 	auto irBuilder = context->getIRBuilder();
 	llvm::Value *res;
@@ -78,7 +78,7 @@ GenerateResult WorkScript::BinaryCompareExpression::generateLLVMIRInteger(Genera
 	return res;
 }
 
-GenerateResult WorkScript::BinaryCompareExpression::generateLLVMIRFloat(GenerateContext * context, llvm::Value * left, llvm::Value * right, FloatType * promotedType) const
+GenerateResult WorkScript::BinaryCompare::generateLLVMIRFloat(GenerateContext * context, llvm::Value * left, llvm::Value * right, FloatType * promotedType) const
 {
 	auto irBuilder = context->getIRBuilder();
 	llvm::Value *res;
@@ -106,7 +106,7 @@ GenerateResult WorkScript::BinaryCompareExpression::generateLLVMIRFloat(Generate
 	return res;
 }
 
-std::wstring WorkScript::BinaryCompareExpression::getOperatorString() const
+std::wstring WorkScript::BinaryCompare::getOperatorString() const
 {
 	switch (this->compareType)
 	{

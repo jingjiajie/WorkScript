@@ -4,11 +4,11 @@
 #include "SymbolInfo.h"
 
 namespace WorkScript {
-	class VariableExpression :
+	class Variable :
 		public Expression
 	{
 	public:
-		VariableExpression(const ExpressionInfo &exprInfo, const std::wstring &name);
+		Variable(const ExpressionInfo &exprInfo, const std::wstring &name);
 
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual Type * getType(InstantializeContext *context) const override;

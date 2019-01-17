@@ -1,21 +1,21 @@
-#include "AssignmentExpression.h"
+#include "Assignment.h"
 #include "SyntaxErrorException.h"
 #include "Utils.h"
-#include "VariableExpression.h"
+#include "Variable.h"
 
 using namespace std;
 using namespace WorkScript;
 
-WorkScript::AssignmentExpression::AssignmentExpression(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression)
-	: BinaryOperatorExpression(exprInfo,leftExpression,rightExpression)
+WorkScript::Assignment::Assignment(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression)
+	: BinaryOperator(exprInfo,leftExpression,rightExpression)
 {
-	VariableExpression *leftVar = dynamic_cast<VariableExpression*>(this->leftExpression);
+	Variable *leftVar = dynamic_cast<Variable*>(this->leftExpression);
 	if (!leftVar) {
 		throw SyntaxErrorException(getLocation(), this->leftExpression->toString() + L"不可以赋值");
 	}
 }
 
-GenerateResult WorkScript::AssignmentExpression::generateIR(GenerateContext * context)
+GenerateResult WorkScript::Assignment::generateIR(GenerateContext * context)
 {
 	auto irBuilder = context->getIRBuilder();
 	Type *leftType = this->getType(context->getInstantializeContext());
@@ -30,23 +30,23 @@ GenerateResult WorkScript::AssignmentExpression::generateIR(GenerateContext * co
 	return val;
 }
 
-ExpressionType AssignmentExpression::getExpressionType() const
+ExpressionType Assignment::getExpressionType() const
 {
 	return ExpressionType::ASSIGNMENT_EXPRESSION;
 }
 
-Expression * WorkScript::AssignmentExpression::clone() const
+Expression * WorkScript::Assignment::clone() const
 {
 	return new thistype(expressionInfo,leftExpression,rightExpression);
 }
 
-Type * WorkScript::AssignmentExpression::getType(InstantializeContext *context) const
+Type * WorkScript::Assignment::getType(InstantializeContext *context) const
 {
 	auto leftExpr = this->getLeftExpression();
 	Type *leftType = leftExpr->getType(context);
 	if (leftType)return leftType;
 	if (this->leftExpression->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
-		auto leftVar = (VariableExpression*)leftExpr;
+		auto leftVar = (Variable*)leftExpr;
 		this->makeSymbolOfRightType(leftVar->getName(), context);
 	}
 	else {
@@ -55,12 +55,12 @@ Type * WorkScript::AssignmentExpression::getType(InstantializeContext *context) 
 	return this->rightExpression->getType(context);
 }
 
-std::wstring WorkScript::AssignmentExpression::getOperatorString() const
+std::wstring WorkScript::Assignment::getOperatorString() const
 {
 	return L":=";
 }
 
-Type * WorkScript::AssignmentExpression::makeSymbolOfRightType(const wstring &name, InstantializeContext *ctx) const
+Type * WorkScript::Assignment::makeSymbolOfRightType(const wstring &name, InstantializeContext *ctx) const
 {
 	auto rightExpr = this->getRightExpression();
 	Type *rightType = rightExpr->getType(ctx);

@@ -44,7 +44,9 @@ void WorkScriptEngine::run(const char * filePath)
 	llvmModule->print(llvm::outs(),nullptr);
 	printf("\n\n");
 	string errorStr;
+
 	llvm::EngineBuilder b(std::move(llvmModule));
+
 	//llvm::RTDyldMemoryManager* RTDyldMM = NULL;
 	b.setEngineKind(llvm::EngineKind::JIT)
 		.setErrorStr(&errorStr);
@@ -52,6 +54,8 @@ void WorkScriptEngine::run(const char * filePath)
 	//.setMCJITMemoryManager(std::unique_ptr<llvm::RTDyldMemoryManager>(RTDyldMM))
 	//.setOptLevel(llvm::CodeGenOpt::Default)
 	auto e = b.create();
+
+	e->addObjectFile(f);
 	e->finalizeObject();
 	printf("开始JIT执行：\n\n");
 	typedef int(*TFMAIN)();

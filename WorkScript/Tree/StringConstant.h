@@ -7,12 +7,12 @@
 namespace WorkScript {
 	class StringConstant : public Constant {
 	public:
-		StringConstant(const std::wstring &value)
-			: value(value) {}
+		StringConstant(const ExpressionInfo &info, const std::wstring &value)
+			:Constant(info), value(value) {}
 
 		std::wstring getValue() const { return this->value; }
-		virtual Type * getType() override;
-		virtual GenerateResult generateLLVMIR(GenerateContext *context) override;
+		virtual Type * getType() const override;
+		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual std::wstring toString() const override;
 		virtual Constant * clone() const override;
 	protected:

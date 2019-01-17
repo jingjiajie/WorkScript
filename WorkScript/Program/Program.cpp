@@ -6,6 +6,7 @@
 #include "FunctionType.h"
 #include "Function.h"
 #include "FunctionCache.h"
+#include "Constant.h"
 
 using namespace std;
 using namespace WorkScript;

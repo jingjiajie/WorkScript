@@ -2,6 +2,7 @@
 #include "Type.h"
 #include "Locale.h"
 #include "WorkScriptException.h"
+#include "Constant.h"
 
 WorkScript::SymbolInfo::~SymbolInfo()
 {

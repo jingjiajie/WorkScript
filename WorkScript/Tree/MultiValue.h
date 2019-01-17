@@ -1,17 +1,17 @@
 #pragma once
 #include "Expression.h"
 namespace WorkScript {
-	class MultiValueExpression :
+	class MultiValue :
 		public Expression
 	{
 	public:
-		virtual ~MultiValueExpression();
+		virtual ~MultiValue();
 
 		virtual Type * getType(InstantializeContext *context) const;
 		std::vector<Type*> getTypes(InstantializeContext *context) const;
 
 		virtual std::wstring toString() const override;
-		virtual MultiValueExpression * clone() const override;
+		virtual MultiValue * clone() const override;
 		virtual ExpressionType getExpressionType() const override;
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 
@@ -36,7 +36,7 @@ namespace WorkScript {
 		}
 
 		//void flat();
-		inline MultiValueExpression(const ExpressionInfo &exprInfo, const std::vector<Expression*> &items)
+		inline MultiValue(const ExpressionInfo &exprInfo, const std::vector<Expression*> &items)
 			:Expression(exprInfo)
 		{
 			this->setItems(items);

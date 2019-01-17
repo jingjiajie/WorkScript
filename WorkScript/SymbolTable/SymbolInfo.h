@@ -1,10 +1,11 @@
 #pragma once
 #include "GenerateContext.h"
-#include "Constant.h"
 namespace WorkScript 
 {
+	class Constant;
 	class Type;
-	class SymbolInfo 
+
+	class SymbolInfo
 	{
 	public:
 		inline SymbolInfo() {}

@@ -1,13 +1,13 @@
 #pragma once
-#include "BinaryOperatorExpression.h"
+#include "BinaryOperator.h"
 
 namespace WorkScript {
 
-	class AssignmentExpression :
-		public BinaryOperatorExpression
+	class Assignment :
+		public BinaryOperator
 	{
 	public:
-		AssignmentExpression(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression);
+		Assignment(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression);
 
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual ExpressionType getExpressionType() const override;

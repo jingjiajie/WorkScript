@@ -1,7 +1,7 @@
-#include "CallExpression.h"
-#include "VariableExpression.h"
+#include "Call.h"
+#include "Variable.h"
 #include "Program.h"
-#include "MultiValueExpression.h"
+#include "MultiValue.h"
 #include "Utils.h"
 #include "Function.h"
 #include "InstantializeContext.h"
@@ -9,7 +9,7 @@
 using namespace WorkScript;
 using namespace std;
 
-GenerateResult WorkScript::CallExpression::generateIR(GenerateContext * context)
+GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 {
 	//获取函数声明
 	auto paramTypes = this->parameters->getTypes(context->getInstantializeContext());
@@ -36,7 +36,7 @@ GenerateResult WorkScript::CallExpression::generateIR(GenerateContext * context)
 	return ret;
 }
 
-Type * CallExpression::getType(InstantializeContext *context) const
+Type * Call::getType(InstantializeContext *context) const
 {
 	auto paramTypes = this->parameters->getTypes(context);
 	Function *func = this->expressionInfo.getAbstractContext()->getFirstFunction(this->functionName, paramTypes);
@@ -53,19 +53,19 @@ Type * CallExpression::getType(InstantializeContext *context) const
 	return func->getReturnType(&newInstCtx);
 }
 
-std::wstring CallExpression::toString() const
+std::wstring Call::toString() const
 {
 	auto leftStr = this->functionName;
 	auto paramStr =  this->parameters->toString();
 	return leftStr + L"(" + paramStr + L")";
 }
 
-ExpressionType CallExpression::getExpressionType() const
+ExpressionType Call::getExpressionType() const
 {
 	return ExpressionType::CALL_EXPRESSION;
 }
 
-Expression * WorkScript::CallExpression::clone() const
+Expression * WorkScript::Call::clone() const
 {
 	auto newInstance = new thistype(expressionInfo, functionName, parameters);
 	return newInstance;

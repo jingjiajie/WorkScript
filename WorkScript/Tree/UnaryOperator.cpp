@@ -1,30 +1,30 @@
-#include "UnaryOperatorExpression.h"
+#include "UnaryOperator.h"
 #include "Type.h"
 #include "Function.h"
 
 using namespace WorkScript;
 
-UnaryOperatorExpression::~UnaryOperatorExpression()
+UnaryOperator::~UnaryOperator()
 {
 	delete this->subExpression;
 }
 
-std::wstring WorkScript::UnaryOperatorExpression::toString() const
+std::wstring WorkScript::UnaryOperator::toString() const
 {
 	return this->getOperatorString() + this->subExpression->toString();
 }
 
-Type * WorkScript::UnaryOperatorExpression::getType(InstantializeContext *context) const
+Type * WorkScript::UnaryOperator::getType(InstantializeContext *context) const
 {
 	return this->subExpression->getType(context);
 }
 
-Expression * WorkScript::UnaryOperatorExpression::clone() const
+Expression * WorkScript::UnaryOperator::clone() const
 {
-	return new UnaryOperatorExpression(expressionInfo, subExpression, operatorType);
+	return new UnaryOperator(expressionInfo, subExpression, operatorType);
 }
 
-GenerateResult WorkScript::UnaryOperatorExpression::generateIR(GenerateContext * context)
+GenerateResult WorkScript::UnaryOperator::generateIR(GenerateContext * context)
 {
 	auto irBuilder = context->getIRBuilder();
 	llvm::Value *subValue = this->subExpression->generateIR(context).getValue();
@@ -44,12 +44,12 @@ GenerateResult WorkScript::UnaryOperatorExpression::generateIR(GenerateContext *
 	return res;
 }
 
-ExpressionType WorkScript::UnaryOperatorExpression::getExpressionType() const
+ExpressionType WorkScript::UnaryOperator::getExpressionType() const
 {
 	return ExpressionType::UNARY_OPERATOR_EXPRESSION;
 }
 
-std::wstring WorkScript::UnaryOperatorExpression::getOperatorString() const
+std::wstring WorkScript::UnaryOperator::getOperatorString() const
 {
 	switch (this->operatorType)
 	{

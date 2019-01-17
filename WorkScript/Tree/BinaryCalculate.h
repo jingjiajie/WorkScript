@@ -1,17 +1,17 @@
 #pragma once
-#include "BinaryOperatorExpression.h"
+#include "BinaryOperator.h"
 
 namespace WorkScript {
-	class BinaryCalculateExpression :
-		public BinaryOperatorExpression
+	class BinaryCalculate :
+		public BinaryOperator
 	{
 	public:
 		enum CalculateType {
 			PLUS,MINUS,MULTIPLY,DIVIDE,MODULUS
 		};
 
-		inline BinaryCalculateExpression(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression,CalculateType calcType)
-			:BinaryOperatorExpression(exprInfo,leftExpression,rightExpression), calculateType(calcType)	{	}
+		inline BinaryCalculate(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression,CalculateType calcType)
+			:BinaryOperator(exprInfo,leftExpression,rightExpression), calculateType(calcType)	{	}
 
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual Type * getType(InstantializeContext *context) const override;

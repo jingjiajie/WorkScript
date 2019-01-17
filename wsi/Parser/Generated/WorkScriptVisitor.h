@@ -23,75 +23,69 @@ public:
 
     virtual antlrcpp::Any visitLine(WorkScriptParser::LineContext *context) = 0;
 
-    virtual antlrcpp::Any visitAccessLevelExpression(WorkScriptParser::AccessLevelExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitBinaryCompare(WorkScriptParser::BinaryCompareContext *context) = 0;
 
-    virtual antlrcpp::Any visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitVariable(WorkScriptParser::VariableContext *context) = 0;
 
-    virtual antlrcpp::Any visitCallExpression_(WorkScriptParser::CallExpression_Context *context) = 0;
+    virtual antlrcpp::Any visitMultiplyDivideModulus(WorkScriptParser::MultiplyDivideModulusContext *context) = 0;
 
-    virtual antlrcpp::Any visitStringExpression_(WorkScriptParser::StringExpression_Context *context) = 0;
+    virtual antlrcpp::Any visitStdFunctionDecl_(WorkScriptParser::StdFunctionDecl_Context *context) = 0;
 
-    virtual antlrcpp::Any visitMultiplyDivideModulusExpression(WorkScriptParser::MultiplyDivideModulusExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitAssignmentOrEquals(WorkScriptParser::AssignmentOrEqualsContext *context) = 0;
 
-    virtual antlrcpp::Any visitVariableExpression_(WorkScriptParser::VariableExpression_Context *context) = 0;
+    virtual antlrcpp::Any visitString(WorkScriptParser::StringContext *context) = 0;
 
-    virtual antlrcpp::Any visitBinaryCompareExpression(WorkScriptParser::BinaryCompareExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitAccessLevel(WorkScriptParser::AccessLevelContext *context) = 0;
 
-    virtual antlrcpp::Any visitBooleanExpression_(WorkScriptParser::BooleanExpression_Context *context) = 0;
+    virtual antlrcpp::Any visitPlusMinus(WorkScriptParser::PlusMinusContext *context) = 0;
 
-    virtual antlrcpp::Any visitAssignmentOrEqualsExpression(WorkScriptParser::AssignmentOrEqualsExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitAssignment(WorkScriptParser::AssignmentContext *context) = 0;
 
-    virtual antlrcpp::Any visitNumberExpression_(WorkScriptParser::NumberExpression_Context *context) = 0;
+    virtual antlrcpp::Any visitNumber(WorkScriptParser::NumberContext *context) = 0;
 
-    virtual antlrcpp::Any visitAssignmentExpression(WorkScriptParser::AssignmentExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitNegative(WorkScriptParser::NegativeContext *context) = 0;
 
-    virtual antlrcpp::Any visitStdFunctionDeclExpression_(WorkScriptParser::StdFunctionDeclExpression_Context *context) = 0;
+    virtual antlrcpp::Any visitPositive(WorkScriptParser::PositiveContext *context) = 0;
 
-    virtual antlrcpp::Any visitPositiveExpression(WorkScriptParser::PositiveExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitFunction_(WorkScriptParser::Function_Context *context) = 0;
 
-    virtual antlrcpp::Any visitFunctionExpression_(WorkScriptParser::FunctionExpression_Context *context) = 0;
+    virtual antlrcpp::Any visitParenthese(WorkScriptParser::ParentheseContext *context) = 0;
 
-    virtual antlrcpp::Any visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitCall_(WorkScriptParser::Call_Context *context) = 0;
 
-    virtual antlrcpp::Any visitNegativeExpression(WorkScriptParser::NegativeExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitBoolean(WorkScriptParser::BooleanContext *context) = 0;
 
-    virtual antlrcpp::Any visitCallExpression(WorkScriptParser::CallExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitCall(WorkScriptParser::CallContext *context) = 0;
 
-    virtual antlrcpp::Any visitMultiValueExpression(WorkScriptParser::MultiValueExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitMultiValue(WorkScriptParser::MultiValueContext *context) = 0;
 
-    virtual antlrcpp::Any visitNumberExpression(WorkScriptParser::NumberExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitStdFunctionDecl(WorkScriptParser::StdFunctionDeclContext *context) = 0;
 
-    virtual antlrcpp::Any visitStringExpression(WorkScriptParser::StringExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitVariableExpression(WorkScriptParser::VariableExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitStdFunctionDeclExpression(WorkScriptParser::StdFunctionDeclExpressionContext *context) = 0;
-
-    virtual antlrcpp::Any visitStdFormalParameterExpression(WorkScriptParser::StdFormalParameterExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitStdFormalParameter(WorkScriptParser::StdFormalParameterContext *context) = 0;
 
     virtual antlrcpp::Any visitStdFormalParameterItem(WorkScriptParser::StdFormalParameterItemContext *context) = 0;
 
-    virtual antlrcpp::Any visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitFunction(WorkScriptParser::FunctionContext *context) = 0;
 
-    virtual antlrcpp::Any visitFunctionDeclarationExpression(WorkScriptParser::FunctionDeclarationExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitFunctionDeclaration(WorkScriptParser::FunctionDeclarationContext *context) = 0;
 
     virtual antlrcpp::Any visitTypeName(WorkScriptParser::TypeNameContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionName(WorkScriptParser::FunctionNameContext *context) = 0;
 
-    virtual antlrcpp::Any visitFormalParameterExpression(WorkScriptParser::FormalParameterExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitFormalParameter(WorkScriptParser::FormalParameterContext *context) = 0;
 
     virtual antlrcpp::Any visitFormalParameterItem(WorkScriptParser::FormalParameterItemContext *context) = 0;
 
-    virtual antlrcpp::Any visitFunctionImplementationExpression(WorkScriptParser::FunctionImplementationExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitFunctionImplementation(WorkScriptParser::FunctionImplementationContext *context) = 0;
 
-    virtual antlrcpp::Any visitFunctionConstraintExpression(WorkScriptParser::FunctionConstraintExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitFunctionConstraint(WorkScriptParser::FunctionConstraintContext *context) = 0;
 
     virtual antlrcpp::Any visitBlock(WorkScriptParser::BlockContext *context) = 0;
 
-    virtual antlrcpp::Any visitBooleanExpression(WorkScriptParser::BooleanExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitStaticVarargs(WorkScriptParser::StaticVarargsContext *context) = 0;
 
-    virtual antlrcpp::Any visitVarargsExpression(WorkScriptParser::VarargsExpressionContext *context) = 0;
+    virtual antlrcpp::Any visitNewlineOrComma(WorkScriptParser::NewlineOrCommaContext *context) = 0;
 
     virtual antlrcpp::Any visitIdentifier(WorkScriptParser::IdentifierContext *context) = 0;
 

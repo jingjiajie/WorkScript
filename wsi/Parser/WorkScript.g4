@@ -2,97 +2,81 @@ grammar WorkScript;
 
 program: line* EOF;
 
-line: (SEMICOLON* expression SEMICOLON*)+ NEWLINE? | SEMICOLON+ NEWLINE? | NEWLINE;
+line: (SEMICOLON* expression SEMICOLON*)+ NEWLINE?
+	| SEMICOLON+ NEWLINE?
+	| NEWLINE;
 
 expression:
-	ACCESS_LEVEL COLON								# AccessLevelExpression
-	| LEFT_PARENTHESE expression RIGHT_PARENTHESE	# ParentheseExpression
-	// | LEFT_BRACKET (expression (COMMA expression)*)? RIGHT_BRACKET # ListExpression | expression
-	// POINT identifier # MemberEvaluateExpression
-	| stdFunctionDeclExpression							# StdFunctionDeclExpression_
-	| functionExpression								# FunctionExpression_
-	| callExpression									# CallExpression_
-	| expression (STAR | SLASH | PERCENT) expression	# MultiplyDivideModulusExpression
-	| expression (PLUS | MINUS) expression				# PlusMinusExpression
-	| numberExpression									# NumberExpression_
-	| MINUS expression									# NegativeExpression
-	| PLUS expression									# PositiveExpression
-	| expression ASSIGN expression						# AssignmentExpression
-	| expression EQUALS expression						# AssignmentOrEqualsExpression
+	ACCESS_LEVEL COLON								# AccessLevel
+	| LEFT_PARENTHESE expression RIGHT_PARENTHESE	# Parenthese
+	// | LEFT_BRACKET (expression (COMMA expression)*)? RIGHT_BRACKET # List | expression POINT
+	// identifier # MemberEvaluate
+	| stdFunctionDecl									# StdFunctionDecl_
+	| function											# Function_
+	| call												# Call_
+	| expression (STAR | SLASH | PERCENT) expression	# MultiplyDivideModulus
+	| expression (PLUS | MINUS) expression				# PlusMinus
+	| (PLUS | MINUS)? (DOUBLE | INTEGER)				# Number
+	| MINUS expression									# Negative
+	| PLUS expression									# Positive
+	| expression ASSIGN expression						# Assignment
+	| expression EQUALS expression						# AssignmentOrEquals
 	| expression (
 		DOUBLE_EQUAL
 		| GREATER_THAN
 		| GREATER_THAN_EQUAL
 		| LESS_THAN
 		| LESS_THAN_EQUAL
-	) expression			# BinaryCompareExpression
-	| stringExpression		# StringExpression_
-	| booleanExpression		# BooleanExpression_
-	| variableExpression	# VariableExpression_;
+	) expression	# BinaryCompare
+	| STRING		# String
+	| BOOLEAN		# Boolean
+	| identifier	# Variable;
 
-callExpression:
-	identifier LEFT_PARENTHESE multiValueExpression RIGHT_PARENTHESE;
+call: identifier LEFT_PARENTHESE multiValue RIGHT_PARENTHESE;
 
-multiValueExpression:
-	(
-		NEWLINE* expression (
-			NEWLINE* (NEWLINE | COMMA) NEWLINE* expression
-		)*
-	)? NEWLINE* COMMA? NEWLINE*;
+multiValue: ( NEWLINE* expression ( newlineOrComma expression)*)?;
 
-numberExpression: (PLUS | MINUS)? (DOUBLE | INTEGER);
-stringExpression: STRING;
-variableExpression: identifier;
+stdFunctionDecl:
+	typeName STAR* functionName LEFT_PARENTHESE stdFormalParameter RIGHT_PARENTHESE;
 
-stdFunctionDeclExpression:
-	typeName STAR* functionName LEFT_PARENTHESE stdFormalParameterExpression RIGHT_PARENTHESE;
-
-stdFormalParameterExpression:
+stdFormalParameter:
 	NEWLINE* (
 		stdFormalParameterItem (
-			NEWLINE* (NEWLINE | COMMA) NEWLINE* stdFormalParameterItem
+			newlineOrComma stdFormalParameterItem
 		)*
-	)? (NEWLINE* (NEWLINE | COMMA) NEWLINE* APOSTROPHE)? NEWLINE* COMMA? NEWLINE*;
+	)? (newlineOrComma APOSTROPHE)?;
 
-stdFormalParameterItem: typeName STAR* identifier;
+stdFormalParameterItem: typeName STAR* identifier?;
 
-functionExpression:
-	(functionConstraintExpression NEWLINE*)? functionDeclarationExpression NEWLINE*
-		functionImplementationExpression
-	| functionDeclarationExpression NEWLINE* functionConstraintExpression NEWLINE*
-		functionImplementationExpression
-	| functionDeclarationExpression NEWLINE* functionImplementationExpression NEWLINE*
-		functionConstraintExpression;
+function:
+	(functionConstraint NEWLINE*)? functionDeclaration NEWLINE* functionImplementation
+	| functionDeclaration NEWLINE* functionConstraint NEWLINE* functionImplementation
+	| functionDeclaration NEWLINE* functionImplementation NEWLINE* functionConstraint;
 
-functionDeclarationExpression:
-	(functionName? | typeName STAR* functionName) LEFT_PARENTHESE formalParameterExpression
-		RIGHT_PARENTHESE;
+functionDeclaration:
+	(functionName? | typeName STAR* functionName) LEFT_PARENTHESE formalParameter RIGHT_PARENTHESE;
 
 typeName: identifier;
 functionName: identifier;
 
-formalParameterExpression:
+formalParameter:
 	NEWLINE* (
-		formalParameterItem (
-			NEWLINE* (NEWLINE | COMMA) NEWLINE* formalParameterItem
-		)*
-	)? NEWLINE* COMMA? NEWLINE*;
+		formalParameterItem (newlineOrComma formalParameterItem)*
+	)?;
 
 formalParameterItem: (typeName STAR*)? expression;
 
-functionImplementationExpression:
+functionImplementation:
 	(EQUALS | RIGHT_ARROW) expression
 	| NEWLINE* (EQUALS | RIGHT_ARROW)? NEWLINE* block;
 
-functionConstraintExpression:
-	WHEN NEWLINE* (block | expression);
+functionConstraint: WHEN NEWLINE* (block | expression);
 
-block:
-	LEFT_BRACE line* RIGHT_BRACE;
+block: LEFT_BRACE line* RIGHT_BRACE;
 
-booleanExpression: BOOLEAN;
+staticVarargs: APOSTROPHE identifier;
 
-varargsExpression: APOSTROPHE variableExpression;
+newlineOrComma: COMMA | NEWLINE+ | NEWLINE* COMMA NEWLINE*;
 
 identifier:
 	BOOLEAN

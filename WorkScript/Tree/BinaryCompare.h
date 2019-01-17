@@ -1,28 +1,28 @@
 #pragma once
-#include "BinaryOperatorExpression.h"
+#include "BinaryOperator.h"
 #include "IntegerType.h"
 namespace WorkScript {
-	class VariableExpression;
+	class Variable;
 
-	class BinaryCompareExpression :
-		public BinaryOperatorExpression
+	class BinaryCompare :
+		public BinaryOperator
 	{
 	public:
 		enum CompareType {
 			EQUAL, GREATER_THAN, GREATER_THAN_EQUAL, LESS_THAN, LESS_THAN_EQUAL
 		};
-		inline BinaryCompareExpression(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression,CompareType t)
-			:BinaryOperatorExpression(exprInfo,leftExpression,rightExpression),compareType(t) { }
+		inline BinaryCompare(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression,CompareType t)
+			:BinaryOperator(exprInfo,leftExpression,rightExpression),compareType(t) { }
 
 		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual IntegerType * getType(InstantializeContext *context) const override;
 		virtual Expression * clone() const override;
 		virtual ExpressionType getExpressionType() const override;
 
-		//inline VariableExpression * getLeftVariable() const
+		//inline Variable * getLeftVariable() const
 		//{
 		//	if (this->leftExpression->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
-		//		return (VariableExpression*)this->leftExpression;
+		//		return (Variable*)this->leftExpression;
 		//	}
 		//	else {
 		//		return nullptr;

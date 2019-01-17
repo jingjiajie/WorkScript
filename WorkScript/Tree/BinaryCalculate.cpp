@@ -1,11 +1,11 @@
-#include "BinaryCalculateExpression.h"
+#include "BinaryCalculate.h"
 #include "IntegerType.h"
 #include "FloatType.h"
 
 using namespace std;
 using namespace WorkScript;
 
-GenerateResult WorkScript::BinaryCalculateExpression::generateIR(GenerateContext * context)
+GenerateResult WorkScript::BinaryCalculate::generateIR(GenerateContext * context)
 {
 	auto leftExpr = this->getLeftExpression();
 	auto rightExpr = this->getRightExpression();
@@ -31,22 +31,22 @@ UNSUPPORTED:
 	throw WorkScriptException(this->expressionInfo.getLocation(), L"双目运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
 }
 
-Type * WorkScript::BinaryCalculateExpression::getType(InstantializeContext *context) const
+Type * WorkScript::BinaryCalculate::getType(InstantializeContext *context) const
 {
 	return Type::getPromotedType(this->leftExpression->getType(context), this->rightExpression->getType(context));
 }
 
-Expression * WorkScript::BinaryCalculateExpression::clone() const
+Expression * WorkScript::BinaryCalculate::clone() const
 {
-	return new BinaryCalculateExpression(expressionInfo,leftExpression,rightExpression, calculateType);
+	return new BinaryCalculate(expressionInfo,leftExpression,rightExpression, calculateType);
 }
 
-ExpressionType WorkScript::BinaryCalculateExpression::getExpressionType() const
+ExpressionType WorkScript::BinaryCalculate::getExpressionType() const
 {
 	return ExpressionType::BINARY_CALCULATE_EXPRESSION;
 }
 
-std::wstring WorkScript::BinaryCalculateExpression::getOperatorString() const
+std::wstring WorkScript::BinaryCalculate::getOperatorString() const
 {
 	switch (this->calculateType)
 	{
@@ -70,7 +70,7 @@ std::wstring WorkScript::BinaryCalculateExpression::getOperatorString() const
 	}
 }
 
-GenerateResult WorkScript::BinaryCalculateExpression::generateLLVMIRInteger(GenerateContext * context, llvm::Value * left, llvm::Value * right, IntegerType * promotedType) const
+GenerateResult WorkScript::BinaryCalculate::generateLLVMIRInteger(GenerateContext * context, llvm::Value * left, llvm::Value * right, IntegerType * promotedType) const
 {
 	auto irBuilder = context->getIRBuilder();
 	llvm::Value *res;
@@ -108,7 +108,7 @@ GenerateResult WorkScript::BinaryCalculateExpression::generateLLVMIRInteger(Gene
 	return res;
 }
 
-GenerateResult WorkScript::BinaryCalculateExpression::generateLLVMIRFloat(GenerateContext * context, llvm::Value * left, llvm::Value * right, FloatType * promotedType) const
+GenerateResult WorkScript::BinaryCalculate::generateLLVMIRFloat(GenerateContext * context, llvm::Value * left, llvm::Value * right, FloatType * promotedType) const
 {
 	auto irBuilder = context->getIRBuilder();
 	llvm::Value *res;

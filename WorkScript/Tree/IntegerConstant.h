@@ -4,12 +4,12 @@
 namespace WorkScript {
 	class IntegerConstant : public Constant {
 	public:
-		IntegerConstant(Type *type, long long value)
-			:value(value), type(type) {}
+		IntegerConstant(const ExpressionInfo &info, Type *type, long long value)
+			:Constant(info), value(value), type(type) {}
 
 		long long getValue() const { return this->value; }
-		virtual Type * getType() override;
-		virtual GenerateResult generateLLVMIR(GenerateContext *context) override;
+		virtual Type * getType() const override;
+		virtual GenerateResult generateIR(GenerateContext *context) override;
 		virtual std::wstring toString() const override;
 		virtual Constant * clone() const override;
 	protected:

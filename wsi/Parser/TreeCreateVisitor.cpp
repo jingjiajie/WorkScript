@@ -2,23 +2,22 @@
 #include "ExpressionWrapper.h"
 #include "Type.h"
 #include "VoidType.h"
-#include "CallExpression.h"
-#include "VariableExpression.h"
-#include "AssignmentExpression.h"
-#include "MultiValueExpression.h"
+#include "Call.h"
+#include "Variable.h"
+#include "Assignment.h"
+#include "MultiValue.h"
 #include "SyntaxErrorException.h"
 #include "Parameter.h"
 #include "Function.h"
 #include "BranchFunction.h"
 #include "FunctionBranch.h"
 #include "Program.h"
-#include "BinaryCompareExpression.h"
-#include "BinaryCalculateExpression.h"
-#include "UnaryOperatorExpression.h"
+#include "BinaryCompare.h"
+#include "BinaryCalculate.h"
+#include "UnaryOperator.h"
 #include "Locale.h"
 #include "Location.h"
 #include "FormalParametersResolver.h"
-#include "ConstantExpression.h"
 #include "FloatConstant.h"
 #include "IntegerConstant.h"
 #include "StringConstant.h"
@@ -76,7 +75,7 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitLine(WorkScriptParser::LineCon
 	return exprs;
 }
 
-antlrcpp::Any TreeCreateVisitor::visitNumberExpression(WorkScriptParser::NumberExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitNumber(WorkScriptParser::NumberContext *ctx)
 {
 	if (ctx->DOUBLE()) {
 		double value = 0;
@@ -84,7 +83,7 @@ antlrcpp::Any TreeCreateVisitor::visitNumberExpression(WorkScriptParser::NumberE
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new FloatConstant(FloatType::getFloat64Type(), value)));
+		return ExpressionWrapper(new FloatConstant(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), FloatType::getFloat64Type(), value));
 	}
 	else {
 		int value = 0;
@@ -92,11 +91,11 @@ antlrcpp::Any TreeCreateVisitor::visitNumberExpression(WorkScriptParser::NumberE
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new IntegerConstant(IntegerType::getSInt32Type(), value)));
+		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), IntegerType::getSInt32Type(), value));
 	}
 }
 
-antlrcpp::Any TreeCreateVisitor::visitStringExpression(WorkScriptParser::StringExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitString(WorkScriptParser::StringContext *ctx)
 {
 	string text = ctx->STRING()->getText();
 	text = text.substr(1, text.length() - 2);
@@ -110,49 +109,49 @@ antlrcpp::Any TreeCreateVisitor::visitStringExpression(WorkScriptParser::StringE
 		delete[]unescapedText;
 		throw;
 	}
-	auto lpExpr = new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new StringConstant(unescapedText));
+	auto lpExpr = new StringConstant(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), unescapedText);
 	delete[]unescapedText;
 	return ExpressionWrapper(lpExpr);
 }
 
-antlrcpp::Any TreeCreateVisitor::visitBooleanExpression(WorkScriptParser::BooleanExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitBoolean(WorkScriptParser::BooleanContext *ctx)
 {
 	string boolStr = ctx->BOOLEAN()->getText();
 	if (boolStr == "true" || boolStr == "yes" || boolStr == "ok" || boolStr == "good") {
-		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new IntegerConstant(IntegerType::getUInt1Type(), 1)));
+		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), IntegerType::getUInt1Type(), 1));
 	}
 	else if (boolStr == "false" || boolStr == "no" || boolStr == "bad") {
-		return ExpressionWrapper(new ConstantExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), new IntegerConstant(IntegerType::getUInt1Type(), 0)));
+		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), IntegerType::getUInt1Type(), 0));
 	}
 	else {
 		throw std::move(SyntaxErrorException(getLocation(ctx), L"无法识别的布尔值：" + Locale::toWideChar(Encoding::UTF_8, boolStr)));
 	}
 }
 
-antlrcpp::Any TreeCreateVisitor::visitVariableExpression(WorkScriptParser::VariableExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitVariable(WorkScriptParser::VariableContext *ctx)
 {
 	string varName = ctx->identifier()->getText();
-	auto expr = new VariableExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), Locale::toWideChar(Encoding::UTF_8, varName));
+	auto expr = new Variable(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), Locale::toWideChar(Encoding::UTF_8, varName));
 	expr->setDeclarable(this->declarable); //等号左边的变量才可以创建声明
 	auto wrapper = ExpressionWrapper(expr);
 	return wrapper;
 }
 
-antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::FunctionExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitFunction(WorkScriptParser::FunctionContext *ctx)
 {
 	STORE_FORBID_ASSIGN;
 	/*====深入下一层====*/
 	++this->curDepth;
 	AbstractContext *outerAbstractContext = this->abstractContexts.top();
 	/*读取函数名*/
-	auto funcNameCtx = ctx->functionDeclarationExpression()->functionName()->identifier();
+	auto funcNameCtx = ctx->functionDeclaration()->functionName()->identifier();
 	wstring funcName;
 	if (funcNameCtx != nullptr) {
 		funcName = Locale::toWideChar(Encoding::UTF_8, funcNameCtx->getText());
 	}
 
 	/*读取返回值类型名*/
-	auto returnTypeNameCtx = ctx->functionDeclarationExpression()->typeName();
+	auto returnTypeNameCtx = ctx->functionDeclaration()->typeName();
 	wstring returnTypeName;
 	Type *declReturnType = nullptr;
 	if (returnTypeNameCtx) {
@@ -164,7 +163,7 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 	}
 
 	/*读取参数声明*/
-	auto paramItemsDeclCtx = ctx->functionDeclarationExpression()->formalParameterExpression()->formalParameterItem();
+	auto paramItemsDeclCtx = ctx->functionDeclaration()->formalParameter()->formalParameterItem();
 	size_t paramCount = paramItemsDeclCtx.size();
 	vector<Expression*> paramDeclExprs(paramCount, nullptr);
 	vector<Type*> paramDeclTypes(paramCount, nullptr);
@@ -191,7 +190,7 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 
 	/*读取限制声明*/
 	vector<Expression*> constraintsDecl;
-	auto constraintCtx = ctx->functionConstraintExpression();
+	auto constraintCtx = ctx->functionConstraint();
 	if (constraintCtx) {
 		if (constraintCtx->expression())
 		{
@@ -235,12 +234,12 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 		/*函数的实现*/
 		ALLOW_ASSIGN;
 		vector<Expression*> impls;
-		if (ctx->functionImplementationExpression()->expression() != nullptr) {
-			auto expr = ctx->functionImplementationExpression()->expression()->accept(this).as<ExpressionWrapper>();
+		if (ctx->functionImplementation()->expression() != nullptr) {
+			auto expr = ctx->functionImplementation()->expression()->accept(this).as<ExpressionWrapper>();
 			impls.push_back(expr.getExpression());
 		}
 		else {
-			impls = ctx->functionImplementationExpression()->block()->accept(this).as<decltype(impls)>();
+			impls = ctx->functionImplementation()->block()->accept(this).as<decltype(impls)>();
 		}
 		branch->setConstraints(constraints);
 		branch->setImplements(impls);
@@ -255,7 +254,7 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionExpression(WorkScriptParser::Funct
 	return nullptr;
 }
 
-antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDeclExpression(WorkScriptParser::StdFunctionDeclExpressionContext *ctx)
+antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDecl(WorkScriptParser::StdFunctionDeclContext *ctx)
 {
 	AbstractContext *outerAbstractContext = this->abstractContexts.top();
 	/*读取函数名*/
@@ -271,7 +270,8 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDeclExpression(Work
 		throw TypeNotFoundException(getLocation(ctx), L"无法找到类型：" + returnTypeName);
 	}
 
-	auto paramItemsCtx = ctx->stdFormalParameterExpression()->stdFormalParameterItem();
+	/*处理参数声明*/
+	auto paramItemsCtx = ctx->stdFormalParameter()->stdFormalParameterItem();
 	vector<Parameter*> params;
 	vector<Type*> paramTypes;
 	for (size_t i = 0; i < paramItemsCtx.size(); ++i) {
@@ -288,7 +288,7 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDeclExpression(Work
 		params.push_back(new Parameter(paramName, paramType, true));
 		paramTypes.push_back(paramType);
 	}
-	bool isRuntimeVarargs = ctx->stdFormalParameterExpression()->APOSTROPHE() != nullptr;
+	bool isRuntimeVarargs = ctx->stdFormalParameter()->APOSTROPHE() != nullptr;
 	Function *func = outerAbstractContext->getFirstFunction(funcName, paramTypes);
 	if (!func) {
 		//TODO 本地函数单独处理？
@@ -298,13 +298,13 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDeclExpression(Work
 	return nullptr;
 }
 
-antlrcpp::Any TreeCreateVisitor::visitCallExpression(WorkScriptParser::CallExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitCall(WorkScriptParser::CallContext *ctx)
 {
 	STORE_FORBID_ASSIGN;
-	ExpressionWrapper paramExpressionWrapper = ctx->multiValueExpression()->accept(this);
+	ExpressionWrapper paramExpressionWrapper = ctx->multiValue()->accept(this);
 	auto funcName = Locale::toWideChar(Encoding::UTF_8, ctx->identifier()->getText());
-	auto paramExpr = (MultiValueExpression*)paramExpressionWrapper.getExpression();
-	auto expr = new CallExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), funcName, paramExpr);
+	auto paramExpr = (MultiValue*)paramExpressionWrapper.getExpression();
+	auto expr = new Call(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), funcName, paramExpr);
 	RESTORE_ASSIGNABLE;
 	return ExpressionWrapper(expr);
 }
@@ -320,7 +320,7 @@ antlrcpp::Any TreeCreateVisitor::visitProgram(WorkScriptParser::ProgramContext *
 	return nullptr;
 }
 
-antlrcpp::Any TreeCreateVisitor::visitAssignmentOrEqualsExpression(WorkScriptParser::AssignmentOrEqualsExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitAssignmentOrEquals(WorkScriptParser::AssignmentOrEqualsContext *ctx)
 {
 	if (this->assignable) {
 		STORE_FORBID_ASSIGN;
@@ -332,31 +332,31 @@ antlrcpp::Any TreeCreateVisitor::visitAssignmentOrEqualsExpression(WorkScriptPar
 		//将赋值变量加入符号表
 		InstantializeContext instCtx(this->abstractContexts.top(), program->getFunctionCache());
 		if (left->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
-			auto leftVar = (VariableExpression*)left;
+			auto leftVar = (Variable*)left;
 			this->abstractContexts.top()->setSymbol(leftVar->getName(), right->getType(&instCtx));
 		}
-		return ExpressionWrapper(new AssignmentExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), left, right));
+		return ExpressionWrapper(new Assignment(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), left, right));
 	}
 	else {
 		STORE_FORBID_ASSIGN;
 		auto left = (ctx->expression()[0]->accept(this).as<ExpressionWrapper>()).getExpression();
 		auto right = (ctx->expression()[1]->accept(this).as<ExpressionWrapper>()).getExpression();
 		RESTORE_ASSIGNABLE;
-		return ExpressionWrapper(new BinaryCompareExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), left, right, BinaryCompareExpression::CompareType::EQUAL));
+		return ExpressionWrapper(new BinaryCompare(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), left, right, BinaryCompare::CompareType::EQUAL));
 	}
 }
 
-antlrcpp::Any TreeCreateVisitor::visitAssignmentExpression(WorkScriptParser::AssignmentExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitAssignment(WorkScriptParser::AssignmentContext *ctx)
 {
 	STORE_FORBID_ASSIGN;
 	auto left = (ctx->expression()[0]->accept(this).as<ExpressionWrapper>()).getExpression();
 	auto right = (ctx->expression()[1]->accept(this).as<ExpressionWrapper>()).getExpression();
 	RESTORE_ASSIGNABLE;
-	auto expr = new AssignmentExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), left, right);
+	auto expr = new Assignment(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), left, right);
 	return ExpressionWrapper(expr);
 }
 
-antlrcpp::Any TreeCreateVisitor::visitMultiValueExpression(WorkScriptParser::MultiValueExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitMultiValue(WorkScriptParser::MultiValueContext *ctx)
 {
 	STORE_FORBID_ASSIGN
 	auto subContext = ctx->expression();
@@ -368,12 +368,12 @@ antlrcpp::Any TreeCreateVisitor::visitMultiValueExpression(WorkScriptParser::Mul
 		auto itemExpr = wrapper.getExpression();
 		items.push_back(itemExpr);
 	}
-	auto expr = new WorkScript::MultiValueExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), items);
+	auto expr = new WorkScript::MultiValue(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), items);
 	RESTORE_ASSIGNABLE
 	return ExpressionWrapper(expr);
 }
 
-antlrcpp::Any TreeCreateVisitor::visitPlusMinusExpression(WorkScriptParser::PlusMinusExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitPlusMinus(WorkScriptParser::PlusMinusContext *ctx)
 {
 	STORE_FORBID_ASSIGN
 	const ExpressionWrapper &leftExpressionWrapper = ctx->expression()[0]->accept(this);
@@ -382,15 +382,15 @@ antlrcpp::Any TreeCreateVisitor::visitPlusMinusExpression(WorkScriptParser::Plus
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	RESTORE_ASSIGNABLE
 	if (ctx->PLUS()) {
-		Expression *expr = new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculateExpression::PLUS);
+		Expression *expr = new BinaryCalculate(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculate::PLUS);
 		return ExpressionWrapper(expr);
 	}
 	else { //MINUS
-		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculateExpression::MINUS));
+		return ExpressionWrapper(new BinaryCalculate(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculate::MINUS));
 	}
 }
 
-antlrcpp::Any TreeCreateVisitor::visitMultiplyDivideModulusExpression(WorkScriptParser::MultiplyDivideModulusExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitMultiplyDivideModulus(WorkScriptParser::MultiplyDivideModulusContext *ctx)
 {
 	STORE_FORBID_ASSIGN
 		const ExpressionWrapper &leftExpressionWrapper = ctx->expression()[0]->accept(this);
@@ -399,17 +399,17 @@ antlrcpp::Any TreeCreateVisitor::visitMultiplyDivideModulusExpression(WorkScript
 	auto rightExpression = rightExpressionWrapper.getExpression();
 	RESTORE_ASSIGNABLE;
 	if (ctx->STAR()) {
-		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculateExpression::MULTIPLY));
+		return ExpressionWrapper(new BinaryCalculate(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculate::MULTIPLY));
 	}
 	else if (ctx->SLASH()) {
-		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculateExpression::DIVIDE));
+		return ExpressionWrapper(new BinaryCalculate(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculate::DIVIDE));
 	}
 	else { //MODULUS
-		return ExpressionWrapper(new BinaryCalculateExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculateExpression::MODULUS));
+		return ExpressionWrapper(new BinaryCalculate(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, BinaryCalculate::MODULUS));
 	}
 }
 
-antlrcpp::Any TreeCreateVisitor::visitParentheseExpression(WorkScriptParser::ParentheseExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitParenthese(WorkScriptParser::ParentheseContext *ctx)
 {
 	STORE_FORBID_ASSIGN;
 	auto ret = ctx->expression()->accept(this);
@@ -417,31 +417,31 @@ antlrcpp::Any TreeCreateVisitor::visitParentheseExpression(WorkScriptParser::Par
 	return ret;
 }
 
-antlrcpp::Any TreeCreateVisitor::visitBinaryCompareExpression(WorkScriptParser::BinaryCompareExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitBinaryCompare(WorkScriptParser::BinaryCompareContext *ctx)
 {
 	STORE_FORBID_ASSIGN
 	ExpressionWrapper wrapperLeft = ctx->expression()[0]->accept(this);
 	ExpressionWrapper wrapperRight = ctx->expression()[1]->accept(this);
 	auto leftExpression = wrapperLeft.getExpression();
 	auto rightExpression = wrapperRight.getExpression();
-	BinaryCompareExpression::CompareType compareType;
+	BinaryCompare::CompareType compareType;
 	RESTORE_ASSIGNABLE;
 	if (ctx->DOUBLE_EQUAL()) {
-		compareType = BinaryCompareExpression::CompareType::EQUAL;
+		compareType = BinaryCompare::CompareType::EQUAL;
 	}
 	else if (ctx->GREATER_THAN()) {
-		compareType = BinaryCompareExpression::CompareType::GREATER_THAN;
+		compareType = BinaryCompare::CompareType::GREATER_THAN;
 	}
 	else if (ctx->GREATER_THAN_EQUAL()) {
-		compareType = BinaryCompareExpression::CompareType::GREATER_THAN_EQUAL;
+		compareType = BinaryCompare::CompareType::GREATER_THAN_EQUAL;
 	}
 	else if (ctx->LESS_THAN()) {
-		compareType = BinaryCompareExpression::CompareType::LESS_THAN;
+		compareType = BinaryCompare::CompareType::LESS_THAN;
 	}
 	else {
-		compareType = BinaryCompareExpression::CompareType::LESS_THAN_EQUAL;
+		compareType = BinaryCompare::CompareType::LESS_THAN_EQUAL;
 	}
-	return ExpressionWrapper(new BinaryCompareExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, compareType));
+	return ExpressionWrapper(new BinaryCompare(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), leftExpression, rightExpression, compareType));
 }
 
 //antlrcpp::Any TreeCreateVisitor::visitListExpression(WorkScriptParser::ListExpressionContext *ctx)
@@ -459,24 +459,16 @@ antlrcpp::Any TreeCreateVisitor::visitBinaryCompareExpression(WorkScriptParser::
 //	return ExpressionWrapper(expr);
 //}
 
-antlrcpp::Any TreeCreateVisitor::visitNegativeExpression(WorkScriptParser::NegativeExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitNegative(WorkScriptParser::NegativeContext *ctx)
 {
 	ExpressionWrapper wrapper = ctx->expression()->accept(this);
-	auto expr = new UnaryOperatorExpression(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), wrapper.getExpression(), UnaryOperatorExpression::NEGATIVE);
+	auto expr = new UnaryOperator(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), wrapper.getExpression(), UnaryOperator::NEGATIVE);
 	return ExpressionWrapper(expr);
 }
 
-antlrcpp::Any TreeCreateVisitor::visitPositiveExpression(WorkScriptParser::PositiveExpressionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitPositive(WorkScriptParser::PositiveContext *ctx)
 {
 	return ctx->expression()->accept(this);
-}
-
-antlrcpp::Any TreeCreateVisitor::visitVarargsExpression(WorkScriptParser::VarargsExpressionContext *ctx)
-{
-	ExpressionWrapper varWrapper = ctx->variableExpression()->accept(this);
-	auto varExpr = (VariableExpression *)varWrapper.getExpression();
-	varExpr->setVarargs(true);
-	return varWrapper;
 }
 
 TreeCreateVisitor::TreeCreateVisitor(Program *lpProgram)

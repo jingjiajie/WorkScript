@@ -4,12 +4,12 @@
 using namespace WorkScript;
 using namespace std;
 
-Type * WorkScript::IntegerConstant::getType()
+Type * WorkScript::IntegerConstant::getType() const
 {
 	return this->type;
 }
 
-GenerateResult WorkScript::IntegerConstant::generateLLVMIR(GenerateContext * context)
+GenerateResult WorkScript::IntegerConstant::generateIR(GenerateContext * context)
 {
 	IntegerType *myIntType = (IntegerType*)this->type;
 	return (llvm::Value*)llvm::ConstantInt::get(myIntType->getLLVMType(context), llvm::APInt(myIntType->getLength(), this->value));
@@ -22,5 +22,5 @@ std::wstring WorkScript::IntegerConstant::toString() const
 
 Constant * WorkScript::IntegerConstant::clone() const
 {
-	return new IntegerConstant(type, value);
+	return new IntegerConstant(expressionInfo, type, value);
 }

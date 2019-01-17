@@ -1,11 +1,12 @@
 #pragma once
 #include <string>
 #include "Expression.h"
-#include "Constant.h"
 #include "Type.h"
 
 namespace WorkScript 
 {
+	class Constant;
+
 	class Parameter
 	{
 	public:
@@ -17,16 +18,13 @@ namespace WorkScript
 			this->setDeclaredType(isDeclaredType);
 		}
 
-		~Parameter() { if (this->defaultValue)delete this->defaultValue; }
+		~Parameter();
 
 		inline const std::wstring & getName()const { return this->name; }
 		inline void setName(const std::wstring &name) { this->name = name; }
 		inline Constant * getDefaultValue() { return this->defaultValue; }
 
-		inline void setDefaultValue(Constant *value) {
-			if (this->defaultValue)delete this->defaultValue;
-			this->defaultValue = value;
-		}
+		void setDefaultValue(Constant *value);
 
 		inline bool isVarargs()const { return this->varargs; }
 		inline void setVarargs(bool isVarargs) { this->varargs = isVarargs; }

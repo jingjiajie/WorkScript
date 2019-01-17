@@ -1,13 +1,13 @@
 #include <sstream>
-#include "MultiValueExpression.h"
+#include "MultiValue.h"
 #include "Type.h"
-#include "AssignmentExpression.h"
+#include "Assignment.h"
 #include "Utils.h"
 
 using namespace WorkScript;
 using namespace std;
 
-MultiValueExpression::~MultiValueExpression()
+MultiValue::~MultiValue()
 {
 	for (Expression *expr : this->items)
 	{
@@ -15,12 +15,12 @@ MultiValueExpression::~MultiValueExpression()
 	}
 }
 
-Type * MultiValueExpression::getType(InstantializeContext *context) const
+Type * MultiValue::getType(InstantializeContext *context) const
 {
 	return nullptr;
 }
 
-std::vector<Type*> WorkScript::MultiValueExpression::getTypes(InstantializeContext *context) const
+std::vector<Type*> WorkScript::MultiValue::getTypes(InstantializeContext *context) const
 {
 	vector<Type*> paramTypes;
 	paramTypes.reserve(items.size());
@@ -32,7 +32,7 @@ std::vector<Type*> WorkScript::MultiValueExpression::getTypes(InstantializeConte
 	return paramTypes;
 }
 
-std::wstring MultiValueExpression::toString() const
+std::wstring MultiValue::toString() const
 {
 	size_t itemCount = this->items.size();
 	//如果有0项，直接返回空字符串就行了
@@ -49,7 +49,7 @@ std::wstring MultiValueExpression::toString() const
 	return ss.str();
 }
 
-MultiValueExpression * WorkScript::MultiValueExpression::clone() const
+MultiValue * WorkScript::MultiValue::clone() const
 {
 	vector<Expression*> newItems;
 	newItems.reserve(this->items.size());
@@ -61,17 +61,17 @@ MultiValueExpression * WorkScript::MultiValueExpression::clone() const
 	return newInstance;
 }
 
-ExpressionType WorkScript::MultiValueExpression::getExpressionType() const
+ExpressionType WorkScript::MultiValue::getExpressionType() const
 {
 	return ExpressionType::MULTI_VALUE_EXPRESSION;
 }
 
-GenerateResult WorkScript::MultiValueExpression::generateIR(GenerateContext * context)
+GenerateResult WorkScript::MultiValue::generateIR(GenerateContext * context)
 {
 	throw "请调用getLLVMArgs()";
 }
 
-std::vector<llvm::Value*> WorkScript::MultiValueExpression::getLLVMArgs(GenerateContext * context, const vector<Type*> &formalParamTypes) const
+std::vector<llvm::Value*> WorkScript::MultiValue::getLLVMArgs(GenerateContext * context, const vector<Type*> &formalParamTypes) const
 {
 	size_t formalParamCount = formalParamTypes.size();
 	vector<llvm::Value*> args;
@@ -94,12 +94,12 @@ std::vector<llvm::Value*> WorkScript::MultiValueExpression::getLLVMArgs(Generate
 	return args;
 }
 
-//bool MultiValueExpression::equals(Context * const & context, Expression *target) const
+//bool MultiValue::equals(Context * const & context, Expression *target) const
 //{
 //	if (!target->getType(context)->equals(context, this->getType(context))) {
 //		return false;
 //	}
-//	auto targetListExpr = (const Pointer<MultiValueExpression>)(target);
+//	auto targetListExpr = (const Pointer<MultiValue>)(target);
 //	if (this->count != targetListExpr->count) return false;
 //	for (size_t i = 0; i < this->count; ++i) {
 //		if (!this->items[i]->equals(context, targetListExpr->items[i]))return false;
@@ -107,13 +107,13 @@ std::vector<llvm::Value*> WorkScript::MultiValueExpression::getLLVMArgs(Generate
 //	return true;
 //}
 //
-//void MultiValueExpression::flat()
+//void MultiValue::flat()
 //{
 //	size_t flatLength = this->count;
 //	for (size_t i = 0; i < this->count; ++i)
 //	{
 //		if (this->items[i]->getExpressionType() != ExpressionType::PARAMETER_EXPRESSION)continue;
-//		flatLength += ((MultiValueExpression*)this->items[i])->getCount() - 1;
+//		flatLength += ((MultiValue*)this->items[i])->getCount() - 1;
 //	}
 //	//如果参数列表不包含参数列表，则不用展平，直接返回
 //	if (flatLength == this->count)return;
@@ -128,9 +128,9 @@ std::vector<llvm::Value*> WorkScript::MultiValueExpression::getLLVMArgs(Generate
 //			this->items[newPos++] = curOldItem;
 //		}
 //		else {
-//			for (size_t curOldItemPos = 0; curOldItemPos < ((MultiValueExpression*)curOldItem)->getCount(); ++curOldItemPos)
+//			for (size_t curOldItemPos = 0; curOldItemPos < ((MultiValue*)curOldItem)->getCount(); ++curOldItemPos)
 //			{
-//				this->items[newPos++] = ((MultiValueExpression*)curOldItem)->items[curOldItemPos];
+//				this->items[newPos++] = ((MultiValue*)curOldItem)->items[curOldItemPos];
 //			}
 //		}
 //	}
