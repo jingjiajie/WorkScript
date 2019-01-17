@@ -3,8 +3,6 @@
 
 namespace WorkScript {
 	class Program;
-	class LinkContext;
-	class Context;
 
 	class WorkScriptEngine
 	{

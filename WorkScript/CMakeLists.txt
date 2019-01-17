@@ -1,0 +1,30 @@
+project(WorkScript)
+
+set(WorkScript_CXX_FLAGS "-Wno-unused-variable")
+set(LLVM_CXXFLAGS "-fuse-ld=gold -Wl,--no-keep-files-mapped -Wl,--no-map-whole-files -fPIC -fvisibility-inlines-hidden -Werror=date-time -Wall -W -Wno-unused-parameter -Wwrite-strings -Wcast-qual -Wno-missing-field-initializers -pedantic -Wno-long-long -Wno-maybe-uninitialized -Wdelete-non-virtual-dtor -Wno-comment -ffunction-sections -fdata-sections -O2 -DNDEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS")
+set(CMAKE_CXX_FLAGS "${LLVM_CXXFLAGS} ${WorkScript_CXX_FLAGS}")
+
+include_directories(${WorkScript_SOURCE_DIR})
+include_directories(${WorkScript_SOURCE_DIR}/Context)
+include_directories(${WorkScript_SOURCE_DIR}/Exception)
+include_directories(${WorkScript_SOURCE_DIR}/Program)
+include_directories(${WorkScript_SOURCE_DIR}/Tree)
+include_directories(${WorkScript_SOURCE_DIR}/Function)
+include_directories(${WorkScript_SOURCE_DIR}/SymbolTable)
+include_directories(${WorkScript_SOURCE_DIR}/Type)
+include_directories(${WorkScript_SOURCE_DIR}/Util)
+
+aux_source_directory(. WorkScript_src)
+aux_source_directory(Exception/ WorkScript_src)
+aux_source_directory(Program/ WorkScript_src)
+aux_source_directory(Util/ WorkScript_src)
+aux_source_directory(Context/ WorkScript_src)
+aux_source_directory(SymbolTable/ WorkScript_src)
+aux_source_directory(Type/ WorkScript_src)
+aux_source_directory(Function/ WorkScript_src)
+aux_source_directory(Tree/ WorkScript_src)
+
+add_library(WorkScript ${WorkScript_src})
+
+target_link_libraries(WorkScript antlr4_shared)
+target_link_libraries(WorkScript LLVM-7)

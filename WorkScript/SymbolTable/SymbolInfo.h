@@ -1,7 +1,6 @@
 #pragma once
 #include "GenerateContext.h"
 #include "Constant.h"
-
 namespace WorkScript 
 {
 	class Type;

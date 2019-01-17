@@ -136,7 +136,7 @@ Type * WorkScript::AbstractContext::getType(const std::wstring & name, size_t po
 	return type;
 }
 
-Type * WorkScript::AbstractContext::getLocalType(const std::wstring & name, size_t pointerLevel)
+Type * AbstractContext::getLocalType(const std::wstring & name, size_t pointerLevel)
 {
 	Type *returnType = nullptr;
 	auto it = this->types.find(name);
@@ -149,12 +149,12 @@ Type * WorkScript::AbstractContext::getLocalType(const std::wstring & name, size
 	return returnType;
 }
 
-void WorkScript::AbstractContext::addType(const std::wstring &name, Type *type)
+void AbstractContext::addType(const std::wstring &name, Type *type)
 {
 	this->types[name] = type;
 }
 
-void WorkScript::AbstractContext::addType(Type * type)
+void AbstractContext::addType(Type * type)
 {
 	this->addType(type->getName(), type);
 }

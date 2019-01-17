@@ -1,5 +1,2 @@
 .idea/
 cmake-build-debug/
-!src/Generated
-src/Generated/*
-!src/Generated/WorkScript.g4
