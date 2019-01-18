@@ -8,7 +8,7 @@ using namespace std;
 std::unordered_map<std::wstring, PointerType*> PointerType::types;
 Finalizer PointerType::staticFinalizer(&PointerType::releaseTypes);
 
-PointerType::PointerType(Type *targetType, unsigned int level, bool isConst, bool isVolatile)
+PointerType::PointerType(Type *targetType, size_t level, bool isConst, bool isVolatile)
 	:Type(isConst, isVolatile), targetType(targetType), level(level) {}
 
 std::wstring WorkScript::PointerType::getName() const

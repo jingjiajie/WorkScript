@@ -98,13 +98,15 @@ Type * Type::getPromotedType(Type * left, Type * right)
 				case TypeClassification::POINTER:
 				{
 					auto rightPtr = (PointerType *) right;
+					if(leftPtr->getLevel() != rightPtr->getLevel()) goto UNSUPPORTED;
 					bool isConst = false, isVolatile = false;
-					if (left->isConst() || right->isConst()) isConst = true;
-					if (left->isVolatile() || right->isVolatile()) isVolatile = true;
+					//if (left->isConst() || right->isConst()) isConst = true;
+					//if (left->isVolatile() || right->isVolatile()) isVolatile = true;
+					//TODO 指针类型的const和volatile，由于有pointerlevel，故应该支持各级的cv
 					try
 					{
-						return PointerType::get(getPromotedType(leftPtr->getTargetType(), rightPtr->getTargetType()), 1,
-												isConst, isVolatile);
+						return PointerType::get(getPromotedType(leftPtr->getTargetType(), rightPtr->getTargetType()), leftPtr->getLevel(),
+												false, false);
 					} catch (const IncompatibleTypeException &)
 					{
 						goto UNSUPPORTED;
@@ -150,6 +152,15 @@ bool WorkScript::Type::convertableTo(Type * src, Type * target)
 		}
 		case TypeClassification::VOID:
 			return target->getClassification() == TypeClassification::VOID;
+		case TypeClassification::POINTER:
+		{
+			PointerType *srcPtr = (PointerType*)src;
+			PointerType *targetPtr = (PointerType*)target;
+			if(srcPtr->getLevel() != targetPtr->getLevel()) return false;
+			if(targetPtr->getTargetType()->getClassification() == TypeClassification::VOID) return true; //任何类型都可以转换为void*
+			if(srcPtr->getTargetType()->getClassification() == TypeClassification::VOID) return true; //void*可以转换为任何类型
+			return Type::convertableTo(srcPtr->getTargetType(),targetPtr->getTargetType());
+		}
 		default:
 			return false;
 	}
