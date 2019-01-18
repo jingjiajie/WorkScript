@@ -64,14 +64,20 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitBlock(WorkScriptParser::BlockC
 
 antlrcpp::Any WorkScript::TreeCreateVisitor::visitLine(WorkScriptParser::LineContext *ctx)
 {
-	vector<Expression*> exprs;
-	exprs.reserve(ctx->expression().size());
-	for (auto c : ctx->expression()) {
-		auto ret = c->accept(this);
-		if (ret.isNotNull()) {
-			exprs.push_back(ret.as<ExpressionWrapper>());
-		}
-	}
+    /*遍历函数*/
+    for(auto c : ctx->function()){
+        c->accept(this);
+    }
+
+	/*遍历表达式*/
+    vector<Expression*> exprs;
+    exprs.reserve(ctx->expression().size());
+    for (auto c : ctx->expression()) {
+        auto ret = c->accept(this);
+        if (ret.isNotNull()) {
+            exprs.push_back(ret.as<ExpressionWrapper>());
+        }
+    }
 	return exprs;
 }
 
@@ -137,7 +143,7 @@ antlrcpp::Any TreeCreateVisitor::visitVariable(WorkScriptParser::VariableContext
 	return wrapper;
 }
 
-antlrcpp::Any TreeCreateVisitor::visitFunction(WorkScriptParser::FunctionContext *ctx)
+antlrcpp::Any TreeCreateVisitor::visitFunctionDefine(WorkScriptParser::FunctionDefineContext *ctx)
 {
 	STORE_FORBID_ASSIGN;
 	/*====深入下一层====*/
@@ -152,13 +158,16 @@ antlrcpp::Any TreeCreateVisitor::visitFunction(WorkScriptParser::FunctionContext
 
 	/*读取返回值类型名*/
 	auto returnTypeNameCtx = ctx->functionDeclaration()->typeName();
-	wstring returnTypeName;
 	Type *declReturnType = nullptr;
 	if (returnTypeNameCtx) {
-		returnTypeName = Locale::toWideChar(Encoding::UTF_8, returnTypeNameCtx->identifier()->getText());
+        wstring returnTypeName = Locale::toWideChar(Encoding::UTF_8, returnTypeNameCtx->identifier()->getText());
 		declReturnType = outerAbstractContext->getType(returnTypeName);
 		if (!declReturnType) {
 			throw TypeNotFoundException(getLocation(ctx), L"无法找到类型：" + returnTypeName);
+		}
+		size_t pointerLevel = ctx->functionDeclaration()->STAR().size();
+		if(pointerLevel > 0){
+		    declReturnType = PointerType::get(declReturnType,pointerLevel);
 		}
 	}
 
@@ -314,6 +323,7 @@ antlrcpp::Any TreeCreateVisitor::visitProgram(WorkScriptParser::ProgramContext *
 	auto lines = ctx->line();
 	for (auto &line : lines)
 	{
+	    string lineStr = line->toString();
 		ALLOW_ASSIGN; //每次新的一行都允许赋值
 		line->accept(this); //假设只有函数声明，会自动加入到program里 TODO:不只有函数声明，还有普通的执行语句！
 	}

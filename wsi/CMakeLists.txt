@@ -2,6 +2,8 @@ project(wsi)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+
 include_directories(../ANTLR/src)
 
 include(${WorkScript_SOURCE_DIR}/include_directories.cmake)

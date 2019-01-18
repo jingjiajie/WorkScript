@@ -23,13 +23,15 @@ public:
 
     virtual antlrcpp::Any visitLine(WorkScriptParser::LineContext *context) = 0;
 
+    virtual antlrcpp::Any visitStdFunctionDecl_(WorkScriptParser::StdFunctionDecl_Context *context) = 0;
+
+    virtual antlrcpp::Any visitFunctionDefine_(WorkScriptParser::FunctionDefine_Context *context) = 0;
+
     virtual antlrcpp::Any visitBinaryCompare(WorkScriptParser::BinaryCompareContext *context) = 0;
 
     virtual antlrcpp::Any visitVariable(WorkScriptParser::VariableContext *context) = 0;
 
     virtual antlrcpp::Any visitMultiplyDivideModulus(WorkScriptParser::MultiplyDivideModulusContext *context) = 0;
-
-    virtual antlrcpp::Any visitStdFunctionDecl_(WorkScriptParser::StdFunctionDecl_Context *context) = 0;
 
     virtual antlrcpp::Any visitAssignmentOrEquals(WorkScriptParser::AssignmentOrEqualsContext *context) = 0;
 
@@ -47,8 +49,6 @@ public:
 
     virtual antlrcpp::Any visitPositive(WorkScriptParser::PositiveContext *context) = 0;
 
-    virtual antlrcpp::Any visitFunction_(WorkScriptParser::Function_Context *context) = 0;
-
     virtual antlrcpp::Any visitParenthese(WorkScriptParser::ParentheseContext *context) = 0;
 
     virtual antlrcpp::Any visitCall_(WorkScriptParser::Call_Context *context) = 0;
@@ -65,7 +65,7 @@ public:
 
     virtual antlrcpp::Any visitStdFormalParameterItem(WorkScriptParser::StdFormalParameterItemContext *context) = 0;
 
-    virtual antlrcpp::Any visitFunction(WorkScriptParser::FunctionContext *context) = 0;
+    virtual antlrcpp::Any visitFunctionDefine(WorkScriptParser::FunctionDefineContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionDeclaration(WorkScriptParser::FunctionDeclarationContext *context) = 0;
 

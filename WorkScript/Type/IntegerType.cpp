@@ -57,7 +57,7 @@ llvm::Type * WorkScript::IntegerType::getLLVMType(GenerateContext *ctx) const
 		return llvm::IntegerType::getInt64Ty(*ctx->getLLVMContext());
 	default:
 		//TODO Location信息
-		throw WorkScriptException(Location(), L"不支持的整数长度："+this->length);
+		throw WorkScriptException(Location(), L"不支持的整数长度：" + to_wstring(this->length));
 	}
 }
 

@@ -1,3 +1,5 @@
+#include <sstream>
+#include <string>
 #include "Call.h"
 #include "Variable.h"
 #include "Program.h"
@@ -11,14 +13,14 @@ using namespace std;
 
 GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 {
+	auto outerInstCtx = context->getInstantializeContext();
 	//获取函数声明
 	auto paramTypes = this->parameters->getTypes(context->getInstantializeContext());
 	Function *func = this->expressionInfo.getAbstractContext()->getFirstFunction(this->functionName, paramTypes);
 	if (!func) {
-		throw WorkScriptException(this->expressionInfo.getLocation(), L"未找到函数：" + this->functionName);
+		throw WorkScriptException(this->expressionInfo.getLocation(), L"未找到函数：" + this->toFunctionDeclString(outerInstCtx));
 	}
 	//生成LLVM函数调用
-	auto outerInstCtx = context->getInstantializeContext();
 	auto builder = context->getIRBuilder();
 	SymbolTable newInstTable;
 	InstantializeContext innerInstCtx(this->expressionInfo.getAbstractContext(), this->expressionInfo.getProgram()->getFunctionCache(), &newInstTable);
@@ -41,7 +43,8 @@ Type * Call::getType(InstantializeContext *context) const
 	auto paramTypes = this->parameters->getTypes(context);
 	Function *func = this->expressionInfo.getAbstractContext()->getFirstFunction(this->functionName, paramTypes);
 	if (!func) {
-		throw WorkScriptException(this->expressionInfo.getLocation(), L"未找到函数：" + this->functionName);
+	    auto str = this->toFunctionDeclString(context);
+		throw WorkScriptException(this->expressionInfo.getLocation(), L"未找到函数：" + str);
 	}
 	SymbolTable newInstTable;
 	InstantializeContext newInstCtx(this->expressionInfo.getAbstractContext(), this->getProgram()->getFunctionCache(), &newInstTable);
@@ -58,6 +61,23 @@ std::wstring Call::toString() const
 	auto leftStr = this->functionName;
 	auto paramStr =  this->parameters->toString();
 	return leftStr + L"(" + paramStr + L")";
+}
+
+std::wstring Call::toFunctionDeclString(InstantializeContext *context) const
+{
+	wstringstream ss;
+	ss << this->functionName;
+	vector<Type*> paramTypes = this->parameters->getTypes(context);
+	size_t paramCount = paramTypes.size();
+	ss << L"(";
+	for(size_t i=0;i<paramCount;++i){
+		ss << paramTypes[i]->getName();
+		if(i != paramCount - 1){
+			ss << L", ";
+		}
+	}
+	ss << L")";
+	return ss.str();
 }
 
 ExpressionType Call::getExpressionType() const

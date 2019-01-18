@@ -19,8 +19,8 @@ namespace WorkScript {
 		antlrcpp::Any visitString(WorkScriptParser::StringContext*) override;
 		antlrcpp::Any visitBoolean(WorkScriptParser::BooleanContext*)override;
 		antlrcpp::Any visitVariable(WorkScriptParser::VariableContext*) override;
-		antlrcpp::Any visitFunction(WorkScriptParser::FunctionContext*) override;
-		antlrcpp::Any visitStdFunctionDecl(WorkScriptParser::StdFunctionDeclContext*)override;
+		antlrcpp::Any visitFunctionDefine(WorkScriptParser::FunctionDefineContext*) override;
+		antlrcpp::Any visitStdFunctionDecl(WorkScriptParser::StdFunctionDeclContext*) override;
 		antlrcpp::Any visitCall(WorkScriptParser::CallContext*) override;
 		antlrcpp::Any visitProgram(WorkScriptParser::ProgramContext*) override;
 		antlrcpp::Any visitAssignmentOrEquals(WorkScriptParser::AssignmentOrEqualsContext*)override;

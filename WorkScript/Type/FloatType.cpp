@@ -39,7 +39,7 @@ llvm::Type * WorkScript::FloatType::getLLVMType(GenerateContext *context) const
 	case 64:
 		return llvm::Type::getDoubleTy(ctx);
 	default:
-		throw WorkScriptException(Location() , L"不支持的浮点类型长度：" + this->length);
+		throw WorkScriptException(Location() , L"不支持的浮点类型长度：" + to_wstring(this->length));
 	}
 }
 

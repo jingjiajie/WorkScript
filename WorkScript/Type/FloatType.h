@@ -6,7 +6,7 @@ namespace WorkScript {
 	public:
 		FloatType(const std::wstring &name, unsigned char length = 4, bool isConst = false, bool isVolatile = false);
 
-		virtual std::wstring getName()const { return this->name; }
+		virtual std::wstring getName()const override{ return this->name; }
 		virtual std::wstring getIdentifierString()const override;
 		virtual TypeClassification getClassification() const override;
 		virtual llvm::Type* getLLVMType(GenerateContext *context) const override;

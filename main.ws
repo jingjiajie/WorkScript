@@ -1,12 +1,14 @@
 int printf(char *, ...)
-int strcmp(char*,char*)
-char *strcpy(char* dest, char *src)
-void *malloc(int num_bytes)
+char * strcpy(char *, char*)
+void * malloc(int)
+void free(void *)
+
+char *toPChar(void* p) = p
 
 main(){
-  a = malloc(20);
-  strcpy(a, "hello world")
-  printf("%s", a)
+  str = malloc(100)
+  strcpy(str, "hello")
+  printf(str)
+  free(str)
 }
-
 

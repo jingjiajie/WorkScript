@@ -2,17 +2,19 @@ grammar WorkScript;
 
 program: line* EOF;
 
-line: (SEMICOLON* expression SEMICOLON*)+ NEWLINE?
+line: (SEMICOLON* (function | expression) SEMICOLON*)+ NEWLINE?
 	| SEMICOLON+ NEWLINE?
 	| NEWLINE;
+
+function: stdFunctionDecl									# StdFunctionDecl_
+	| functionDefine											# FunctionDefine_
+	;
 
 expression:
 	ACCESS_LEVEL COLON								# AccessLevel
 	| LEFT_PARENTHESE expression RIGHT_PARENTHESE	# Parenthese
 	// | LEFT_BRACKET (expression (COMMA expression)*)? RIGHT_BRACKET # List | expression POINT
 	// identifier # MemberEvaluate
-	| stdFunctionDecl									# StdFunctionDecl_
-	| function											# Function_
 	| call												# Call_
 	| expression (STAR | SLASH | PERCENT) expression	# MultiplyDivideModulus
 	| expression (PLUS | MINUS) expression				# PlusMinus
@@ -48,7 +50,7 @@ stdFormalParameter:
 
 stdFormalParameterItem: typeName STAR* identifier?;
 
-function:
+functionDefine:
 	(functionConstraint NEWLINE*)? functionDeclaration NEWLINE* functionImplementation
 	| functionDeclaration NEWLINE* functionConstraint NEWLINE* functionImplementation
 	| functionDeclaration NEWLINE* functionImplementation NEWLINE* functionConstraint;

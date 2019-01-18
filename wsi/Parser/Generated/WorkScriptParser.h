@@ -23,12 +23,12 @@ public:
   };
 
   enum {
-    RuleProgram = 0, RuleLine = 1, RuleExpression = 2, RuleCall = 3, RuleMultiValue = 4, 
-    RuleStdFunctionDecl = 5, RuleStdFormalParameter = 6, RuleStdFormalParameterItem = 7, 
-    RuleFunction = 8, RuleFunctionDeclaration = 9, RuleTypeName = 10, RuleFunctionName = 11, 
-    RuleFormalParameter = 12, RuleFormalParameterItem = 13, RuleFunctionImplementation = 14, 
-    RuleFunctionConstraint = 15, RuleBlock = 16, RuleStaticVarargs = 17, 
-    RuleNewlineOrComma = 18, RuleIdentifier = 19
+    RuleProgram = 0, RuleLine = 1, RuleFunction = 2, RuleExpression = 3, 
+    RuleCall = 4, RuleMultiValue = 5, RuleStdFunctionDecl = 6, RuleStdFormalParameter = 7, 
+    RuleStdFormalParameterItem = 8, RuleFunctionDefine = 9, RuleFunctionDeclaration = 10, 
+    RuleTypeName = 11, RuleFunctionName = 12, RuleFormalParameter = 13, 
+    RuleFormalParameterItem = 14, RuleFunctionImplementation = 15, RuleFunctionConstraint = 16, 
+    RuleBlock = 17, RuleStaticVarargs = 18, RuleNewlineOrComma = 19, RuleIdentifier = 20
   };
 
   WorkScriptParser(antlr4::TokenStream *input);
@@ -43,13 +43,14 @@ public:
 
   class ProgramContext;
   class LineContext;
+  class FunctionContext;
   class ExpressionContext;
   class CallContext;
   class MultiValueContext;
   class StdFunctionDeclContext;
   class StdFormalParameterContext;
   class StdFormalParameterItemContext;
-  class FunctionContext;
+  class FunctionDefineContext;
   class FunctionDeclarationContext;
   class TypeNameContext;
   class FunctionNameContext;
@@ -81,9 +82,11 @@ public:
   public:
     LineContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *NEWLINE();
+    std::vector<FunctionContext *> function();
+    FunctionContext* function(size_t i);
     std::vector<ExpressionContext *> expression();
     ExpressionContext* expression(size_t i);
-    antlr4::tree::TerminalNode *NEWLINE();
     std::vector<antlr4::tree::TerminalNode *> SEMICOLON();
     antlr4::tree::TerminalNode* SEMICOLON(size_t i);
 
@@ -93,6 +96,39 @@ public:
   };
 
   LineContext* line();
+
+  class  FunctionContext : public antlr4::ParserRuleContext {
+  public:
+    FunctionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+   
+    FunctionContext() = default;
+    void copyFrom(FunctionContext *context);
+    using antlr4::ParserRuleContext::copyFrom;
+
+    virtual size_t getRuleIndex() const override;
+
+   
+  };
+
+  class  FunctionDefine_Context : public FunctionContext {
+  public:
+    FunctionDefine_Context(FunctionContext *ctx);
+
+    FunctionDefineContext *functionDefine();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  StdFunctionDecl_Context : public FunctionContext {
+  public:
+    StdFunctionDecl_Context(FunctionContext *ctx);
+
+    StdFunctionDeclContext *stdFunctionDecl();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  FunctionContext* function();
 
   class  ExpressionContext : public antlr4::ParserRuleContext {
   public:
@@ -140,15 +176,6 @@ public:
     antlr4::tree::TerminalNode *STAR();
     antlr4::tree::TerminalNode *SLASH();
     antlr4::tree::TerminalNode *PERCENT();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  StdFunctionDecl_Context : public ExpressionContext {
-  public:
-    StdFunctionDecl_Context(ExpressionContext *ctx);
-
-    StdFunctionDeclContext *stdFunctionDecl();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -234,15 +261,6 @@ public:
 
     antlr4::tree::TerminalNode *PLUS();
     ExpressionContext *expression();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  Function_Context : public ExpressionContext {
-  public:
-    Function_Context(ExpressionContext *ctx);
-
-    FunctionContext *function();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -366,9 +384,9 @@ public:
 
   StdFormalParameterItemContext* stdFormalParameterItem();
 
-  class  FunctionContext : public antlr4::ParserRuleContext {
+  class  FunctionDefineContext : public antlr4::ParserRuleContext {
   public:
-    FunctionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    FunctionDefineContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     FunctionDeclarationContext *functionDeclaration();
     FunctionImplementationContext *functionImplementation();
@@ -381,7 +399,7 @@ public:
    
   };
 
-  FunctionContext* function();
+  FunctionDefineContext* functionDefine();
 
   class  FunctionDeclarationContext : public antlr4::ParserRuleContext {
   public:

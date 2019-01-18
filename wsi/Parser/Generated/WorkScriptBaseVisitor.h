@@ -23,6 +23,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitStdFunctionDecl_(WorkScriptParser::StdFunctionDecl_Context *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitFunctionDefine_(WorkScriptParser::FunctionDefine_Context *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitBinaryCompare(WorkScriptParser::BinaryCompareContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -32,10 +40,6 @@ public:
   }
 
   virtual antlrcpp::Any visitMultiplyDivideModulus(WorkScriptParser::MultiplyDivideModulusContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitStdFunctionDecl_(WorkScriptParser::StdFunctionDecl_Context *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -71,10 +75,6 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFunction_(WorkScriptParser::Function_Context *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual antlrcpp::Any visitParenthese(WorkScriptParser::ParentheseContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -107,7 +107,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFunction(WorkScriptParser::FunctionContext *ctx) override {
+  virtual antlrcpp::Any visitFunctionDefine(WorkScriptParser::FunctionDefineContext *ctx) override {
     return visitChildren(ctx);
   }
 
