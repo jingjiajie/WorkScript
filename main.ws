@@ -1,14 +1,12 @@
-int printf(char *, ...)
-char * strcpy(char *, char*)
-void * malloc(int)
-void free(void *)
+int printf(char *, ...);
+char * strcpy(char *, char*);
+void * malloc(int);
+void free(void *);
 
-char *toPChar(void* p) = p
+f(long x) = "long"
+//char *f(int x) = "int"
 
 main(){
-  str = malloc(100)
-  strcpy(str, "hello")
-  printf(str)
-  free(str)
+  printf(f(1));
 }
 

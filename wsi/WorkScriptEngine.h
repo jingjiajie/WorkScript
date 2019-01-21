@@ -11,9 +11,6 @@ namespace WorkScript {
 		~WorkScriptEngine();
 
 		void run(const char *fileName);
-
-	private:
-		void parseFile(const wchar_t *fileName, Program *outProgram);
 	};
 
 }

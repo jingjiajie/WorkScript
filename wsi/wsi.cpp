@@ -10,8 +10,8 @@ using namespace WorkScript;
 void printUsages()
 {
 	printf("欢迎使用WorkScript解释器！您可以使用以下参数来启动解释器：\n");
-	printf("-v 或 -version：\t显示版本号\n");
-	printf("-h 或 -help：\t显示此帮助信息\n");
+	printf("-v 或 --version：\t显示版本号\n");
+	printf("-h 或 --help：\t显示此帮助信息\n");
 	printf("(文件名)：\t运行指定目录的WorkScript脚本文件\n");
 }
 
@@ -28,10 +28,10 @@ int main(int argc, const char* argv[]) {
 	else if (argc > 2) {
 		printUsages();
 	}
-	else if (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "-version./W") == 0) {
+	else if (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0) {
 		printVersion();
 	}
-	else if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "-h") == 0) {
+	else if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0) {
 		printUsages();
 	}
 	else {

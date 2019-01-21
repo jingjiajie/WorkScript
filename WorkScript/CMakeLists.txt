@@ -1,22 +1,34 @@
 project(WorkScript)
 
 set(WorkScript_CXX_FLAGS "-Wno-unused-variable")
-set(LLVM_CXXFLAGS "-fuse-ld=gold -Wl,--no-keep-files-mapped -Wl,--no-map-whole-files -fPIC -fvisibility-inlines-hidden -Werror=date-time -Wall -W -Wno-unused-parameter -Wwrite-strings -Wcast-qual -Wno-missing-field-initializers -pedantic -Wno-long-long -Wno-maybe-uninitialized -Wdelete-non-virtual-dtor -Wno-comment -ffunction-sections -fdata-sections -O2 -DNDEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS")
-set(CMAKE_CXX_FLAGS "${LLVM_CXXFLAGS} ${WorkScript_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS ${WorkScript_CXX_FLAGS})
 
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-include_directories(${WorkScript_SOURCE_DIR})
-include_directories(${WorkScript_SOURCE_DIR}/Context)
-include_directories(${WorkScript_SOURCE_DIR}/Exception)
-include_directories(${WorkScript_SOURCE_DIR}/Program)
-include_directories(${WorkScript_SOURCE_DIR}/Tree)
-include_directories(${WorkScript_SOURCE_DIR}/Function)
-include_directories(${WorkScript_SOURCE_DIR}/SymbolTable)
-include_directories(${WorkScript_SOURCE_DIR}/Type)
-include_directories(${WorkScript_SOURCE_DIR}/Util)
+set(CMAKE_EXE_LINKER_FLAGS "-static")
+
+#LLVM依赖相关
+find_package(LLVM REQUIRED CONFIG)
+include_directories(${LLVM_INCLUDE_DIRS})
+add_definitions(${LLVM_DEFINITIONS})
+
+message(STATUS "WorkScript Found LLVM ${LLVM_PACKAGE_VERSION}, Using LLVMConfig.cmake in: ${LLVM_DIR}")
+message(STATUS "LLVM Library dir:${LLVM_LIBRARY_DIRS}, LLVM libs: ${llvm_libs}")
+
+
+#ANTLR依赖相关
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/ANTLR/)
+set(ANTLR4_ZIP_REPOSITORY ${CMAKE_CURRENT_SOURCE_DIR}/ANTLR/antlr-runtime.zip)
+include(${CMAKE_CURRENT_SOURCE_DIR}/ANTLR/ExternalAntlr4Cpp.cmake)
+include_directories(${ANTLR4_INCLUDE_DIRS})
+find_package(ANTLR REQUIRED)
+
+include(include_directories.cmake)
 
 aux_source_directory(. WorkScript_src)
+aux_source_directory(Parser/ WorkScript_src)
+aux_source_directory(Parser/Generated/ WorkScript_src)
 aux_source_directory(Exception/ WorkScript_src)
 aux_source_directory(Program/ WorkScript_src)
 aux_source_directory(Util/ WorkScript_src)
@@ -26,7 +38,8 @@ aux_source_directory(Type/ WorkScript_src)
 aux_source_directory(Function/ WorkScript_src)
 aux_source_directory(Tree/ WorkScript_src)
 
-add_library(WorkScript ${WorkScript_src})
+add_library(WorkScript STATIC ${WorkScript_src})
 
-target_link_libraries(WorkScript antlr4_shared)
+target_link_libraries(WorkScript antlr4_static)
 target_link_libraries(WorkScript LLVM-7)
+#target_link_libraries(WorkScript ${llvm_libs})

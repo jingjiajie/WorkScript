@@ -15,7 +15,7 @@ namespace WorkScript {
 	class Program final
 	{
 	public:
-		Program();
+		Program(const std::string &filePath);
 		~Program();
 
 		void generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule);
@@ -25,5 +25,7 @@ namespace WorkScript {
 	protected:
 		AbstractContext globalAbstractContext;
 		FunctionCache functionCache;
+
+        void parseFile(const std::string &fileName);
 	};
 }
