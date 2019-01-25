@@ -12,23 +12,25 @@
 class  WorkScriptParser : public antlr4::Parser {
 public:
   enum {
-    ACCESS_LEVEL = 1, INCLUDE = 2, WHEN = 3, BOOLEAN = 4, IDENTIFIER = 5, 
-    DOUBLE = 6, INTEGER = 7, STRING = 8, SEMICOLON = 9, POINT = 10, COMMA = 11, 
-    LEFT_PARENTHESE = 12, RIGHT_PARENTHESE = 13, LEFT_BRACE = 14, RIGHT_BRACE = 15, 
-    LEFT_BRACKET = 16, RIGHT_BRACKET = 17, DOUBLE_EQUAL = 18, EQUALS = 19, 
-    RIGHT_ARROW = 20, ASSIGN = 21, COLON = 22, PLUS = 23, MINUS = 24, STAR = 25, 
-    SLASH = 26, PERCENT = 27, HASH = 28, GREATER_THAN = 29, GREATER_THAN_EQUAL = 30, 
-    LESS_THAN = 31, LESS_THAN_EQUAL = 32, SINGLE_LINE_COMMENT = 33, MULTILINE_COMMENT = 34, 
-    APOSTROPHE = 35, NEWLINE = 36, WS = 37
+    ACCESS_LEVEL = 1, INCLUDE = 2, WHEN = 3, CONST = 4, VOLATILE = 5, EXTERN = 6, 
+    STATIC = 7, BOOLEAN = 8, IDENTIFIER = 9, DOUBLE = 10, INTEGER = 11, 
+    STRING = 12, SEMICOLON = 13, POINT = 14, COMMA = 15, LEFT_PARENTHESE = 16, 
+    RIGHT_PARENTHESE = 17, LEFT_BRACE = 18, RIGHT_BRACE = 19, LEFT_BRACKET = 20, 
+    RIGHT_BRACKET = 21, DOUBLE_EQUAL = 22, EQUALS = 23, RIGHT_ARROW = 24, 
+    ASSIGN = 25, COLON = 26, PLUS = 27, MINUS = 28, STAR = 29, SLASH = 30, 
+    PERCENT = 31, HASH = 32, GREATER_THAN = 33, GREATER_THAN_EQUAL = 34, 
+    LESS_THAN = 35, LESS_THAN_EQUAL = 36, SINGLE_LINE_COMMENT = 37, MULTILINE_COMMENT = 38, 
+    APOSTROPHE = 39, NEWLINE = 40, WS = 41
   };
 
   enum {
     RuleProgram = 0, RuleLine = 1, RuleFunction = 2, RuleExpression = 3, 
     RuleCall = 4, RuleMultiValue = 5, RuleStdFunctionDecl = 6, RuleStdFormalParameter = 7, 
     RuleStdFormalParameterItem = 8, RuleFunctionDefine = 9, RuleFunctionDeclaration = 10, 
-    RuleTypeName = 11, RuleFunctionName = 12, RuleFormalParameter = 13, 
-    RuleFormalParameterItem = 14, RuleFunctionImplementation = 15, RuleFunctionConstraint = 16, 
-    RuleBlock = 17, RuleStaticVarargs = 18, RuleNewlineOrComma = 19, RuleIdentifier = 20
+    RuleType = 11, RuleTypeSpecifier = 12, RuleTypeQualifier = 13, RuleFunctionName = 14, 
+    RuleFormalParameter = 15, RuleFormalParameterItem = 16, RuleFunctionImplementation = 17, 
+    RuleFunctionConstraint = 18, RuleBlock = 19, RuleStaticVarargs = 20, 
+    RuleNewlineOrComma = 21, RuleIdentifier = 22
   };
 
   WorkScriptParser(antlr4::TokenStream *input);
@@ -52,7 +54,9 @@ public:
   class StdFormalParameterItemContext;
   class FunctionDefineContext;
   class FunctionDeclarationContext;
-  class TypeNameContext;
+  class TypeContext;
+  class TypeSpecifierContext;
+  class TypeQualifierContext;
   class FunctionNameContext;
   class FormalParameterContext;
   class FormalParameterItemContext;
@@ -334,7 +338,7 @@ public:
   public:
     StdFunctionDeclContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    TypeNameContext *typeName();
+    TypeContext *type();
     FunctionNameContext *functionName();
     antlr4::tree::TerminalNode *LEFT_PARENTHESE();
     StdFormalParameterContext *stdFormalParameter();
@@ -372,7 +376,7 @@ public:
   public:
     StdFormalParameterItemContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    TypeNameContext *typeName();
+    TypeContext *type();
     std::vector<antlr4::tree::TerminalNode *> STAR();
     antlr4::tree::TerminalNode* STAR(size_t i);
     IdentifierContext *identifier();
@@ -408,7 +412,7 @@ public:
     antlr4::tree::TerminalNode *LEFT_PARENTHESE();
     FormalParameterContext *formalParameter();
     antlr4::tree::TerminalNode *RIGHT_PARENTHESE();
-    TypeNameContext *typeName();
+    TypeContext *type();
     FunctionNameContext *functionName();
     std::vector<antlr4::tree::TerminalNode *> STAR();
     antlr4::tree::TerminalNode* STAR(size_t i);
@@ -420,9 +424,25 @@ public:
 
   FunctionDeclarationContext* functionDeclaration();
 
-  class  TypeNameContext : public antlr4::ParserRuleContext {
+  class  TypeContext : public antlr4::ParserRuleContext {
   public:
-    TypeNameContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    TypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<TypeQualifierContext *> typeQualifier();
+    TypeQualifierContext* typeQualifier(size_t i);
+    std::vector<TypeSpecifierContext *> typeSpecifier();
+    TypeSpecifierContext* typeSpecifier(size_t i);
+
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  TypeContext* type();
+
+  class  TypeSpecifierContext : public antlr4::ParserRuleContext {
+  public:
+    TypeSpecifierContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IdentifierContext *identifier();
 
@@ -431,7 +451,21 @@ public:
    
   };
 
-  TypeNameContext* typeName();
+  TypeSpecifierContext* typeSpecifier();
+
+  class  TypeQualifierContext : public antlr4::ParserRuleContext {
+  public:
+    TypeQualifierContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *CONST();
+    antlr4::tree::TerminalNode *VOLATILE();
+
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  TypeQualifierContext* typeQualifier();
 
   class  FunctionNameContext : public antlr4::ParserRuleContext {
   public:
@@ -469,7 +503,7 @@ public:
     FormalParameterItemContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     ExpressionContext *expression();
-    TypeNameContext *typeName();
+    TypeContext *type();
     std::vector<antlr4::tree::TerminalNode *> STAR();
     antlr4::tree::TerminalNode* STAR(size_t i);
 
@@ -564,10 +598,6 @@ public:
   public:
     IdentifierContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *BOOLEAN();
-    antlr4::tree::TerminalNode *WHEN();
-    antlr4::tree::TerminalNode *INCLUDE();
-    antlr4::tree::TerminalNode *ACCESS_LEVEL();
     antlr4::tree::TerminalNode *IDENTIFIER();
 
 

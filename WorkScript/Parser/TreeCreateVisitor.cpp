@@ -1,5 +1,6 @@
 #include "TreeCreateVisitor.h"
 #include "ExpressionWrapper.h"
+#include "TypeWrapper.h"
 #include "Type.h"
 #include "VoidType.h"
 #include "Call.h"
@@ -89,7 +90,7 @@ antlrcpp::Any TreeCreateVisitor::visitNumber(WorkScriptParser::NumberContext *ct
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new FloatConstant(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), FloatType::getFloat64Type(), value));
+		return ExpressionWrapper(new FloatConstant(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), FloatType::get(64), value));
 	}
 	else {
 		int value = 0;
@@ -97,7 +98,7 @@ antlrcpp::Any TreeCreateVisitor::visitNumber(WorkScriptParser::NumberContext *ct
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), IntegerType::getSInt32Type(), value));
+		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), IntegerType::get(32,true), value));
 	}
 }
 
@@ -124,10 +125,10 @@ antlrcpp::Any TreeCreateVisitor::visitBoolean(WorkScriptParser::BooleanContext *
 {
 	string boolStr = ctx->BOOLEAN()->getText();
 	if (boolStr == "true" || boolStr == "yes" || boolStr == "ok" || boolStr == "good") {
-		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), IntegerType::getUInt1Type(), 1));
+		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), IntegerType::get(1,false), 1));
 	}
 	else if (boolStr == "false" || boolStr == "no" || boolStr == "bad") {
-		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), IntegerType::getUInt1Type(), 0));
+		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), IntegerType::get(1,false), 0));
 	}
 	else {
 		throw std::move(SyntaxErrorException(getLocation(ctx), L"无法识别的布尔值：" + Locale::toWideChar(Encoding::UTF_8, boolStr)));
@@ -157,18 +158,12 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionDefine(WorkScriptParser::FunctionD
 	}
 
 	/*读取返回值类型名*/
-	auto returnTypeNameCtx = ctx->functionDeclaration()->typeName();
+	auto returnTypeCtx = ctx->functionDeclaration()->type();
 	Type *declReturnType = nullptr;
-	if (returnTypeNameCtx) {
-        wstring returnTypeName = Locale::toWideChar(Encoding::UTF_8, returnTypeNameCtx->identifier()->getText());
-		declReturnType = outerAbstractContext->getType(returnTypeName);
-		if (!declReturnType) {
-			throw TypeNotFoundException(getLocation(ctx), L"无法找到类型：" + returnTypeName);
-		}
+	if (returnTypeCtx) {
+        declReturnType = returnTypeCtx->accept(this).as<TypeWrapper>().getType();
 		size_t pointerLevel = ctx->functionDeclaration()->STAR().size();
-		if(pointerLevel > 0){
-		    declReturnType = PointerType::get(declReturnType,pointerLevel);
-		}
+		if(pointerLevel > 0) declReturnType = PointerType::get(declReturnType,pointerLevel);
 	}
 
 	/*读取参数声明*/
@@ -183,16 +178,11 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionDefine(WorkScriptParser::FunctionD
 	for (size_t i = 0; i < paramCount; ++i)
 	{
 		paramDeclExprs[i] = paramItemsDeclCtx[i]->expression()->accept(this).as<ExpressionWrapper>();
-		if (paramItemsDeclCtx[i]->typeName()) {
-			wstring typeName = Locale::toWideChar(Encoding::UTF_8, paramItemsDeclCtx[i]->typeName()->getText());
-			Type *type = outerAbstractContext->getType(typeName);
-			if (!type) {
-				throw TypeNotFoundException(getLocation(ctx), L"无法找到类型：" + type->getName());
-			}
+		if (paramItemsDeclCtx[i]->type())
+		{
+			Type *type = paramItemsDeclCtx[i]->type()->accept(this).as<TypeWrapper>().getType();
 			size_t pointerLevel = paramItemsDeclCtx[i]->STAR().size();
-			if (pointerLevel > 0) {
-				type = PointerType::get(type, pointerLevel);
-			}
+			if (pointerLevel > 0) type = PointerType::get(type, pointerLevel);
 			paramDeclTypes[i] = type;
 		}
 	}
@@ -271,13 +261,10 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDecl(WorkScriptPars
 	wstring funcName = Locale::toWideChar(Encoding::UTF_8, funcNameCtx->getText());
 
 	/*读取返回值类型名*/
-	auto returnTypeNameCtx = ctx->typeName();
-	wstring returnTypeName = Locale::toWideChar(Encoding::UTF_8, returnTypeNameCtx->identifier()->getText());
-	int pointerLevel = ctx->STAR().size();
-	Type *returnType = outerAbstractContext->getType(returnTypeName, pointerLevel);
-	if (!returnType) {
-		throw TypeNotFoundException(getLocation(ctx), L"无法找到类型：" + returnTypeName);
-	}
+	auto returnTypeCtx = ctx->type();
+	Type *returnType = returnTypeCtx->accept(this).as<TypeWrapper>().getType();
+	size_t pointerLevel = ctx->STAR().size();
+	if(pointerLevel > 0) returnType = PointerType::get(returnType, pointerLevel);
 
 	/*处理参数声明*/
 	auto paramItemsCtx = ctx->stdFormalParameter()->stdFormalParameterItem();
@@ -288,12 +275,9 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDecl(WorkScriptPars
 		if (paramItemsCtx[i]->identifier()) {
 			paramName = Locale::toWideChar(Encoding::UTF_8, paramItemsCtx[i]->identifier()->getText());
 		}
-		wstring paramTypeName = Locale::toWideChar(Encoding::UTF_8, paramItemsCtx[i]->typeName()->getText());
+		Type *paramType = paramItemsCtx[i]->type()->accept(this).as<TypeWrapper>().getType();
 		size_t pointerLevel = paramItemsCtx[i]->STAR().size();
-		Type *paramType = outerAbstractContext->getType(paramTypeName, pointerLevel);
-		if (!paramType) {
-			throw TypeNotFoundException(getLocation(ctx), L"无法找到类型：" + paramTypeName);
-		}
+		if(pointerLevel > 0) paramType = PointerType::get(paramType, pointerLevel);
 		params.push_back(new Parameter(paramName, paramType, true));
 		paramTypes.push_back(paramType);
 	}
@@ -490,6 +474,60 @@ TreeCreateVisitor::TreeCreateVisitor(Program *lpProgram)
 TreeCreateVisitor::~TreeCreateVisitor()
 {
 }
+
+antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
+{
+	auto qualifiers = ctx->typeQualifier();
+	auto specifiers = ctx->typeSpecifier();
+	bool isConst = false, isVolatile = false;
+	bool isShort = false, isLong = false, isSigned = false, isUnsigned = false;
+	wstring typeName;
+	for (auto qualifierCtx : qualifiers)
+	{
+		string qualifier = qualifierCtx->getText();
+		if (qualifier == "const") isConst = true;
+		else if (qualifier == "volatile") isVolatile = true;
+	}
+
+	for (auto specifierCtx : specifiers)
+	{
+		string specifier = specifierCtx->getText();
+		if (specifier == "short") isShort = true;
+		else if (specifier == "long") isLong = true;
+		else if (specifier == "signed") isSigned = true;
+		else if (specifier == "unsigned") isUnsigned = true;
+		else
+		{
+			typeName = Locale::toWideChar(Encoding::UTF_8, specifier);
+		}
+	}
+
+	if(typeName.size() == 0){
+	    return TypeWrapper(nullptr);
+	}else if (typeName == L"int")
+	{
+		unsigned char len = 32;
+		if (isShort) len = 16;
+		else if (isLong) len = 64;
+		return TypeWrapper(IntegerType::get(len, isSigned, isConst, isVolatile));
+	} else if (typeName == L"char")
+	{
+		return TypeWrapper(IntegerType::get(8, isSigned, isConst, isVolatile));
+	} else if (typeName == L"bool")
+	{
+		return TypeWrapper(IntegerType::get(1, isSigned, isConst, isVolatile));
+	} else if (typeName == L"float")
+	{
+		return TypeWrapper(FloatType::get(32, isConst, isVolatile));
+	}else if(typeName == L"void"){
+        return TypeWrapper(VoidType::get());
+	}
+	else{
+		//TODO 自定义类型
+		throw UnimplementedException(getLocation(ctx), L"尚未实现自定义类型");
+	}
+}
+
 
 static void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, Location loc)
 {

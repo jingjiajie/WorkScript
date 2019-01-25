@@ -8,8 +8,6 @@ namespace WorkScript {
 
 	class PointerType : public Type {
 	public:
-		PointerType(Type *targetType, size_t level = 1, bool isConst = false, bool isVolatile = false);
-
 		std::wstring getName() const override;
 		std::wstring getIdentifierString()const override;
 		TypeClassification getClassification() const override;
@@ -27,5 +25,6 @@ namespace WorkScript {
 		static std::unordered_map<std::wstring, PointerType*> types;
 		static Finalizer staticFinalizer;
 		static void releaseTypes();
+		PointerType(Type *targetType, size_t level = 1, bool isConst = false, bool isVolatile = false);
 	};
 }

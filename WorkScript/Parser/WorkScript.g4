@@ -6,9 +6,9 @@ line: (SEMICOLON* (function | expression) SEMICOLON*)+ NEWLINE?
 	| SEMICOLON+ NEWLINE?
 	| NEWLINE;
 
-function: stdFunctionDecl									# StdFunctionDecl_
-	| functionDefine											# FunctionDefine_
-	;
+function:
+	stdFunctionDecl		# StdFunctionDecl_
+	| functionDefine	# FunctionDefine_;
 
 expression:
 	ACCESS_LEVEL COLON								# AccessLevel
@@ -39,7 +39,7 @@ call: identifier LEFT_PARENTHESE multiValue RIGHT_PARENTHESE;
 multiValue: ( NEWLINE* expression ( newlineOrComma expression)*)?;
 
 stdFunctionDecl:
-	typeName STAR* functionName LEFT_PARENTHESE stdFormalParameter RIGHT_PARENTHESE;
+	type STAR* functionName LEFT_PARENTHESE stdFormalParameter RIGHT_PARENTHESE;
 
 stdFormalParameter:
 	NEWLINE* (
@@ -48,7 +48,7 @@ stdFormalParameter:
 		)*
 	)? (newlineOrComma APOSTROPHE)?;
 
-stdFormalParameterItem: typeName STAR* identifier?;
+stdFormalParameterItem: type STAR* identifier?;
 
 functionDefine:
 	(functionConstraint NEWLINE*)? functionDeclaration NEWLINE* functionImplementation
@@ -56,9 +56,11 @@ functionDefine:
 	| functionDeclaration NEWLINE* functionImplementation NEWLINE* functionConstraint;
 
 functionDeclaration:
-	(functionName? | typeName STAR* functionName) LEFT_PARENTHESE formalParameter RIGHT_PARENTHESE;
+	(functionName? | type STAR* functionName) LEFT_PARENTHESE formalParameter RIGHT_PARENTHESE;
 
-typeName: identifier;
+type: (typeQualifier | typeSpecifier)+;
+typeSpecifier: identifier;
+typeQualifier: CONST | VOLATILE;
 functionName: identifier;
 
 formalParameter:
@@ -66,7 +68,7 @@ formalParameter:
 		formalParameterItem (newlineOrComma formalParameterItem)*
 	)?;
 
-formalParameterItem: (typeName STAR*)? expression;
+formalParameterItem: (type STAR*)? expression;
 
 functionImplementation:
 	(EQUALS | RIGHT_ARROW) expression
@@ -80,16 +82,16 @@ staticVarargs: APOSTROPHE identifier;
 
 newlineOrComma: COMMA | NEWLINE+ | NEWLINE* COMMA NEWLINE*;
 
-identifier:
-	BOOLEAN
-	| WHEN
-	| INCLUDE
-	| ACCESS_LEVEL
-	| IDENTIFIER;
+identifier: IDENTIFIER;
 
 ACCESS_LEVEL: 'public' | 'private';
 INCLUDE: 'include';
 WHEN: 'when';
+CONST: 'const';
+VOLATILE: 'volatile';
+EXTERN: 'extern';
+STATIC: 'static';
+
 BOOLEAN:
 	'true'
 	| 'yes'
@@ -99,8 +101,7 @@ BOOLEAN:
 	| 'no'
 	| 'bad';
 IDENTIFIER:
-	WHEN
-	| ([a-zA-Z_] | ~[\u0000-\u00ff]) (
+	([a-zA-Z_] | ~[\u0000-\u00ff]) (
 		[a-zA-Z0-9_]
 		| ~[\u0000-\u00ff]
 	)*;

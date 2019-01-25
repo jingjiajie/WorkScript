@@ -13,18 +13,18 @@ using namespace std;
 WorkScript::AbstractContext::AbstractContext(AbstractContext * base, size_t blockID)
 	:base(base),blockID(blockID), prefix(base?base->prefix + L"." + to_wstring(blockID):L""), abstractSymbolTable(prefix)
 {
-	this->addType(L"char", IntegerType::getSInt8Type());
-	this->addType(L"short", IntegerType::getSInt16Type());
-	this->addType(L"int", IntegerType::getSInt32Type());
-	this->addType(L"long", IntegerType::getSInt64Type());
-	this->addType(L"bool", IntegerType::getUInt1Type());
-	this->addType(L"unsigned char", IntegerType::getUInt8Type());
-	this->addType(L"unsigned short", IntegerType::getUInt16Type());
-	this->addType(L"unsigned int", IntegerType::getUInt32Type());
-	this->addType(L"unsigned long", IntegerType::getUInt64Type());
-	this->addType(L"float", FloatType::getFloat32Type());
-	this->addType(L"double", FloatType::getFloat64Type());
-	this->addType(L"void", VoidType::get());
+//	this->addType(L"char", IntegerType::getSInt8Type());
+//	this->addType(L"short", IntegerType::getSInt16Type());
+//	this->addType(L"int", IntegerType::getSInt32Type());
+//	this->addType(L"long", IntegerType::getSInt64Type());
+//	this->addType(L"bool", IntegerType::getUInt1Type());
+//	this->addType(L"unsigned char", IntegerType::getUInt8Type());
+//	this->addType(L"unsigned short", IntegerType::getUInt16Type());
+//	this->addType(L"unsigned int", IntegerType::getUInt32Type());
+//	this->addType(L"unsigned long", IntegerType::getUInt64Type());
+//	this->addType(L"float", FloatType::getFloat32Type());
+//	this->addType(L"double", FloatType::getFloat64Type());
+//	this->addType(L"void", VoidType::get());
 }
 
 WorkScript::AbstractContext::~AbstractContext()

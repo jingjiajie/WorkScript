@@ -4,22 +4,21 @@
 namespace WorkScript {
 	class FloatType : public Type {
 	public:
-		FloatType(const std::wstring &name, unsigned char length = 4, bool isConst = false, bool isVolatile = false);
-
-		virtual std::wstring getName()const override{ return this->name; }
-		virtual std::wstring getIdentifierString()const override;
-		virtual TypeClassification getClassification() const override;
-		virtual llvm::Type* getLLVMType(GenerateContext *context) const override;
-		virtual bool equals(const Type *type) const override;
+		std::wstring getName()const override;
+		std::wstring getIdentifierString()const override;
+		static std::wstring getIdentifierString(unsigned char length, bool isConst, bool isVolatile);
+		TypeClassification getClassification() const override;
+		llvm::Type* getLLVMType(GenerateContext *context) const override;
+		bool equals(const Type *type) const override;
 
 		inline unsigned char getLength() const { return this->length; }
 
-		inline static FloatType * getFloat32Type() { return &float32; }
-		inline static FloatType * getFloat64Type() { return &float64; }
+		static FloatType * get(unsigned char length = 32, bool isConst = false, bool isVolatile = false);
 	protected:
 		unsigned char length;
-		std::wstring name;
-
-		static FloatType float32, float64;
+		static std::unordered_map<std::wstring, FloatType*> types;
+		static Finalizer staticFinalizer;
+		static void releaseTypes();
+		FloatType(unsigned char length, bool isConst, bool isVolatile);
 	};
 }

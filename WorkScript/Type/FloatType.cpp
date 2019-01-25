@@ -7,20 +7,34 @@
 using namespace std;
 using namespace WorkScript;
 
-FloatType FloatType::float32(L"float32", 32);
-FloatType FloatType::float64(L"float64", 64);
+std::unordered_map<std::wstring, FloatType*> FloatType::types;
+Finalizer FloatType::staticFinalizer(&FloatType::releaseTypes);
 
-FloatType::FloatType(const std::wstring & name, unsigned char length, bool isConst, bool isVolatile)
-	:Type(isConst,isVolatile),name(name)
+FloatType::FloatType(unsigned char length, bool isConst, bool isVolatile)
+	:Type(isConst,isVolatile)
 {
 	this->length = length;
 }
 
+std::wstring WorkScript::FloatType::getName() const
+{
+	wstring str;
+	if(this->_const) str += L"const ";
+	if(this->_volatile) str += L"volatile ";
+	str += L"float" + to_wstring(this->length);
+	return str;
+}
+
 std::wstring WorkScript::FloatType::getIdentifierString() const
 {
-	wstring str = L"f" + to_wstring(this->length);
-	if (this->isConst())str += L".c";
-	if (this->isVolatile()) str += L".v";
+	return FloatType::getIdentifierString(this->length, this->_const, this->_volatile);
+}
+
+std::wstring FloatType::getIdentifierString(unsigned char length, bool isConst, bool isVolatile)
+{
+	wstring str = L"f" + to_wstring(length);
+	if (isConst)str += L".c";
+	if (isVolatile) str += L".v";
 	return str;
 }
 
@@ -49,4 +63,19 @@ bool WorkScript::FloatType::equals(const Type * type) const
 	const FloatType *target = (const FloatType*)type;
 	if (this->length != target->length)return false;
 	return true;
+}
+
+void WorkScript::FloatType::releaseTypes()
+{
+	for (auto it : types) {
+		delete it.second;
+	}
+}
+
+FloatType * WorkScript::FloatType::get(unsigned char length, bool isConst, bool isVolatile)
+{
+	wstring idStr = FloatType::getIdentifierString(length, isConst, isVolatile);
+	auto it = types.find(idStr);
+	if (it != types.end()) return it->second;
+	else return (types[idStr] = new FloatType(length, isConst, isVolatile));
 }

@@ -6,18 +6,11 @@
 using namespace std;
 using namespace WorkScript;
 
-IntegerType IntegerType::sint8(L"sint8", 8, true);
-IntegerType IntegerType::sint16(L"sint16", 16, true);
-IntegerType IntegerType::sint32(L"sint32", 32, true);
-IntegerType IntegerType::sint64(L"sint64", 64, true);
-IntegerType IntegerType::uint1(L"uint1", 1, false);
-IntegerType IntegerType::uint8(L"uint8", 8, false);
-IntegerType IntegerType::uint16(L"uint16", 16, false);
-IntegerType IntegerType::uint32(L"uint32", 32, false);
-IntegerType IntegerType::uint64(L"uint64", 64, false);
+std::unordered_map<std::wstring, IntegerType*> IntegerType::types;
+Finalizer IntegerType::staticFinalizer(&IntegerType::releaseTypes);
 
-WorkScript::IntegerType::IntegerType(const std::wstring & name, unsigned char length, bool isSigned, bool isConst, bool isVolatile)
-	:Type(isConst, isVolatile), name(name)
+WorkScript::IntegerType::IntegerType(unsigned char length, bool isSigned, bool isConst, bool isVolatile)
+	:Type(isConst, isVolatile)
 {
 	this->length = length;
 	this->_signed = isSigned;
@@ -25,14 +18,25 @@ WorkScript::IntegerType::IntegerType(const std::wstring & name, unsigned char le
 
 std::wstring WorkScript::IntegerType::getName() const
 {
-	return this->name;
+	wstring str;
+	if(this->_const) str += L"const ";
+	if(this->_volatile) str += L"volatile ";
+	if(!this->_signed) str += L"unsigned";
+	str += L"int" + to_wstring(this->length);
+	return str;
 }
+
 
 std::wstring WorkScript::IntegerType::getIdentifierString() const
 {
-	wstring str = (this->_signed ? L"si" : L"ui") + to_wstring(this->length);
-	if (this->isConst())str += L".c";
-	if (this->isVolatile()) str += L".v";
+	return IntegerType::getIdentifierString(this->length, this->_signed, this->_const, this->_volatile);
+}
+
+std::wstring IntegerType::getIdentifierString(unsigned char length, bool isSigned, bool isConst, bool isVolatile)
+{
+	wstring str = (isSigned ? L"si" : L"ui") + to_wstring(length);
+	if (isConst)str += L".c";
+	if (isVolatile) str += L".v";
 	return str;
 }
 
@@ -68,4 +72,19 @@ bool WorkScript::IntegerType::equals(const Type * type) const
 	if (target->getLength() != this->getLength())return false;
 	if (target->isSigned() != this->isSigned())return false;
 	return true;
+}
+
+void WorkScript::IntegerType::releaseTypes()
+{
+	for (auto it : types) {
+		delete it.second;
+	}
+}
+
+IntegerType* IntegerType::get(unsigned char length, bool isSigned, bool isConst, bool isVolatile)
+{
+	wstring idStr = IntegerType::getIdentifierString(length, isSigned, isConst, isVolatile);
+	auto it = types.find(idStr);
+	if (it != IntegerType::types.end()) return it->second;
+	else return (types[idStr] = new IntegerType(length, isSigned, isConst, isVolatile));
 }

@@ -33,7 +33,7 @@ UNSUPPORTED:
 
 IntegerType * WorkScript::BinaryCompare::getType(InstantializeContext *context) const
 {
-	return IntegerType::getUInt1Type();
+	return IntegerType::get(1);
 }
 
 Expression * WorkScript::BinaryCompare::clone() const

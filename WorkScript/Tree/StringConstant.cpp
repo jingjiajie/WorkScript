@@ -21,5 +21,5 @@ Constant * WorkScript::StringConstant::clone() const
 
 Type * WorkScript::StringConstant::getType() const
 {
-	return PointerType::get(IntegerType::getSInt8Type(),1);
+	return PointerType::get(IntegerType::get(8),1);
 }

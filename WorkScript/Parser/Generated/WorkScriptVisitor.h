@@ -69,7 +69,11 @@ public:
 
     virtual antlrcpp::Any visitFunctionDeclaration(WorkScriptParser::FunctionDeclarationContext *context) = 0;
 
-    virtual antlrcpp::Any visitTypeName(WorkScriptParser::TypeNameContext *context) = 0;
+    virtual antlrcpp::Any visitType(WorkScriptParser::TypeContext *context) = 0;
+
+    virtual antlrcpp::Any visitTypeSpecifier(WorkScriptParser::TypeSpecifierContext *context) = 0;
+
+    virtual antlrcpp::Any visitTypeQualifier(WorkScriptParser::TypeQualifierContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionName(WorkScriptParser::FunctionNameContext *context) = 0;
 

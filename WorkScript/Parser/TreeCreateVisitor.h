@@ -34,6 +34,7 @@ namespace WorkScript {
 		//antlrcpp::Any visitList(WorkScriptParser::ListContext*)override;
 		antlrcpp::Any visitNegative(WorkScriptParser::NegativeContext*)override;
 		antlrcpp::Any visitPositive(WorkScriptParser::PositiveContext*)override;
+		antlrcpp::Any visitType(WorkScriptParser::TypeContext*) override;
 		//antlrcpp::Any visitAccessLevel(WorkScriptParser::AccessLevelContext*)override;
 		TreeCreateVisitor(Program* program);
 		virtual ~TreeCreateVisitor();
