@@ -6,7 +6,7 @@ namespace WorkScript {
 		ANSI, UTF_8
 	};
 
-	class Locale
+	class Locales
 	{
 	public:
 		static std::wstring toWideChar(Encoding fromEncoding, const std::string &str);

@@ -1,28 +1,37 @@
 project(WorkScript)
 
-set(WorkScript_CXX_FLAGS "-Wno-unused-variable")
-set(CMAKE_CXX_FLAGS ${WorkScript_CXX_FLAGS})
-
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-
-set(CMAKE_EXE_LINKER_FLAGS "-static")
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set(CMAKE_CXX_FLAGS_DEBUG "/source-charset:utf-8 /MTd /Zi /Ob0 /Od /RTC1")
+    set(CMAKE_CXX_FLAGS_RELEASE "/source-charset:utf-8 /MT /GL /GF /Ot /O2 /Ob2 /DNDEBUG")
+    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /GR /EHsc")
+else()
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+    set(CMAKE_EXE_LINKER_FLAGS "-static")
+endif()
 
 #LLVM依赖相关
 find_package(LLVM REQUIRED CONFIG)
-include_directories(${LLVM_INCLUDE_DIRS})
+include_directories(${LLVM_INCLUDE_DIR})
 add_definitions(${LLVM_DEFINITIONS})
-
-message(STATUS "WorkScript Found LLVM ${LLVM_PACKAGE_VERSION}, Using LLVMConfig.cmake in: ${LLVM_DIR}")
-message(STATUS "LLVM Library dir:${LLVM_LIBRARY_DIRS}, LLVM libs: ${llvm_libs}")
-
+llvm_map_components_to_libnames(llvm_libs support core irreader executionengine interpreter mcjit x86asmparser x86asmprinter x86codegen x86desc x86disassembler x86info x86utils)
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4624 /wd4267 /wd4291 /wd4141 /wd4146")
+endif()
 
 #ANTLR依赖相关
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/ANTLR/)
+set(ANTLR_EXECUTABLE "${CMAKE_CURRENT_SOURCE_DIR}/ANTLR/antlr.jar")
 set(ANTLR4_ZIP_REPOSITORY ${CMAKE_CURRENT_SOURCE_DIR}/ANTLR/antlr-runtime.zip)
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set(ANTLR4_WITH_STATIC_CRT ON)
+    add_definitions(/DANTLR4CPP_STATIC)
+else()
+    add_definitions(-DANTLR4CPP_STATIC)
+endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/ANTLR/ExternalAntlr4Cpp.cmake)
-include_directories(${ANTLR4_INCLUDE_DIRS})
 find_package(ANTLR REQUIRED)
+include_directories(${ANTLR4_INCLUDE_DIRS})
 
 include(include_directories.cmake)
 
@@ -41,5 +50,4 @@ aux_source_directory(Tree/ WorkScript_src)
 add_library(WorkScript STATIC ${WorkScript_src})
 
 target_link_libraries(WorkScript antlr4_static)
-target_link_libraries(WorkScript LLVM-7)
-#target_link_libraries(WorkScript ${llvm_libs})
+target_link_libraries(WorkScript ${llvm_libs})

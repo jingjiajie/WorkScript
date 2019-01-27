@@ -2,7 +2,7 @@
 #include "InstantializeContext.h"
 #include "Parameter.h"
 #include "BranchFunction.h"
-#include "Locale.h"
+#include "Locales.h"
 
 using namespace WorkScript;
 using namespace std;

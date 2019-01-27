@@ -1,7 +1,8 @@
+#ifdef LINUX
 #include <iconv.h>
 #include <wchar.h>
 #include <stdlib.h>
-#include "Locale.h"
+#include "Locales.h"
 #include "WorkScriptException.h"
 
 
@@ -39,7 +40,7 @@ static const char * getLang(Encoding encoding){
     return nullptr;
 }
 
-std::wstring Locale::toWideChar(Encoding fromEncoding, const std::string &str)
+std::wstring Locales::toWideChar(Encoding fromEncoding, const std::string &str)
 {
     const char *lang = getLang(fromEncoding);
     const char *oriLang =  getenv("LANG");
@@ -54,7 +55,7 @@ std::wstring Locale::toWideChar(Encoding fromEncoding, const std::string &str)
     return result;
 }
 
-std::string Locale::fromWideChar(Encoding toEncoding, const std::wstring &str){
+std::string Locales::fromWideChar(Encoding toEncoding, const std::wstring &str){
     const char *lang = getLang(toEncoding);
     const char *oriLang =  getenv("LANG");
     setlocale(LC_CTYPE,lang);
@@ -68,8 +69,10 @@ std::string Locale::fromWideChar(Encoding toEncoding, const std::wstring &str){
     return result;
 }
 
-std::string Locale::convert(Encoding fromEncoding, Encoding toEncoding, const std::string &str){
-    wstring unicodeStr = Locale::toWideChar(fromEncoding,str);
-    string targetStr = Locale::fromWideChar(toEncoding,unicodeStr);
+std::string Locales::convert(Encoding fromEncoding, Encoding toEncoding, const std::string &str){
+    wstring unicodeStr = Locales::toWideChar(fromEncoding,str);
+    string targetStr = Locales::fromWideChar(toEncoding,unicodeStr);
     return targetStr;
 }
+
+#endif

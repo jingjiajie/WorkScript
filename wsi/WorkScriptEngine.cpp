@@ -3,7 +3,7 @@
 #include "Expression.h"
 #include "SyntaxErrorException.h"
 #include "SyntaxErrorException.h"
-#include "Locale.h"
+#include "Locales.h"
 #include <llvm/ExecutionEngine/Interpreter.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>

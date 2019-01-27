@@ -2,7 +2,7 @@
 #include "RecognitionException.h"
 #include "InputMismatchException.h"
 #include "SyntaxErrorException.h"
-#include "Locale.h"
+#include "Locales.h"
 
 using namespace antlr4;
 using namespace std;

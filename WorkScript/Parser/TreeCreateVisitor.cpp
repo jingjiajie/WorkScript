@@ -16,7 +16,7 @@
 #include "BinaryCompare.h"
 #include "BinaryCalculate.h"
 #include "UnaryOperator.h"
-#include "Locale.h"
+#include "Locales.h"
 #include "Location.h"
 #include "FormalParametersResolver.h"
 #include "FloatConstant.h"
@@ -106,7 +106,7 @@ antlrcpp::Any TreeCreateVisitor::visitString(WorkScriptParser::StringContext *ct
 {
 	string text = ctx->STRING()->getText();
 	text = text.substr(1, text.length() - 2);
-	wstring wtext = Locale::toWideChar(Encoding::UTF_8, text);
+	wstring wtext = Locales::toWideChar(Encoding::UTF_8, text);
 
 	wchar_t *unescapedText = new wchar_t[wtext.length() + 1];
 	try {
@@ -131,14 +131,14 @@ antlrcpp::Any TreeCreateVisitor::visitBoolean(WorkScriptParser::BooleanContext *
 		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), IntegerType::get(1,false), 0));
 	}
 	else {
-		throw std::move(SyntaxErrorException(getLocation(ctx), L"无法识别的布尔值：" + Locale::toWideChar(Encoding::UTF_8, boolStr)));
+		throw std::move(SyntaxErrorException(getLocation(ctx), L"无法识别的布尔值：" + Locales::toWideChar(Encoding::UTF_8, boolStr)));
 	}
 }
 
 antlrcpp::Any TreeCreateVisitor::visitVariable(WorkScriptParser::VariableContext *ctx)
 {
 	string varName = ctx->identifier()->getText();
-	auto expr = new Variable(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), Locale::toWideChar(Encoding::UTF_8, varName));
+	auto expr = new Variable(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), Locales::toWideChar(Encoding::UTF_8, varName));
 	expr->setDeclarable(this->declarable); //等号左边的变量才可以创建声明
 	auto wrapper = ExpressionWrapper(expr);
 	return wrapper;
@@ -154,7 +154,7 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionDefine(WorkScriptParser::FunctionD
 	auto funcNameCtx = ctx->functionDeclaration()->functionName()->identifier();
 	wstring funcName;
 	if (funcNameCtx != nullptr) {
-		funcName = Locale::toWideChar(Encoding::UTF_8, funcNameCtx->getText());
+		funcName = Locales::toWideChar(Encoding::UTF_8, funcNameCtx->getText());
 	}
 
 	/*读取返回值类型名*/
@@ -258,7 +258,7 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDecl(WorkScriptPars
 	AbstractContext *outerAbstractContext = this->abstractContexts.top();
 	/*读取函数名*/
 	auto funcNameCtx = ctx->functionName();
-	wstring funcName = Locale::toWideChar(Encoding::UTF_8, funcNameCtx->getText());
+	wstring funcName = Locales::toWideChar(Encoding::UTF_8, funcNameCtx->getText());
 
 	/*读取返回值类型名*/
 	auto returnTypeCtx = ctx->type();
@@ -273,7 +273,7 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDecl(WorkScriptPars
 	for (size_t i = 0; i < paramItemsCtx.size(); ++i) {
 		wstring paramName;
 		if (paramItemsCtx[i]->identifier()) {
-			paramName = Locale::toWideChar(Encoding::UTF_8, paramItemsCtx[i]->identifier()->getText());
+			paramName = Locales::toWideChar(Encoding::UTF_8, paramItemsCtx[i]->identifier()->getText());
 		}
 		Type *paramType = paramItemsCtx[i]->type()->accept(this).as<TypeWrapper>().getType();
 		size_t pointerLevel = paramItemsCtx[i]->STAR().size();
@@ -295,7 +295,7 @@ antlrcpp::Any TreeCreateVisitor::visitCall(WorkScriptParser::CallContext *ctx)
 {
 	STORE_FORBID_ASSIGN;
 	ExpressionWrapper paramExpressionWrapper = ctx->multiValue()->accept(this);
-	auto funcName = Locale::toWideChar(Encoding::UTF_8, ctx->identifier()->getText());
+	auto funcName = Locales::toWideChar(Encoding::UTF_8, ctx->identifier()->getText());
 	auto paramExpr = (MultiValue*)paramExpressionWrapper.getExpression();
 	auto expr = new Call(ExpressionInfo(program, getLocation(ctx), this->abstractContexts.top()), funcName, paramExpr);
 	RESTORE_ASSIGNABLE;
@@ -498,7 +498,7 @@ antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
 		else if (specifier == "unsigned") isUnsigned = true;
 		else
 		{
-			typeName = Locale::toWideChar(Encoding::UTF_8, specifier);
+			typeName = Locales::toWideChar(Encoding::UTF_8, specifier);
 		}
 	}
 

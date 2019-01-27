@@ -1,6 +1,6 @@
 #include "SymbolInfo.h"
 #include "Type.h"
-#include "Locale.h"
+#include "Locales.h"
 #include "WorkScriptException.h"
 #include "Constant.h"
 
@@ -31,7 +31,7 @@ llvm::Value * WorkScript::SymbolInfo::getLLVMValuePtr(GenerateContext * context)
 			throw WorkScriptException(Location(), L"变量"+this->name+L"不可赋值！");
 		}
 		auto builder = context->getIRBuilder();
-		this->llvmValuePtr = builder->CreateAlloca(this->type->getLLVMType(context), nullptr, Locale::fromWideChar(Encoding::ANSI, this->name));
+		this->llvmValuePtr = builder->CreateAlloca(this->type->getLLVMType(context), nullptr, Locales::fromWideChar(Encoding::ANSI, this->name));
 	}
 	return this->llvmValuePtr;
 }

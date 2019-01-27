@@ -6,7 +6,7 @@
 #include "FunctionType.h"
 #include "Function.h"
 #include "FunctionCache.h"
-#include "Locale.h"
+#include "Locales.h"
 #include "antlr4-runtime.h"
 #include "Generated/WorkScriptLexer.h"
 #include "Generated/WorkScriptParser.h"
@@ -60,7 +60,7 @@ void Program::parseFile(const std::string &fileName) //throws SyntaxErrorExcepti
 		}
 		fclose(file);
 		//转换为Unicode
-		string utf8Str = Locale::convert(Encoding::ANSI, Encoding::UTF_8, buff);
+		string utf8Str = Locales::convert(Encoding::ANSI, Encoding::UTF_8, buff);
 		ANTLRInputStream input(utf8Str);
 		WorkScriptLexer lexer(&input);
 		CommonTokenStream tokens(&lexer);

@@ -1,12 +1,12 @@
 #include "StringConstant.h"
-#include "Locale.h"
+#include "Locales.h"
 
 using namespace WorkScript;
 
 GenerateResult WorkScript::StringConstant::generateIR(GenerateContext * context)
 {
 	auto irBuilder = context->getIRBuilder();
-	return irBuilder->CreateGlobalStringPtr(Locale::fromWideChar(Encoding::ANSI, this->value.c_str()));
+	return irBuilder->CreateGlobalStringPtr(Locales::fromWideChar(Encoding::ANSI, this->value.c_str()));
 }
 
 std::wstring WorkScript::StringConstant::toString() const

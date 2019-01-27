@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <locale.h>
+#include <Locales.h>
 #include <string.h>
 #include "Defines.h"
 #include "WorkScriptEngine.h"

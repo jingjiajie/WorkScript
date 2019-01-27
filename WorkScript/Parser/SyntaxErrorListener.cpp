@@ -6,7 +6,7 @@
 #include "TokenSource.h"
 #include "CharStream.h"
 #include "IntStream.h"
-#include "Locale.h"
+#include "Locales.h"
 #include "Location.h"
 
 using namespace std;
@@ -45,8 +45,8 @@ void SyntaxErrorListener::syntaxError(Recognizer * recognizer,
 	std::exception_ptr e)
 {
 	wstringstream ss, ssCode;
-	wstring woffendingText = Locale::toWideChar(Encoding::UTF_8, offendingSymbol->getInputStream()->toString());
-	wstring wmsg = Locale::toWideChar(Encoding::UTF_8, msg);
+	wstring woffendingText = Locales::toWideChar(Encoding::UTF_8, offendingSymbol->getInputStream()->toString());
+	wstring wmsg = Locales::toWideChar(Encoding::UTF_8, msg);
 	ssCode << woffendingText;
 	wstring lineData;
 	for (size_t i = 0; i < line; i++) {

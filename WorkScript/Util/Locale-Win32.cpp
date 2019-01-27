@@ -1,59 +1,50 @@
 #ifdef _WIN32
-#include "Locale.h"
+#include "Locales.h"
+#include "WorkScriptException.h"
 #include <wchar.h>
 #include <Windows.h>
 
 using namespace std;
 using namespace WorkScript;
 
-wstring Locale::ansiToUnicode(const string & str)
+static UINT getWinCP(Encoding encoding)
 {
-	size_t unicodeLen = ::MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, nullptr, 0);
-	wchar_t *buff = new wchar_t[unicodeLen + 1];
-	::MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, buff, unicodeLen);
+    switch (encoding)
+    {
+        case Encoding::UTF_8:
+            return CP_UTF8;
+        case Encoding::ANSI:
+            return CP_ACP;
+    }
+    throw InternalException(Location(), L"未知的编码：" + to_wstring(encoding));
+}
+
+wstring Locales::toWideChar(WorkScript::Encoding fromEncoding, const std::string &str)
+{
+	auto unicodeLen = ::MultiByteToWideChar(getWinCP(fromEncoding), 0, str.c_str(), -1, nullptr, 0);
+	auto *buff = new wchar_t[unicodeLen + 1];
+	::MultiByteToWideChar(getWinCP(fromEncoding), 0, str.c_str(), -1, buff, unicodeLen);
 	buff[unicodeLen] = L'\0';
 	wstring result = buff;
 	delete[] buff;
 	return result;
 }
 
-std::wstring WorkScript::Locale::utf8ToUnicode(const std::string & str)
-{
-	size_t unicodeLen = ::MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
-	wchar_t *buff = new wchar_t[unicodeLen + 1];
-	::MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, buff, unicodeLen);
-	buff[unicodeLen] = L'\0';
-	wstring result = buff;
-	delete[] buff;
-	return result;
-}
-
-string Locale::unicodeToANSI(const wstring & str)
-{
-	size_t ansiLen = ::WideCharToMultiByte(CP_ACP, 0, str.c_str(), -1, nullptr, 0, nullptr, nullptr);
+string Locales::fromWideChar(WorkScript::Encoding toEncoding, const std::wstring &str){
+	auto ansiLen = ::WideCharToMultiByte(getWinCP(toEncoding), 0, str.c_str(), -1, nullptr, 0, nullptr, nullptr);
 	char *buff = new char[ansiLen + 1];
-	::WideCharToMultiByte(CP_ACP, 0, str.c_str(), -1, buff, ansiLen, nullptr, nullptr);
+	::WideCharToMultiByte(getWinCP(toEncoding), 0, str.c_str(), -1, buff, ansiLen, nullptr, nullptr);
 	buff[ansiLen] = '\0';
 	string result = buff;
 	delete[] buff;
 	return result;
 }
 
-std::string WorkScript::Locale::unicodeToUTF8(const std::wstring & str)
+std::string WorkScript::Locales::convert(WorkScript::Encoding fromEncoding, WorkScript::Encoding toEncoding,
+										 const std::string &str)
 {
-	size_t utf8len = ::WideCharToMultiByte(CP_UTF8, 0, str.c_str(), -1, nullptr, 0, nullptr, nullptr);
-	char *buff = new char[utf8len + 1];
-	::WideCharToMultiByte(CP_UTF8, 0, str.c_str(), -1, buff, utf8len, nullptr, nullptr);
-	buff[utf8len] = '\0';
-	string result = buff;
-	delete[] buff;
-	return result;
-}
-
-std::string WorkScript::Locale::ansiToUTF8(const std::string & str)
-{
-	wstring unicodeStr = Locale::ansiToUnicode(str);
-	return Locale::unicodeToUTF8(unicodeStr);
+	wstring unicodeStr = Locales::toWideChar(fromEncoding, str);
+	return Locales::fromWideChar(toEncoding, unicodeStr);
 }
 
 #endif // _WIN32
