@@ -1,7 +1,7 @@
 #include "IntegerType.h"
 #include "Program.h"
 #include "WorkScriptException.h"
-#include "Location.h"
+#include "DebugInfo.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -61,7 +61,7 @@ llvm::Type * WorkScript::IntegerType::getLLVMType(GenerateContext *ctx) const
 		return llvm::IntegerType::getInt64Ty(*ctx->getLLVMContext());
 	default:
 		//TODO Location信息
-		throw WorkScriptException(Location(), L"不支持的整数长度：" + to_wstring(this->length));
+		throw WorkScriptException(DebugInfo(), L"不支持的整数长度：" + to_wstring(this->length));
 	}
 }
 

@@ -58,9 +58,10 @@ functionDefine:
 functionDeclaration:
 	(functionName? | type STAR* functionName) LEFT_PARENTHESE formalParameter RIGHT_PARENTHESE;
 
-type: (typeQualifier | typeSpecifier)+;
+type: (typeQualifier | typeSpecifier | storageClassSpecifier)+;
 typeSpecifier: identifier;
 typeQualifier: CONST | VOLATILE;
+storageClassSpecifier : STATIC | EXTERN;
 functionName: identifier;
 
 formalParameter:

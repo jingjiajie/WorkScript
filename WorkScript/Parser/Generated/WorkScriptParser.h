@@ -27,10 +27,10 @@ public:
     RuleProgram = 0, RuleLine = 1, RuleFunction = 2, RuleExpression = 3, 
     RuleCall = 4, RuleMultiValue = 5, RuleStdFunctionDecl = 6, RuleStdFormalParameter = 7, 
     RuleStdFormalParameterItem = 8, RuleFunctionDefine = 9, RuleFunctionDeclaration = 10, 
-    RuleType = 11, RuleTypeSpecifier = 12, RuleTypeQualifier = 13, RuleFunctionName = 14, 
-    RuleFormalParameter = 15, RuleFormalParameterItem = 16, RuleFunctionImplementation = 17, 
-    RuleFunctionConstraint = 18, RuleBlock = 19, RuleStaticVarargs = 20, 
-    RuleNewlineOrComma = 21, RuleIdentifier = 22
+    RuleType = 11, RuleTypeSpecifier = 12, RuleTypeQualifier = 13, RuleStorageClassSpecifier = 14, 
+    RuleFunctionName = 15, RuleFormalParameter = 16, RuleFormalParameterItem = 17, 
+    RuleFunctionImplementation = 18, RuleFunctionConstraint = 19, RuleBlock = 20, 
+    RuleStaticVarargs = 21, RuleNewlineOrComma = 22, RuleIdentifier = 23
   };
 
   WorkScriptParser(antlr4::TokenStream *input);
@@ -57,6 +57,7 @@ public:
   class TypeContext;
   class TypeSpecifierContext;
   class TypeQualifierContext;
+  class StorageClassSpecifierContext;
   class FunctionNameContext;
   class FormalParameterContext;
   class FormalParameterItemContext;
@@ -432,6 +433,8 @@ public:
     TypeQualifierContext* typeQualifier(size_t i);
     std::vector<TypeSpecifierContext *> typeSpecifier();
     TypeSpecifierContext* typeSpecifier(size_t i);
+    std::vector<StorageClassSpecifierContext *> storageClassSpecifier();
+    StorageClassSpecifierContext* storageClassSpecifier(size_t i);
 
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -466,6 +469,20 @@ public:
   };
 
   TypeQualifierContext* typeQualifier();
+
+  class  StorageClassSpecifierContext : public antlr4::ParserRuleContext {
+  public:
+    StorageClassSpecifierContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *STATIC();
+    antlr4::tree::TerminalNode *EXTERN();
+
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  StorageClassSpecifierContext* storageClassSpecifier();
 
   class  FunctionNameContext : public antlr4::ParserRuleContext {
   public:

@@ -29,7 +29,7 @@ void InstantializeContext::setFunctionTypeCache(WorkScript::Function *func,
     if (!this->functionCache)
     {
         //TODO Location信息
-        throw WorkScriptException(Location(), L"未指定函数缓存器！");
+        throw WorkScriptException(DebugInfo(), L"未指定函数缓存器！");
     }
     this->functionCache->setFunctionTypeCache(func, paramTypes, isRuntimeVarargs, isStaticVarargs, cacheReturnType);
 }
@@ -39,7 +39,7 @@ bool InstantializeContext::getFunctionTypeCache(Function *func, const std::vecto
 	if (!this->functionCache)
 	{
 		//TODO Location信息
-		throw WorkScriptException(Location(), L"未指定函数缓存器！");
+		throw WorkScriptException(DebugInfo(), L"未指定函数缓存器！");
 	}
 	return this->functionCache->getFunctionTypeCache(func, paramTypes, isRuntimeVarargs, isStaticVarargs, outReturnType);
 }

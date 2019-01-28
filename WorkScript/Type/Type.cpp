@@ -40,7 +40,7 @@ bool WorkScript::Type::equals(const Type * type) const
 }
 
 
-Type * Type::getPromotedType(Type * left, Type * right)
+Type * Type::getPromotedType(const DebugInfo &d, Type * left, Type * right)
 {
 	if (!left)return right;
 	if (!right)return left;
@@ -128,10 +128,10 @@ Type * Type::getPromotedType(Type * left, Type * right)
 
 	UNSUPPORTED:
 	//TODO Location信息
-	throw IncompatibleTypeException(Location(), L"不支持的类型转换" + left->getName() + L" 和 " + right->getName());
+	throw IncompatibleTypeException(d, L"不支持的类型转换" + left->getName() + L" 和 " + right->getName());
 }
 
-bool WorkScript::Type::convertableTo(Type * src, Type * target)
+bool WorkScript::Type::convertableTo(const DebugInfo &d, Type * src, Type * target)
 {
 	if (src->equals(target))return true;
 	switch (src->getClassification())
@@ -166,12 +166,12 @@ bool WorkScript::Type::convertableTo(Type * src, Type * target)
 	}
 }
 
-bool WorkScript::Type::convertableTo(Type * target)
+bool WorkScript::Type::convertableTo(const DebugInfo &d, Type * target)
 {
 	return Type::convertableTo(this, target);
 }
 
-GenerateResult Type::generateLLVMTypeConvert(GenerateContext * context, Expression * left, Expression * right, Type *promotedType)
+GenerateResult Type::generateLLVMTypeConvert(const DebugInfo &d, GenerateContext * context, Expression * left, Expression * right, Type *promotedType)
 {
 	auto builder = context->getIRBuilder();
 	Type *leftType = left->getType(context->getInstantializeContext());
@@ -190,7 +190,7 @@ GenerateResult Type::generateLLVMTypeConvert(GenerateContext * context, Expressi
 	}
 }
 
-GenerateResult Type::generateLLVMTypeConvert(GenerateContext * context, Expression * expr, Type * targetType)
+GenerateResult Type::generateLLVMTypeConvert(const DebugInfo &d, GenerateContext * context, Expression * expr, Type * targetType)
 {
 	Type *srcType = expr->getType(context->getInstantializeContext());
 	llvm::Value *srcValue = expr->generateIR(context).getValue();
@@ -276,6 +276,6 @@ GenerateResult Type::generateLLVMTypeConvert(GenerateContext * context, Expressi
 	}
 
 	UNSUPPORTED:
-	//Location 信息
-	throw WorkScriptException(Location(), L"不支持的类型转换：" + srcType->getName() + L" 到 " + targetType->getName());
+	//DebugInfo 信息
+	throw WorkScriptException(d, L"不支持的类型转换：" + srcType->getName() + L" 到 " + targetType->getName());
 }

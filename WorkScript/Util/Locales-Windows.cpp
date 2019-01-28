@@ -16,7 +16,7 @@ static UINT getWinCP(Encoding encoding)
         case Encoding::ANSI:
             return CP_ACP;
     }
-    throw InternalException(Location(), L"未知的编码：" + to_wstring(encoding));
+    throw InternalException(DebugInfo(), L"未知的编码：" + to_wstring(encoding));
 }
 
 wstring Locales::toWideChar(WorkScript::Encoding fromEncoding, const std::string &str)

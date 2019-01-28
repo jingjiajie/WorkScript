@@ -7,7 +7,7 @@
 #include "CharStream.h"
 #include "IntStream.h"
 #include "Locales.h"
-#include "Location.h"
+#include "DebugInfo.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -62,5 +62,5 @@ void SyntaxErrorListener::syntaxError(Recognizer * recognizer,
 	{
 		ss << L"~";
 	}
-	throw SyntaxErrorException(Location(line, charPositionInLine + 1), ss.str().c_str());
+	throw SyntaxErrorException(DebugInfo(Location(line, charPositionInLine + 1)), ss.str().c_str());
 }

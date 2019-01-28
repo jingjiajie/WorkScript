@@ -1,5 +1,5 @@
 #pragma once
-#include "Location.h"
+#include "DebugInfo.h"
 
 namespace WorkScript {
 	class AbstractContext;
@@ -7,14 +7,14 @@ namespace WorkScript {
 
 	class ExpressionInfo {
 	public:
-		ExpressionInfo(Program *p, Location loc, AbstractContext *abstractContext) 
-			:abstractContext(abstractContext), program(p), location(loc) {}
+		ExpressionInfo(Program *p, const DebugInfo &d, AbstractContext *abstractContext)
+			:abstractContext(abstractContext), program(p), debugInfo(d) {}
 		inline Program * getProgram() const { return this->program; }
-		inline Location getLocation() const { return this->location; }
+		inline DebugInfo getDebugInfo() const { return this->debugInfo; }
 		inline AbstractContext * getAbstractContext()const { return this->abstractContext; }
 	protected:
 		AbstractContext * abstractContext = nullptr;
 		Program * program;
-		Location location;
+		DebugInfo debugInfo;
 	};
 }

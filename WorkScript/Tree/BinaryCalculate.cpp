@@ -28,7 +28,7 @@ GenerateResult WorkScript::BinaryCalculate::generateIR(GenerateContext * context
 	}
 
 UNSUPPORTED:
-	throw WorkScriptException(this->expressionInfo.getLocation(), L"双目运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
+	throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"双目运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
 }
 
 Type * WorkScript::BinaryCalculate::getType(InstantializeContext *context) const
@@ -66,7 +66,7 @@ std::wstring WorkScript::BinaryCalculate::getOperatorString() const
 		return L"%";
 		break;
 	default:
-		throw WorkScriptException(this->expressionInfo.getLocation(), L"未知操作符");
+		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"未知操作符");
 	}
 }
 
@@ -102,7 +102,7 @@ GenerateResult WorkScript::BinaryCalculate::generateLLVMIRInteger(GenerateContex
 		}
 		break;
 	default:
-		throw WorkScriptException(this->expressionInfo.getLocation(), L"未知操作符");
+		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"未知操作符");
 	}
 
 	return res;
@@ -130,7 +130,7 @@ GenerateResult WorkScript::BinaryCalculate::generateLLVMIRFloat(GenerateContext 
 			res = irBuilder->CreateFRem(left, right);
 		break;
 	default:
-		throw WorkScriptException(this->expressionInfo.getLocation(), L"未知操作符");
+		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"未知操作符");
 	}
 
 	return res;

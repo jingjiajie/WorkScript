@@ -75,6 +75,8 @@ public:
 
     virtual antlrcpp::Any visitTypeQualifier(WorkScriptParser::TypeQualifierContext *context) = 0;
 
+    virtual antlrcpp::Any visitStorageClassSpecifier(WorkScriptParser::StorageClassSpecifierContext *context) = 0;
+
     virtual antlrcpp::Any visitFunctionName(WorkScriptParser::FunctionNameContext *context) = 0;
 
     virtual antlrcpp::Any visitFormalParameter(WorkScriptParser::FormalParameterContext *context) = 0;

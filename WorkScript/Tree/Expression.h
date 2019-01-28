@@ -4,7 +4,7 @@
 #include "GenerateContext.h"
 #include "GenerateResult.h"
 #include "ExpressionType.h"
-#include "Location.h"
+#include "DebugInfo.h"
 #include "Program.h"
 #include "ExpressionInfo.h"
 
@@ -25,7 +25,7 @@ namespace WorkScript {
 		virtual std::wstring toString() const = 0;
 		virtual Expression * clone() const = 0;
 
-		inline Location getLocation() const { return this->expressionInfo.getLocation(); };
+		inline DebugInfo getLocation() const { return this->expressionInfo.getDebugInfo(); };
 		inline Program * getProgram() const { return this->expressionInfo.getProgram(); }
 	protected:
 		ExpressionInfo expressionInfo;

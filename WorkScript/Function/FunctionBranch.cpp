@@ -1,20 +1,20 @@
 #include "FunctionBranch.h"
 #include "InstantializeContext.h"
 #include "Parameter.h"
-#include "BranchFunction.h"
+#include "Function.h"
 #include "Locales.h"
 
 using namespace WorkScript;
 using namespace std;
 
-WorkScript::FunctionBranch::FunctionBranch(BranchFunction * function, size_t branchID, Location loc)
+WorkScript::FunctionBranch::FunctionBranch(Function * function, size_t branchID, DebugInfo loc)
 	:context(function->getBaseContext(), branchID)
 {
 	this->function = function;
 	this->location = loc;
 }
 
-inline WorkScript::FunctionBranch::FunctionBranch(BranchFunction * function, size_t branchID, Location loc, const std::vector<Expression*>& constraints, const std::vector<Expression*>& implements)
+inline WorkScript::FunctionBranch::FunctionBranch(Function * function, size_t branchID, DebugInfo loc, const std::vector<Expression*>& constraints, const std::vector<Expression*>& implements)
 	:context(function->getBaseContext(), branchID)
 {
 	this->function = function;
@@ -49,7 +49,7 @@ Type * WorkScript::FunctionBranch::getReturnType(InstantializeContext * ctx)
 	return this->implements[implCount - 1]->getType(&newCtx);
 }
 
-void WorkScript::FunctionBranch::setConstraints(const std::vector<Expression*> constraints)
+void WorkScript::FunctionBranch::setConstraints(const std::vector<Expression*> &constraints)
 {
 	if (this->constraints.size() > 0) {
 		for (auto expr : this->constraints) {
@@ -59,7 +59,7 @@ void WorkScript::FunctionBranch::setConstraints(const std::vector<Expression*> c
 	this->constraints = constraints;
 }
 
-void WorkScript::FunctionBranch::setImplements(const std::vector<Expression*> implements)
+void WorkScript::FunctionBranch::setImplements(const std::vector<Expression*> &implements)
 {
 	if (this->implements.size() > 0) {
 		for (auto expr : this->implements) {

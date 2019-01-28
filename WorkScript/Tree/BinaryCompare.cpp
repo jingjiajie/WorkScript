@@ -28,7 +28,7 @@ GenerateResult WorkScript::BinaryCompare::generateIR(GenerateContext * context)
 	}
 
 UNSUPPORTED:
-	throw WorkScriptException(this->expressionInfo.getLocation(), L"双目比较运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
+	throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"双目比较运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
 }
 
 IntegerType * WorkScript::BinaryCompare::getType(InstantializeContext *context) const
@@ -72,7 +72,7 @@ GenerateResult WorkScript::BinaryCompare::generateLLVMIRInteger(GenerateContext 
 		else res = irBuilder->CreateICmpULE(left, right);
 		break;
 	default:
-		throw WorkScriptException(this->expressionInfo.getLocation(), L"未知的比较运算符");
+		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"未知的比较运算符");
 	}
 
 	return res;
@@ -100,7 +100,7 @@ GenerateResult WorkScript::BinaryCompare::generateLLVMIRFloat(GenerateContext * 
 		res = irBuilder->CreateFCmpOLE(left, right);
 		break;
 	default:
-		throw WorkScriptException(this->expressionInfo.getLocation(), L"未知的比较运算符");
+		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"未知的比较运算符");
 	}
 
 	return res;
@@ -126,6 +126,6 @@ std::wstring WorkScript::BinaryCompare::getOperatorString() const
 		return L"<=";
 		break;
 	default:
-		throw WorkScriptException(this->expressionInfo.getLocation(), L"未知的比较运算符");
+		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"未知的比较运算符");
 	}
 }

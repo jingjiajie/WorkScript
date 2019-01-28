@@ -1,6 +1,6 @@
 #include "PointerType.h"
 #include "WorkScriptException.h"
-#include "Location.h"
+#include "DebugInfo.h"
 
 using namespace WorkScript;
 using namespace std;

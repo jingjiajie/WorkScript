@@ -57,7 +57,7 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 		//	Assignment* assignmentExpr = (Assignment*)curExpr;
 		//	auto leftExpr = assignmentExpr->getLeftExpression();
 		//	if (leftExpr->getExpressionType() != ExpressionType::VARIABLE_EXPRESSION) {
-		//		throw std::move(SyntaxErrorException(curExpr->getLocation(), L"参数默认值左部必须为参数名！"));
+		//		throw std::move(SyntaxErrorException(curExpr->getDebugInfo(), L"参数默认值左部必须为参数名！"));
 		//	}
 		//	auto leftVar = (Variable*)leftExpr;
 		//	//TODO 参数默认值处理

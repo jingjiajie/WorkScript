@@ -8,6 +8,7 @@
 
 namespace WorkScript {
 	class FunctionType;
+	class FunctionBranch;
 
 	enum MatchResult {
 		MISMATCHED, MATCHED, COMPROMISE_MATCHED,
@@ -38,11 +39,11 @@ namespace WorkScript {
 		virtual ~Function();
 		std::wstring getMangledFunctionName(InstantializeContext *ctx) const;
 		static std::wstring getStdParameterName(size_t paramIndex);
-		virtual GenerateResult generateLLVMIR(GenerateContext *context) = 0;
+		virtual GenerateResult generateLLVMIR(GenerateContext *context);
 		llvm::Function * getLLVMFunction(GenerateContext *context, bool declareOnly = false);
 
 		inline FunctionType *getType() { return this->abstractType; }
-		virtual Type *getReturnType(InstantializeContext *instCtx) = 0;
+		virtual Type *getReturnType(InstantializeContext *instCtx);
 		virtual void setReturnType(Type *type);
 		//CommonAbstractContext * getAbstractContext() { return &this->abstractContext; }
 		static MatchResult matchByParameters(const std::vector<Type*> &declParamTypes, const std::vector<Type*> &realParamTypes, bool isRuntimeVarargs, bool isStaticVarargs);
@@ -56,6 +57,10 @@ namespace WorkScript {
 		inline bool isRuntimeVarargs() const { return this->runtimeVarargs; }
 		inline bool isStaticVarargs() const { return this->staticVarargs; }
 		inline AbstractContext * getBaseContext() { return this->baseContext; }
+		size_t addBranch(FunctionBranch *branch);
+
+		size_t getBranchCount() const
+		{ return this->branches.size(); }
 	protected:
 		std::wstring name;
 		Program *program = nullptr;
@@ -65,5 +70,6 @@ namespace WorkScript {
 		bool runtimeVarargs = false;
 		bool staticVarargs = false;
 		AbstractContext *baseContext;
+		std::vector<FunctionBranch *> branches;
 	};
 }

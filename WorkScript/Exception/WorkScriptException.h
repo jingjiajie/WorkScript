@@ -1,7 +1,7 @@
 #pragma once
 #include <exception>
 #include <string>
-#include "Location.h"
+#include "DebugInfo.h"
 
 #define EXCEPTION_COMMON_DECL(CLASS_NAME) \
 class CLASS_NAME : public WorkScriptException { public: using WorkScriptException::WorkScriptException; };
@@ -11,10 +11,10 @@ namespace WorkScript
 	class WorkScriptException : public std::exception
 	{
 	public:
-		inline WorkScriptException(Location loc, const std::wstring &wmsg)
-				: location(loc)
+		inline WorkScriptException(DebugInfo d, const std::wstring &wmsg)
+				: debugInfo(d)
 		{
-			std::wstring str = L"第" + std::to_wstring(loc.getLine())+ L"行，第" + std::to_wstring(loc.getColumn()) + L"列：" + wmsg;
+			std::wstring str = L"第" + std::to_wstring(d.getLine())+ L"行，第" + std::to_wstring(d.getColumn()) + L"列：" + wmsg;
 			this->setMessage(str);
 		}
 		const char *what() const noexcept override;
@@ -22,7 +22,7 @@ namespace WorkScript
 		void setMessage(const std::wstring &msg);
 
 	protected:
-		Location location;
+		DebugInfo debugInfo;
 		std::wstring message;
 		std::string messageANSI;
 	};

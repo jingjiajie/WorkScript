@@ -127,6 +127,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitStorageClassSpecifier(WorkScriptParser::StorageClassSpecifierContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitFunctionName(WorkScriptParser::FunctionNameContext *ctx) override {
     return visitChildren(ctx);
   }
