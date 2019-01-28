@@ -7,6 +7,6 @@ f(unsigned long x) = "long"
 f(int x) = "int"
 
 main(){
-  printf(f(123));
+  printf("hello");
 }
 

@@ -1,4 +1,4 @@
-#ifdef LINUX
+#ifdef __linux__
 #include <iconv.h>
 #include <wchar.h>
 #include <stdlib.h>
