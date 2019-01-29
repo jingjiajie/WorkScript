@@ -1,4 +1,4 @@
-#include "InstantializeContext.h"
+#include "InstantialContext.h"
 #include "SymbolInfo.h"
 #include "SymbolTable.h"
 #include "WorkScriptException.h"
@@ -10,7 +10,7 @@
 using namespace WorkScript;
 using namespace std;
 
-SymbolInfo * InstantializeContext::getSymbolInfo(const std::wstring & name)
+SymbolInfo * InstantialContext::getSymbolInfo(const std::wstring & name)
 {
 	SymbolInfo *info = this->abstractContext->getSymbolInfo(name);
 	if (info) return info;
@@ -21,7 +21,7 @@ SymbolInfo * InstantializeContext::getSymbolInfo(const std::wstring & name)
 	return nullptr;
 }
 
-void InstantializeContext::setFunctionTypeCache(const DebugInfo &d, WorkScript::Function *func,
+void InstantialContext::setFunctionTypeCache(const DebugInfo &d, WorkScript::Function *func,
                                                 const std::vector<WorkScript::Type *> &paramTypes,
                                                 bool isRuntimeVarargs, bool isStaticVarargs,
                                                 WorkScript::Type *cacheReturnType)
@@ -33,7 +33,7 @@ void InstantializeContext::setFunctionTypeCache(const DebugInfo &d, WorkScript::
     this->functionCache->setFunctionTypeCache(d, func, paramTypes, isRuntimeVarargs, isStaticVarargs, cacheReturnType);
 }
 
-bool InstantializeContext::getFunctionTypeCache(const DebugInfo &d, Function *func, const std::vector<Type*>& paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type ** outReturnType)
+bool InstantialContext::getFunctionTypeCache(const DebugInfo &d, Function *func, const std::vector<Type*>& paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type ** outReturnType)
 {
 	if (!this->functionCache)
 	{

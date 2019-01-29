@@ -7,8 +7,8 @@ namespace WorkScript {
 	public:
 		virtual ~MultiValue();
 
-		virtual Type * getType(InstantializeContext *context) const override;
-		std::vector<Type*> getTypes(InstantializeContext *context) const;
+		virtual Type * getType(InstantialContext *context) const override;
+		std::vector<Type*> getTypes(InstantialContext *context) const;
 
 		virtual std::wstring toString() const override;
 		virtual MultiValue * clone() const override;

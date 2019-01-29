@@ -10,8 +10,8 @@ GenerateResult WorkScript::BinaryCompare::generateIR(GenerateContext * context)
 {
 	auto leftExpr = this->getLeftExpression();
 	auto rightExpr = this->getRightExpression();
-	Type *leftType = leftExpr->getType(context->getInstantializeContext());
-	Type *rightType = rightExpr->getType(context->getInstantializeContext());
+	Type *leftType = leftExpr->getType(context->getInstantialContext());
+	Type *rightType = rightExpr->getType(context->getInstantialContext());
 	Type *promotedType = Type::getPromotedType(this->getDebugInfo(), leftType, rightType);
 	GenerateResult res = Type::generateLLVMTypeConvert(this->getDebugInfo(), context, leftExpr, rightExpr, promotedType);
 	switch (promotedType->getClassification())
@@ -31,7 +31,7 @@ UNSUPPORTED:
 	throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"双目比较运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
 }
 
-IntegerType * WorkScript::BinaryCompare::getType(InstantializeContext *context) const
+IntegerType * WorkScript::BinaryCompare::getType(InstantialContext *context) const
 {
 	return IntegerType::get(1);
 }

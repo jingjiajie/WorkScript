@@ -11,14 +11,14 @@ namespace WorkScript {
 	class FunctionCache;
 	class AbstractContext;
 
-	class InstantializeContext {
+	class InstantialContext {
 	public:
-		inline InstantializeContext(AbstractContext *abstractContext, FunctionCache *cache, SymbolTable *instanceSymbolTable = nullptr)
+		inline InstantialContext(AbstractContext *abstractContext, FunctionCache *cache, SymbolTable *instanceSymbolTable = nullptr)
 			:abstractContext(abstractContext),
 			instanceSymbolTable(instanceSymbolTable),
 			functionCache(cache) {}
 
-		inline InstantializeContext(const InstantializeContext &c)
+		inline InstantialContext(const InstantialContext &c)
 			: abstractContext(c.abstractContext),
 			instanceSymbolTable(c.instanceSymbolTable),
 			functionCache(c.functionCache) {}

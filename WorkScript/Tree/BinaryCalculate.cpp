@@ -9,8 +9,8 @@ GenerateResult WorkScript::BinaryCalculate::generateIR(GenerateContext * context
 {
 	auto leftExpr = this->getLeftExpression();
 	auto rightExpr = this->getRightExpression();
-	Type *leftType = leftExpr->getType(context->getInstantializeContext());
-	Type *rightType = rightExpr->getType(context->getInstantializeContext());
+	Type *leftType = leftExpr->getType(context->getInstantialContext());
+	Type *rightType = rightExpr->getType(context->getInstantialContext());
 
 	Type *promotedType = Type::getPromotedType(this->getDebugInfo(), leftType, rightType);
 	GenerateResult res = Type::generateLLVMTypeConvert(this->getDebugInfo(), context, leftExpr, rightExpr, promotedType);
@@ -31,7 +31,7 @@ UNSUPPORTED:
 	throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"双目运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
 }
 
-Type * WorkScript::BinaryCalculate::getType(InstantializeContext *context) const
+Type * WorkScript::BinaryCalculate::getType(InstantialContext *context) const
 {
 	return Type::getPromotedType(this->getDebugInfo(), this->leftExpression->getType(context), this->rightExpression->getType(context));
 }

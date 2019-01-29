@@ -174,8 +174,8 @@ bool WorkScript::Type::convertableTo(const DebugInfo &d, Type * target)
 GenerateResult Type::generateLLVMTypeConvert(const DebugInfo &d, GenerateContext * context, Expression * left, Expression * right, Type *promotedType)
 {
 	auto builder = context->getIRBuilder();
-	Type *leftType = left->getType(context->getInstantializeContext());
-	Type *rightType = right->getType(context->getInstantializeContext());
+	Type *leftType = left->getType(context->getInstantialContext());
+	Type *rightType = right->getType(context->getInstantialContext());
 	if (promotedType->equals(leftType)) { //类型提升到左部类型
 		return GenerateResult(left->generateIR(context).getValue(), Type::generateLLVMTypeConvert(d, context, right, promotedType).getValue());
 	}
@@ -192,7 +192,7 @@ GenerateResult Type::generateLLVMTypeConvert(const DebugInfo &d, GenerateContext
 
 GenerateResult Type::generateLLVMTypeConvert(const DebugInfo &d, GenerateContext * context, Expression * expr, Type * targetType)
 {
-	Type *srcType = expr->getType(context->getInstantializeContext());
+	Type *srcType = expr->getType(context->getInstantialContext());
 	llvm::Value *srcValue = expr->generateIR(context).getValue();
 	if (targetType->equals(srcType))
 	{

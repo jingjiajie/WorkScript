@@ -9,26 +9,25 @@ WorkScript::SymbolInfo::~SymbolInfo()
 	if (this->value)delete this->value;
 }
 
-llvm::Value * WorkScript::SymbolInfo::getLLVMValue(GenerateContext * context)
+llvm::Value * WorkScript::SymbolInfo::getLLVMValue(const DebugInfo &d, GenerateContext * context)
 {
 	if (this->llvmValue) {
 		return this->llvmValue;
 	}
 	else {
 		auto builder = context->getIRBuilder();
-		auto llvmVal = builder->CreateLoad(this->getLLVMValuePtr(context));
+		auto llvmVal = builder->CreateLoad(this->getLLVMValuePtr(d, context));
 		this->llvmValue = llvmVal;
 		return llvmVal;
 	}
 }
 
-llvm::Value * WorkScript::SymbolInfo::getLLVMValuePtr(GenerateContext * context)
+llvm::Value * WorkScript::SymbolInfo::getLLVMValuePtr(const DebugInfo &d, GenerateContext * context)
 {
 	if (!this->llvmValuePtr)
 	{
 		if(this->llvmValue){
-			//TODO Location信息
-			throw WorkScriptException(DebugInfo(), L"变量"+this->name+L"不可赋值！");
+			throw WorkScriptException(d, L"变量"+this->name+L"不可赋值！");
 		}
 		auto builder = context->getIRBuilder();
 		this->llvmValuePtr = builder->CreateAlloca(this->type->getLLVMType(context), nullptr, Locales::fromWideChar(Encoding::ANSI, this->name));

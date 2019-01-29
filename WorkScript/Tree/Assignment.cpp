@@ -18,8 +18,8 @@ WorkScript::Assignment::Assignment(const ExpressionInfo &exprInfo,Expression *le
 GenerateResult WorkScript::Assignment::generateIR(GenerateContext * context)
 {
 	auto irBuilder = context->getIRBuilder();
-	Type *leftType = this->getType(context->getInstantializeContext());
-	Type *rightType = this->rightExpression->getType(context->getInstantializeContext());
+	Type *leftType = this->getType(context->getInstantialContext());
+	Type *rightType = this->rightExpression->getType(context->getInstantialContext());
 	Type *promotedType = Type::getPromotedType(this->expressionInfo.getDebugInfo(), leftType, rightType);
 	context->setLeftValue(false);
 	llvm::Value *val = Type::generateLLVMTypeConvert(this->expressionInfo.getDebugInfo(), context, this->rightExpression, promotedType).getValue();
@@ -40,7 +40,7 @@ Expression * WorkScript::Assignment::clone() const
 	return new thistype(expressionInfo,leftExpression,rightExpression);
 }
 
-Type * WorkScript::Assignment::getType(InstantializeContext *context) const
+Type * WorkScript::Assignment::getType(InstantialContext *context) const
 {
 	auto leftExpr = this->getLeftExpression();
 	Type *leftType = leftExpr->getType(context);
@@ -60,7 +60,7 @@ std::wstring WorkScript::Assignment::getOperatorString() const
 	return L":=";
 }
 
-Type * WorkScript::Assignment::makeSymbolOfRightType(const wstring &name, InstantializeContext *ctx) const
+Type * WorkScript::Assignment::makeSymbolOfRightType(const wstring &name, InstantialContext *ctx) const
 {
 	auto rightExpr = this->getRightExpression();
 	Type *rightType = rightExpr->getType(ctx);

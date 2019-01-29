@@ -14,12 +14,12 @@ namespace WorkScript {
 			:Expression(exprInfo), functionName(funcName), parameters(params){ }
 
 		virtual GenerateResult generateIR(GenerateContext *context) override;
-		virtual Type * getType(InstantializeContext *context) const override;
+		virtual Type * getType(InstantialContext *context) const override;
 		virtual std::wstring toString() const override;
 		virtual ExpressionType getExpressionType() const override;
 		virtual Expression * clone() const override;
 
-		std::wstring toFunctionDeclString(InstantializeContext *context) const;
+		std::wstring toFunctionDeclString(InstantialContext *context) const;
 
 		inline decltype(auto) getParameters() const
 		{

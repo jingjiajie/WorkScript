@@ -37,20 +37,20 @@ namespace WorkScript {
 			bool isStaticVarargs = false);
 
 		virtual ~Function();
-		std::wstring getMangledFunctionName(const DebugInfo &d, InstantializeContext *ctx) const;
+		std::wstring getMangledFunctionName(const DebugInfo &d, InstantialContext *ctx) const;
 		static std::wstring getStdParameterName(size_t paramIndex);
 		virtual GenerateResult generateLLVMIR(const DebugInfo &d, GenerateContext *context);
 		llvm::Function * getLLVMFunction(const DebugInfo &d, GenerateContext *context, bool declareOnly = false);
 
 		inline FunctionType *getAbstractType() { return this->abstractType; }
-		virtual Type *getReturnType(const DebugInfo &d, InstantializeContext *instCtx);
+		virtual Type *getReturnType(const DebugInfo &d, InstantialContext *instCtx);
 		virtual void setReturnType(Type *type);
 		static MatchResult matchByParameters(const DebugInfo &d, const std::vector<Type*> &declParamTypes, const std::vector<Type*> &realParamTypes, bool isRuntimeVarargs, bool isStaticVarargs);
 		MatchResult matchByParameters(const DebugInfo &d, const std::vector<Type*> &paramTypes);
 
 		Program * getProgram() const { return this->program; }
 		inline size_t getParameterCount() const { return this->abstractType->getParameterCount(); }
-		std::vector<Type*> getParameterTypes(const DebugInfo &d, InstantializeContext *context) const;
+		std::vector<Type*> getParameterTypes(const DebugInfo &d, InstantialContext *context) const;
 		inline std::wstring getName() const { return this->name; }
 		inline bool isDeclaredReturnType()const { return this->declaredReturnType; }
 		inline bool isRuntimeVarargs() const { return this->runtimeVarargs; }

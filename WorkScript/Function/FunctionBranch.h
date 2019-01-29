@@ -14,7 +14,7 @@ namespace WorkScript {
 
 		~FunctionBranch();
 
-		Type *getReturnType(const DebugInfo &d, InstantializeContext *instCtx);
+		Type *getReturnType(const DebugInfo &d, InstantialContext *instCtx);
 		void setConstraints(const std::vector<Expression*> &constraints);
 		void setImplements(const std::vector<Expression*> &implements);
 		llvm::BasicBlock * generateBlock(GenerateContext *context, llvm::Function *llvmFunc, llvm::BasicBlock *falseBlock);

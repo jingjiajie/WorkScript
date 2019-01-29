@@ -28,7 +28,7 @@ namespace WorkScript
 
 		inline bool isVarargs()const { return this->varargs; }
 		inline void setVarargs(bool isVarargs) { this->varargs = isVarargs; }
-		Type * getType(InstantializeContext *ctx = nullptr);
+		Type * getType(InstantialContext *ctx = nullptr);
 		inline void setType(Type *type) { this->type = type; }
 		inline bool isDeclaredType() const{ return this->declaredType; }
 		inline void setDeclaredType(bool isDeclaredType) { this->declaredType = isDeclaredType; }

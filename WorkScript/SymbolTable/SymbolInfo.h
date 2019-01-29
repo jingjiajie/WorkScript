@@ -19,8 +19,8 @@ namespace WorkScript
 
 		inline void setLLVMValue(llvm::Value *llvmVal) { this->llvmValue = llvmVal; }
 		inline void setLLVMValuePtr(llvm::Value *llvmValPtr) { this->llvmValuePtr = llvmValPtr; }
-		llvm::Value * getLLVMValue(GenerateContext *context);
-		llvm::Value * getLLVMValuePtr(GenerateContext *context);
+		llvm::Value * getLLVMValue(const DebugInfo &d, GenerateContext *context);
+		llvm::Value * getLLVMValuePtr(const DebugInfo &d, GenerateContext *context);
 		const DebugInfo &getDebugInfo() const;
 		void setDebugInfo(const DebugInfo &debugInfo);
 

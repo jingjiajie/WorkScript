@@ -201,7 +201,7 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionDefine(WorkScriptParser::FunctionD
 		}
 	}
 	//解析参数和限制
-	InstantializeContext instCtx(this->abstractContexts.top(), this->program->getFunctionCache(), nullptr);
+	InstantialContext instCtx(this->abstractContexts.top(), this->program->getFunctionCache(), nullptr);
 	auto resolveRes = FormalParametersResolver::resolve(ExpressionInfo(program, getDebugInfo(ctx), this->abstractContexts.top()), &instCtx, paramDeclTypes, paramDeclExprs, constraintsDecl);
 	auto paramTypes = resolveRes.getParameterTypes();
 	auto params = resolveRes.getParameters();
@@ -324,7 +324,7 @@ antlrcpp::Any TreeCreateVisitor::visitAssignmentOrEquals(WorkScriptParser::Assig
 		auto right = ctx->expression()[1]->accept(this).as<ExpressionWrapper>().getExpression();
 		RESTORE_ASSIGNABLE;
 		//将赋值变量加入符号表
-		InstantializeContext instCtx(this->abstractContexts.top(), program->getFunctionCache());
+		InstantialContext instCtx(this->abstractContexts.top(), program->getFunctionCache());
 		if (left->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
 			auto leftVar = (Variable*)left;
 			this->abstractContexts.top()->setSymbol(getDebugInfo(ctx), leftVar->getName(), right->getType(&instCtx));

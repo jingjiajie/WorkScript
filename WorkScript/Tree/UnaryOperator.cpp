@@ -14,7 +14,7 @@ std::wstring WorkScript::UnaryOperator::toString() const
 	return this->getOperatorString() + this->subExpression->toString();
 }
 
-Type * WorkScript::UnaryOperator::getType(InstantializeContext *context) const
+Type * WorkScript::UnaryOperator::getType(InstantialContext *context) const
 {
 	return this->subExpression->getType(context);
 }

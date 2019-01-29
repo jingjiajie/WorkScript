@@ -11,7 +11,7 @@ using namespace WorkScript;
 
 FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 	const ExpressionInfo &exprInfo,
-	InstantializeContext *ctx, 
+	InstantialContext *ctx, 
 	std::vector<Type*> paramDeclTypes,
 	std::vector<Expression*> declParams, 
 	std::vector<Expression*> additionalConstraints)

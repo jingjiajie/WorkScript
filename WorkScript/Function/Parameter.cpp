@@ -1,11 +1,11 @@
 #include "Parameter.h"
-#include "InstantializeContext.h"
+#include "InstantialContext.h"
 #include "Constant.h"
 
 using namespace std;
 using namespace WorkScript;
 
-Type * WorkScript::Parameter::getType(InstantializeContext *ctx)
+Type * WorkScript::Parameter::getType(InstantialContext *ctx)
 {
 	if (this->type)return this->type;
 	if (!ctx)return nullptr;

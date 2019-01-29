@@ -5,7 +5,7 @@
 
 namespace WorkScript {
     class Type;
-    class InstantializeContext;
+    class InstantialContext;
 
 	class Constant : public Expression
 	{
@@ -15,7 +15,7 @@ namespace WorkScript {
 		{}
 
 		virtual Type *getType() const = 0;
-		virtual Type* getType(InstantializeContext *context) const override;
+		virtual Type* getType(InstantialContext *context) const override;
 		virtual std::wstring toString() const override = 0;
 		virtual Constant *clone() const override = 0;
 		virtual GenerateResult generateIR(GenerateContext *context) override = 0;

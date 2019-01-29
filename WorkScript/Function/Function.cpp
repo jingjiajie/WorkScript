@@ -1,7 +1,7 @@
 #include <sstream>
 #include "Function.h"
 #include "Locales.h"
-#include "InstantializeContext.h"
+#include "InstantialContext.h"
 #include "FunctionType.h"
 #include "FunctionBranch.h"
 
@@ -36,7 +36,7 @@ std::wstring WorkScript::Function::getStdParameterName(size_t paramIndex)
     return L"@" + to_wstring(paramIndex);
 }
 
-std::wstring Function::getMangledFunctionName(const DebugInfo &d, InstantializeContext *ctx) const
+std::wstring Function::getMangledFunctionName(const DebugInfo &d, InstantialContext *ctx) const
 {
     wstringstream ss;
     ss << this->getName();
@@ -49,7 +49,7 @@ std::wstring Function::getMangledFunctionName(const DebugInfo &d, InstantializeC
 
 llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *context, bool declareOnly)
 {
-    InstantializeContext *outerInstCtx = context->getInstantializeContext();
+    InstantialContext *outerInstCtx = context->getInstantialContext();
     auto paramTypes = this->getParameterTypes(d, outerInstCtx);
     llvm::Function *matchedFunc = nullptr;
     for (size_t i = 0; i < this->llvmFunctions.size(); ++i)
@@ -137,7 +137,7 @@ MatchResult WorkScript::Function::matchByParameters(const DebugInfo &d, const st
     return Function::matchByParameters(d, declParamTypes, paramTypes, this->runtimeVarargs, this->staticVarargs);
 }
 
-inline std::vector<Type *> WorkScript::Function::getParameterTypes(const DebugInfo &d, InstantializeContext *context) const
+inline std::vector<Type *> WorkScript::Function::getParameterTypes(const DebugInfo &d, InstantialContext *context) const
 {
     auto declParamTypes = this->abstractType->getParameterTypes();
     if (!context)return declParamTypes;
@@ -156,8 +156,7 @@ inline std::vector<Type *> WorkScript::Function::getParameterTypes(const DebugIn
                 break;
             } else
             {
-                //TODO 函数包含Location信息
-                throw WorkScriptException(DebugInfo(), L"参数不匹配！");
+                throw WorkScriptException(d, L"参数不匹配！");
             }
         } else
         {
@@ -193,7 +192,7 @@ bool WorkScript::ParamTypesAndLLVMFunction::match(std::vector<Type *> paramTypes
     return true;
 }
 
-Type *Function::getReturnType(const DebugInfo &d, InstantializeContext *instCtx)
+Type *Function::getReturnType(const DebugInfo &d, InstantialContext *instCtx)
 {
     /*	推导返回值：
     *	如果声明了返回值类型，则以声明为准
@@ -238,7 +237,7 @@ GenerateResult WorkScript::Function::generateLLVMIR(const DebugInfo &d, Generate
     if (this->branches.size() > 0)
     {
         llvmFunc = this->getLLVMFunction(d, context, true);
-        InstantializeContext *outerInstCtx = context->getInstantializeContext();
+        InstantialContext *outerInstCtx = context->getInstantialContext();
         auto prevTable = outerInstCtx->getInstanceSymbolTable();
         llvm::IRBuilder<> *prevBuilder = context->getIRBuilder();
         llvm::BasicBlock *entry = llvm::BasicBlock::Create(*context->getLLVMContext(), "entry", llvmFunc);
@@ -281,8 +280,7 @@ size_t WorkScript::Function::addBranch(FunctionBranch *branch)
     auto params = branch->getParameters();
     if (params.size() != this->getParameterCount())
     {
-        //Location信息
-        throw WorkScriptException(DebugInfo(), L"函数参数不匹配！");
+        throw WorkScriptException(branch->getDebugInfo(), L"函数参数不匹配！");
     }
     this->branches.push_back(branch);
     return this->branches.size() - 1;

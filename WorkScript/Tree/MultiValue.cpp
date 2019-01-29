@@ -15,12 +15,12 @@ MultiValue::~MultiValue()
 	}
 }
 
-Type * MultiValue::getType(InstantializeContext *context) const
+Type * MultiValue::getType(InstantialContext *context) const
 {
 	return nullptr;
 }
 
-std::vector<Type*> WorkScript::MultiValue::getTypes(InstantializeContext *context) const
+std::vector<Type*> WorkScript::MultiValue::getTypes(InstantialContext *context) const
 {
 	vector<Type*> paramTypes;
 	paramTypes.reserve(items.size());
@@ -78,7 +78,7 @@ std::vector<llvm::Value*> WorkScript::MultiValue::getLLVMArgs(GenerateContext * 
 	args.reserve(this->items.size());
 	for (size_t i = 0; i < this->items.size(); ++i)
 	{
-		Type *curItemType = this->items[i]->getType(context->getInstantializeContext());
+		Type *curItemType = this->items[i]->getType(context->getInstantialContext());
 		if (!curItemType) {
 			throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"无法推导参数类型！");
 		}

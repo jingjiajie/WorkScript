@@ -1,5 +1,5 @@
 #include "FunctionBranch.h"
-#include "InstantializeContext.h"
+#include "InstantialContext.h"
 #include "Parameter.h"
 #include "Function.h"
 #include "Locales.h"
@@ -31,7 +31,7 @@ WorkScript::FunctionBranch::~FunctionBranch()
 	}
 }
 
-Type * WorkScript::FunctionBranch::getReturnType(const DebugInfo &d, InstantializeContext * ctx)
+Type * WorkScript::FunctionBranch::getReturnType(const DebugInfo &d, InstantialContext * ctx)
 {
 	size_t implCount = this->implements.size();
 	if (implCount == 0)return VoidType::get();
@@ -43,7 +43,7 @@ Type * WorkScript::FunctionBranch::getReturnType(const DebugInfo &d, Instantiali
 		Parameter *myParam = this->parameters[i];
 		instSymbolTable.setSymbol(d, myParam->getName(), stdParamInfo->getType());
 	}
-	InstantializeContext newCtx(&this->context, this->function->getProgram()->getFunctionCache(), &instSymbolTable);
+	InstantialContext newCtx(&this->context, this->function->getProgram()->getFunctionCache(), &instSymbolTable);
 	return this->implements[implCount - 1]->getType(&newCtx);
 }
 
@@ -74,22 +74,22 @@ llvm::BasicBlock * WorkScript::FunctionBranch::generateBlock(GenerateContext * c
 	llvm::IRBuilder<> &builder = *context->getIRBuilder();
 	builder.SetInsertPoint(branch);
 	//遍历参数，将参数@0,@1...赋值到本分支函数的参数符号
-	auto prevInstCtx = context->getInstantializeContext();
+	auto prevInstCtx = context->getInstantialContext();
 	SymbolTable instSymbolTable(to_wstring(this->context.getBlockID()));
 	for (size_t i = 0; i < this->parameters.size(); ++i) {
 		//获取@n的符号信息
 		SymbolInfo *stdParamInfo = prevInstCtx->getSymbolInfo(L"@" + to_wstring(i));
-		llvm::Value *stdLLVMParam = stdParamInfo->getLLVMValue(context);
+		llvm::Value *stdLLVMParam = stdParamInfo->getLLVMValue(this->getDebugInfo(), context);
 		//获取当前分支参数的符号信息，加入符号表
 		Parameter *myParam = this->parameters[i];
 		SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), myParam->getName(), stdParamInfo->getType());
 		//生成llvm赋值，将标准参数赋值到当前分支参数
-		llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(context);
+		llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), context);
 		builder.CreateStore(stdLLVMParam, myLLVMParamPtr);
 	}
 	Type *returnType = this->function->getReturnType(this->getDebugInfo(), prevInstCtx);
-	InstantializeContext innerInstCtx(&this->context, this->function->getProgram()->getFunctionCache(), &instSymbolTable);
-	context->setInstantializeContext(&innerInstCtx);
+	InstantialContext innerInstCtx(&this->context, this->function->getProgram()->getFunctionCache(), &instSymbolTable);
+    context->setInstantialContext(&innerInstCtx);
 
 	size_t condCount = this->constraints.size();
 	size_t codeCount = this->implements.size();
@@ -118,6 +118,6 @@ llvm::BasicBlock * WorkScript::FunctionBranch::generateBlock(GenerateContext * c
 		}
 	}
 	ret = branch;
-	context->setInstantializeContext(prevInstCtx);
+    context->setInstantialContext(prevInstCtx);
 	return ret;
 }

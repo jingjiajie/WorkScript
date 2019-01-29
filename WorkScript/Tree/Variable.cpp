@@ -3,7 +3,7 @@
 #include "Utils.h"
 #include "SymbolTable.h"
 #include "SymbolInfo.h"
-#include "InstantializeContext.h"
+#include "InstantialContext.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -13,21 +13,21 @@ Variable::Variable(const ExpressionInfo &exprInfo, const std::wstring & name)
 
 GenerateResult WorkScript::Variable::generateIR(GenerateContext * context)
 {
-	auto instantializeContext = context->getInstantializeContext();
-	SymbolInfo *symbolInfo = instantializeContext->getSymbolInfo(this->name);
+	auto instantialContext = context->getInstantialContext();
+	SymbolInfo *symbolInfo = instantialContext->getSymbolInfo(this->name);
 	if (!symbolInfo) {
 		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"无法找到符号：" + this->name);
 	}
 
 	if (context->isLeftValue()) {
-		return symbolInfo->getLLVMValuePtr(context);
+		return symbolInfo->getLLVMValuePtr(this->getDebugInfo(), context);
 	}
 	else {
-		return symbolInfo->getLLVMValue(context);
+		return symbolInfo->getLLVMValue(this->getDebugInfo(), context);
 	}
 }
 
-Type * Variable::getType(InstantializeContext *context) const
+Type * Variable::getType(InstantialContext *context) const
 {
 	SymbolInfo *symbolInfo = context->getSymbolInfo(this->name);
 	if (!symbolInfo)return nullptr;

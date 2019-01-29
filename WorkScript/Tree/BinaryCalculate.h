@@ -14,7 +14,7 @@ namespace WorkScript {
 			:BinaryOperator(exprInfo,leftExpression,rightExpression), calculateType(calcType)	{	}
 
 		virtual GenerateResult generateIR(GenerateContext *context) override;
-		virtual Type * getType(InstantializeContext *context) const override;
+		virtual Type * getType(InstantialContext *context) const override;
 		virtual Expression * clone() const override;
 		virtual ExpressionType getExpressionType() const override;
 

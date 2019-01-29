@@ -32,7 +32,7 @@ Program::~Program()
 void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule)
 {
 	FunctionCache funcCache;
-	InstantializeContext funcInstCtx(&this->globalAbstractContext, &funcCache);
+	InstantialContext funcInstCtx(&this->globalAbstractContext, &funcCache);
 	GenerateContext ctx(llvmContext, llvmModule, nullptr, &funcInstCtx);
 	Function *funcMain = this->globalAbstractContext.getFirstFunction(L"main", {});
 	funcMain->generateLLVMIR(DebugInfo(), &ctx);

@@ -3,7 +3,7 @@
 using namespace std;
 using namespace WorkScript;
 
-Type* Constant::getType(WorkScript::InstantializeContext *context) const
+Type* Constant::getType(WorkScript::InstantialContext *context) const
 {
     return this->getType();
 }
