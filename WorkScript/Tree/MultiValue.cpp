@@ -87,7 +87,7 @@ std::vector<llvm::Value*> WorkScript::MultiValue::getLLVMArgs(GenerateContext * 
 			args.push_back(curLLVMParam);
 		}
 		else {
-			llvm::Value *convertedLLVMParam = Type::generateLLVMTypeConvert(context, this->items[i], formalParamTypes[i]).getValue();
+			llvm::Value *convertedLLVMParam = Type::generateLLVMTypeConvert(this->getDebugInfo(), context, this->items[i], formalParamTypes[i]).getValue();
 			args.push_back(convertedLLVMParam);
 		}
 	}
@@ -96,7 +96,7 @@ std::vector<llvm::Value*> WorkScript::MultiValue::getLLVMArgs(GenerateContext * 
 
 //bool MultiValue::equals(Context * const & context, Expression *target) const
 //{
-//	if (!target->getType(context)->equals(context, this->getType(context))) {
+//	if (!target->getType(context)->equals(context, this->getAbstractType(context))) {
 //		return false;
 //	}
 //	auto targetListExpr = (const Pointer<MultiValue>)(target);

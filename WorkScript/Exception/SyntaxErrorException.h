@@ -15,9 +15,9 @@ namespace WorkScript {
 		}
 
 	protected:
-		inline std::wstring makeErrorMessage(DebugInfo loc, const std::wstring &msg)const {
+		inline std::wstring makeErrorMessage(const DebugInfo &d, const std::wstring &msg)const {
 			std::wstringstream ss;
-			ss << L"语法错误（第" << loc.getLine() << L"行, 第" << loc.getColumn() << L"列）：" << msg;
+			ss << L"语法错误（第" << d.getLocation().getLine() << L"行, 第" << d.getLocation().getColumn() << L"列）：" << msg;
 			return ss.str();
 		}
 	};

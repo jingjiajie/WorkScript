@@ -10,7 +10,7 @@ namespace WorkScript {
 		ExpressionInfo(Program *p, const DebugInfo &d, AbstractContext *abstractContext)
 			:abstractContext(abstractContext), program(p), debugInfo(d) {}
 		inline Program * getProgram() const { return this->program; }
-		inline DebugInfo getDebugInfo() const { return this->debugInfo; }
+		inline const DebugInfo & getDebugInfo() const { return this->debugInfo; }
 		inline AbstractContext * getAbstractContext()const { return this->abstractContext; }
 	protected:
 		AbstractContext * abstractContext = nullptr;

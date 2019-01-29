@@ -217,12 +217,12 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionDefine(WorkScriptParser::FunctionD
 	//为所有符合条件的函数重载添加函数分支
 	for (size_t i = 0; i < funcs.size(); ++i) {
 		Function *func = (Function*)funcs[i];
-		if (func->isDeclaredReturnType() && !func->getType()->getReturnType()->equals(declReturnType)) {
+		if (func->isDeclaredReturnType() && !func->getAbstractType()->getReturnType()->equals(declReturnType)) {
 			throw TypeMismatchedException(getDebugInfo(ctx), L"函数" + funcName + L"的返回值类型" + declReturnType->getName()
-				+ L"与之前声明的不符：" + func->getType()->getReturnType()->getName());
+				+ L"与之前声明的不符：" + func->getAbstractType()->getReturnType()->getName());
 		}
 		size_t branchID = func->getBranchCount() + 1; //blockID从1开始
-		auto branch = new FunctionBranch(func, branchID, getDebugInfo(ctx));
+		auto branch = new FunctionBranch(getDebugInfo(ctx), func, branchID);
 		branch->setParameters(params);
 		AbstractContext *innerAbstractCtx = branch->getContext();
 		this->abstractContexts.push(innerAbstractCtx);
@@ -327,7 +327,7 @@ antlrcpp::Any TreeCreateVisitor::visitAssignmentOrEquals(WorkScriptParser::Assig
 		InstantializeContext instCtx(this->abstractContexts.top(), program->getFunctionCache());
 		if (left->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
 			auto leftVar = (Variable*)left;
-			this->abstractContexts.top()->setSymbol(leftVar->getName(), right->getType(&instCtx));
+			this->abstractContexts.top()->setSymbol(getDebugInfo(ctx), leftVar->getName(), right->getType(&instCtx));
 		}
 		return ExpressionWrapper(new Assignment(ExpressionInfo(program, getDebugInfo(ctx), this->abstractContexts.top()), left, right));
 	}

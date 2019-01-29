@@ -38,5 +38,15 @@ llvm::Value * WorkScript::SymbolInfo::getLLVMValuePtr(GenerateContext * context)
 
 void WorkScript::SymbolInfo::promoteType(Type * targetType)
 {
-	this->type = Type::getPromotedType(this->type, targetType);
+	this->type = Type::getPromotedType(this->debugInfo, this->type, targetType);
+}
+
+const WorkScript::DebugInfo &WorkScript::SymbolInfo::getDebugInfo() const
+{
+    return debugInfo;
+}
+
+void WorkScript::SymbolInfo::setDebugInfo(const WorkScript::DebugInfo &debugInfo)
+{
+    this->debugInfo = debugInfo;
 }

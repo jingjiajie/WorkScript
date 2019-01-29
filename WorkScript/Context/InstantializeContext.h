@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <memory>
+#include "DebugInfo.h"
 
 namespace WorkScript {
 	class SymbolTable;
@@ -28,8 +29,8 @@ namespace WorkScript {
 
 		SymbolInfo * getSymbolInfo(const std::wstring &name);
 
-		void setFunctionTypeCache(Function *func, const std::vector<Type*> &paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type *cacheReturnType);
-		bool getFunctionTypeCache(Function *func, const std::vector<Type*> &paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type **outReturnType);
+		void setFunctionTypeCache(const DebugInfo &d, Function *func, const std::vector<Type*> &paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type *cacheReturnType);
+		bool getFunctionTypeCache(const DebugInfo &d, Function *func, const std::vector<Type*> &paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type **outReturnType);
 	protected:
 		AbstractContext * abstractContext = nullptr;
 		SymbolTable * instanceSymbolTable = nullptr;

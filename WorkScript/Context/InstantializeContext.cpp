@@ -21,25 +21,23 @@ SymbolInfo * InstantializeContext::getSymbolInfo(const std::wstring & name)
 	return nullptr;
 }
 
-void InstantializeContext::setFunctionTypeCache(WorkScript::Function *func,
+void InstantializeContext::setFunctionTypeCache(const DebugInfo &d, WorkScript::Function *func,
                                                 const std::vector<WorkScript::Type *> &paramTypes,
                                                 bool isRuntimeVarargs, bool isStaticVarargs,
                                                 WorkScript::Type *cacheReturnType)
 {
     if (!this->functionCache)
     {
-        //TODO Location信息
-        throw WorkScriptException(DebugInfo(), L"未指定函数缓存器！");
+        throw WorkScriptException(d, L"未指定函数缓存器！");
     }
-    this->functionCache->setFunctionTypeCache(func, paramTypes, isRuntimeVarargs, isStaticVarargs, cacheReturnType);
+    this->functionCache->setFunctionTypeCache(d, func, paramTypes, isRuntimeVarargs, isStaticVarargs, cacheReturnType);
 }
 
-bool InstantializeContext::getFunctionTypeCache(Function *func, const std::vector<Type*>& paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type ** outReturnType)
+bool InstantializeContext::getFunctionTypeCache(const DebugInfo &d, Function *func, const std::vector<Type*>& paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type ** outReturnType)
 {
 	if (!this->functionCache)
 	{
-		//TODO Location信息
-		throw WorkScriptException(DebugInfo(), L"未指定函数缓存器！");
+		throw WorkScriptException(d, L"未指定函数缓存器！");
 	}
-	return this->functionCache->getFunctionTypeCache(func, paramTypes, isRuntimeVarargs, isStaticVarargs, outReturnType);
+	return this->functionCache->getFunctionTypeCache(d, func, paramTypes, isRuntimeVarargs, isStaticVarargs, outReturnType);
 }

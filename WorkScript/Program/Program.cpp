@@ -18,7 +18,7 @@ using namespace std;
 using namespace WorkScript;
 
 Program::Program(const string &filePath)
-	:globalAbstractContext(nullptr, 0)
+	:globalAbstractContext(DebugInfo(), nullptr, 0)
 {
     this->parseFile(filePath);
 }
@@ -35,7 +35,7 @@ void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::M
 	InstantializeContext funcInstCtx(&this->globalAbstractContext, &funcCache);
 	GenerateContext ctx(llvmContext, llvmModule, nullptr, &funcInstCtx);
 	Function *funcMain = this->globalAbstractContext.getFirstFunction(L"main", {});
-	funcMain->generateLLVMIR(&ctx);
+	funcMain->generateLLVMIR(DebugInfo(), &ctx);
 }
 
 void Program::parseFile(const std::string &fileName) //throws SyntaxErrorException

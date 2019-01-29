@@ -8,7 +8,7 @@
 using namespace std;
 using namespace WorkScript;
 
-WorkScript::Function::Function(
+Function::Function(
         AbstractContext *baseContext,
         const std::wstring &name,
         const std::vector<Type *> &paramTypes,
@@ -36,21 +36,21 @@ std::wstring WorkScript::Function::getStdParameterName(size_t paramIndex)
     return L"@" + to_wstring(paramIndex);
 }
 
-std::wstring WorkScript::Function::getMangledFunctionName(InstantializeContext *ctx) const
+std::wstring Function::getMangledFunctionName(const DebugInfo &d, InstantializeContext *ctx) const
 {
     wstringstream ss;
     ss << this->getName();
-    for (auto paramType : this->getParameterTypes(ctx))
+    for (auto paramType : this->getParameterTypes(d, ctx))
     {
         ss << L"@" << paramType->getName();
     }
     return ss.str();
 }
 
-llvm::Function *WorkScript::Function::getLLVMFunction(GenerateContext *context, bool declareOnly)
+llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *context, bool declareOnly)
 {
     InstantializeContext *outerInstCtx = context->getInstantializeContext();
-    auto paramTypes = this->getParameterTypes(outerInstCtx);
+    auto paramTypes = this->getParameterTypes(d, outerInstCtx);
     llvm::Function *matchedFunc = nullptr;
     for (size_t i = 0; i < this->llvmFunctions.size(); ++i)
     {
@@ -67,14 +67,14 @@ llvm::Function *WorkScript::Function::getLLVMFunction(GenerateContext *context, 
             Type *paramType = paramTypes[i];
             llvmParamTypes.push_back(paramType->getLLVMType(context));
         }
-        Type *myReturnType = this->getReturnType(outerInstCtx);
+        Type *myReturnType = this->getReturnType(d, outerInstCtx);
         llvm::FunctionType *funcType = llvm::FunctionType::get(myReturnType->getLLVMType(context), llvmParamTypes,
                                                                this->runtimeVarargs);
         //创建函数声明
         wstring funcName;
         if (this->baseContext->getFunctions(this->name).size() > 1)
         {
-            funcName = this->getMangledFunctionName(outerInstCtx);
+            funcName = this->getMangledFunctionName(d, outerInstCtx);
         } else
         {
             funcName = this->name;
@@ -96,7 +96,7 @@ llvm::Function *WorkScript::Function::getLLVMFunction(GenerateContext *context, 
         }
         this->llvmFunctions.emplace_back(paramTypes, func);
         matchedFunc = func;
-        if (!declareOnly)this->generateLLVMIR(context);
+        if (!declareOnly)this->generateLLVMIR(d, context);
     }
     return matchedFunc;
 }
@@ -106,7 +106,7 @@ void WorkScript::Function::setReturnType(Type *returnType)
     this->abstractType = FunctionType::get(this->abstractType->getParameterTypes(), returnType);
 }
 
-MatchResult WorkScript::Function::matchByParameters(const std::vector<Type *> &declParamTypes,
+MatchResult WorkScript::Function::matchByParameters(const DebugInfo &d, const std::vector<Type *> &declParamTypes,
                                                     const std::vector<Type *> &realParamTypes, bool isRuntimeVarargs,
                                                     bool isStaticVarargs)
 {
@@ -124,20 +124,20 @@ MatchResult WorkScript::Function::matchByParameters(const std::vector<Type *> &d
         if (!realParamTypes[i])continue;
         if (formalParamType && !formalParamType->equals(realParamTypes[i]))
         {
-            if (Type::convertableTo(realParamTypes[i], formalParamType)) compromised = true;
+            if (Type::convertableTo(d, realParamTypes[i], formalParamType)) compromised = true;
             else return MISMATCHED;
         }
     }
     return compromised ? COMPROMISE_MATCHED : MATCHED;
 }
 
-MatchResult WorkScript::Function::matchByParameters(const std::vector<Type *> &paramTypes)
+MatchResult WorkScript::Function::matchByParameters(const DebugInfo &d, const std::vector<Type *> &paramTypes)
 {
     auto declParamTypes = this->abstractType->getParameterTypes();
-    return Function::matchByParameters(declParamTypes, paramTypes, this->runtimeVarargs, this->staticVarargs);
+    return Function::matchByParameters(d, declParamTypes, paramTypes, this->runtimeVarargs, this->staticVarargs);
 }
 
-inline std::vector<Type *> WorkScript::Function::getParameterTypes(InstantializeContext *context) const
+inline std::vector<Type *> WorkScript::Function::getParameterTypes(const DebugInfo &d, InstantializeContext *context) const
 {
     auto declParamTypes = this->abstractType->getParameterTypes();
     if (!context)return declParamTypes;
@@ -172,13 +172,13 @@ inline std::vector<Type *> WorkScript::Function::getParameterTypes(Instantialize
         if (declParamTypes[i] == nullptr)
         {
             result.push_back(realParamTypes[i]);
-        } else if (realParamTypes[i]->convertableTo(declParamTypes[i]))
+        } else if (realParamTypes[i]->convertableTo(d, declParamTypes[i]))
         {
             result.push_back(declParamTypes[i]);
         } else
         {
             //TODO Location信息
-            throw WorkScriptException(DebugInfo(), L"参数类型不匹配！");
+            throw WorkScriptException(d, L"参数类型不匹配！");
         }
     }
     return result;
@@ -193,7 +193,7 @@ bool WorkScript::ParamTypesAndLLVMFunction::match(std::vector<Type *> paramTypes
     return true;
 }
 
-Type *Function::getReturnType(InstantializeContext *instCtx)
+Type *Function::getReturnType(const DebugInfo &d, InstantializeContext *instCtx)
 {
     /*	推导返回值：
     *	如果声明了返回值类型，则以声明为准
@@ -206,38 +206,38 @@ Type *Function::getReturnType(InstantializeContext *instCtx)
         return this->abstractType->getReturnType();
     }
     SymbolTable instSymbolTable;
-    auto paramTypes = this->getParameterTypes(instCtx);
+    auto paramTypes = this->getParameterTypes(d, instCtx);
     for (size_t i = 0; i < this->getParameterCount(); ++i)
     {
-        SymbolInfo *curInfo = instSymbolTable.setSymbol(L"@" + to_wstring(i), paramTypes[i]);
+        SymbolInfo *curInfo = instSymbolTable.setSymbol(d, L"@" + to_wstring(i), paramTypes[i]);
     }
     auto prevTable = instCtx->getInstanceSymbolTable();
     instCtx->setInstanceSymbolTable(&instSymbolTable);
     Type *returnType = nullptr;
-    if (!instCtx->getFunctionTypeCache(this, paramTypes, this->runtimeVarargs, this->staticVarargs, &returnType))
+    if (!instCtx->getFunctionTypeCache(d, this, paramTypes, this->runtimeVarargs, this->staticVarargs, &returnType))
     {
-        instCtx->setFunctionTypeCache(this, paramTypes, this->runtimeVarargs, this->staticVarargs, nullptr);
+        instCtx->setFunctionTypeCache(d, this, paramTypes, this->runtimeVarargs, this->staticVarargs, nullptr);
         //推导每个分支的返回值，取最高类型
         for (size_t i = 0; i < this->branches.size(); ++i)
         {
 
-            Type *curReturnType = this->branches[i]->getReturnType(instCtx);
+            Type *curReturnType = this->branches[i]->getReturnType(d, instCtx);
             if (!curReturnType) continue;
-            returnType = Type::getPromotedType(curReturnType, returnType);
+            returnType = Type::getPromotedType(d, curReturnType, returnType);
         }
     }
     instCtx->setInstanceSymbolTable(prevTable);
-    instCtx->setFunctionTypeCache(this, paramTypes, this->runtimeVarargs, this->staticVarargs, returnType);
+    instCtx->setFunctionTypeCache(d, this, paramTypes, this->runtimeVarargs, this->staticVarargs, returnType);
     return returnType;
 }
 
-GenerateResult WorkScript::Function::generateLLVMIR(GenerateContext *context)
+GenerateResult WorkScript::Function::generateLLVMIR(const DebugInfo &d, GenerateContext *context)
 {
-    llvm::Function *llvmFunc = this->getLLVMFunction(context, true);
+    llvm::Function *llvmFunc = this->getLLVMFunction(d, context, true);
     //如果没有实现，则只生成函数声明，且不进行命名粉碎
     if (this->branches.size() > 0)
     {
-        llvmFunc = this->getLLVMFunction(context, true);
+        llvmFunc = this->getLLVMFunction(d, context, true);
         InstantializeContext *outerInstCtx = context->getInstantializeContext();
         auto prevTable = outerInstCtx->getInstanceSymbolTable();
         llvm::IRBuilder<> *prevBuilder = context->getIRBuilder();
@@ -247,11 +247,11 @@ GenerateResult WorkScript::Function::generateLLVMIR(GenerateContext *context)
         context->setIRBuilder(&builder);
         //生成参数的LLVM Value
         SymbolTable instSymbolTable;
-        auto paramTypes = this->getParameterTypes(outerInstCtx);
+        auto paramTypes = this->getParameterTypes(d, outerInstCtx);
         llvm::Argument *itArg = llvmFunc->arg_begin();
         for (size_t i = 0; i < this->getParameterCount(); ++i)
         {
-            SymbolInfo *curInfo = instSymbolTable.setSymbol(L"@" + to_wstring(i), paramTypes[i]);
+            SymbolInfo *curInfo = instSymbolTable.setSymbol(d, L"@" + to_wstring(i), paramTypes[i]);
             curInfo->setLLVMValue(itArg);
             ++itArg;
         }
@@ -268,7 +268,7 @@ GenerateResult WorkScript::Function::generateLLVMIR(GenerateContext *context)
         builder.CreateBr(prevBlock);
         //如果全部匹配失败，则返回未定义值
         builder.SetInsertPoint(notMatched);
-        builder.CreateRet(llvm::UndefValue::get(this->getReturnType(outerInstCtx)->getLLVMType(context)));
+        builder.CreateRet(llvm::UndefValue::get(this->getReturnType(d, outerInstCtx)->getLLVMType(context)));
         context->setIRBuilder(prevBuilder);
         outerInstCtx->setInstanceSymbolTable(prevTable);
     }

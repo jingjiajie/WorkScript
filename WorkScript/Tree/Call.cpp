@@ -28,11 +28,11 @@ GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 	for (size_t i = 0; i < paramTypes.size(); ++i)
 	{
 		Type *paramType = paramTypes[i];
-		newInstTable.setSymbol(Function::getStdParameterName(i), paramType);
+		newInstTable.setSymbol(this->getDebugInfo(), Function::getStdParameterName(i), paramType);
 	}
-	auto llvmArgs = this->parameters->getLLVMArgs(context, func->getParameterTypes(&innerInstCtx)); //这个必须在context设置innerInstCtx之前执行
+	auto llvmArgs = this->parameters->getLLVMArgs(context, func->getParameterTypes(this->getDebugInfo(), &innerInstCtx)); //这个必须在context设置innerInstCtx之前执行
 	context->setInstantializeContext(&innerInstCtx);
-	llvm::Function *llvmFunc = func->getLLVMFunction(context);
+	llvm::Function *llvmFunc = func->getLLVMFunction(this->getDebugInfo(), context);
 	auto ret = builder->CreateCall(llvmFunc, llvmArgs);
 	context->setInstantializeContext(outerInstCtx);
 	return ret;
@@ -51,9 +51,9 @@ Type * Call::getType(InstantializeContext *context) const
 	for (size_t i = 0; i < paramTypes.size(); ++i)
 	{
 		Type *paramType = paramTypes[i];
-		newInstTable.setSymbol(Function::getStdParameterName(i), paramType);
+		newInstTable.setSymbol(this->getDebugInfo(), Function::getStdParameterName(i), paramType);
 	}
-	return func->getReturnType(&newInstCtx);
+	return func->getReturnType(this->getDebugInfo(), &newInstCtx);
 }
 
 std::wstring Call::toString() const

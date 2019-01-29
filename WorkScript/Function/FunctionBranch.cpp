@@ -7,18 +7,16 @@
 using namespace WorkScript;
 using namespace std;
 
-WorkScript::FunctionBranch::FunctionBranch(Function * function, size_t branchID, DebugInfo loc)
-	:context(function->getBaseContext(), branchID)
+FunctionBranch::FunctionBranch(const DebugInfo &d, Function * function, size_t branchID)
+	:context(d,function->getBaseContext(), branchID)
 {
 	this->function = function;
-	this->location = loc;
 }
 
-inline WorkScript::FunctionBranch::FunctionBranch(Function * function, size_t branchID, DebugInfo loc, const std::vector<Expression*>& constraints, const std::vector<Expression*>& implements)
-	:context(function->getBaseContext(), branchID)
+FunctionBranch::FunctionBranch(const DebugInfo &d, Function * function, size_t branchID, const std::vector<Expression*>& constraints, const std::vector<Expression*>& implements)
+	:context(d, function->getBaseContext(), branchID)
 {
 	this->function = function;
-	this->location = loc;
 	this->constraints = constraints;
 	this->implements = implements;
 }
@@ -33,7 +31,7 @@ WorkScript::FunctionBranch::~FunctionBranch()
 	}
 }
 
-Type * WorkScript::FunctionBranch::getReturnType(InstantializeContext * ctx)
+Type * WorkScript::FunctionBranch::getReturnType(const DebugInfo &d, InstantializeContext * ctx)
 {
 	size_t implCount = this->implements.size();
 	if (implCount == 0)return VoidType::get();
@@ -43,7 +41,7 @@ Type * WorkScript::FunctionBranch::getReturnType(InstantializeContext * ctx)
 		SymbolInfo *stdParamInfo = ctx->getSymbolInfo(L"@" + to_wstring(i));
 		//获取当前分支参数的符号信息，加入符号表
 		Parameter *myParam = this->parameters[i];
-		instSymbolTable.setSymbol(myParam->getName(), stdParamInfo->getType());
+		instSymbolTable.setSymbol(d, myParam->getName(), stdParamInfo->getType());
 	}
 	InstantializeContext newCtx(&this->context, this->function->getProgram()->getFunctionCache(), &instSymbolTable);
 	return this->implements[implCount - 1]->getType(&newCtx);
@@ -84,12 +82,12 @@ llvm::BasicBlock * WorkScript::FunctionBranch::generateBlock(GenerateContext * c
 		llvm::Value *stdLLVMParam = stdParamInfo->getLLVMValue(context);
 		//获取当前分支参数的符号信息，加入符号表
 		Parameter *myParam = this->parameters[i];
-		SymbolInfo *myParamInfo = instSymbolTable.setSymbol(myParam->getName(), stdParamInfo->getType());
+		SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), myParam->getName(), stdParamInfo->getType());
 		//生成llvm赋值，将标准参数赋值到当前分支参数
 		llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(context);
 		builder.CreateStore(stdLLVMParam, myLLVMParamPtr);
 	}
-	Type *returnType = this->function->getReturnType(prevInstCtx);
+	Type *returnType = this->function->getReturnType(this->getDebugInfo(), prevInstCtx);
 	InstantializeContext innerInstCtx(&this->context, this->function->getProgram()->getFunctionCache(), &instSymbolTable);
 	context->setInstantializeContext(&innerInstCtx);
 
@@ -114,7 +112,7 @@ llvm::BasicBlock * WorkScript::FunctionBranch::generateBlock(GenerateContext * c
 			//如果分支返回值类型与函数返回值类型不同，则生成类型转换
 			Type *branchReturnType = curExpr->getType(&innerInstCtx);
 			if (!branchReturnType->equals(returnType)) {
-				res = Type::generateLLVMTypeConvert(context, curExpr, returnType).getValue();
+				res = Type::generateLLVMTypeConvert(curExpr->getDebugInfo(), context, curExpr, returnType).getValue();
 			}
 			builder.CreateRet(res);
 		}

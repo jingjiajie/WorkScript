@@ -1,5 +1,6 @@
 #pragma once
-namespace WorkScript {
+namespace WorkScript
+{
 	class Location
 	{
 	public:
@@ -33,14 +34,24 @@ namespace WorkScript {
 		long column = -1;
 	};
 
+
 	class DebugInfo
 	{
 	public:
-		inline DebugInfo()  = default;
-		inline DebugInfo(const Location &loc) :location(loc) {}
+		inline DebugInfo() = default;
 
-		inline long getLine() const { return this->location.getLine(); };
-		inline long getColumn() const { return this->location.getColumn(); };
+		inline DebugInfo(const Location &loc) : location(loc)
+		{}
+
+		const Location &getLocation() const
+		{
+			return location;
+		}
+
+		void setLocation(const Location &location)
+		{
+			DebugInfo::location = location;
+		}
 	protected:
 		Location location;
 	};

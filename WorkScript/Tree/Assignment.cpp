@@ -20,9 +20,9 @@ GenerateResult WorkScript::Assignment::generateIR(GenerateContext * context)
 	auto irBuilder = context->getIRBuilder();
 	Type *leftType = this->getType(context->getInstantializeContext());
 	Type *rightType = this->rightExpression->getType(context->getInstantializeContext());
-	Type *promotedType = Type::getPromotedType(leftType, rightType);
+	Type *promotedType = Type::getPromotedType(this->expressionInfo.getDebugInfo(), leftType, rightType);
 	context->setLeftValue(false);
-	llvm::Value *val = Type::generateLLVMTypeConvert(context, this->rightExpression, promotedType).getValue();
+	llvm::Value *val = Type::generateLLVMTypeConvert(this->expressionInfo.getDebugInfo(), context, this->rightExpression, promotedType).getValue();
 	context->setLeftValue(true);
 	llvm::Value *var = this->leftExpression->generateIR(context).getValue();
 	context->setLeftValue(false);
@@ -64,6 +64,6 @@ Type * WorkScript::Assignment::makeSymbolOfRightType(const wstring &name, Instan
 {
 	auto rightExpr = this->getRightExpression();
 	Type *rightType = rightExpr->getType(ctx);
-	ctx->getInstanceSymbolTable()->setSymbol(name, rightType);
+	ctx->getInstanceSymbolTable()->setSymbol(this->getDebugInfo(), name, rightType);
 	return rightType;
 }

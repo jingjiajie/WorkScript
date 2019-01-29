@@ -27,6 +27,7 @@ namespace WorkScript {
 
 		inline DebugInfo getLocation() const { return this->expressionInfo.getDebugInfo(); };
 		inline Program * getProgram() const { return this->expressionInfo.getProgram(); }
+		inline const DebugInfo & getDebugInfo() const{return this->expressionInfo.getDebugInfo();}
 	protected:
 		ExpressionInfo expressionInfo;
 	};

@@ -61,7 +61,7 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 		//	}
 		//	auto leftVar = (Variable*)leftExpr;
 		//	//TODO 参数默认值处理
-		//	Parameter *param = new Parameter(leftVar->getName(), leftVar->getType(ctx), nullptr);
+		//	Parameter *param = new Parameter(leftVar->getName(), leftVar->getAbstractType(ctx), nullptr);
 		//	params[i] = param;
 		//	break;
 		//}

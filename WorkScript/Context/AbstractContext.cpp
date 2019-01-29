@@ -10,8 +10,8 @@
 using namespace WorkScript;
 using namespace std;
 
-WorkScript::AbstractContext::AbstractContext(AbstractContext * base, size_t blockID)
-	:base(base),blockID(blockID), prefix(base?base->prefix + L"." + to_wstring(blockID):L""), abstractSymbolTable(prefix)
+WorkScript::AbstractContext::AbstractContext(const DebugInfo &d, AbstractContext * base, size_t blockID)
+	:base(base),blockID(blockID), prefix(base?base->prefix + L"." + to_wstring(blockID):L""), abstractSymbolTable(prefix), debugInfo(d)
 {
 //	this->addType(L"char", IntegerType::getSInt8Type());
 //	this->addType(L"short", IntegerType::getSInt16Type());
@@ -60,7 +60,7 @@ Function * WorkScript::AbstractContext::getFirstFunction(const std::wstring & na
 		vector<Function*> functions = it->second;
 		for (size_t i = 0; i < functions.size(); ++i)
 		{
-			MatchResult res = functions[i]->matchByParameters(paramTypes);
+			MatchResult res = functions[i]->matchByParameters(this->debugInfo, paramTypes);
 			switch (res)
 			{
 				case WorkScript::MATCHED:
@@ -87,7 +87,7 @@ std::vector<Function*> WorkScript::AbstractContext::getLocalFunctions(const std:
 		vector<Function*> functions = it->second;
 		for (size_t i = 0; i < functions.size(); ++i)
 		{
-			MatchResult res = functions[i]->matchByParameters(paramTypes);
+			MatchResult res = functions[i]->matchByParameters(this->debugInfo, paramTypes);
 			if (res == MatchResult::MATCHED || (compromise && res == MatchResult::COMPROMISE_MATCHED)) {
 				result.push_back(functions[i]);
 			}
@@ -158,4 +158,14 @@ void AbstractContext::addType(const std::wstring &name, Type *type)
 void AbstractContext::addType(Type * type)
 {
 	this->addType(type->getName(), type);
+}
+
+const DebugInfo &AbstractContext::getDebugInfo() const
+{
+    return debugInfo;
+}
+
+void AbstractContext::setDebugInfo(const DebugInfo &debugInfo)
+{
+    AbstractContext::debugInfo = debugInfo;
 }

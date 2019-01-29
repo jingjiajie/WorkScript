@@ -14,7 +14,7 @@ namespace WorkScript
 		inline WorkScriptException(DebugInfo d, const std::wstring &wmsg)
 				: debugInfo(d)
 		{
-			std::wstring str = L"第" + std::to_wstring(d.getLine())+ L"行，第" + std::to_wstring(d.getColumn()) + L"列：" + wmsg;
+			std::wstring str = L"第" + std::to_wstring(d.getLocation().getLine())+ L"行，第" + std::to_wstring(d.getLocation().getColumn()) + L"列：" + wmsg;
 			this->setMessage(str);
 		}
 		const char *what() const noexcept override;

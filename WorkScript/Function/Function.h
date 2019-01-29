@@ -28,7 +28,7 @@ namespace WorkScript {
 
 	class Function {
 	public:
-		Function(AbstractContext *baseContext, 
+		Function(AbstractContext *baseContext,
 			const std::wstring &name, 
 			const std::vector<Type*> &paramTypes, 
 			Type *returnType, 
@@ -37,21 +37,20 @@ namespace WorkScript {
 			bool isStaticVarargs = false);
 
 		virtual ~Function();
-		std::wstring getMangledFunctionName(InstantializeContext *ctx) const;
+		std::wstring getMangledFunctionName(const DebugInfo &d, InstantializeContext *ctx) const;
 		static std::wstring getStdParameterName(size_t paramIndex);
-		virtual GenerateResult generateLLVMIR(GenerateContext *context);
-		llvm::Function * getLLVMFunction(GenerateContext *context, bool declareOnly = false);
+		virtual GenerateResult generateLLVMIR(const DebugInfo &d, GenerateContext *context);
+		llvm::Function * getLLVMFunction(const DebugInfo &d, GenerateContext *context, bool declareOnly = false);
 
-		inline FunctionType *getType() { return this->abstractType; }
-		virtual Type *getReturnType(InstantializeContext *instCtx);
+		inline FunctionType *getAbstractType() { return this->abstractType; }
+		virtual Type *getReturnType(const DebugInfo &d, InstantializeContext *instCtx);
 		virtual void setReturnType(Type *type);
-		//CommonAbstractContext * getAbstractContext() { return &this->abstractContext; }
-		static MatchResult matchByParameters(const std::vector<Type*> &declParamTypes, const std::vector<Type*> &realParamTypes, bool isRuntimeVarargs, bool isStaticVarargs);
-		MatchResult matchByParameters(const std::vector<Type*> &paramTypes);
+		static MatchResult matchByParameters(const DebugInfo &d, const std::vector<Type*> &declParamTypes, const std::vector<Type*> &realParamTypes, bool isRuntimeVarargs, bool isStaticVarargs);
+		MatchResult matchByParameters(const DebugInfo &d, const std::vector<Type*> &paramTypes);
 
 		Program * getProgram() const { return this->program; }
 		inline size_t getParameterCount() const { return this->abstractType->getParameterCount(); }
-		std::vector<Type*> getParameterTypes(InstantializeContext *context) const;
+		std::vector<Type*> getParameterTypes(const DebugInfo &d, InstantializeContext *context) const;
 		inline std::wstring getName() const { return this->name; }
 		inline bool isDeclaredReturnType()const { return this->declaredReturnType; }
 		inline bool isRuntimeVarargs() const { return this->runtimeVarargs; }

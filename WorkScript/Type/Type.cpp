@@ -105,7 +105,7 @@ Type * Type::getPromotedType(const DebugInfo &d, Type * left, Type * right)
 					//TODO 指针类型的const和volatile，由于有pointerlevel，故应该支持各级的cv
 					try
 					{
-						return PointerType::get(getPromotedType(leftPtr->getTargetType(), rightPtr->getTargetType()), leftPtr->getLevel(),
+						return PointerType::get(getPromotedType(d, leftPtr->getTargetType(), rightPtr->getTargetType()), leftPtr->getLevel(),
 												false, false);
 					} catch (const IncompatibleTypeException &)
 					{
@@ -159,7 +159,7 @@ bool WorkScript::Type::convertableTo(const DebugInfo &d, Type * src, Type * targ
 			if(srcPtr->getLevel() != targetPtr->getLevel()) return false;
 			if(targetPtr->getTargetType()->getClassification() == TypeClassification::VOID) return true; //任何类型都可以转换为void*
 			if(srcPtr->getTargetType()->getClassification() == TypeClassification::VOID) return true; //void*可以转换为任何类型
-			return Type::convertableTo(srcPtr->getTargetType(),targetPtr->getTargetType());
+			return Type::convertableTo(d, srcPtr->getTargetType(),targetPtr->getTargetType());
 		}
 		default:
 			return false;
@@ -168,7 +168,7 @@ bool WorkScript::Type::convertableTo(const DebugInfo &d, Type * src, Type * targ
 
 bool WorkScript::Type::convertableTo(const DebugInfo &d, Type * target)
 {
-	return Type::convertableTo(this, target);
+	return Type::convertableTo(d, this, target);
 }
 
 GenerateResult Type::generateLLVMTypeConvert(const DebugInfo &d, GenerateContext * context, Expression * left, Expression * right, Type *promotedType)
@@ -177,15 +177,15 @@ GenerateResult Type::generateLLVMTypeConvert(const DebugInfo &d, GenerateContext
 	Type *leftType = left->getType(context->getInstantializeContext());
 	Type *rightType = right->getType(context->getInstantializeContext());
 	if (promotedType->equals(leftType)) { //类型提升到左部类型
-		return GenerateResult(left->generateIR(context).getValue(), Type::generateLLVMTypeConvert(context, right, promotedType).getValue());
+		return GenerateResult(left->generateIR(context).getValue(), Type::generateLLVMTypeConvert(d, context, right, promotedType).getValue());
 	}
 	else if (promotedType->equals(rightType)) { //类型提升到右部类型
-		return GenerateResult(Type::generateLLVMTypeConvert(context, left, promotedType).getValue(), right->generateIR(context).getValue());
+		return GenerateResult(Type::generateLLVMTypeConvert(d, context, left, promotedType).getValue(), right->generateIR(context).getValue());
 	}
 	else { //两边都需要提升
 		return GenerateResult(
-			Type::generateLLVMTypeConvert(context, left, promotedType).getValue(),
-			Type::generateLLVMTypeConvert(context, right, promotedType).getValue()
+			Type::generateLLVMTypeConvert(d, context, left, promotedType).getValue(),
+			Type::generateLLVMTypeConvert(d, context, right, promotedType).getValue()
 		);
 	}
 }
