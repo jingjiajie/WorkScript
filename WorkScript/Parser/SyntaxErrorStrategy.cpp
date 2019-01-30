@@ -1,7 +1,7 @@
 #include "SyntaxErrorStrategy.h"
 #include "RecognitionException.h"
 #include "InputMismatchException.h"
-#include "SyntaxErrorException.h"
+#include "ErrorManager.h"
 #include "Locales.h"
 
 using namespace antlr4;

@@ -107,7 +107,7 @@ Type * Type::getPromotedType(const DebugInfo &d, Type * left, Type * right)
 					{
 						return PointerType::get(getPromotedType(d, leftPtr->getTargetType(), rightPtr->getTargetType()), leftPtr->getLevel(),
 												false, false);
-					} catch (const IncompatibleTypeException &)
+					} catch (const IncompatibleTypeError &)
 					{
 						goto UNSUPPORTED;
 					}
@@ -128,7 +128,7 @@ Type * Type::getPromotedType(const DebugInfo &d, Type * left, Type * right)
 
 	UNSUPPORTED:
 	//TODO Location信息
-	throw IncompatibleTypeException(d, L"不支持的类型转换" + left->getName() + L" 和 " + right->getName());
+	throw IncompatibleTypeError(d, L"不支持的类型转换" + left->getName() + L" 和 " + right->getName());
 }
 
 bool WorkScript::Type::convertableTo(const DebugInfo &d, Type * src, Type * target)

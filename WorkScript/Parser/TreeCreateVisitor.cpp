@@ -7,7 +7,7 @@
 #include "Variable.h"
 #include "Assignment.h"
 #include "MultiValue.h"
-#include "SyntaxErrorException.h"
+#include "ErrorManager.h"
 #include "Parameter.h"
 #include "Function.h"
 #include "Function.h"
@@ -131,7 +131,7 @@ antlrcpp::Any TreeCreateVisitor::visitBoolean(WorkScriptParser::BooleanContext *
 		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getDebugInfo(ctx), this->abstractContexts.top()), IntegerType::get(1,false), 0));
 	}
 	else {
-		throw std::move(SyntaxErrorException(getDebugInfo(ctx), L"无法识别的布尔值：" + Locales::toWideChar(Encoding::UTF_8, boolStr)));
+		throw std::move(SyntaxError(getDebugInfo(ctx), L"无法识别的布尔值：" + Locales::toWideChar(Encoding::UTF_8, boolStr)));
 	}
 }
 
@@ -218,7 +218,7 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionDefine(WorkScriptParser::FunctionD
 	for (size_t i = 0; i < funcs.size(); ++i) {
 		Function *func = (Function*)funcs[i];
 		if (func->isDeclaredReturnType() && !func->getAbstractType()->getReturnType()->equals(declReturnType)) {
-			throw TypeMismatchedException(getDebugInfo(ctx), L"函数" + funcName + L"的返回值类型" + declReturnType->getName()
+			throw TypeMismatchedError(getDebugInfo(ctx), L"函数" + funcName + L"的返回值类型" + declReturnType->getName()
 				+ L"与之前声明的不符：" + func->getAbstractType()->getReturnType()->getName());
 		}
 		size_t branchID = func->getBranchCount() + 1; //blockID从1开始
@@ -543,7 +543,7 @@ antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
 	} else
 	{
 		//TODO 自定义类型
-		throw UnimplementedException(getDebugInfo(ctx), L"尚未实现自定义类型");
+		throw UnimplementedError(getDebugInfo(ctx), L"尚未实现自定义类型");
 	}
 
 	return TypeWrapper(type, storageType, linkageType);
@@ -614,9 +614,9 @@ static void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, De
 				++srcPos;
 				break;
 			case L'\0':
-				throw std::move(SyntaxErrorException(loc, (L"转义符未结束：\"" + wstring(srcStr) + L"\"").c_str()));
+				throw std::move(SyntaxError(loc, (L"转义符未结束：\"" + wstring(srcStr) + L"\"").c_str()));
 			default:
-				throw std::move(SyntaxErrorException(loc, (wstring(L"不能识别的转义符\"\\") + srcStr[srcPos] + L"\"").c_str()));
+				throw std::move(SyntaxError(loc, (wstring(L"不能识别的转义符\"\\") + srcStr[srcPos] + L"\"").c_str()));
 			}
 			break;
 		}

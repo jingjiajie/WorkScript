@@ -1,6 +1,6 @@
 #pragma once
 #include "Defines.h"
-#include "WorkScriptException.h"
+#include "ErrorManager.h"
 #include "GenerateContext.h"
 #include "GenerateResult.h"
 #include "ExpressionType.h"
@@ -25,7 +25,6 @@ namespace WorkScript {
 		virtual std::wstring toString() const = 0;
 		virtual Expression * clone() const = 0;
 
-		inline DebugInfo getLocation() const { return this->expressionInfo.getDebugInfo(); };
 		inline Program * getProgram() const { return this->expressionInfo.getProgram(); }
 		inline const DebugInfo & getDebugInfo() const{return this->expressionInfo.getDebugInfo();}
 	protected:

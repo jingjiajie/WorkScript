@@ -1,7 +1,7 @@
 #include "InstantialContext.h"
 #include "SymbolInfo.h"
 #include "SymbolTable.h"
-#include "WorkScriptException.h"
+#include "ErrorManager.h"
 #include "Function.h"
 #include "FunctionCache.h"
 #include "AbstractContext.h"

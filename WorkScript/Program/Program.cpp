@@ -38,7 +38,7 @@ void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::M
 	funcMain->generateLLVMIR(DebugInfo(), &ctx);
 }
 
-void Program::parseFile(const std::string &fileName) //throws SyntaxErrorException
+void Program::parseFile(const std::string &fileName) 
 {
 	FILE *file = fopen(fileName.c_str(), "r");
 	if (file == nullptr)

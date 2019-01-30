@@ -16,7 +16,7 @@ GenerateResult WorkScript::Variable::generateIR(GenerateContext * context)
 	auto instantialContext = context->getInstantialContext();
 	SymbolInfo *symbolInfo = instantialContext->getSymbolInfo(this->name);
 	if (!symbolInfo) {
-		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"无法找到符号：" + this->name);
+		throw UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"无法找到符号：" + this->name);
 	}
 
 	if (context->isLeftValue()) {
