@@ -38,7 +38,7 @@ GenerateResult WorkScript::UnaryOperator::generateIR(GenerateContext * context)
 		res = irBuilder->CreateNot(subValue);
 		break;
 	default:
-		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"未知的单目运算符");
+		throw InternalError(this->expressionInfo.getDebugInfo(), L"未知的单目运算符");
 	}
 
 	return res;
@@ -58,6 +58,6 @@ std::wstring WorkScript::UnaryOperator::getOperatorString() const
 	case OperatorType::NOT:
 		return L"!";
 	default:
-		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"未知的单目运算符");
+		throw InternalError(this->expressionInfo.getDebugInfo(), L"未知的单目运算符");
 	}
 }

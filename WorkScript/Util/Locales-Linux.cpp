@@ -3,7 +3,7 @@
 #include <wchar.h>
 #include <stdlib.h>
 #include "Locales.h"
-#include "WorkScriptException.h"
+#include "ErrorManager.h"
 
 
 using namespace std;

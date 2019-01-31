@@ -3,7 +3,7 @@
 #include "Parameter.h"
 #include "Variable.h"
 #include "BinaryCompare.h"
-#include "SyntaxErrorException.h"
+#include "ErrorManager.h"
 #include "Assignment.h"
 
 using namespace std;
@@ -44,7 +44,7 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 		case ExpressionType::BINARY_COMPARE_EXPRESSION: {
 			Expression* left = ((BinaryCompare*)curExpr)->getLeftExpression();
 			if (left->getExpressionType() != ExpressionType::VARIABLE_EXPRESSION) {
-				throw std::move(SyntaxErrorException(curExpr->getLocation(), L"函数参数约束左部必须为变量！"));
+				throw std::move(SyntaxError(curExpr->getDebugInfo(), L"函数参数约束左部必须为变量！"));
 			}
 			Variable *leftVar = (Variable*)left;
 			Parameter *param = new Parameter(leftVar->getName(), curType, isDeclaredType);
@@ -57,7 +57,7 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 		//	Assignment* assignmentExpr = (Assignment*)curExpr;
 		//	auto leftExpr = assignmentExpr->getLeftExpression();
 		//	if (leftExpr->getExpressionType() != ExpressionType::VARIABLE_EXPRESSION) {
-		//		throw std::move(SyntaxErrorException(curExpr->getDebugInfo(), L"参数默认值左部必须为参数名！"));
+		//		throw std::move(SyntaxError(curExpr->getDebugInfo(), L"参数默认值左部必须为参数名！"));
 		//	}
 		//	auto leftVar = (Variable*)leftExpr;
 		//	//TODO 参数默认值处理

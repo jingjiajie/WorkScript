@@ -1,8 +1,8 @@
 #include "WorkScriptEngine.h"
 #include "Program.h"
 #include "Expression.h"
-#include "SyntaxErrorException.h"
-#include "SyntaxErrorException.h"
+#include "ErrorManager.h"
+#include "ErrorManager.h"
 #include "Locales.h"
 #include <llvm/ExecutionEngine/Interpreter.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>

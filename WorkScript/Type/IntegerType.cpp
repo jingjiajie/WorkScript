@@ -1,6 +1,6 @@
 #include "IntegerType.h"
 #include "Program.h"
-#include "WorkScriptException.h"
+#include "ErrorManager.h"
 #include "DebugInfo.h"
 
 using namespace std;

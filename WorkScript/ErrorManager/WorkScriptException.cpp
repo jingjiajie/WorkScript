@@ -1,4 +1,4 @@
-#include "WorkScriptException.h"
+#include "ErrorManager.h"
 #include "Locales.h"
 
 using namespace std;

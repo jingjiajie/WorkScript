@@ -42,92 +42,95 @@ bool WorkScript::Type::equals(const Type * type) const
 
 Type * Type::getPromotedType(const DebugInfo &d, Type * left, Type * right)
 {
-	if (!left)return right;
-	if (!right)return left;
-	switch (left->getClassification())
-	{
-		case TypeClassification::INTEGER:
-		{
-			IntegerType *leftIntegerType = (IntegerType *) left;
-			switch (right->getClassification())
-			{
-				case TypeClassification::INTEGER:
-				{
-					IntegerType *rightIntegerType = (IntegerType *) right;
-					auto leftLen = leftIntegerType->getLength();
-					auto rightLen = rightIntegerType->getLength();
-					if (leftLen > rightLen) return left;
-					else if (leftLen < rightLen) return right;
-					else if (leftIntegerType->isSigned() && !rightIntegerType->isSigned()) return right;
-					else if (!leftIntegerType->isSigned() && rightIntegerType->isSigned()) return left;
-					else return left;
-				}
-				case TypeClassification::FLOAT:
-				{
-					return right;
-				}
-				default:
-					goto UNSUPPORTED;
-			}
-		}
+    if (!left)return right;
+    if (!right)return left;
+    switch (left->getClassification())
+    {
+        case TypeClassification::INTEGER:
+        {
+            IntegerType *leftIntegerType = (IntegerType *) left;
+            switch (right->getClassification())
+            {
+                case TypeClassification::INTEGER:
+                {
+                    IntegerType *rightIntegerType = (IntegerType *) right;
+                    auto leftLen = leftIntegerType->getLength();
+                    auto rightLen = rightIntegerType->getLength();
+                    if (leftLen > rightLen) return left;
+                    else if (leftLen < rightLen) return right;
+                    else if (leftIntegerType->isSigned() && !rightIntegerType->isSigned()) return right;
+                    else if (!leftIntegerType->isSigned() && rightIntegerType->isSigned()) return left;
+                    else return left;
+                }
+                case TypeClassification::FLOAT:
+                {
+                    return right;
+                }
+                default:
+                    goto UNSUPPORTED;
+            }
+        }
 
-		case TypeClassification::FLOAT:
-		{
-			FloatType *leftFloatType = (FloatType *) left;
-			switch (right->getClassification())
-			{
-				case TypeClassification::INTEGER:
-				{
-					return left;
-				}
-				case TypeClassification::FLOAT:
-				{
-					FloatType *rightFloatType = (FloatType *) right;
-					if (leftFloatType->getLength() > rightFloatType->getLength()) return left;
-					else return right;
-				}
-				default:
-					goto UNSUPPORTED;
-			}
-		}
-		case TypeClassification::POINTER:
-		{
-			auto leftPtr = (PointerType *) left;
-			switch (right->getClassification())
-			{
-				case TypeClassification::POINTER:
-				{
-					auto rightPtr = (PointerType *) right;
-					if(leftPtr->getLevel() != rightPtr->getLevel()) goto UNSUPPORTED;
-					bool isConst = false, isVolatile = false;
-					//if (left->isConst() || right->isConst()) isConst = true;
-					//if (left->isVolatile() || right->isVolatile()) isVolatile = true;
-					//TODO 指针类型的const和volatile，由于有pointerlevel，故应该支持各级的cv
-					try
-					{
-						return PointerType::get(getPromotedType(d, leftPtr->getTargetType(), rightPtr->getTargetType()), leftPtr->getLevel(),
-												false, false);
-					} catch (const IncompatibleTypeException &)
-					{
-						goto UNSUPPORTED;
-					}
-				}
-				default:
-					goto UNSUPPORTED;
-			}
-		}
-		case TypeClassification::VOID:
-			if(right->getClassification() == TypeClassification::VOID){
-				return left;
-			}else{
-				goto UNSUPPORTED;
-			}
-		default:
-			goto UNSUPPORTED;
-	}
+        case TypeClassification::FLOAT:
+        {
+            FloatType *leftFloatType = (FloatType *) left;
+            switch (right->getClassification())
+            {
+                case TypeClassification::INTEGER:
+                {
+                    return left;
+                }
+                case TypeClassification::FLOAT:
+                {
+                    FloatType *rightFloatType = (FloatType *) right;
+                    if (leftFloatType->getLength() > rightFloatType->getLength()) return left;
+                    else return right;
+                }
+                default:
+                    goto UNSUPPORTED;
+            }
+        }
+        case TypeClassification::POINTER:
+        {
+            auto leftPtr = (PointerType *) left;
+            switch (right->getClassification())
+            {
+                case TypeClassification::POINTER:
+                {
+                    auto rightPtr = (PointerType *) right;
+                    if (leftPtr->getLevel() != rightPtr->getLevel()) goto UNSUPPORTED;
+                    bool isConst = false, isVolatile = false;
+                    //if (left->isConst() || right->isConst()) isConst = true;
+                    //if (left->isVolatile() || right->isVolatile()) isVolatile = true;
+                    //TODO 指针类型的const和volatile，由于有pointerlevel，故应该支持各级的cv
+                    try
+                    {
+                        return PointerType::get(getPromotedType(d, leftPtr->getTargetType(), rightPtr->getTargetType()),
+                                                leftPtr->getLevel(),
+                                                false, false);
+                    } catch (const IncompatibleTypeError &)
+                    {
+                        goto UNSUPPORTED;
+                    }
+                }
+                default:
+                    goto UNSUPPORTED;
+            }
+        }
+        case TypeClassification::VOID:
+            if (right->getClassification() == TypeClassification::VOID)
+            {
+                return left;
+            } else
+            {
+                goto UNSUPPORTED;
+            }
+        default:
+            goto UNSUPPORTED;
+    }
 
-	UNSUPPORTED:
-	throw IncompatibleTypeException(d, L"不支持的类型转换" + left->getName() + L" 和 " + right->getName());
+    UNSUPPORTED:
+    throw IncompatibleTypeError(d, L"不支持的类型转换" + left->getName() + L" 和 " + right->getName());
 }
 
 bool WorkScript::Type::convertableTo(const DebugInfo &d, Type * src, Type * target)

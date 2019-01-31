@@ -18,7 +18,7 @@ GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 	auto paramTypes = this->parameters->getTypes(context->getInstantialContext());
 	Function *func = this->expressionInfo.getAbstractContext()->getFirstFunction(this->functionName, paramTypes);
 	if (!func) {
-		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"未找到函数：" + this->toFunctionDeclString(outerInstCtx));
+		throw UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"未找到函数：" + this->toFunctionDeclString(outerInstCtx));
 	}
 	//生成LLVM函数调用
 	auto builder = context->getIRBuilder();
@@ -44,7 +44,7 @@ Type * Call::getType(InstantialContext *context) const
 	Function *func = this->expressionInfo.getAbstractContext()->getFirstFunction(this->functionName, paramTypes);
 	if (!func) {
 	    auto str = this->toFunctionDeclString(context);
-		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"未找到函数：" + str);
+		throw UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"未找到函数：" + str);
 	}
 	SymbolTable newInstTable;
 	InstantialContext newInstCtx(this->expressionInfo.getAbstractContext(), this->getProgram()->getFunctionCache(), &newInstTable);

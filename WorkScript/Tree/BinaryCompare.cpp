@@ -1,7 +1,7 @@
 #include "BinaryCompare.h"
 #include "IntegerType.h"
 #include "FloatType.h"
-#include "WorkScriptException.h"
+#include "ErrorManager.h"
 
 using namespace std;
 using namespace WorkScript;

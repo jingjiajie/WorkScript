@@ -1,5 +1,5 @@
 #include "SyntaxErrorListener.h"
-#include "SyntaxErrorException.h"
+#include "ErrorManager.h"
 #include "Token.h"
 #include "Recognizer.h"
 #include "RuleContext.h"
@@ -62,5 +62,5 @@ void SyntaxErrorListener::syntaxError(Recognizer * recognizer,
 	{
 		ss << L"~";
 	}
-	throw SyntaxErrorException(DebugInfo(Location(line, charPositionInLine + 1)), ss.str().c_str());
+	throw SyntaxError(DebugInfo(Location(line, charPositionInLine + 1)), ss.str().c_str());
 }

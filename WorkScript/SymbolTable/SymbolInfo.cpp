@@ -1,7 +1,7 @@
 #include "SymbolInfo.h"
 #include "Type.h"
 #include "Locales.h"
-#include "WorkScriptException.h"
+#include "ErrorManager.h"
 #include "Constant.h"
 
 WorkScript::SymbolInfo::~SymbolInfo()
