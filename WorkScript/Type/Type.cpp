@@ -127,7 +127,6 @@ Type * Type::getPromotedType(const DebugInfo &d, Type * left, Type * right)
 	}
 
 	UNSUPPORTED:
-	//TODO Location信息
 	throw IncompatibleTypeException(d, L"不支持的类型转换" + left->getName() + L" 和 " + right->getName());
 }
 

@@ -2,17 +2,17 @@
 #include <unordered_map>
 #include "GenerateContext.h"
 #include "DebugInfo.h"
+#include "Type.h"
 
 namespace WorkScript 
 {
 	class Constant;
-	class Type;
 
 	class SymbolInfo
 	{
 	public:
-		inline SymbolInfo(const DebugInfo &d,  const std::wstring &name, Type *type = nullptr)
-		:name(name),type(type),debugInfo(d){}
+		inline SymbolInfo(const DebugInfo &d,  const std::wstring &name, Type *type, LinkageType lt)
+		:name(name),type(type),debugInfo(d), linkageType(lt){}
 		inline SymbolInfo() {}
 
 		~SymbolInfo();
@@ -32,6 +32,7 @@ namespace WorkScript
 		std::wstring name;
 		Constant *value = nullptr;
 		Type * type = nullptr;
+		LinkageType linkageType;
 		llvm::Value *llvmValue = nullptr;
 		llvm::Value *llvmValuePtr = nullptr;
 		DebugInfo debugInfo;

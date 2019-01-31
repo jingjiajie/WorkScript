@@ -47,7 +47,7 @@ Type * WorkScript::Assignment::getType(InstantialContext *context) const
 	if (leftType)return leftType;
 	if (this->leftExpression->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
 		auto leftVar = (Variable*)leftExpr;
-		this->makeSymbolOfRightType(leftVar->getName(), context);
+		this->makeSymbolOfRightType(leftVar->getName(),LinkageType::DEFAULT, context);
 	}
 	else {
 		throw WorkScriptException(this->getLocation(), L"无法推导" + this->leftExpression->toString() + L"的类型");
@@ -60,10 +60,10 @@ std::wstring WorkScript::Assignment::getOperatorString() const
 	return L":=";
 }
 
-Type * WorkScript::Assignment::makeSymbolOfRightType(const wstring &name, InstantialContext *ctx) const
+Type * WorkScript::Assignment::makeSymbolOfRightType(const wstring &name,const LinkageType &lt, InstantialContext *ctx) const
 {
 	auto rightExpr = this->getRightExpression();
 	Type *rightType = rightExpr->getType(ctx);
-	ctx->getInstanceSymbolTable()->setSymbol(this->getDebugInfo(), name, rightType);
+	ctx->getInstanceSymbolTable()->setSymbol(this->getDebugInfo(), name, rightType, lt);
 	return rightType;
 }

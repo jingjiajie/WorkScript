@@ -41,7 +41,7 @@ Type * WorkScript::FunctionBranch::getReturnType(const DebugInfo &d, InstantialC
 		SymbolInfo *stdParamInfo = ctx->getSymbolInfo(L"@" + to_wstring(i));
 		//获取当前分支参数的符号信息，加入符号表
 		Parameter *myParam = this->parameters[i];
-		instSymbolTable.setSymbol(d, myParam->getName(), stdParamInfo->getType());
+		instSymbolTable.setSymbol(d, myParam->getName(), stdParamInfo->getType(), LinkageType::DEFAULT);
 	}
 	InstantialContext newCtx(&this->context, this->function->getProgram()->getFunctionCache(), &instSymbolTable);
 	return this->implements[implCount - 1]->getType(&newCtx);
@@ -82,7 +82,7 @@ llvm::BasicBlock * WorkScript::FunctionBranch::generateBlock(GenerateContext * c
 		llvm::Value *stdLLVMParam = stdParamInfo->getLLVMValue(this->getDebugInfo(), context);
 		//获取当前分支参数的符号信息，加入符号表
 		Parameter *myParam = this->parameters[i];
-		SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), myParam->getName(), stdParamInfo->getType());
+		SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), myParam->getName(), stdParamInfo->getType(),LinkageType::DEFAULT);
 		//生成llvm赋值，将标准参数赋值到当前分支参数
 		llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), context);
 		builder.CreateStore(stdLLVMParam, myLLVMParamPtr);

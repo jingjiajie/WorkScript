@@ -21,7 +21,7 @@ std::wstring WorkScript::IntegerType::getName() const
 	wstring str;
 	if(this->_const) str += L"const ";
 	if(this->_volatile) str += L"volatile ";
-	if(!this->_signed) str += L"unsigned";
+	if(!this->_signed) str += L"unsigned ";
 	str += L"int" + to_wstring(this->length);
 	return str;
 }

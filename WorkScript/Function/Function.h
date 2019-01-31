@@ -31,10 +31,11 @@ namespace WorkScript {
 		Function(AbstractContext *baseContext,
 			const std::wstring &name, 
 			const std::vector<Type*> &paramTypes, 
-			Type *returnType, 
+			Type *returnType,
 			bool declaredReturnType = false,
 			bool isRuntimeVarargs = false, 
-			bool isStaticVarargs = false);
+			bool isStaticVarargs = false,
+			LinkageType lt = LinkageType::EXTERNAL);
 
 		virtual ~Function();
 		std::wstring getMangledFunctionName(const DebugInfo &d, InstantialContext *ctx) const;
@@ -48,6 +49,8 @@ namespace WorkScript {
 		static MatchResult matchByParameters(const DebugInfo &d, const std::vector<Type*> &declParamTypes, const std::vector<Type*> &realParamTypes, bool isRuntimeVarargs, bool isStaticVarargs);
 		MatchResult matchByParameters(const DebugInfo &d, const std::vector<Type*> &paramTypes);
 
+		LinkageType getLinkageType() const;
+		void setLinkageType(LinkageType linkageType);
 		Program * getProgram() const { return this->program; }
 		inline size_t getParameterCount() const { return this->abstractType->getParameterCount(); }
 		std::vector<Type*> getParameterTypes(const DebugInfo &d, InstantialContext *context) const;
@@ -65,6 +68,7 @@ namespace WorkScript {
 		Program *program = nullptr;
 		std::vector<ParamTypesAndLLVMFunction> llvmFunctions;
 		FunctionType *abstractType;
+		LinkageType linkageType;
 		bool declaredReturnType = false;
 		bool runtimeVarargs = false;
 		bool staticVarargs = false;

@@ -160,8 +160,11 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionDefine(WorkScriptParser::FunctionD
 	/*读取返回值类型名*/
 	auto returnTypeCtx = ctx->functionDeclaration()->type();
 	Type *declReturnType = nullptr;
+	LinkageType linkageType = LinkageType::DEFAULT;
 	if (returnTypeCtx) {
-        declReturnType = returnTypeCtx->accept(this).as<TypeWrapper>().getType();
+		TypeWrapper returnTypeWrapper = returnTypeCtx->accept(this).as<TypeWrapper>();
+		linkageType = returnTypeWrapper.getLinkageType();
+        declReturnType = returnTypeWrapper.getType();
 		size_t pointerLevel = ctx->functionDeclaration()->STAR().size();
 		if(pointerLevel > 0) declReturnType = PointerType::get(declReturnType,pointerLevel);
 	}
@@ -210,14 +213,18 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionDefine(WorkScriptParser::FunctionD
 	auto funcs = outerAbstractContext->getFunctions(funcName, paramTypes);
 	if (funcs.size() == 0) {
 		//此时还不知道返回值类型
-		auto newFunc = new Function(outerAbstractContext, funcName, paramTypes, declReturnType, declReturnType != nullptr, isRuntimeVarargs);
+		auto newFunc = new Function(outerAbstractContext, funcName, paramTypes, declReturnType, declReturnType != nullptr, isRuntimeVarargs, false, linkageType);
 		funcs.push_back(newFunc);
 		outerAbstractContext->addFunction(newFunc);
 	}
 	//为所有符合条件的函数重载添加函数分支
 	for (size_t i = 0; i < funcs.size(); ++i) {
 		Function *func = (Function*)funcs[i];
-		if (func->isDeclaredReturnType() && !func->getAbstractType()->getReturnType()->equals(declReturnType)) {
+		/*检查链接类型是否相同*/
+		LinkageType oriLinkageType = func->getLinkageType();
+        if(oriLinkageType != linkageType && oriLinkageType != LinkageType::DEFAULT && linkageType != LinkageType::DEFAULT){
+            throw TypeMismatchedException(getDebugInfo(ctx), L"函数" + funcName + L"的链接类型与之前声明的不符");
+        }else /*检查类型声明是否匹配*/if (func->isDeclaredReturnType() && !func->getAbstractType()->getReturnType()->equals(declReturnType)) {
 			throw TypeMismatchedException(getDebugInfo(ctx), L"函数" + funcName + L"的返回值类型" + declReturnType->getName()
 				+ L"与之前声明的不符：" + func->getAbstractType()->getReturnType()->getName());
 		}
@@ -265,27 +272,32 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDecl(WorkScriptPars
 	TypeWrapper returnTypeWrapper = returnTypeCtx->accept(this).as<TypeWrapper>();
 	Type *returnType = returnTypeWrapper.getType();
 	size_t pointerLevel = ctx->STAR().size();
-	if(pointerLevel > 0) returnType = PointerType::get(returnType, pointerLevel);
+	if (pointerLevel > 0) returnType = PointerType::get(returnType, pointerLevel);
+	LinkageType linkageType = returnTypeWrapper.getLinkageType();
 
 	/*处理参数声明*/
 	auto paramItemsCtx = ctx->stdFormalParameter()->stdFormalParameterItem();
-	vector<Parameter*> params;
-	vector<Type*> paramTypes;
-	for (size_t i = 0; i < paramItemsCtx.size(); ++i) {
+	vector<Parameter *> params;
+	vector<Type *> paramTypes;
+	for (size_t i = 0; i < paramItemsCtx.size(); ++i)
+	{
 		wstring paramName;
-		if (paramItemsCtx[i]->identifier()) {
+		if (paramItemsCtx[i]->identifier())
+		{
 			paramName = Locales::toWideChar(Encoding::UTF_8, paramItemsCtx[i]->identifier()->getText());
 		}
 		Type *paramType = paramItemsCtx[i]->type()->accept(this).as<TypeWrapper>().getType();
 		size_t pointerLevel = paramItemsCtx[i]->STAR().size();
-		if(pointerLevel > 0) paramType = PointerType::get(paramType, pointerLevel);
+		if (pointerLevel > 0) paramType = PointerType::get(paramType, pointerLevel);
 		params.push_back(new Parameter(paramName, paramType, true));
 		paramTypes.push_back(paramType);
 	}
 	bool isRuntimeVarargs = ctx->stdFormalParameter()->APOSTROPHE() != nullptr;
 	Function *func = outerAbstractContext->getFirstFunction(funcName, paramTypes);
-	if (!func) {
-		func = new Function(outerAbstractContext, funcName, paramTypes, returnType,true,isRuntimeVarargs);
+	if (!func)
+	{
+		func = new Function(outerAbstractContext, funcName, paramTypes, returnType, true, isRuntimeVarargs, false,
+							linkageType);
 		outerAbstractContext->addFunction(func);
 	}
 	return nullptr;
@@ -327,7 +339,7 @@ antlrcpp::Any TreeCreateVisitor::visitAssignmentOrEquals(WorkScriptParser::Assig
 		InstantialContext instCtx(this->abstractContexts.top(), program->getFunctionCache());
 		if (left->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
 			auto leftVar = (Variable*)left;
-			this->abstractContexts.top()->setSymbol(getDebugInfo(ctx), leftVar->getName(), right->getType(&instCtx));
+			this->abstractContexts.top()->setSymbol(getDebugInfo(ctx), leftVar->getName(), right->getType(&instCtx), LinkageType::DEFAULT);
 		}
 		return ExpressionWrapper(new Assignment(ExpressionInfo(program, getDebugInfo(ctx), this->abstractContexts.top()), left, right));
 	}
@@ -481,7 +493,7 @@ antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
 	auto specifiers = ctx->typeSpecifier();
 	auto storageClassSpecifiers = ctx->storageClassSpecifier();
 	bool isConst = false, isVolatile = false;
-	bool isShort = false, isLong = false, isSigned = false, isUnsigned = false;
+	bool isShort = false, isLong = false, isUnsigned = false;
 	StorageType storageType = StorageType::DEFAULT;
 	LinkageType linkageType = LinkageType::DEFAULT;
 	wstring typeName;
@@ -511,7 +523,7 @@ antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
 		string specifier = specifierCtx->getText();
 		if (specifier == "short") isShort = true;
 		else if (specifier == "long") isLong = true;
-		else if (specifier == "signed") isSigned = true;
+		else if (specifier == "signed") isUnsigned = false;
 		else if (specifier == "unsigned") isUnsigned = true;
 		else
 		{
@@ -527,13 +539,13 @@ antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
 		unsigned char len = 32;
 		if (isShort) len = 16;
 		else if (isLong) len = 64;
-		type = IntegerType::get(len, isSigned, isConst, isVolatile);
+		type = IntegerType::get(len, !isUnsigned, isConst, isVolatile);
 	} else if (typeName == L"char")
 	{
-		type = IntegerType::get(8, isSigned, isConst, isVolatile);
+		type = IntegerType::get(8, !isUnsigned, isConst, isVolatile);
 	} else if (typeName == L"bool")
 	{
-		type = IntegerType::get(1, isSigned, isConst, isVolatile);
+		type = IntegerType::get(1, !isUnsigned, isConst, isVolatile);
 	} else if (typeName == L"float")
 	{
 		type = FloatType::get(32, isConst, isVolatile);

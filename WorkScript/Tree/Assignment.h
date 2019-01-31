@@ -16,7 +16,7 @@ namespace WorkScript {
 
 	protected:
 		virtual std::wstring getOperatorString() const override;
-		Type * makeSymbolOfRightType(const std::wstring &name, InstantialContext *ctx) const;
+		Type * makeSymbolOfRightType(const std::wstring &name, const LinkageType &lt, InstantialContext *ctx) const;
 	};
 
 }

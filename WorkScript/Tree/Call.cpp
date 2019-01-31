@@ -28,7 +28,7 @@ GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 	for (size_t i = 0; i < paramTypes.size(); ++i)
 	{
 		Type *paramType = paramTypes[i];
-		newInstTable.setSymbol(this->getDebugInfo(), Function::getStdParameterName(i), paramType);
+		newInstTable.setSymbol(this->getDebugInfo(), Function::getStdParameterName(i), paramType, LinkageType::DEFAULT);
 	}
 	auto llvmArgs = this->parameters->getLLVMArgs(context, func->getParameterTypes(this->getDebugInfo(), &innerInstCtx)); //这个必须在context设置innerInstCtx之前执行
     context->setInstantialContext(&innerInstCtx);
@@ -51,7 +51,7 @@ Type * Call::getType(InstantialContext *context) const
 	for (size_t i = 0; i < paramTypes.size(); ++i)
 	{
 		Type *paramType = paramTypes[i];
-		newInstTable.setSymbol(this->getDebugInfo(), Function::getStdParameterName(i), paramType);
+		newInstTable.setSymbol(this->getDebugInfo(), Function::getStdParameterName(i), paramType, LinkageType::DEFAULT);
 	}
 	return func->getReturnType(this->getDebugInfo(), &newInstCtx);
 }

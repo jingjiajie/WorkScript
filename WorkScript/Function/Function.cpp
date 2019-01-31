@@ -15,8 +15,9 @@ Function::Function(
         Type *returnType,
         bool declaredReturnType,
         bool isRuntimeVarargs,
-        bool isStaticVarargs)
-        : name(name), declaredReturnType(declaredReturnType), runtimeVarargs(isRuntimeVarargs),
+        bool isStaticVarargs,
+        LinkageType lt)
+        : name(name), declaredReturnType(declaredReturnType), linkageType(lt), runtimeVarargs(isRuntimeVarargs),
           staticVarargs(isStaticVarargs), baseContext(baseContext)
 {
     FunctionType *funcType = FunctionType::get(paramTypes, returnType);
@@ -79,10 +80,20 @@ llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *c
         {
             funcName = this->name;
         }
+        llvm::Function::LinkageTypes linkageType;
+        switch(this->linkageType){
+            case LinkageType::DEFAULT:
+            case LinkageType::EXTERNAL:
+                linkageType = llvm::Function::LinkageTypes::ExternalLinkage;
+                break;
+            case LinkageType::INTERNAL:
+                linkageType = llvm::Function::LinkageTypes::InternalLinkage;
+                break;
+        }
 
         llvm::Function *func =
                 llvm::Function::Create(funcType,
-                                       llvm::Function::ExternalLinkage,
+                                       linkageType,
                                        Locales::fromWideChar(Encoding::ANSI, funcName),
                                        context->getLLVMModule()
                 );
@@ -176,7 +187,6 @@ inline std::vector<Type *> WorkScript::Function::getParameterTypes(const DebugIn
             result.push_back(declParamTypes[i]);
         } else
         {
-            //TODO Location信息
             throw WorkScriptException(d, L"参数类型不匹配！");
         }
     }
@@ -208,7 +218,7 @@ Type *Function::getReturnType(const DebugInfo &d, InstantialContext *instCtx)
     auto paramTypes = this->getParameterTypes(d, instCtx);
     for (size_t i = 0; i < this->getParameterCount(); ++i)
     {
-        SymbolInfo *curInfo = instSymbolTable.setSymbol(d, L"@" + to_wstring(i), paramTypes[i]);
+        SymbolInfo *curInfo = instSymbolTable.setSymbol(d, L"@" + to_wstring(i), paramTypes[i], LinkageType::DEFAULT);
     }
     auto prevTable = instCtx->getInstanceSymbolTable();
     instCtx->setInstanceSymbolTable(&instSymbolTable);
@@ -250,7 +260,7 @@ GenerateResult WorkScript::Function::generateLLVMIR(const DebugInfo &d, Generate
         llvm::Argument *itArg = llvmFunc->arg_begin();
         for (size_t i = 0; i < this->getParameterCount(); ++i)
         {
-            SymbolInfo *curInfo = instSymbolTable.setSymbol(d, L"@" + to_wstring(i), paramTypes[i]);
+            SymbolInfo *curInfo = instSymbolTable.setSymbol(d, L"@" + to_wstring(i), paramTypes[i], LinkageType::DEFAULT);
             curInfo->setLLVMValue(itArg);
             ++itArg;
         }
@@ -284,6 +294,16 @@ size_t WorkScript::Function::addBranch(FunctionBranch *branch)
     }
     this->branches.push_back(branch);
     return this->branches.size() - 1;
+}
+
+LinkageType Function::getLinkageType() const
+{
+    return linkageType;
+}
+
+void Function::setLinkageType(LinkageType linkageType)
+{
+    Function::linkageType = linkageType;
 }
 
 

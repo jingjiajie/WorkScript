@@ -13,7 +13,7 @@ namespace WorkScript {
 		~AbstractContext();
 		inline size_t getBlockID() const { return this->blockID; }
 		inline SymbolInfo * getSymbolInfo(const std::wstring &name) { return this->abstractSymbolTable.getSymbolInfo(name); }
-		inline SymbolInfo * setSymbol(const DebugInfo &d, const std::wstring &name, Type *type) { return this->abstractSymbolTable.setSymbol(d, name, type); }
+		inline SymbolInfo * setSymbol(const DebugInfo &d, const std::wstring &name, Type *type, LinkageType lt) { return this->abstractSymbolTable.setSymbol(d, name, type, lt); }
 		inline SymbolTable * getSymbolTable() { return &this->abstractSymbolTable; }
 
 		void addFunction(Function *func);

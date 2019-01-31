@@ -11,7 +11,7 @@ SymbolInfo * WorkScript::SymbolTable::getSymbolInfo(const std::wstring & name)
 	else return &it->second;
 }
 
-SymbolInfo * WorkScript::SymbolTable::setSymbol(const DebugInfo &d, const std::wstring & name, Type * type)
+SymbolInfo * WorkScript::SymbolTable::setSymbol(const DebugInfo &d, const std::wstring & name, Type * type, LinkageType lt)
 {
-	return &(this->symbols[name] = SymbolInfo(d, this->prefix + name, type));
+	return &(this->symbols[name] = SymbolInfo(d, this->prefix + name, type, lt));
 }
