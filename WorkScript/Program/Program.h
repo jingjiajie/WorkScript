@@ -8,24 +8,35 @@
 #include "VoidType.h"
 #include "FunctionCache.h"
 #include "AbstractContext.h"
+#include "Report.h"
 
-namespace WorkScript {
+namespace WorkScript
+{
 	class Function;
 
 	class Program final
 	{
 	public:
 		Program(const std::string &filePath);
+
 		~Program();
 
 		void generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule);
 
-		inline AbstractContext * getGlobalAbstractContext() { return &this->globalAbstractContext; }
-		inline FunctionCache *getFunctionCache() { return &this->functionCache; }
+		inline AbstractContext *getGlobalAbstractContext()
+		{ return &this->globalAbstractContext; }
+
+		inline FunctionCache *getFunctionCache()
+		{ return &this->functionCache; }
+
+		inline Report *getReport()
+		{ return &this->report; }
+
 	protected:
 		AbstractContext globalAbstractContext;
 		FunctionCache functionCache;
+		Report report;
 
-        void parseFile(const std::string &fileName);
+		void parseFile(const std::string &fileName);
 	};
 }

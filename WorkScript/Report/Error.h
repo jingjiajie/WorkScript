@@ -1,15 +1,15 @@
 #pragma once
-#include "WorkScriptException.h"
+#include "ReportItem.h"
 
 #define WS_ERROR_COMMON_DECL(CLASS_NAME) \
-class CLASS_NAME : public WorkScriptError { public: using WorkScriptError::WorkScriptError; };
+class CLASS_NAME : public Error { public: using Error::Error; };
 
 namespace WorkScript
 {
-    class WorkScriptError : public WorkScriptException
+    class Error : public ReportItem
     {
     public:
-        using WorkScriptException::WorkScriptException;
+        using ReportItem::ReportItem;
     };
 
     WS_ERROR_COMMON_DECL(AccessDeniedError)
@@ -33,8 +33,6 @@ namespace WorkScript
     WS_ERROR_COMMON_DECL(TypeNotFoundError)
 
     WS_ERROR_COMMON_DECL(TypeMismatchedError)
-
-    WS_ERROR_COMMON_DECL(InternalError)
 
     WS_ERROR_COMMON_DECL(IncompatibleTypeError)
 

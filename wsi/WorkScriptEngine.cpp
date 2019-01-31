@@ -1,8 +1,8 @@
 #include "WorkScriptEngine.h"
 #include "Program.h"
 #include "Expression.h"
-#include "ErrorManager.h"
-#include "ErrorManager.h"
+#include "Report.h"
+#include "Exception.h"
 #include "Locales.h"
 #include <llvm/ExecutionEngine/Interpreter.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
@@ -34,9 +34,13 @@ void WorkScriptEngine::run(const char * filePath)
 	try
     {
         program.generateLLVMIR(&llvmContext, llvmModule.get());
-    }catch (const WorkScriptException &ex){
-	    printf(ex.what());
-	    return;
+    }catch (const CompileTerminatedException &ex){
+
+	}
+	Report *report = program.getReport();
+	if(report->getErrorCount() > 0){
+		report->dump();
+		return;
 	}
 //	printf("IR dump:\n");
 //	llvmModule->print(llvm::outs(),nullptr);

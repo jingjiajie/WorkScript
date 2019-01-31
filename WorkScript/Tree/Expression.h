@@ -1,6 +1,6 @@
 #pragma once
 #include "Defines.h"
-#include "ErrorManager.h"
+#include "Report.h"
 #include "GenerateContext.h"
 #include "GenerateResult.h"
 #include "ExpressionType.h"

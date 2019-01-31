@@ -1,7 +1,7 @@
 #include "SymbolInfo.h"
 #include "Type.h"
 #include "Locales.h"
-#include "ErrorManager.h"
+#include "Report.h"
 #include "Constant.h"
 
 WorkScript::SymbolInfo::~SymbolInfo()
@@ -27,7 +27,8 @@ llvm::Value * WorkScript::SymbolInfo::getLLVMValuePtr(const DebugInfo &d, Genera
 	if (!this->llvmValuePtr)
 	{
 		if(this->llvmValue){
-			throw WorkScriptException(d, L"变量"+this->name+L"不可赋值！");
+			d.getReport()->error(UnassignableError(d, L"变量"+this->name+L"不可赋值！"));
+			return nullptr;
 		}
 		auto builder = context->getIRBuilder();
 		this->llvmValuePtr = builder->CreateAlloca(this->type->getLLVMType(context), nullptr, Locales::fromWideChar(Encoding::ANSI, this->name));

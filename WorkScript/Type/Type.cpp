@@ -5,6 +5,7 @@
 #include "IntegerType.h"
 #include "FloatType.h"
 #include "VoidType.h"
+#include "Exception.h"
 
 using namespace WorkScript;
 using namespace std;
@@ -130,7 +131,8 @@ Type * Type::getPromotedType(const DebugInfo &d, Type * left, Type * right)
     }
 
     UNSUPPORTED:
-    throw IncompatibleTypeError(d, L"不支持的类型转换" + left->getName() + L" 和 " + right->getName());
+	d.getReport()->error(IncompatibleTypeError(d, L"不支持的类型转换" + left->getName() + L" 和 " + right->getName()));
+    return nullptr;
 }
 
 bool WorkScript::Type::convertableTo(const DebugInfo &d, Type * src, Type * target)
@@ -278,6 +280,6 @@ GenerateResult Type::generateLLVMTypeConvert(const DebugInfo &d, GenerateContext
 	}
 
 	UNSUPPORTED:
-	//DebugInfo 信息
-	throw WorkScriptException(d, L"不支持的类型转换：" + srcType->getName() + L" 到 " + targetType->getName());
+	d.getReport()->error(IncompatibleTypeError(d, L"不支持的类型转换：" + srcType->getName() + L" 到 " + targetType->getName()));
+	throw OperationCanceledException();
 }

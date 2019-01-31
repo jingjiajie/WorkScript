@@ -3,6 +3,7 @@
 #include "Type.h"
 #include "Assignment.h"
 #include "Utils.h"
+#include "Exception.h"
 
 using namespace WorkScript;
 using namespace std;
@@ -68,7 +69,7 @@ ExpressionType WorkScript::MultiValue::getExpressionType() const
 
 GenerateResult WorkScript::MultiValue::generateIR(GenerateContext * context)
 {
-	throw "请调用getLLVMArgs()";
+	throw InternalException(L"请调用getLLVMArgs()");
 }
 
 std::vector<llvm::Value*> WorkScript::MultiValue::getLLVMArgs(GenerateContext * context, const vector<Type*> &formalParamTypes) const
@@ -80,7 +81,8 @@ std::vector<llvm::Value*> WorkScript::MultiValue::getLLVMArgs(GenerateContext * 
 	{
 		Type *curItemType = this->items[i]->getType(context->getInstantialContext());
 		if (!curItemType) {
-			throw UninferableTypeError(this->expressionInfo.getDebugInfo(), L"无法推导参数类型！");
+			this->expressionInfo.getDebugInfo().getReport()->error(UninferableTypeError(this->expressionInfo.getDebugInfo(), L"无法推导参数类型！"));
+			throw OperationCanceledException();
 		}
 		if (i >= formalParamCount || curItemType->equals(formalParamTypes[i])) {
 			llvm::Value *curLLVMParam = this->items[i]->generateIR(context).getValue();

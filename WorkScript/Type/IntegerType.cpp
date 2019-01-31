@@ -1,6 +1,7 @@
 #include "IntegerType.h"
 #include "Program.h"
-#include "ErrorManager.h"
+#include "Report.h"
+#include "Exception.h"
 #include "DebugInfo.h"
 
 using namespace std;
@@ -60,8 +61,7 @@ llvm::Type * WorkScript::IntegerType::getLLVMType(GenerateContext *ctx) const
 	case 64:
 		return llvm::IntegerType::getInt64Ty(*ctx->getLLVMContext());
 	default:
-		//TODO Location信息
-		throw WorkScriptException(DebugInfo(), L"不支持的整数长度：" + to_wstring(this->length));
+		throw InternalException(L"不支持的整数长度：" + to_wstring(this->length));
 	}
 }
 

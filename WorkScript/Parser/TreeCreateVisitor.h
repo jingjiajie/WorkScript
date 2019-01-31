@@ -39,6 +39,7 @@ namespace WorkScript {
 		TreeCreateVisitor(Program* program);
 		virtual ~TreeCreateVisitor();
 
+		Program *getProgram() const{return this->program;}
 	private:
 		Program * program = nullptr;
 		bool assignable = true;

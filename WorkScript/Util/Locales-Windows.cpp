@@ -1,6 +1,6 @@
 #ifdef _WIN32
 #include "Locales.h"
-#include "ErrorManager.h"
+#include "Report.h"
 #include <wchar.h>
 #include <Windows.h>
 
@@ -16,7 +16,7 @@ static UINT getWinCP(Encoding encoding)
         case Encoding::ANSI:
             return CP_ACP;
     }
-    throw InternalError(DebugInfo(), L"未知的编码：" + to_wstring(encoding));
+    throw InternalException(L"未知的编码：" + to_wstring(encoding));
 }
 
 wstring Locales::toWideChar(WorkScript::Encoding fromEncoding, const std::string &str)

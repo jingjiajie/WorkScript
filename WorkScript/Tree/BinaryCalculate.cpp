@@ -1,6 +1,7 @@
 #include "BinaryCalculate.h"
 #include "IntegerType.h"
 #include "FloatType.h"
+#include "Exception.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -28,7 +29,7 @@ GenerateResult WorkScript::BinaryCalculate::generateIR(GenerateContext * context
 	}
 
 UNSUPPORTED:
-	throw InternalError(this->expressionInfo.getDebugInfo(), L"双目运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
+	throw InternalException(L"双目运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
 }
 
 Type * WorkScript::BinaryCalculate::getType(InstantialContext *context) const
@@ -66,7 +67,7 @@ std::wstring WorkScript::BinaryCalculate::getOperatorString() const
 		return L"%";
 		break;
 	default:
-		throw InternalError(this->expressionInfo.getDebugInfo(), L"未知操作符");
+		throw InternalException(L"未知操作符");
 	}
 }
 
@@ -102,7 +103,7 @@ GenerateResult WorkScript::BinaryCalculate::generateLLVMIRInteger(GenerateContex
 		}
 		break;
 	default:
-		throw InternalError(this->expressionInfo.getDebugInfo(), L"未知操作符");
+		throw InternalException(L"未知操作符");
 	}
 
 	return res;
@@ -130,7 +131,7 @@ GenerateResult WorkScript::BinaryCalculate::generateLLVMIRFloat(GenerateContext 
 			res = irBuilder->CreateFRem(left, right);
 		break;
 	default:
-		throw InternalError(this->expressionInfo.getDebugInfo(), L"未知操作符");
+		throw InternalException(L"未知操作符");
 	}
 
 	return res;

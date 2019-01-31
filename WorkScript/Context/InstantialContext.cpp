@@ -1,7 +1,8 @@
 #include "InstantialContext.h"
 #include "SymbolInfo.h"
 #include "SymbolTable.h"
-#include "ErrorManager.h"
+#include "Report.h"
+#include "Exception.h"
 #include "Function.h"
 #include "FunctionCache.h"
 #include "AbstractContext.h"
@@ -28,7 +29,7 @@ void InstantialContext::setFunctionTypeCache(const DebugInfo &d, WorkScript::Fun
 {
     if (!this->functionCache)
     {
-        throw WorkScriptException(d, L"未指定函数缓存器！");
+        throw InternalException(L"未指定函数缓存器！");
     }
     this->functionCache->setFunctionTypeCache(d, func, paramTypes, isRuntimeVarargs, isStaticVarargs, cacheReturnType);
 }
@@ -37,7 +38,7 @@ bool InstantialContext::getFunctionTypeCache(const DebugInfo &d, Function *func,
 {
 	if (!this->functionCache)
 	{
-		throw WorkScriptException(d, L"未指定函数缓存器！");
+		throw InternalException(L"未指定函数缓存器！");
 	}
 	return this->functionCache->getFunctionTypeCache(d, func, paramTypes, isRuntimeVarargs, isStaticVarargs, outReturnType);
 }

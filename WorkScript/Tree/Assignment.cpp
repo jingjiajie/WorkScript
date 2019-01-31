@@ -1,7 +1,8 @@
 #include "Assignment.h"
-#include "ErrorManager.h"
+#include "Report.h"
 #include "Utils.h"
 #include "Variable.h"
+#include "Exception.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -11,7 +12,8 @@ WorkScript::Assignment::Assignment(const ExpressionInfo &exprInfo,Expression *le
 {
 	Variable *leftVar = dynamic_cast<Variable*>(this->leftExpression);
 	if (!leftVar) {
-		throw SyntaxError(this->getDebugInfo(), this->leftExpression->toString() + L"不可以赋值");
+		this->getDebugInfo().getReport()->error(SyntaxError(this->getDebugInfo(), this->leftExpression->toString() + L"不可以赋值"));
+		throw OperationCanceledException();
 	}
 }
 
@@ -50,7 +52,8 @@ Type * WorkScript::Assignment::getType(InstantialContext *context) const
 		this->makeSymbolOfRightType(leftVar->getName(),LinkageType::DEFAULT, context);
 	}
 	else {
-		throw UninferableTypeError(this->getDebugInfo(), L"无法推导" + this->leftExpression->toString() + L"的类型");
+		this->getDebugInfo().getReport()->error(UninferableTypeError( this->getDebugInfo(), L"无法推导" + this->leftExpression->toString() + L"的类型"));
+	    return nullptr;
 	}
 	return this->rightExpression->getType(context);
 }

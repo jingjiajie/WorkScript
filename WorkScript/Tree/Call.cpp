@@ -7,6 +7,7 @@
 #include "Utils.h"
 #include "Function.h"
 #include "InstantialContext.h"
+#include "Exception.h"
 
 using namespace WorkScript;
 using namespace std;
@@ -18,7 +19,8 @@ GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 	auto paramTypes = this->parameters->getTypes(context->getInstantialContext());
 	Function *func = this->expressionInfo.getAbstractContext()->getFirstFunction(this->functionName, paramTypes);
 	if (!func) {
-		throw UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"未找到函数：" + this->toFunctionDeclString(outerInstCtx));
+		this->expressionInfo.getDebugInfo().getReport()->error(UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"未找到函数：" + this->toFunctionDeclString(outerInstCtx)));
+		throw OperationCanceledException();
 	}
 	//生成LLVM函数调用
 	auto builder = context->getIRBuilder();
@@ -44,7 +46,8 @@ Type * Call::getType(InstantialContext *context) const
 	Function *func = this->expressionInfo.getAbstractContext()->getFirstFunction(this->functionName, paramTypes);
 	if (!func) {
 	    auto str = this->toFunctionDeclString(context);
-		throw UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"未找到函数：" + str);
+		this->expressionInfo.getDebugInfo().getReport()->error(UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"未找到函数：" + str));
+		throw OperationCanceledException();
 	}
 	SymbolTable newInstTable;
 	InstantialContext newInstCtx(this->expressionInfo.getAbstractContext(), this->getProgram()->getFunctionCache(), &newInstTable);

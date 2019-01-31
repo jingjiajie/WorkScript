@@ -1,16 +1,15 @@
-#include "ErrorManager.h"
+#include "Exception.h"
 #include "Locales.h"
 
 using namespace std;
 using namespace WorkScript;
 
-void WorkScriptException::setMessage(const wstring& msg)
+void Exception::setMessage(const wstring& msg)
 {
-	this->message = msg;
 	this->messageANSI = Locales::fromWideChar(Encoding::ANSI, msg);
 }
 
-const char * WorkScriptException::what() const noexcept
+const char * Exception::what() const noexcept
 {
 	return this->messageANSI.c_str();
 }

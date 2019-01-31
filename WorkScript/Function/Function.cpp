@@ -4,6 +4,7 @@
 #include "InstantialContext.h"
 #include "FunctionType.h"
 #include "FunctionBranch.h"
+#include "Exception.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -167,7 +168,8 @@ inline std::vector<Type *> WorkScript::Function::getParameterTypes(const DebugIn
                 break;
             } else
             {
-                throw WorkScriptException(d, L"参数不匹配！");
+                d.getReport()->error(TypeMismatchedError(d, L"参数不匹配！"));
+                throw OperationCanceledException();
             }
         } else
         {
@@ -187,7 +189,8 @@ inline std::vector<Type *> WorkScript::Function::getParameterTypes(const DebugIn
             result.push_back(declParamTypes[i]);
         } else
         {
-            throw WorkScriptException(d, L"参数类型不匹配！");
+            d.getReport()->error(TypeMismatchedError(d, L"参数类型不匹配！"));
+            throw OperationCanceledException();
         }
     }
     return result;
@@ -271,7 +274,12 @@ GenerateResult WorkScript::Function::generateLLVMIR(const DebugInfo &d, Generate
         for (size_t i = 0; i < this->branches.size(); ++i)
         {
             FunctionBranch *curBranch = this->branches[branchCount - 1 - i];
-            prevBlock = curBranch->generateBlock(context, llvmFunc, prevBlock);
+            try
+            {
+                prevBlock = curBranch->generateBlock(context, llvmFunc, prevBlock);
+            }catch (const OperationCanceledException&){
+                continue;
+            }
         }
         builder.SetInsertPoint(entry);
         builder.CreateBr(prevBlock);
@@ -290,7 +298,8 @@ size_t WorkScript::Function::addBranch(FunctionBranch *branch)
     auto params = branch->getParameters();
     if (params.size() != this->getParameterCount())
     {
-        throw WorkScriptException(branch->getDebugInfo(), L"函数参数不匹配！");
+        branch->getDebugInfo().getReport()->error(TypeMismatchedError(branch->getDebugInfo(), L"函数参数不匹配！"));
+        throw OperationCanceledException();
     }
     this->branches.push_back(branch);
     return this->branches.size() - 1;

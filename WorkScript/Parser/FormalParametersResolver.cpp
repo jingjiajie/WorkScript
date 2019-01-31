@@ -3,7 +3,7 @@
 #include "Parameter.h"
 #include "Variable.h"
 #include "BinaryCompare.h"
-#include "ErrorManager.h"
+#include "Report.h"
 #include "Assignment.h"
 
 using namespace std;

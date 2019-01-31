@@ -3,10 +3,7 @@ char * strcpy(char *, char*);
 void * malloc(int);
 void free(void *);
 
-extern f();
-static f();
-
-void main(){
+main(){
   printf("hello");
 }
 

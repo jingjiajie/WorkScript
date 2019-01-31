@@ -1,7 +1,8 @@
 #include "BinaryCompare.h"
 #include "IntegerType.h"
 #include "FloatType.h"
-#include "ErrorManager.h"
+#include "Report.h"
+#include "Exception.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -28,7 +29,8 @@ GenerateResult WorkScript::BinaryCompare::generateIR(GenerateContext * context)
 	}
 
 UNSUPPORTED:
-	throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"双目比较运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
+	this->expressionInfo.getDebugInfo().getReport()->error(IncompatibleTypeError(this->expressionInfo.getDebugInfo(), L"双目比较运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName()));
+	throw OperationCanceledException();
 }
 
 IntegerType * WorkScript::BinaryCompare::getType(InstantialContext *context) const
@@ -72,7 +74,7 @@ GenerateResult WorkScript::BinaryCompare::generateLLVMIRInteger(GenerateContext 
 		else res = irBuilder->CreateICmpULE(left, right);
 		break;
 	default:
-		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"未知的比较运算符");
+		throw InternalException(L"未知的比较运算符");
 	}
 
 	return res;
@@ -100,7 +102,7 @@ GenerateResult WorkScript::BinaryCompare::generateLLVMIRFloat(GenerateContext * 
 		res = irBuilder->CreateFCmpOLE(left, right);
 		break;
 	default:
-		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"未知的比较运算符");
+		throw InternalException(L"未知的比较运算符");
 	}
 
 	return res;
@@ -126,6 +128,6 @@ std::wstring WorkScript::BinaryCompare::getOperatorString() const
 		return L"<=";
 		break;
 	default:
-		throw WorkScriptException(this->expressionInfo.getDebugInfo(), L"未知的比较运算符");
+		throw InternalException(L"未知的比较运算符");
 	}
 }

@@ -1,5 +1,5 @@
 #include "PointerType.h"
-#include "ErrorManager.h"
+#include "Report.h"
 #include "DebugInfo.h"
 
 using namespace WorkScript;

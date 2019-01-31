@@ -70,7 +70,7 @@ void Program::parseFile(const std::string &fileName)
 		Ref<SyntaxErrorStrategy> syntaxErrorStrategy(new SyntaxErrorStrategy);
 		parser.setErrorHandler(syntaxErrorStrategy);
 		parser.removeErrorListeners();
-		SyntaxErrorListener syntaxErrorListener;
+		SyntaxErrorListener syntaxErrorListener(this);
 		parser.addErrorListener(&syntaxErrorListener);
 		tree::ParseTree *tree = parser.program();
 

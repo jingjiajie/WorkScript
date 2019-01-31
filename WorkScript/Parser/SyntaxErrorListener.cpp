@@ -1,5 +1,5 @@
 #include "SyntaxErrorListener.h"
-#include "ErrorManager.h"
+#include "Report.h"
 #include "Token.h"
 #include "Recognizer.h"
 #include "RuleContext.h"
@@ -8,18 +8,10 @@
 #include "IntStream.h"
 #include "Locales.h"
 #include "DebugInfo.h"
+#include "Program.h"
 
 using namespace std;
 using namespace WorkScript;
-
-SyntaxErrorListener::SyntaxErrorListener()
-{
-}
-
-
-SyntaxErrorListener::~SyntaxErrorListener()
-{
-}
 
 //static void splitString(const string& s, vector<string>& v, const string& c)
 //{
@@ -62,5 +54,5 @@ void SyntaxErrorListener::syntaxError(Recognizer * recognizer,
 	{
 		ss << L"~";
 	}
-	throw SyntaxError(DebugInfo(Location(line, charPositionInLine + 1)), ss.str().c_str());
+	this->program->getReport()->error(SyntaxError(DebugInfo(Location(line, charPositionInLine + 1), this->program->getReport()), ss.str().c_str()));
 }

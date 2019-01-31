@@ -1,6 +1,7 @@
 #pragma once
 namespace WorkScript
 {
+	class Report;
 	class Location
 	{
 	public:
@@ -40,7 +41,7 @@ namespace WorkScript
 	public:
 		inline DebugInfo() = default;
 
-		inline DebugInfo(const Location &loc) : location(loc)
+		inline DebugInfo(const Location &loc, Report *rep) : location(loc), report(rep)
 		{}
 
 		const Location &getLocation() const
@@ -52,8 +53,14 @@ namespace WorkScript
 		{
 			DebugInfo::location = location;
 		}
+
+		Report *getReport() const
+		{
+			return this->report;
+		}
 	protected:
 		Location location;
+		Report *report = nullptr;
 	};
 
 }

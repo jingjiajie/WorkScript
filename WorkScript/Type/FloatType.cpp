@@ -3,6 +3,7 @@
 #include "Program.h"
 #include "Utils.h"
 #include "FloatType.h"
+#include "Exception.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -53,7 +54,7 @@ llvm::Type * WorkScript::FloatType::getLLVMType(GenerateContext *context) const
 	case 64:
 		return llvm::Type::getDoubleTy(ctx);
 	default:
-		throw WorkScriptException(DebugInfo() , L"不支持的浮点类型长度：" + to_wstring(this->length));
+		throw InternalException(L"不支持的浮点类型长度：" + to_wstring(this->length));
 	}
 }
 

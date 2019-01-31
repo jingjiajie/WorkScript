@@ -4,6 +4,7 @@
 #include "SymbolTable.h"
 #include "SymbolInfo.h"
 #include "InstantialContext.h"
+#include "Exception.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -16,7 +17,8 @@ GenerateResult WorkScript::Variable::generateIR(GenerateContext * context)
 	auto instantialContext = context->getInstantialContext();
 	SymbolInfo *symbolInfo = instantialContext->getSymbolInfo(this->name);
 	if (!symbolInfo) {
-		throw UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"无法找到符号：" + this->name);
+		this->expressionInfo.getDebugInfo().getReport()->error(UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"无法找到符号：" + this->name));
+		throw OperationCanceledException();
 	}
 
 	if (context->isLeftValue()) {
