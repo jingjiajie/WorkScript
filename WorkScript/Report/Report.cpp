@@ -1,5 +1,6 @@
 #include "Report.h"
 #include "Exception.h"
+#include "Locales.h"
 #include <string>
 #include <sstream>
 
@@ -34,13 +35,14 @@ void Report::dump()
 {
     wstringstream ss;
     size_t itemCount = this->items.size();
-    for(size_t i=0;i<itemCount; ++i)
+    for (size_t i = 0; i < itemCount; ++i)
     {
         const ReportItem &e = this->items[i];
         ss << e.getMessage();
-        if(i != itemCount-1){
+        if (i != itemCount - 1)
+        {
             ss << std::endl;
         }
     }
-    printf("%ls", ss.str().c_str());
+    fprintf(stderr, "%ls", ss.str().c_str());
 }

@@ -62,7 +62,7 @@ Type * WorkScript::Assignment::getType(InstantialContext *context) const {
 
 std::wstring WorkScript::Assignment::getOperatorString() const
 {
-	return L"=";
+	return L":=";
 }
 
 SymbolInfo * WorkScript::Assignment::syncSymbol(const wstring &name, InstantialContext *ctx) const {
@@ -74,7 +74,7 @@ SymbolInfo * WorkScript::Assignment::syncSymbol(const wstring &name, InstantialC
 		{
 			wstringstream ss;
 			ss << L"表达式 ";
-			ss << left << setw(32) << this->toString() << L" 错误：";
+			ss << left << setw(20) << this->toString() << L" ";
 			ss << L"无法将" << rightType->getName() << L"类型的值赋值给" << oriType->getName() << L"类型的变量";
 			this->getDebugInfo().getReport()->error(IncompatibleTypeError(this->getDebugInfo(), ss.str()),
 													ErrorBehavior::CANCEL_EXPRESSION);
