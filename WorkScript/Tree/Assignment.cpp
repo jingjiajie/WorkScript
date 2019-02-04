@@ -62,7 +62,7 @@ Type * WorkScript::Assignment::getType(InstantialContext *context) const {
 
 std::wstring WorkScript::Assignment::getOperatorString() const
 {
-	return L":=";
+	return L"=";
 }
 
 SymbolInfo * WorkScript::Assignment::syncSymbol(const wstring &name, InstantialContext *ctx) const {
