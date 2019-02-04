@@ -36,15 +36,17 @@ namespace WorkScript {
 		antlrcpp::Any visitPositive(WorkScriptParser::PositiveContext*)override;
 		antlrcpp::Any visitType(WorkScriptParser::TypeContext*) override;
 		//antlrcpp::Any visitAccessLevel(WorkScriptParser::AccessLevelContext*)override;
-		TreeCreateVisitor(Program* program);
+		TreeCreateVisitor(Program* program, const std::wstring &fileName);
 		virtual ~TreeCreateVisitor();
 
-		Program *getProgram() const{return this->program;}
+		inline Program *getProgram() const {return this->program;}
+		inline const std::wstring &getFileName() const {return this->fileName;}
 	private:
 		Program * program = nullptr;
 		bool assignable = true;
 		bool declarable = false;
 		size_t curDepth = 0;
+		std::wstring fileName;
 		std::stack<AbstractContext*> abstractContexts;
 	};
 }

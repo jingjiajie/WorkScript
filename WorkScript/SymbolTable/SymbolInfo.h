@@ -13,8 +13,7 @@ namespace WorkScript
 	public:
 		inline SymbolInfo(const DebugInfo &d,  const std::wstring &name, Type *type, LinkageType lt)
 		:name(name),type(type),debugInfo(d), linkageType(lt){}
-		inline SymbolInfo() {}
-
+		inline SymbolInfo() = default;
 		~SymbolInfo();
 
 		inline void setLLVMValue(llvm::Value *llvmVal) { this->llvmValue = llvmVal; }
@@ -26,6 +25,8 @@ namespace WorkScript
 
 		inline Type * getType() const { return this->type; }
 		inline std::wstring getName() const { return this->name; }
+		inline LinkageType getLinkageType() const{return this->linkageType;}
+		inline void setLinkageType(LinkageType lt){this->linkageType = lt;}
 		void promoteType(Type *type);
 
 	private:

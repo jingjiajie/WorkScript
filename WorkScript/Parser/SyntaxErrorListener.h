@@ -10,8 +10,8 @@ namespace WorkScript
 			: public BaseErrorListener
 	{
 	public:
-		inline explicit SyntaxErrorListener(Program *p)
-		:program(p){}
+		inline explicit SyntaxErrorListener(Program *p, const std::wstring fileName)
+		:program(p),fileName(fileName){}
 
 		~SyntaxErrorListener() = default;
 
@@ -20,5 +20,6 @@ namespace WorkScript
 
 	private:
 		Program *program = nullptr;
+		std::wstring fileName;
 	};
 }

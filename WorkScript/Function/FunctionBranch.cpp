@@ -3,6 +3,7 @@
 #include "Parameter.h"
 #include "Function.h"
 #include "Locales.h"
+#include "Exception.h"
 
 using namespace WorkScript;
 using namespace std;
@@ -106,15 +107,19 @@ llvm::BasicBlock * WorkScript::FunctionBranch::generateBlock(GenerateContext * c
 	for (size_t i = 0; i < this->implements.size(); ++i)
 	{
 		Expression *curExpr = this->implements[i];
-		llvm::Value *res = curExpr->generateIR(context).getValue();
-		if (i == this->implements.size() - 1)
-		{
-			//如果分支返回值类型与函数返回值类型不同，则生成类型转换
-			Type *branchReturnType = curExpr->getType(&innerInstCtx);
-			if (!branchReturnType->equals(returnType)) {
-				res = Type::generateLLVMTypeConvert(curExpr->getDebugInfo(), context, curExpr, returnType).getValue();
+		try {
+			llvm::Value *res = curExpr->generateIR(context).getValue();
+			if (i == this->implements.size() - 1) {
+				//如果分支返回值类型与函数返回值类型不同，则生成类型转换
+				Type *branchReturnType = curExpr->getType(&innerInstCtx);
+				if (!branchReturnType->equals(returnType)) {
+					res = Type::generateLLVMTypeConvert(curExpr->getDebugInfo(), context, curExpr,
+														returnType).getValue();
+				}
+				builder.CreateRet(res);
 			}
-			builder.CreateRet(res);
+		}catch (const ExpressionCanceledException&){
+			continue;
 		}
 	}
 	ret = branch;

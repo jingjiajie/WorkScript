@@ -3,6 +3,8 @@
 #include "Utils.h"
 #include "Variable.h"
 #include "Exception.h"
+#include <sstream>
+#include <iomanip>
 
 using namespace std;
 using namespace WorkScript;
@@ -12,8 +14,7 @@ WorkScript::Assignment::Assignment(const ExpressionInfo &exprInfo,Expression *le
 {
 	Variable *leftVar = dynamic_cast<Variable*>(this->leftExpression);
 	if (!leftVar) {
-		this->getDebugInfo().getReport()->error(SyntaxError(this->getDebugInfo(), this->leftExpression->toString() + L"不可以赋值"));
-		throw OperationCanceledException();
+		this->getDebugInfo().getReport()->error(SyntaxError(this->getDebugInfo(), this->leftExpression->toString() + L"不可以赋值"), ErrorBehavior::CANCEL_EXPRESSION);
 	}
 }
 
@@ -42,31 +43,44 @@ Expression * WorkScript::Assignment::clone() const
 	return new thistype(expressionInfo,leftExpression,rightExpression);
 }
 
-Type * WorkScript::Assignment::getType(InstantialContext *context) const
-{
+Type * WorkScript::Assignment::getType(InstantialContext *context) const {
 	auto leftExpr = this->getLeftExpression();
-	Type *leftType = leftExpr->getType(context);
-	if (leftType)return leftType;
 	if (this->leftExpression->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
-		auto leftVar = (Variable*)leftExpr;
-		this->makeSymbolOfRightType(leftVar->getName(),LinkageType::DEFAULT, context);
+		auto leftVar = (Variable *) leftExpr;
+		SymbolInfo *info = this->syncSymbol(leftVar->getName(), context);
+		return info->getType();
+	}else{
+		Type *rightType = this->rightExpression->getType(context);
+		if(rightType) return rightType;
+		else {
+			this->getDebugInfo().getReport()->error(
+					UninferableTypeError(this->getDebugInfo(), L"无法推导" + this->leftExpression->toString() + L"的类型"),
+					ErrorBehavior::CANCEL_EXPRESSION);
+		}
 	}
-	else {
-		this->getDebugInfo().getReport()->error(UninferableTypeError( this->getDebugInfo(), L"无法推导" + this->leftExpression->toString() + L"的类型"));
-	    return nullptr;
-	}
-	return this->rightExpression->getType(context);
 }
 
 std::wstring WorkScript::Assignment::getOperatorString() const
 {
-	return L":=";
+	return L"=";
 }
 
-Type * WorkScript::Assignment::makeSymbolOfRightType(const wstring &name,const LinkageType &lt, InstantialContext *ctx) const
-{
-	auto rightExpr = this->getRightExpression();
-	Type *rightType = rightExpr->getType(ctx);
-	ctx->getInstanceSymbolTable()->setSymbol(this->getDebugInfo(), name, rightType, lt);
-	return rightType;
+SymbolInfo * WorkScript::Assignment::syncSymbol(const wstring &name, InstantialContext *ctx) const {
+	SymbolInfo *oriSymbolInfo = ctx->getInstanceSymbolTable()->getSymbolInfo(name);
+	Type *rightType = this->rightExpression->getType(ctx);
+	if(oriSymbolInfo){
+		Type *oriType = oriSymbolInfo->getType();
+		if (oriType && !Type::convertableTo(this->getDebugInfo(), rightType, oriType))
+		{
+			wstringstream ss;
+			ss << L"表达式 ";
+			ss << left << setw(32) << this->toString() << L" 错误：";
+			ss << L"无法将" << rightType->getName() << L"类型的值赋值给" << oriType->getName() << L"类型的变量";
+			this->getDebugInfo().getReport()->error(IncompatibleTypeError(this->getDebugInfo(), ss.str()),
+													ErrorBehavior::CANCEL_EXPRESSION);
+		}
+		return oriSymbolInfo;
+	}else {
+		return ctx->getInstanceSymbolTable()->setSymbol(this->getDebugInfo(), name, rightType, LinkageType::DEFAULT);
+	}
 }

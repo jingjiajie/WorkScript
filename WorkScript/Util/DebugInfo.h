@@ -5,9 +5,7 @@ namespace WorkScript
 	class Location
 	{
 	public:
-		Location() = default;
-
-		Location(long line, long column) : line(line), column(column)
+		Location(const std::wstring &fileName, long line, long column) : fileName(fileName), line(line), column(column)
 		{}
 
 		inline long getLine() const
@@ -30,9 +28,16 @@ namespace WorkScript
 			Location::column = column;
 		}
 
+		inline const std::wstring &getFileName()const {return this->fileName;}
+		inline void setFileName(const std::wstring &fileName){this->fileName = fileName;}
 	private:
 		long line = -1;
 		long column = -1;
+		std::wstring fileName;
+
+
+		Location() = default;
+		friend class DebugInfo;
 	};
 
 

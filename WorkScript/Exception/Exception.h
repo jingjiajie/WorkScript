@@ -27,5 +27,6 @@ namespace WorkScript
 
 	WS_EXCEPTION_COMMON_DECL(InternalException)
 	WS_EXCEPTION_COMMON_DECL(CompileTerminatedException)
-	WS_EXCEPTION_COMMON_DECL(OperationCanceledException)
+	WS_EXCEPTION_COMMON_DECL(ExpressionCanceledException)
+	WS_EXCEPTION_COMMON_DECL(BlockCanceledException)
 }
