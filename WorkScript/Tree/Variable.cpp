@@ -17,8 +17,7 @@ GenerateResult WorkScript::Variable::generateIR(GenerateContext * context)
 	auto instantialContext = context->getInstantialContext();
 	SymbolInfo *symbolInfo = instantialContext->getSymbolInfo(this->name);
 	if (!symbolInfo) {
-		this->expressionInfo.getDebugInfo().getReport()->error(UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"无法找到符号：" + this->name));
-		throw OperationCanceledException();
+		this->expressionInfo.getDebugInfo().getReport()->error(UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"无法找到符号：" + this->name), ErrorBehavior::CANCEL_EXPRESSION);
 	}
 
 	if (context->isLeftValue()) {

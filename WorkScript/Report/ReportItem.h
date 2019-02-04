@@ -7,13 +7,7 @@ namespace WorkScript
     class ReportItem
     {
     public:
-        ReportItem(const DebugInfo &d, const std::wstring &wmsg)
-                : debugInfo(d)
-        {
-            std::wstring str = L"第" + std::to_wstring(d.getLocation().getLine()) + L"行，第" +
-                               std::to_wstring(d.getLocation().getColumn()) + L"列：" + wmsg;
-            this->setMessage(str);
-        }
+        ReportItem(const DebugInfo &d, const std::wstring &wmsg);
 
         const DebugInfo &getDebugInfo() const
         {

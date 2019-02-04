@@ -81,8 +81,7 @@ std::vector<llvm::Value*> WorkScript::MultiValue::getLLVMArgs(GenerateContext * 
 	{
 		Type *curItemType = this->items[i]->getType(context->getInstantialContext());
 		if (!curItemType) {
-			this->expressionInfo.getDebugInfo().getReport()->error(UninferableTypeError(this->expressionInfo.getDebugInfo(), L"无法推导参数类型！"));
-			throw OperationCanceledException();
+			this->expressionInfo.getDebugInfo().getReport()->error(UninferableTypeError(this->expressionInfo.getDebugInfo(), L"无法推导参数类型！"), ErrorBehavior::CANCEL_EXPRESSION);
 		}
 		if (i >= formalParamCount || curItemType->equals(formalParamTypes[i])) {
 			llvm::Value *curLLVMParam = this->items[i]->generateIR(context).getValue();

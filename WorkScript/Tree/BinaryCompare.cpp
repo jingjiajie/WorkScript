@@ -29,8 +29,7 @@ GenerateResult WorkScript::BinaryCompare::generateIR(GenerateContext * context)
 	}
 
 UNSUPPORTED:
-	this->expressionInfo.getDebugInfo().getReport()->error(IncompatibleTypeError(this->expressionInfo.getDebugInfo(), L"双目比较运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName()));
-	throw OperationCanceledException();
+	this->expressionInfo.getDebugInfo().getReport()->error(IncompatibleTypeError(this->expressionInfo.getDebugInfo(), L"双目比较运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName()), ErrorBehavior::CANCEL_EXPRESSION);
 }
 
 IntegerType * WorkScript::BinaryCompare::getType(InstantialContext *context) const

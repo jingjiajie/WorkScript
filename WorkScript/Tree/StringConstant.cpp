@@ -11,7 +11,7 @@ GenerateResult WorkScript::StringConstant::generateIR(GenerateContext * context)
 
 std::wstring WorkScript::StringConstant::toString() const
 {
-	return this->value;
+	return L"\"" + this->value + L"\"";
 }
 
 Constant * WorkScript::StringConstant::clone() const

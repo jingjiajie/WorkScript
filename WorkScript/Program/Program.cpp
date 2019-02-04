@@ -70,12 +70,12 @@ void Program::parseFile(const std::string &fileName)
 		Ref<SyntaxErrorStrategy> syntaxErrorStrategy(new SyntaxErrorStrategy);
 		parser.setErrorHandler(syntaxErrorStrategy);
 		parser.removeErrorListeners();
-		SyntaxErrorListener syntaxErrorListener(this);
+		SyntaxErrorListener syntaxErrorListener(this, Locales::toWideChar(Encoding::ANSI, fileName));
 		parser.addErrorListener(&syntaxErrorListener);
 		tree::ParseTree *tree = parser.program();
 
 		//遍历语法树，生成Program
-		TreeCreateVisitor visitor(this);
+		TreeCreateVisitor visitor(this, Locales::toWideChar(Encoding::ANSI, fileName));
 		visitor.visit(tree);
 	}
 }

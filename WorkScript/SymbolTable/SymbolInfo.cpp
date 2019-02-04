@@ -27,8 +27,7 @@ llvm::Value * WorkScript::SymbolInfo::getLLVMValuePtr(const DebugInfo &d, Genera
 	if (!this->llvmValuePtr)
 	{
 		if(this->llvmValue){
-			d.getReport()->error(UnassignableError(d, L"变量"+this->name+L"不可赋值！"));
-			return nullptr;
+			d.getReport()->error(UnassignableError(d, L"变量"+this->name+L"不可赋值！"), ErrorBehavior::CANCEL_EXPRESSION);
 		}
 		auto builder = context->getIRBuilder();
 		this->llvmValuePtr = builder->CreateAlloca(this->type->getLLVMType(context), nullptr, Locales::fromWideChar(Encoding::ANSI, this->name));

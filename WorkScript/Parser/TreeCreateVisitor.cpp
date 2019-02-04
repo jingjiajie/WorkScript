@@ -47,7 +47,7 @@ static void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, De
 
 inline static DebugInfo getDebugInfo(const TreeCreateVisitor *visitor, antlr4::ParserRuleContext *ctx)
 {
-	DebugInfo d(Location(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1), visitor->getProgram()->getReport());
+	DebugInfo d(Location(visitor->getFileName(), ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1), visitor->getProgram()->getReport());
 	return d;
 }
 
@@ -335,12 +335,6 @@ antlrcpp::Any TreeCreateVisitor::visitAssignmentOrEquals(WorkScriptParser::Assig
 		this->declarable = false;
 		auto right = ctx->expression()[1]->accept(this).as<ExpressionWrapper>().getExpression();
 		RESTORE_ASSIGNABLE;
-		//将赋值变量加入符号表
-		InstantialContext instCtx(this->abstractContexts.top(), program->getFunctionCache());
-		if (left->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
-			auto leftVar = (Variable*)left;
-			this->abstractContexts.top()->setSymbol(getDebugInfo(this, ctx), leftVar->getName(), right->getType(&instCtx), LinkageType::DEFAULT);
-		}
 		return ExpressionWrapper(new Assignment(ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), left, right));
 	}
 	else {
@@ -477,10 +471,10 @@ antlrcpp::Any TreeCreateVisitor::visitPositive(WorkScriptParser::PositiveContext
 	return ctx->expression()->accept(this);
 }
 
-TreeCreateVisitor::TreeCreateVisitor(Program *lpProgram)
+TreeCreateVisitor::TreeCreateVisitor(Program *lpProgram, const std::wstring &fileName)
+:program(lpProgram),fileName(fileName)
 {
-	this->program = lpProgram;
-	this->abstractContexts.push(program->getGlobalAbstractContext());
+    this->abstractContexts.push(program->getGlobalAbstractContext());
 }
 
 TreeCreateVisitor::~TreeCreateVisitor()
@@ -554,8 +548,7 @@ antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
 		type = VoidType::get();
 	} else
 	{
-		this->program->getReport()->error(UnimplementedError(getDebugInfo(this, ctx), L"尚未实现自定义类型"));
-		throw OperationCanceledException();
+		this->program->getReport()->error(UnimplementedError(getDebugInfo(this, ctx), L"尚未实现自定义类型"), ErrorBehavior::CANCEL_EXPRESSION);
 	}
 
 	return TypeWrapper(type, storageType, linkageType);
