@@ -10,14 +10,12 @@ using namespace WorkScript;
 std::unordered_map<std::wstring, IntegerType*> IntegerType::types;
 Finalizer IntegerType::staticFinalizer(&IntegerType::releaseTypes);
 
-WorkScript::IntegerType::IntegerType(unsigned char length, bool isSigned, bool isConst, bool isVolatile)
-	:Type(isConst, isVolatile)
+WorkScript::IntegerType::IntegerType(unsigned char length, bool isSigned, bool isConst, bool isVolatile) noexcept
+	:length(length), _signed(isSigned), _const(isConst),_volatile(isVolatile)
 {
-	this->length = length;
-	this->_signed = isSigned;
 }
 
-std::wstring WorkScript::IntegerType::getName() const
+std::wstring WorkScript::IntegerType::getName() const noexcept
 {
 	wstring str;
 	if(this->_const) str += L"const ";
@@ -28,12 +26,12 @@ std::wstring WorkScript::IntegerType::getName() const
 }
 
 
-std::wstring WorkScript::IntegerType::getIdentifierString() const
+std::wstring WorkScript::IntegerType::getIdentifierString() const noexcept
 {
 	return IntegerType::getIdentifierString(this->length, this->_signed, this->_const, this->_volatile);
 }
 
-std::wstring IntegerType::getIdentifierString(unsigned char length, bool isSigned, bool isConst, bool isVolatile)
+std::wstring IntegerType::getIdentifierString(unsigned char length, bool isSigned, bool isConst, bool isVolatile) noexcept
 {
 	wstring str = (isSigned ? L"si" : L"ui") + to_wstring(length);
 	if (isConst)str += L".c";
@@ -41,7 +39,7 @@ std::wstring IntegerType::getIdentifierString(unsigned char length, bool isSigne
 	return str;
 }
 
-TypeClassification WorkScript::IntegerType::getClassification() const
+TypeClassification WorkScript::IntegerType::getClassification() const noexcept
 {
 	return TypeClassification::INTEGER;
 }
@@ -65,23 +63,23 @@ llvm::Type * WorkScript::IntegerType::getLLVMType(GenerateContext *ctx) const
 	}
 }
 
-bool WorkScript::IntegerType::equals(const Type * type) const
+bool WorkScript::IntegerType::equals(const Type * type) const noexcept
 {
-	if (!Type::equals(type))return false;
+	if (type->getClassification() != TypeClassification::INTEGER)return false;
 	const IntegerType *target = (const IntegerType*)type;
 	if (target->getLength() != this->getLength())return false;
 	if (target->isSigned() != this->isSigned())return false;
 	return true;
 }
 
-void WorkScript::IntegerType::releaseTypes()
+void WorkScript::IntegerType::releaseTypes() noexcept
 {
 	for (auto it : types) {
 		delete it.second;
 	}
 }
 
-IntegerType* IntegerType::get(unsigned char length, bool isSigned, bool isConst, bool isVolatile)
+IntegerType* IntegerType::get(unsigned char length, bool isSigned, bool isConst, bool isVolatile) noexcept
 {
 	wstring idStr = IntegerType::getIdentifierString(length, isSigned, isConst, isVolatile);
 	auto it = types.find(idStr);

@@ -4,11 +4,13 @@
 #include "Assignment.h"
 #include "Utils.h"
 #include "Exception.h"
+#include "MultiValueType.h"
+#include "Variable.h"
 
 using namespace WorkScript;
 using namespace std;
 
-MultiValue::~MultiValue()
+MultiValue::~MultiValue() noexcept
 {
 	for (Expression *expr : this->items)
 	{
@@ -18,19 +20,28 @@ MultiValue::~MultiValue()
 
 Type * MultiValue::getType(InstantialContext *context) const
 {
-	return nullptr;
+	return MultiValueType::get(this->getTypes(context));
 }
 
 std::vector<Type*> WorkScript::MultiValue::getTypes(InstantialContext *context) const
 {
-	vector<Type*> paramTypes;
-	paramTypes.reserve(items.size());
-	for (size_t i = 0; i<items.size(); ++i)
-	{
-		Type *type = this->items[i]->getType(context);
-		paramTypes.push_back(type);
-	}
-	return paramTypes;
+    vector<Type *> paramTypes;
+    paramTypes.reserve(items.size());
+    for (size_t i = 0; i < items.size(); ++i)
+    {
+        Type *type = this->items[i]->getType(context);
+        //如果遇到MultiValue的项，则展平
+        if (type->getClassification() == TypeClassification::MULTI_VALUE)
+        {
+            auto *multiValueType = (MultiValueType *) type;
+            auto itemTypes = multiValueType->getItemTypes();
+            paramTypes.insert(paramTypes.end(), itemTypes.begin(), itemTypes.end());
+        } else
+        {
+            paramTypes.push_back(type);
+        }
+    }
+    return paramTypes;
 }
 
 std::wstring MultiValue::toString() const
@@ -64,7 +75,7 @@ MultiValue * WorkScript::MultiValue::clone() const
 
 ExpressionType WorkScript::MultiValue::getExpressionType() const
 {
-	return ExpressionType::MULTI_VALUE_EXPRESSION;
+	return ExpressionType::MULTI_VALUE;
 }
 
 GenerateResult WorkScript::MultiValue::generateIR(GenerateContext * context)
@@ -72,27 +83,54 @@ GenerateResult WorkScript::MultiValue::generateIR(GenerateContext * context)
 	throw InternalException(L"请调用getLLVMArgs()");
 }
 
-std::vector<llvm::Value*> WorkScript::MultiValue::getLLVMArgs(GenerateContext * context, const vector<Type*> &formalParamTypes) const
+const std::vector<llvm::Value*> &MultiValue::getLLVMValues(GenerateContext *context, const vector<Type *> &expectedTypes)
 {
-	size_t formalParamCount = formalParamTypes.size();
-	vector<llvm::Value*> args;
-	args.reserve(this->items.size());
-	for (size_t i = 0; i < this->items.size(); ++i)
-	{
-		Type *curItemType = this->items[i]->getType(context->getInstantialContext());
-		if (!curItemType) {
-			this->expressionInfo.getDebugInfo().getReport()->error(UninferableTypeError(this->expressionInfo.getDebugInfo(), L"无法推导参数类型！"), ErrorBehavior::CANCEL_EXPRESSION);
-		}
-		if (i >= formalParamCount || curItemType->equals(formalParamTypes[i])) {
-			llvm::Value *curLLVMParam = this->items[i]->generateIR(context).getValue();
-			args.push_back(curLLVMParam);
-		}
-		else {
-			llvm::Value *convertedLLVMParam = Type::generateLLVMTypeConvert(this->getDebugInfo(), context, this->items[i], formalParamTypes[i]).getValue();
-			args.push_back(convertedLLVMParam);
+	if(!this->hadLLVMValues){
+		size_t expectedTypeCount = expectedTypes.size();
+ 		llvmValues.reserve(this->items.size());
+		size_t curTotalLLVMValues = 0;
+		for (Expression *item : this->items)
+		{
+			if(curTotalLLVMValues > expectedTypeCount){
+				throw InternalException(L"期待类型数量"+to_wstring(expectedTypeCount)+L" 少于实际类型数量");
+			}
+			Type *curItemType = item->getType(context->getInstantialContext());
+			if (!curItemType)
+			{
+				this->expressionInfo.getDebugInfo().getReport()->error(
+						UninferableTypeError(this->expressionInfo.getDebugInfo(), L"无法推导参数类型！"),
+						ErrorBehavior::CANCEL_EXPRESSION);
+			}else if(curItemType->getClassification() == TypeClassification::MULTI_VALUE){ //如果子项为MultiValue，则单独处理
+				MultiValue *multiValueItem = nullptr;
+				if(item->getExpressionType() == ExpressionType::MULTI_VALUE){
+				    multiValueItem = (MultiValue*)item;
+				}else if(item->getExpressionType() == ExpressionType::VARIABLE){
+				    auto variable = (Variable*)item;
+				    multiValueItem = (MultiValue*)variable->getValue(context->getInstantialContext());
+				}else{
+				    throw InternalException(L"未知的表达式生成了MultiValue类型的值");
+				}
+				const auto &itemLLVMValues = multiValueItem->getLLVMValues(context,vector<Type*>(expectedTypes.begin()+llvmValues.size(),expectedTypes.end()));
+				llvmValues.insert(llvmValues.end(),itemLLVMValues.begin(), itemLLVMValues.end());
+				curTotalLLVMValues+=itemLLVMValues.size();
+			}
+			else if (curItemType->equals(expectedTypes[curTotalLLVMValues]))
+			{
+				llvm::Value *curLLVMParam = item->generateIR(context).getValue();
+				llvmValues.push_back(curLLVMParam);
+				++curTotalLLVMValues;
+			} else
+			{
+				llvm::Value *convertedLLVMParam = Type::generateLLVMTypeConvert(this->getDebugInfo(),
+																				context,
+																				item,
+																				expectedTypes[curTotalLLVMValues]).getValue();
+				llvmValues.push_back(convertedLLVMParam);
+				++curTotalLLVMValues;
+			}
 		}
 	}
-	return args;
+	return this->llvmValues;
 }
 
 //bool MultiValue::equals(Context * const & context, Expression *target) const

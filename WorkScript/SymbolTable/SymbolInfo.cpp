@@ -2,9 +2,9 @@
 #include "Type.h"
 #include "Locales.h"
 #include "Report.h"
-#include "Constant.h"
+#include "Value.h"
 
-WorkScript::SymbolInfo::~SymbolInfo()
+WorkScript::SymbolInfo::~SymbolInfo() noexcept
 {
 	if (this->value)delete this->value;
 }
@@ -40,12 +40,18 @@ void WorkScript::SymbolInfo::promoteType(Type * targetType)
 	this->type = Type::getPromotedType(this->debugInfo, this->type, targetType);
 }
 
-const WorkScript::DebugInfo &WorkScript::SymbolInfo::getDebugInfo() const
+const WorkScript::DebugInfo &WorkScript::SymbolInfo::getDebugInfo() const noexcept
 {
     return debugInfo;
 }
 
-void WorkScript::SymbolInfo::setDebugInfo(const WorkScript::DebugInfo &debugInfo)
+void WorkScript::SymbolInfo::setDebugInfo(const WorkScript::DebugInfo &debugInfo) noexcept
 {
     this->debugInfo = debugInfo;
+}
+
+void WorkScript::SymbolInfo::setValue(WorkScript::Value *value) noexcept
+{
+	if (this->value) delete this->value;
+	this->value = value;
 }

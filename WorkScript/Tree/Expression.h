@@ -15,8 +15,8 @@ namespace WorkScript {
 	class Expression
 	{
 	public:
-		inline Expression(const ExpressionInfo &exprInfo) :expressionInfo(exprInfo) {}
-		virtual ~Expression(){}
+		inline explicit Expression(const ExpressionInfo &exprInfo) noexcept :expressionInfo(exprInfo) {}
+		virtual ~Expression() noexcept = default;
 		//生成LLVM字节码的接口函数
 		virtual GenerateResult generateIR(GenerateContext *context) = 0;
 		//需要实现的接口函数
@@ -25,8 +25,8 @@ namespace WorkScript {
 		virtual std::wstring toString() const = 0;
 		virtual Expression * clone() const = 0;
 
-		inline Program * getProgram() const { return this->expressionInfo.getProgram(); }
-		inline const DebugInfo & getDebugInfo() const{return this->expressionInfo.getDebugInfo();}
+		inline Program * getProgram() const noexcept{ return this->expressionInfo.getProgram(); }
+		inline const DebugInfo & getDebugInfo() const noexcept{return this->expressionInfo.getDebugInfo();}
 	protected:
 		ExpressionInfo expressionInfo;
 	};

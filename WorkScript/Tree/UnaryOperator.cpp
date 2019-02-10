@@ -47,7 +47,7 @@ GenerateResult WorkScript::UnaryOperator::generateIR(GenerateContext * context)
 
 ExpressionType WorkScript::UnaryOperator::getExpressionType() const
 {
-	return ExpressionType::UNARY_OPERATOR_EXPRESSION;
+	return ExpressionType::UNARY_OPERATOR;
 }
 
 std::wstring WorkScript::UnaryOperator::getOperatorString() const

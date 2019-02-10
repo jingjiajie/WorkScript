@@ -14,9 +14,9 @@ namespace WorkScript {
 		inline BinaryOperator(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression)
 			:Expression(exprInfo), leftExpression(leftExpression), rightExpression(rightExpression)	{	}
 
-		virtual ~BinaryOperator();
+		~BinaryOperator() noexcept override;
 
-		virtual std::wstring toString() const override;
+		std::wstring toString() const override;
 
 		inline Expression * getLeftExpression() const { return this->leftExpression; }
 		inline void setLeftExpression(Expression *left) { this->leftExpression = left; }

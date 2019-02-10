@@ -18,24 +18,20 @@ using namespace std;
 using namespace WorkScript;
 
 Program::Program(const string &filePath)
-	:globalAbstractContext(DebugInfo(), nullptr, 0)
+	:globalAbstractContext(DebugInfo(), this)
 {
     this->parseFile(filePath);
 }
 
-Program::~Program()
-{
-
-}
-
+Program::~Program() = default;
 
 void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule)
 {
-	FunctionCache funcCache;
-	InstantialContext funcInstCtx(&this->globalAbstractContext, &funcCache);
+	InstantialContext funcInstCtx(&this->globalAbstractContext, &this->functionCache);
 	GenerateContext ctx(llvmContext, llvmModule, nullptr, &funcInstCtx);
-	Function *funcMain = this->globalAbstractContext.getFirstFunction(L"main", {});
-	funcMain->generateLLVMIR(DebugInfo(), &ctx);
+	//TODO DebugInfo
+	Function *funcMain = this->globalAbstractContext.getFunction(DebugInfo(), FunctionQuery(L"main", {}, false));
+	funcMain->getLLVMFunction(DebugInfo(), &ctx, {});
 }
 
 void Program::parseFile(const std::string &fileName) 

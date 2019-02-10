@@ -43,10 +43,13 @@ stdFunctionDecl:
 
 stdFormalParameter:
 	NEWLINE* (
-		stdFormalParameterItem (
-			newlineOrComma stdFormalParameterItem
-		)*
-	)? (newlineOrComma APOSTROPHE)?;
+		(
+			stdFormalParameterItem (
+				newlineOrComma stdFormalParameterItem
+			)*
+		)? (newlineOrComma runtimeVarargs)?
+	)
+	| runtimeVarargs NEWLINE*;
 
 stdFormalParameterItem: type STAR* identifier?;
 
@@ -61,13 +64,19 @@ functionDeclaration:
 type: (typeQualifier | typeSpecifier | storageClassSpecifier)+;
 typeSpecifier: identifier;
 typeQualifier: CONST | VOLATILE;
-storageClassSpecifier : STATIC | EXTERN;
+storageClassSpecifier: STATIC | EXTERN;
 functionName: identifier;
 
 formalParameter:
 	NEWLINE* (
-		formalParameterItem (newlineOrComma formalParameterItem)*
-	)?;
+		(
+			formalParameterItem (
+				newlineOrComma formalParameterItem
+			)*
+		)? (newlineOrComma (staticVarargs | runtimeVarargs))?
+	)
+	| staticVarargs
+	| runtimeVarargs NEWLINE*;
 
 formalParameterItem: (type STAR*)? expression;
 
@@ -80,6 +89,8 @@ functionConstraint: WHEN NEWLINE* (block | expression);
 block: LEFT_BRACE line* RIGHT_BRACE;
 
 staticVarargs: APOSTROPHE identifier;
+
+runtimeVarargs: APOSTROPHE;
 
 newlineOrComma: COMMA | NEWLINE+ | NEWLINE* COMMA NEWLINE*;
 

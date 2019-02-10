@@ -11,13 +11,12 @@ using namespace WorkScript;
 std::unordered_map<std::wstring, FloatType*> FloatType::types;
 Finalizer FloatType::staticFinalizer(&FloatType::releaseTypes);
 
-FloatType::FloatType(unsigned char length, bool isConst, bool isVolatile)
-	:Type(isConst,isVolatile)
+FloatType::FloatType(unsigned char length, bool isConst, bool isVolatile) noexcept
+	:length(length), _const(isConst),_volatile(isVolatile)
 {
-	this->length = length;
 }
 
-std::wstring WorkScript::FloatType::getName() const
+std::wstring WorkScript::FloatType::getName() const noexcept
 {
 	wstring str;
 	if(this->_const) str += L"const ";
@@ -26,12 +25,12 @@ std::wstring WorkScript::FloatType::getName() const
 	return str;
 }
 
-std::wstring WorkScript::FloatType::getIdentifierString() const
+std::wstring WorkScript::FloatType::getIdentifierString() const noexcept
 {
 	return FloatType::getIdentifierString(this->length, this->_const, this->_volatile);
 }
 
-std::wstring FloatType::getIdentifierString(unsigned char length, bool isConst, bool isVolatile)
+std::wstring FloatType::getIdentifierString(unsigned char length, bool isConst, bool isVolatile) noexcept
 {
 	wstring str = L"f" + to_wstring(length);
 	if (isConst)str += L".c";
@@ -39,7 +38,7 @@ std::wstring FloatType::getIdentifierString(unsigned char length, bool isConst, 
 	return str;
 }
 
-TypeClassification WorkScript::FloatType::getClassification() const
+TypeClassification WorkScript::FloatType::getClassification() const noexcept
 {
 	return TypeClassification::FLOAT;
 }
@@ -58,22 +57,22 @@ llvm::Type * WorkScript::FloatType::getLLVMType(GenerateContext *context) const
 	}
 }
 
-bool WorkScript::FloatType::equals(const Type * type) const
+bool WorkScript::FloatType::equals(const Type * type) const noexcept
 {
-	if (!Type::equals(type))return false;
+	if (type->getClassification() != TypeClassification::FLOAT)return false;
 	const FloatType *target = (const FloatType*)type;
 	if (this->length != target->length)return false;
 	return true;
 }
 
-void WorkScript::FloatType::releaseTypes()
+void WorkScript::FloatType::releaseTypes() noexcept
 {
 	for (auto it : types) {
 		delete it.second;
 	}
 }
 
-FloatType * WorkScript::FloatType::get(unsigned char length, bool isConst, bool isVolatile)
+FloatType * WorkScript::FloatType::get(unsigned char length, bool isConst, bool isVolatile) noexcept
 {
 	wstring idStr = FloatType::getIdentifierString(length, isConst, isVolatile);
 	auto it = types.find(idStr);

@@ -44,7 +44,7 @@ Expression * WorkScript::BinaryCompare::clone() const
 
 ExpressionType WorkScript::BinaryCompare::getExpressionType() const
 {
-	return ExpressionType::BINARY_COMPARE_EXPRESSION;
+	return ExpressionType::BINARY_COMPARE;
 }
 
 GenerateResult WorkScript::BinaryCompare::generateLLVMIRInteger(GenerateContext * context, llvm::Value * left, llvm::Value * right, IntegerType * promotedType) const

@@ -6,73 +6,94 @@
 #include "GenerateResult.h"
 #include "SymbolTable.h"
 
-namespace WorkScript {
-	class FunctionType;
-	class FunctionBranch;
+namespace WorkScript
+{
+    class FunctionType;
 
-	enum MatchResult {
-		MISMATCHED, MATCHED, COMPROMISE_MATCHED,
-	};
+    class FunctionFragment;
 
-	class ParamTypesAndLLVMFunction {
-	public:
-		ParamTypesAndLLVMFunction(std::vector<Type*> types, llvm::Function* func)
-			:parameterTypes(types), llvmFunction(func) {}
+    class ParamTypesAndLLVMFunction
+    {
+    public:
+        ParamTypesAndLLVMFunction(const std::vector<Type *> &paramTypes, llvm::Function *func)
+                : parameterTypes(paramTypes), llvmFunction(func)
+        {}
 
-		bool match(std::vector<Type*> paramTypes);
-		inline llvm::Function *getLLVMFunction() { return this->llvmFunction; }
-	protected:
-		std::vector<Type*> parameterTypes; 
-		llvm::Function* llvmFunction;
-	};
+        bool match(std::vector<Type *> paramTypes) noexcept;
 
-	class Function {
-	public:
-		Function(AbstractContext *baseContext,
-			const std::wstring &name, 
-			const std::vector<Type*> &paramTypes, 
-			Type *returnType,
-			bool declaredReturnType = false,
-			bool isRuntimeVarargs = false, 
-			bool isStaticVarargs = false,
-			LinkageType lt = LinkageType::EXTERNAL);
+        inline llvm::Function *getLLVMFunction() noexcept
+        { return this->llvmFunction; }
 
-		virtual ~Function();
-		std::wstring getMangledFunctionName(const DebugInfo &d, InstantialContext *ctx) const;
-		static std::wstring getStdParameterName(size_t paramIndex);
-		virtual GenerateResult generateLLVMIR(const DebugInfo &d, GenerateContext *context);
-		llvm::Function * getLLVMFunction(const DebugInfo &d, GenerateContext *context, bool declareOnly = false);
+    protected:
+        std::vector<Type *> parameterTypes;
+        llvm::Function *llvmFunction;
+    };
 
-		inline FunctionType *getAbstractType() { return this->abstractType; }
-		virtual Type *getReturnType(const DebugInfo &d, InstantialContext *instCtx);
-		virtual void setReturnType(Type *type);
-		static MatchResult matchByParameters(const DebugInfo &d, const std::vector<Type*> &declParamTypes, const std::vector<Type*> &realParamTypes, bool isRuntimeVarargs, bool isStaticVarargs);
-		MatchResult matchByParameters(const DebugInfo &d, const std::vector<Type*> &paramTypes);
 
-		LinkageType getLinkageType() const;
-		void setLinkageType(LinkageType linkageType);
-		Program * getProgram() const { return this->program; }
-		inline size_t getParameterCount() const { return this->abstractType->getParameterCount(); }
-		std::vector<Type*> getParameterTypes(const DebugInfo &d, InstantialContext *context) const;
-		inline std::wstring getName() const { return this->name; }
-		inline bool isDeclaredReturnType()const { return this->declaredReturnType; }
-		inline bool isRuntimeVarargs() const { return this->runtimeVarargs; }
-		inline bool isStaticVarargs() const { return this->staticVarargs; }
-		inline AbstractContext * getBaseContext() { return this->baseContext; }
-		size_t addBranch(FunctionBranch *branch);
+    class Function
+    {
+    public:
+        Function(AbstractContext *baseContext,
+                 const std::wstring &name,
+                 FunctionType *declType,
+                 LinkageType lt = LinkageType::EXTERNAL) noexcept;
 
-		size_t getBranchCount() const
-		{ return this->branches.size(); }
-	protected:
-		std::wstring name;
-		Program *program = nullptr;
-		std::vector<ParamTypesAndLLVMFunction> llvmFunctions;
-		FunctionType *abstractType;
-		LinkageType linkageType;
-		bool declaredReturnType = false;
-		bool runtimeVarargs = false;
-		bool staticVarargs = false;
-		AbstractContext *baseContext;
-		std::vector<FunctionBranch *> branches;
-	};
+        std::wstring getMangledFunctionName(const DebugInfo &d) const noexcept;
+
+        llvm::Function *
+        getLLVMFunction(const DebugInfo &d, GenerateContext *context, bool declareOnly = false);
+
+        Type *getReturnType(const DebugInfo &d, InstantialContext *instCtx);
+
+        inline FunctionType *getType() noexcept
+        { return this->type; }
+
+        inline void setReturnType(Type *type) noexcept
+        {
+            this->type = FunctionType::get(this->type->getParameterTypes(), type, this->type->isRumtimeVarargs(),
+                                           this->type->isConst());
+        }
+
+        bool match(const DebugInfo &d, const FunctionQuery &query) noexcept;
+
+        inline const LinkageType &getLinkageType() const noexcept
+        { return this->linkageType; }
+
+        inline void setLinkageType(const LinkageType &lt) noexcept
+        {
+            this->linkageType = lt;
+        }
+
+        inline Program *getProgram() const noexcept
+        { return this->program; }
+
+        inline size_t getParameterCount() const noexcept
+        { return this->type->getParameterCount(); }
+
+//		std::vector<Type*> getParameterTypes(const DebugInfo &d, InstantialContext *context,  const std::vector<Type*> &realParamTypes) const;
+        inline std::wstring getName() const noexcept
+        { return this->name; }
+
+        inline AbstractContext *getBaseContext() noexcept
+        { return this->baseContext; }
+
+        void addFragment(FunctionFragment *fragment) noexcept;
+
+        void addFragments(const std::vector<FunctionFragment *> &fragments) noexcept;
+
+        size_t getFragmentCount() const noexcept
+        { return this->fragments.size(); }
+
+    protected:
+        std::wstring name;
+        Program *program = nullptr;
+        std::vector<ParamTypesAndLLVMFunction> llvmFunctions;
+        FunctionType *type;
+        LinkageType linkageType;
+        AbstractContext *baseContext;
+        std::vector<FunctionFragment *> fragments;
+
+        GenerateResult
+        generateLLVMIR(const DebugInfo &d, GenerateContext *context);
+    };
 }

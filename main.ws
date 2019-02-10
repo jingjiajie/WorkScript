@@ -1,10 +1,9 @@
-int printf(char *, ...);
+int printf(char *, ...);                                //声明外部函数
+
+a(x, ...y) = a(y)
 
 main(){
-  x = 1;
-  x = "hello world";
-  x = 2.5;
-  x = "额";
-  printf("hello");
+  a(1)
 }
+
 

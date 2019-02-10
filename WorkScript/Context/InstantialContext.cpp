@@ -6,39 +6,38 @@
 #include "Function.h"
 #include "FunctionCache.h"
 #include "AbstractContext.h"
-#include "Constant.h"
+#include "Value.h"
 
 using namespace WorkScript;
 using namespace std;
 
-SymbolInfo * InstantialContext::getSymbolInfo(const std::wstring & name)
+const SymbolInfo * InstantialContext::getSymbolInfo(const std::wstring & name) const noexcept
 {
-	SymbolInfo *info = this->abstractContext->getSymbolInfo(name);
-	if (info) return info;
-	if (this->instanceSymbolTable) {
-		SymbolInfo *info = this->instanceSymbolTable->getSymbolInfo(name);
-		if (info) return info;
-	}
-	return nullptr;
+    return const_cast<InstantialContext*>(this)->getSymbolInfo(name);
 }
 
-void InstantialContext::setFunctionTypeCache(const DebugInfo &d, WorkScript::Function *func,
-                                                const std::vector<WorkScript::Type *> &paramTypes,
-                                                bool isRuntimeVarargs, bool isStaticVarargs,
-                                                WorkScript::Type *cacheReturnType)
+SymbolInfo *InstantialContext::getSymbolInfo(const std::wstring &name) noexcept
 {
-    if (!this->functionCache)
-    {
-        throw InternalException(L"未指定函数缓存器！");
+    SymbolInfo *info = this->abstractContext->getSymbolInfo(name);
+    if (info) return info;
+    else if (this->instanceSymbolTable) {
+        return this->instanceSymbolTable->getSymbolInfo(name);
     }
-    this->functionCache->setFunctionTypeCache(d, func, paramTypes, isRuntimeVarargs, isStaticVarargs, cacheReturnType);
+    return nullptr;
 }
 
-bool InstantialContext::getFunctionTypeCache(const DebugInfo &d, Function *func, const std::vector<Type*>& paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type ** outReturnType)
+
+void InstantialContext::cacheFunctionType(const WorkScript::DebugInfo &d,
+												  WorkScript::Function *func,
+												  WorkScript::FunctionType *type) noexcept
 {
-	if (!this->functionCache)
-	{
-		throw InternalException(L"未指定函数缓存器！");
-	}
-	return this->functionCache->getFunctionTypeCache(d, func, paramTypes, isRuntimeVarargs, isStaticVarargs, outReturnType);
+    this->functionCache->cacheFunctionType(d, func, type);
+}
+
+bool InstantialContext::getCachedFunctionType(const WorkScript::DebugInfo &d,
+                                                Function *func,
+												const WorkScript::FunctionTypeQuery &query,
+												WorkScript::FunctionType **outType) const noexcept
+{
+	return this->functionCache->getCachedFunctionType(d, func, query, outType);
 }

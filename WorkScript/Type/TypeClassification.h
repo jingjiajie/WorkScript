@@ -8,6 +8,7 @@ namespace WorkScript {
 		STRING,
 		FUNCTION,
 		ARRAY,
+		MULTI_VALUE,
 		CLASS
 	};
 }

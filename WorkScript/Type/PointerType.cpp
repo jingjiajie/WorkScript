@@ -8,10 +8,10 @@ using namespace std;
 std::unordered_map<std::wstring, PointerType*> PointerType::types;
 Finalizer PointerType::staticFinalizer(&PointerType::releaseTypes);
 
-PointerType::PointerType(Type *targetType, size_t level, bool isConst, bool isVolatile)
-	:Type(isConst, isVolatile), targetType(targetType), level(level) {}
+PointerType::PointerType(Type *targetType, size_t level, bool isConst, bool isVolatile) noexcept
+	:targetType(targetType), level(level), _const(isConst),_volatile(isVolatile) {}
 
-std::wstring WorkScript::PointerType::getName() const
+std::wstring WorkScript::PointerType::getName() const noexcept
 {
 	wstring name = this->targetType->getName();
 	for (size_t j = 0; j < this->level; ++j) {
@@ -22,7 +22,7 @@ std::wstring WorkScript::PointerType::getName() const
 	return name;
 }
 
-std::wstring WorkScript::PointerType::getIdentifierString() const
+std::wstring WorkScript::PointerType::getIdentifierString() const noexcept
 {
 	wstring name = this->targetType->getIdentifierString();
 	for (size_t j = 0; j < this->level; ++j) {
@@ -33,7 +33,7 @@ std::wstring WorkScript::PointerType::getIdentifierString() const
 	return name;
 }
 
-TypeClassification PointerType::getClassification() const
+TypeClassification PointerType::getClassification() const noexcept
 {
 	return TypeClassification::POINTER;
 }
@@ -47,14 +47,14 @@ llvm::Type * PointerType::getLLVMType(GenerateContext * ctx) const
 	return llvmType;
 }
 
-bool PointerType::equals(const Type * type) const
+bool PointerType::equals(const Type * type) const noexcept
 {
-	if (!Type::equals(type))return false;
+	if (type->getClassification() != TypeClassification::POINTER)return false;
 	const PointerType *target = (const PointerType*)type;
 	return this->level == target->level && this->targetType->equals(target->targetType);
 }
 
-std::wstring WorkScript::PointerType::getIdentifierString(Type * targetType, size_t level, bool isConst, bool isVolatile)
+std::wstring WorkScript::PointerType::getIdentifierString(Type * targetType, size_t level, bool isConst, bool isVolatile) noexcept
 {
 	wstring name = targetType->getName();
 	name += L"*" + to_wstring(level);
@@ -67,7 +67,7 @@ std::wstring WorkScript::PointerType::getIdentifierString(Type * targetType, siz
 	return name;
 }
 
-PointerType * WorkScript::PointerType::get(Type * targetType, size_t pointerLevel, bool isConst, bool isVolatile)
+PointerType * WorkScript::PointerType::get(Type * targetType, size_t pointerLevel, bool isConst, bool isVolatile) noexcept
 {
 	wstring idStr = PointerType::getIdentifierString(targetType, pointerLevel, isConst, isVolatile);
 	auto it = types.find(idStr);
@@ -75,7 +75,7 @@ PointerType * WorkScript::PointerType::get(Type * targetType, size_t pointerLeve
 	else return (types[idStr] = new PointerType(targetType, pointerLevel, isConst, isVolatile));
 }
 
-void WorkScript::PointerType::releaseTypes()
+void WorkScript::PointerType::releaseTypes() noexcept
 {
 	for (auto it : types) {
 		delete it.second;

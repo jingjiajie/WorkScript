@@ -14,12 +14,17 @@ std::wstring WorkScript::FloatConstant::toString() const
 	return to_wstring(this->value);
 }
 
-Constant * WorkScript::FloatConstant::clone() const
+Value * WorkScript::FloatConstant::clone() const
 {
 	return new FloatConstant(this->expressionInfo, type, value);
 }
 
-Type * WorkScript::FloatConstant::getType() const
+Type * WorkScript::FloatConstant::getType(InstantialContext *ctx) const
 {
 	return this->type;
+}
+
+ExpressionType FloatConstant::getExpressionType() const
+{
+    return ExpressionType::FLOAT;
 }

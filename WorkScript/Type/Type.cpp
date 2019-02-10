@@ -10,6 +10,11 @@
 using namespace WorkScript;
 using namespace std;
 
+const LinkageType LinkageType::INTERNAL(LinkageType::Classification::INTERNAL);
+const LinkageType LinkageType::EXTERNAL(LinkageType::Classification::EXTERNAL);
+
+
+
 //bool Type::isSubTypeOf(const Type *abstractType) const
 //{
 //	const Type *curType = this;
@@ -32,14 +37,6 @@ using namespace std;
 //	this->getProgram()->addFunction(func);
 //	this->memberFunctions[func->getName()] = func;
 //}
-
-bool WorkScript::Type::equals(const Type * type) const
-{
-	return (this->getClassification() == type->getClassification()) 
-		&& (this->_const == type->_const)
-		&& (this->_volatile == type->_volatile);
-}
-
 
 Type * Type::getPromotedType(const DebugInfo &d, Type * left, Type * right)
 {
@@ -273,4 +270,23 @@ GenerateResult Type::generateLLVMTypeConvert(const DebugInfo &d, GenerateContext
     UNSUPPORTED:
     d.getReport()->error(IncompatibleTypeError(d, L"不支持的类型转换：" + srcType->getName() + L" 到 " + targetType->getName()),
                          ErrorBehavior::CANCEL_EXPRESSION);
+}
+
+const std::wstring &LinkageType::toString() const noexcept
+{
+    static std::wstring internal = L"internal", external = L"external";
+    switch (this->classification)
+    {
+        case Classification::INTERNAL:
+            return internal;
+        case Classification::EXTERNAL:
+            return external;
+        default:
+            throw InternalException(L"未知的链接类型：" + to_wstring((unsigned char)this->classification));
+    }
+}
+
+std::wstring Type::toString() const noexcept
+{
+    return this->getName();
 }

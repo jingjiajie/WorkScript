@@ -1,5 +1,5 @@
 #pragma once
-
+#include <optional>
 #include "Type.h"
 
 namespace WorkScript
@@ -7,12 +7,12 @@ namespace WorkScript
     class TypeWrapper
     {
     public:
-        inline TypeWrapper(Type *t, StorageType st, LinkageType lt) noexcept
-                : type(t), storageType(st), linkageType(lt)
+        inline TypeWrapper(Type *t, const std::optional<LinkageType> &lt = std::nullopt) noexcept
+                : type(t), linkageType(lt)
         {}
 
         inline TypeWrapper(const TypeWrapper &wrapper) noexcept
-                : type(wrapper.type)
+                : type(wrapper.type), linkageType(wrapper.linkageType)
         {}
 
         inline Type *getType() const
@@ -30,17 +30,7 @@ namespace WorkScript
             return this->type;
         }
 
-        inline StorageType getStorageType() const
-        {
-            return storageType;
-        }
-
-        inline void setStorageType(StorageType storageType)
-        {
-            TypeWrapper::storageType = storageType;
-        }
-
-        inline LinkageType getLinkageType() const
+        inline const std::optional<LinkageType> &getLinkageType() const
         {
             return linkageType;
         }
@@ -51,8 +41,7 @@ namespace WorkScript
         }
 
     protected:
-        Type *type;
-        StorageType storageType = StorageType::DEFAULT;
-        LinkageType linkageType = LinkageType::DEFAULT;
+        Type *type = nullptr;
+        std::optional<LinkageType> linkageType = std::nullopt;
     };
 }

@@ -1,20 +1,21 @@
 #pragma once
 #include <string>
-#include "Constant.h"
+#include "Value.h"
 #include "Program.h"
 #include "Type.h"
 
 namespace WorkScript {
-	class StringConstant : public Constant {
+	class StringConstant : public Value {
 	public:
 		StringConstant(const ExpressionInfo &info, const std::wstring &value)
-			:Constant(info), value(value) {}
+			:Value(info), value(value) {}
 
 		std::wstring getValue() const { return this->value; }
-		virtual Type * getType() const override;
-		virtual GenerateResult generateIR(GenerateContext *context) override;
-		virtual std::wstring toString() const override;
-		virtual Constant * clone() const override;
+		Type * getType(InstantialContext *ctx) const override;
+		GenerateResult generateIR(GenerateContext *context) override;
+		std::wstring toString() const override;
+		Value * clone() const override;
+		ExpressionType getExpressionType() const override;
 	protected:
 		std::wstring value;
 	};

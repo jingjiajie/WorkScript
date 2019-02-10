@@ -6,7 +6,7 @@
 using namespace std;
 using namespace WorkScript;
 
-BinaryOperator::~BinaryOperator()
+BinaryOperator::~BinaryOperator() noexcept
 {
 	delete this->leftExpression;
 	delete this->rightExpression;

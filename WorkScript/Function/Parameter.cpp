@@ -1,6 +1,6 @@
 #include "Parameter.h"
 #include "InstantialContext.h"
-#include "Constant.h"
+#include "Value.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -20,7 +20,7 @@ Parameter::~Parameter()
 		delete this->defaultValue;
 }
 
-void Parameter::setDefaultValue(WorkScript::Constant *value)
+void Parameter::setDefaultValue(WorkScript::Value *value)
 {
 	if (this->defaultValue)delete this->defaultValue;
 	this->defaultValue = value;

@@ -1,5 +1,5 @@
 
-// Generated from WorkScript.g4 by ANTLR 4.7.2
+// Generated from WorkScript.g4 by ANTLR 4.7.1
 
 #pragma once
 
@@ -90,6 +90,8 @@ public:
     virtual antlrcpp::Any visitBlock(WorkScriptParser::BlockContext *context) = 0;
 
     virtual antlrcpp::Any visitStaticVarargs(WorkScriptParser::StaticVarargsContext *context) = 0;
+
+    virtual antlrcpp::Any visitRuntimeVarargs(WorkScriptParser::RuntimeVarargsContext *context) = 0;
 
     virtual antlrcpp::Any visitNewlineOrComma(WorkScriptParser::NewlineOrCommaContext *context) = 0;
 

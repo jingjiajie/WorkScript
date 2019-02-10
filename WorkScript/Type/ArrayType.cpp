@@ -10,12 +10,12 @@ Finalizer ArrayType::staticFinalizer(&ArrayType::releaseTypes);
 
 
 
-WorkScript::ArrayType::ArrayType(Type * targetType, const std::vector<size_t>& lenOfEachDimension)
-	:Type(false, false), targetType(targetType), lengthOfEachDimension(lenOfEachDimension)
+WorkScript::ArrayType::ArrayType(Type * targetType, const std::vector<size_t>& lenOfEachDimension) noexcept
+	:targetType(targetType), lengthOfEachDimension(lenOfEachDimension)
 {
 }
 
-std::wstring WorkScript::ArrayType::getName() const
+std::wstring WorkScript::ArrayType::getName() const noexcept
 {
 	wstring name = this->targetType->getName();
 	for (size_t i = 0; i < this->lengthOfEachDimension.size(); ++i) {
@@ -24,12 +24,12 @@ std::wstring WorkScript::ArrayType::getName() const
 	return name;
 }
 
-std::wstring WorkScript::ArrayType::getIdentifierString() const
+std::wstring WorkScript::ArrayType::getIdentifierString() const noexcept
 {
 	return ArrayType::getIdentifierString(this->targetType, this->lengthOfEachDimension);
 }
 
-std::wstring WorkScript::ArrayType::getIdentifierString(Type * targetType, const std::vector<size_t>& lenOfEachDimension)
+std::wstring WorkScript::ArrayType::getIdentifierString(Type * targetType, const std::vector<size_t>& lenOfEachDimension) noexcept
 {
 	wstring name = targetType->getIdentifierString();
 	for (size_t i = 0; i < lenOfEachDimension.size(); ++i) {
@@ -38,7 +38,7 @@ std::wstring WorkScript::ArrayType::getIdentifierString(Type * targetType, const
 	return name;
 }
 
-TypeClassification WorkScript::ArrayType::getClassification() const
+TypeClassification WorkScript::ArrayType::getClassification() const noexcept
 {
 	return TypeClassification::ARRAY;
 }
@@ -53,7 +53,7 @@ llvm::Type * WorkScript::ArrayType::getLLVMType(GenerateContext * context) const
 	return type;
 }
 
-bool WorkScript::ArrayType::equals(const Type * type) const
+bool WorkScript::ArrayType::equals(const Type * type) const noexcept
 {
 	if (!Type::equals(type))return false;
 	const ArrayType *targetArray = (const ArrayType*)type;
@@ -62,7 +62,7 @@ bool WorkScript::ArrayType::equals(const Type * type) const
 	return true;
 }
 
-ArrayType * WorkScript::ArrayType::get(Type * targetType, const std::vector<size_t>& lenOfEachDimension)
+ArrayType * WorkScript::ArrayType::get(Type * targetType, const std::vector<size_t>& lenOfEachDimension) noexcept
 {
 	wstring idStr = ArrayType::getIdentifierString(targetType, lengthOfEachDimension);
 	auto it = types.find(idStr);
@@ -70,7 +70,7 @@ ArrayType * WorkScript::ArrayType::get(Type * targetType, const std::vector<size
 	return (types[idStr] = new ArrayType(targetType, lengthOfEachDimension));
 }
 
-void WorkScript::ArrayType::releaseTypes()
+void WorkScript::ArrayType::releaseTypes() noexcept
 {
 	for (auto it : types) {
 		delete it.second;

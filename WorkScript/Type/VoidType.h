@@ -4,14 +4,14 @@
 namespace WorkScript {
 	class VoidType : public Type {
 	public:
-		VoidType() :Type(false, false) {};
+		VoidType() noexcept = default;
 
-		virtual std::wstring getName() const override;
-		virtual std::wstring getIdentifierString()const override;
-		virtual TypeClassification getClassification() const override;
-		virtual llvm::Type* getLLVMType(GenerateContext *context) const override;
-
-		static VoidType * get() { return &type; }
+		std::wstring getName() const noexcept override;
+		std::wstring getIdentifierString()const noexcept override;
+		TypeClassification getClassification() const noexcept override;
+		llvm::Type* getLLVMType(GenerateContext *context) const override;
+		bool equals(const Type *type) const noexcept override;
+		static VoidType * get() noexcept { return &type; }
 
 	protected:
 		static VoidType type;

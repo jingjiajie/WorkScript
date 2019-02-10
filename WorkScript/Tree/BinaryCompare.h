@@ -21,7 +21,7 @@ namespace WorkScript {
 
 		//inline Variable * getLeftVariable() const
 		//{
-		//	if (this->leftExpression->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
+		//	if (this->leftExpression->getExpressionType() == ExpressionType::VARIABLE) {
 		//		return (Variable*)this->leftExpression;
 		//	}
 		//	else {

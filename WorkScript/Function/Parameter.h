@@ -5,7 +5,7 @@
 
 namespace WorkScript 
 {
-	class Constant;
+	class Value;
 
 	class Parameter
 	{
@@ -22,9 +22,9 @@ namespace WorkScript
 
 		inline const std::wstring & getName()const { return this->name; }
 		inline void setName(const std::wstring &name) { this->name = name; }
-		inline Constant * getDefaultValue() { return this->defaultValue; }
+		inline Value * getDefaultValue() { return this->defaultValue; }
 
-		void setDefaultValue(Constant *value);
+		void setDefaultValue(Value *value);
 
 		inline bool isVarargs()const { return this->varargs; }
 		inline void setVarargs(bool isVarargs) { this->varargs = isVarargs; }
@@ -35,7 +35,7 @@ namespace WorkScript
 	private:
 		std::wstring name;
 		Type *type = nullptr;
-		Constant *defaultValue = nullptr;
+		Value *defaultValue = nullptr;
 		bool varargs = false;
 		bool declaredType = false;
 	};

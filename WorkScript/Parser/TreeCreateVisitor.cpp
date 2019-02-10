@@ -1,3 +1,4 @@
+#include <optional>
 #include "TreeCreateVisitor.h"
 #include "ExpressionWrapper.h"
 #include "TypeWrapper.h"
@@ -11,7 +12,7 @@
 #include "Exception.h"
 #include "Parameter.h"
 #include "Function.h"
-#include "FunctionBranch.h"
+#include "FunctionFragment.h"
 #include "Program.h"
 #include "BinaryCompare.h"
 #include "BinaryCalculate.h"
@@ -43,12 +44,13 @@ this->assignable = oriAssignable;
 using namespace std;
 using namespace WorkScript;
 
-static void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, DebugInfo loc);
+static void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr,const DebugInfo &d);
 
 inline static DebugInfo getDebugInfo(const TreeCreateVisitor *visitor, antlr4::ParserRuleContext *ctx)
 {
-	DebugInfo d(Location(visitor->getFileName(), ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1), visitor->getProgram()->getReport());
-	return d;
+	return DebugInfo(
+			Location(visitor->getFileName(), ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine() + 1),
+			visitor->getProgram()->getReport());
 }
 
 antlrcpp::Any WorkScript::TreeCreateVisitor::visitBlock(WorkScriptParser::BlockContext *ctx)
@@ -85,16 +87,14 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitLine(WorkScriptParser::LineCon
 antlrcpp::Any TreeCreateVisitor::visitNumber(WorkScriptParser::NumberContext *ctx)
 {
 	if (ctx->DOUBLE()) {
-		double value = 0;
-		int len = sscanf(ctx->DOUBLE()->getText().c_str(), "%lf", &value);
+		long double value = strtold(ctx->DOUBLE()->getText().c_str(), nullptr);
 		if (ctx->MINUS()) {
 			value = -value;
 		}
 		return ExpressionWrapper(new FloatConstant(ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), FloatType::get(64), value));
 	}
 	else {
-		int value = 0;
-		int len = sscanf(ctx->INTEGER()->getText().c_str(), "%d", &value);
+		long long int value = strtoll(ctx->INTEGER()->getText().c_str(), nullptr, 10);
 		if (ctx->MINUS()) {
 			value = -value;
 		}
@@ -146,118 +146,113 @@ antlrcpp::Any TreeCreateVisitor::visitVariable(WorkScriptParser::VariableContext
 
 antlrcpp::Any TreeCreateVisitor::visitFunctionDefine(WorkScriptParser::FunctionDefineContext *ctx)
 {
-	STORE_FORBID_ASSIGN;
-	/*====深入下一层====*/
-	++this->curDepth;
-	AbstractContext *outerAbstractContext = this->abstractContexts.top();
-	/*读取函数名*/
-	auto funcNameCtx = ctx->functionDeclaration()->functionName()->identifier();
-	wstring funcName;
-	if (funcNameCtx != nullptr) {
-		funcName = Locales::toWideChar(Encoding::UTF_8, funcNameCtx->getText());
-	}
+    STORE_FORBID_ASSIGN;
+    /*====深入下一层====*/
+    ++this->curDepth;
+    AbstractContext *outerAbstractContext = this->abstractContexts.top();
+    /*读取函数名*/
+    auto funcNameCtx = ctx->functionDeclaration()->functionName()->identifier();
+    wstring funcName;
+    if (funcNameCtx != nullptr)
+    {
+        funcName = Locales::toWideChar(Encoding::UTF_8, funcNameCtx->getText());
+    }
 
-	/*读取返回值类型名*/
-	auto returnTypeCtx = ctx->functionDeclaration()->type();
-	Type *declReturnType = nullptr;
-	LinkageType linkageType = LinkageType::DEFAULT;
-	if (returnTypeCtx) {
-		TypeWrapper returnTypeWrapper = returnTypeCtx->accept(this).as<TypeWrapper>();
-		linkageType = returnTypeWrapper.getLinkageType();
+    /*读取返回值类型名*/
+    auto returnTypeCtx = ctx->functionDeclaration()->type();
+    Type *declReturnType = nullptr;
+    LinkageType linkageType = LinkageType::EXTERNAL;
+    if (returnTypeCtx)
+    {
+        TypeWrapper returnTypeWrapper = returnTypeCtx->accept(this).as<TypeWrapper>();
+        if (returnTypeWrapper.getLinkageType().has_value() &&
+            returnTypeWrapper.getLinkageType().value().equals(LinkageType::INTERNAL))
+        {
+            linkageType = LinkageType::INTERNAL;
+        }
         declReturnType = returnTypeWrapper.getType();
-		size_t pointerLevel = ctx->functionDeclaration()->STAR().size();
-		if(pointerLevel > 0) declReturnType = PointerType::get(declReturnType,pointerLevel);
-	}
+        size_t pointerLevel = ctx->functionDeclaration()->STAR().size();
+        if (pointerLevel > 0) declReturnType = PointerType::get(declReturnType, pointerLevel);
+    }
 
-	/*读取参数声明*/
-	auto paramItemsDeclCtx = ctx->functionDeclaration()->formalParameter()->formalParameterItem();
-	size_t paramCount = paramItemsDeclCtx.size();
-	vector<Expression*> paramDeclExprs(paramCount, nullptr);
-	vector<Type*> paramDeclTypes(paramCount, nullptr);
-	//TODO 运行时变参处理
-	//bool isRuntimeVarargs = ctx->functionDeclarationExpression()->formalParameterExpression()->APOSTROPHE() != nullptr;
-	bool isRuntimeVarargs = false;
-
-	for (size_t i = 0; i < paramCount; ++i)
+    /*读取参数声明*/
+    auto paramItemsDeclCtx = ctx->functionDeclaration()->formalParameter()->formalParameterItem();
+    size_t paramCount = paramItemsDeclCtx.size();
+    vector<Expression *> paramDeclExprs(paramCount, nullptr);
+    vector<Type *> paramDeclTypes(paramCount, nullptr);
+    bool isRuntimeVarargs = ctx->functionDeclaration()->formalParameter()->runtimeVarargs() != nullptr;
+    auto staticVarargsCtx = ctx->functionDeclaration()->formalParameter()->staticVarargs();
+    optional<wstring> staticVarargsName = nullopt;
+    if(staticVarargsCtx != nullptr)
 	{
-		paramDeclExprs[i] = paramItemsDeclCtx[i]->expression()->accept(this).as<ExpressionWrapper>();
-		if (paramItemsDeclCtx[i]->type())
-		{
-			Type *type = paramItemsDeclCtx[i]->type()->accept(this).as<TypeWrapper>().getType();
-			size_t pointerLevel = paramItemsDeclCtx[i]->STAR().size();
-			if (pointerLevel > 0) type = PointerType::get(type, pointerLevel);
-			paramDeclTypes[i] = type;
-		}
+		staticVarargsName = Locales::toWideChar(Encoding::UTF_8, staticVarargsCtx->identifier()->getText());
 	}
 
-	/*读取限制声明*/
-	vector<Expression*> constraintsDecl;
-	auto constraintCtx = ctx->functionConstraint();
-	if (constraintCtx) {
-		if (constraintCtx->expression())
-		{
-			auto expr = constraintCtx->expression()->accept(this).as<ExpressionWrapper>().getExpression();
-			constraintsDecl.push_back(expr);
-		}
-		else {
-			constraintsDecl = constraintCtx->block()->accept(this).as<decltype(constraintsDecl)>();
-		}
-	}
-	//解析参数和限制
-	InstantialContext instCtx(this->abstractContexts.top(), this->program->getFunctionCache(), nullptr);
-	auto resolveRes = FormalParametersResolver::resolve(ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), &instCtx, paramDeclTypes, paramDeclExprs, constraintsDecl);
-	auto paramTypes = resolveRes.getParameterTypes();
-	auto params = resolveRes.getParameters();
-	auto constraints = resolveRes.getConstraints();
+    for (size_t i = 0; i < paramCount; ++i)
+    {
+        paramDeclExprs[i] = paramItemsDeclCtx[i]->expression()->accept(this).as<ExpressionWrapper>();
+        if (paramItemsDeclCtx[i]->type())
+        {
+            Type *type = paramItemsDeclCtx[i]->type()->accept(this).as<TypeWrapper>().getType();
+            size_t pointerLevel = paramItemsDeclCtx[i]->STAR().size();
+            if (pointerLevel > 0) type = PointerType::get(type, pointerLevel);
+            paramDeclTypes[i] = type;
+        }
+    }
 
-	auto funcs = outerAbstractContext->getFunctions(funcName, paramTypes);
-	if (funcs.size() == 0) {
-		//此时还不知道返回值类型
-		auto newFunc = new Function(outerAbstractContext, funcName, paramTypes, declReturnType, declReturnType != nullptr, isRuntimeVarargs, false, linkageType);
-		funcs.push_back(newFunc);
-		outerAbstractContext->addFunction(newFunc);
-	}
-	//为所有符合条件的函数重载添加函数分支
-	for (size_t i = 0; i < funcs.size(); ++i) {
-		Function *func = (Function*)funcs[i];
-		/*检查链接类型是否相同*/
-		LinkageType oriLinkageType = func->getLinkageType();
-        if(oriLinkageType != linkageType && oriLinkageType != LinkageType::DEFAULT && linkageType != LinkageType::DEFAULT){
-            throw TypeMismatchedError(getDebugInfo(this, ctx), L"函数" + funcName + L"的链接类型与之前声明的不符");
-        }else /*检查类型声明是否匹配*/if (func->isDeclaredReturnType() && !func->getAbstractType()->getReturnType()->equals(declReturnType)) {
-			throw TypeMismatchedError(getDebugInfo(this, ctx), L"函数" + funcName + L"的返回值类型" + declReturnType->getName()
-				+ L"与之前声明的不符：" + func->getAbstractType()->getReturnType()->getName());
-		}
-		size_t branchID = func->getBranchCount() + 1; //blockID从1开始
-		auto branch = new FunctionBranch(getDebugInfo(this, ctx), func, branchID);
-		branch->setParameters(params);
-		AbstractContext *innerAbstractCtx = branch->getContext();
-		this->abstractContexts.push(innerAbstractCtx);
+    /*读取限制声明*/
+    vector<Expression *> constraintsDecl;
+    auto constraintCtx = ctx->functionConstraint();
+    if (constraintCtx)
+    {
+        if (constraintCtx->expression())
+        {
+            auto expr = constraintCtx->expression()->accept(this).as<ExpressionWrapper>().getExpression();
+            constraintsDecl.push_back(expr);
+        } else
+        {
+            constraintsDecl = constraintCtx->block()->accept(this).as<decltype(constraintsDecl)>();
+        }
+    }
+    //解析参数和限制
+    InstantialContext instCtx(this->abstractContexts.top(), this->program->getFunctionCache(), nullptr);
+    auto resolveRes = FormalParametersResolver::resolve(
+            ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), &instCtx, paramDeclTypes,
+            paramDeclExprs, constraintsDecl);
+    auto paramTypes = resolveRes.getParameterTypes();
+    auto params = resolveRes.getParameters();
+    auto constraints = resolveRes.getConstraints();
 
-		/*将函数声明添加到相应的重载分支中*/
-		//寻找重载，同时判断是否和已有返回值类型相同，如果不存在则新建。
+    /*将函数声明添加到相应的重载分支中*/
+    //寻找重载，同时判断是否和已有返回值类型相同，如果不存在则新建。
 
-		/*函数的实现*/
-		ALLOW_ASSIGN;
-		vector<Expression*> impls;
-		if (ctx->functionImplementation()->expression() != nullptr) {
-			auto expr = ctx->functionImplementation()->expression()->accept(this).as<ExpressionWrapper>();
-			impls.push_back(expr.getExpression());
-		}
-		else {
-			impls = ctx->functionImplementation()->block()->accept(this).as<decltype(impls)>();
-		}
-		branch->setConstraints(constraints);
-		branch->setImplements(impls);
-		FORBID_ASSIGN;
-		//恢复当前分支
-		this->abstractContexts.pop();
-		func->addBranch(branch);
-	}
-	/*====恢复上一层====*/
-	--this->curDepth;
-	RESTORE_ASSIGNABLE;
-	return nullptr;
+    /*函数的实现*/
+    ALLOW_ASSIGN;
+    vector<Expression *> impls;
+    if (ctx->functionImplementation()->expression() != nullptr)
+    {
+        auto expr = ctx->functionImplementation()->expression()->accept(this).as<ExpressionWrapper>();
+        impls.push_back(expr.getExpression());
+    } else
+    {
+        impls = ctx->functionImplementation()->block()->accept(this).as<decltype(impls)>();
+    }
+
+    //将Fragment加入到外层的AbstractContext中
+    //TODO 函数的const修饰符
+    auto fragment = new FunctionFragment(getDebugInfo(this, ctx), outerAbstractContext, funcName, params, false, isRuntimeVarargs, staticVarargsName, linkageType,constraints,impls);
+    outerAbstractContext->addFunctionFragment(fragment);
+	AbstractContext *innerAbstractCtx = fragment->getContext();
+	this->abstractContexts.push(innerAbstractCtx);
+
+    FORBID_ASSIGN;
+    //恢复当前分支
+    this->abstractContexts.pop();
+
+    /*====恢复上一层====*/
+    --this->curDepth;
+    RESTORE_ASSIGNABLE;
+    return nullptr;
 }
 
 antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDecl(WorkScriptParser::StdFunctionDeclContext *ctx)
@@ -273,7 +268,7 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDecl(WorkScriptPars
 	Type *returnType = returnTypeWrapper.getType();
 	size_t pointerLevel = ctx->STAR().size();
 	if (pointerLevel > 0) returnType = PointerType::get(returnType, pointerLevel);
-	LinkageType linkageType = returnTypeWrapper.getLinkageType();
+	LinkageType linkageType = returnTypeWrapper.getLinkageType().value_or(LinkageType::EXTERNAL);
 
 	/*处理参数声明*/
 	auto paramItemsCtx = ctx->stdFormalParameter()->stdFormalParameterItem();
@@ -292,12 +287,14 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDecl(WorkScriptPars
 		params.push_back(new Parameter(paramName, paramType, true));
 		paramTypes.push_back(paramType);
 	}
-	bool isRuntimeVarargs = ctx->stdFormalParameter()->APOSTROPHE() != nullptr;
-	Function *func = outerAbstractContext->getFirstFunction(funcName, paramTypes);
+	bool isRuntimeVarargs = ctx->stdFormalParameter()->runtimeVarargs() != nullptr;
+	//TODO FunctionQuery的isConst参数未处理
+	Function *func = outerAbstractContext->getFunction(getDebugInfo(this,ctx),FunctionQuery(funcName, paramTypes, false));
 	if (!func)
 	{
-		func = new Function(outerAbstractContext, funcName, paramTypes, returnType, true, isRuntimeVarargs, false,
-							linkageType);
+		//TODO 函数的const修饰符
+		FunctionType *funcType = FunctionType::get(paramTypes, returnType, isRuntimeVarargs, false);
+		func = new Function(outerAbstractContext, funcName, funcType, linkageType);
 		outerAbstractContext->addFunction(func);
 	}
 	return nullptr;
@@ -477,9 +474,7 @@ TreeCreateVisitor::TreeCreateVisitor(Program *lpProgram, const std::wstring &fil
     this->abstractContexts.push(program->getGlobalAbstractContext());
 }
 
-TreeCreateVisitor::~TreeCreateVisitor()
-{
-}
+TreeCreateVisitor::~TreeCreateVisitor() = default;
 
 antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
 {
@@ -488,8 +483,7 @@ antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
 	auto storageClassSpecifiers = ctx->storageClassSpecifier();
 	bool isConst = false, isVolatile = false;
 	bool isShort = false, isLong = false, isUnsigned = false;
-	StorageType storageType = StorageType::DEFAULT;
-	LinkageType linkageType = LinkageType::DEFAULT;
+	optional<LinkageType> linkageType = nullopt;
 	wstring typeName;
 	Type *type = nullptr;
 	for (auto qualifierCtx : qualifiers)
@@ -503,11 +497,9 @@ antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
     {
         string specifier = storageCtx->getText();
         if (specifier == "static") {
-            storageType = StorageType::STATIC;
             linkageType = LinkageType::INTERNAL;
         }
         else if (specifier == "extern"){
-            storageType = StorageType::EXTERN;
             linkageType = LinkageType::EXTERNAL;
         }
     }
@@ -525,7 +517,7 @@ antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
 		}
 	}
 
-	if (typeName.size() == 0)
+	if (typeName.empty())
 	{
 		type = nullptr;
 	} else if (typeName == L"int")
@@ -551,10 +543,10 @@ antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
 		this->program->getReport()->error(UnimplementedError(getDebugInfo(this, ctx), L"尚未实现自定义类型"), ErrorBehavior::CANCEL_EXPRESSION);
 	}
 
-	return TypeWrapper(type, storageType, linkageType);
+	return TypeWrapper(type, linkageType);
 }
 
-static void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, DebugInfo loc)
+static void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr,const DebugInfo &d)
 {
 #define SINGLE_ESCAPE_CASE(escapedChar,unescapedChar) \
 		case escapedChar: \
@@ -619,9 +611,9 @@ static void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, De
 				++srcPos;
 				break;
 			case L'\0':
-				throw std::move(SyntaxError(loc, (L"转义符未结束：\"" + wstring(srcStr) + L"\"").c_str()));
+				throw std::move(SyntaxError(d, L"转义符未结束：\"" + wstring(srcStr) + L"\""));
 			default:
-				throw std::move(SyntaxError(loc, (wstring(L"不能识别的转义符\"\\") + srcStr[srcPos] + L"\"").c_str()));
+				throw std::move(SyntaxError(d, wstring(L"不能识别的转义符\"\\") + srcStr[srcPos] + L"\""));
 			}
 			break;
 		}
@@ -633,7 +625,7 @@ static void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, De
 				break;
 			default:
 				size_t octLen = srcPos - escapeStartPos;
-				wchar_t *dstr = new wchar_t[octLen + 1];
+				auto *dstr = new wchar_t[octLen + 1];
 				for (size_t i = 0; i < octLen; i++) {
 					dstr[i] = srcStr[escapeStartPos + i];
 				}
@@ -658,7 +650,7 @@ static void handleEscapeCharacters(const wchar_t *srcStr, wchar_t *targetStr, De
 				break;
 			default:
 				size_t hexLen = srcPos - escapeStartPos - 1;
-				wchar_t *dstr = new wchar_t[hexLen + 1];
+				auto *dstr = new wchar_t[hexLen + 1];
 				for (size_t i = 0; i < hexLen; i++) {
 					dstr[i] = srcStr[escapeStartPos + 1 + i];
 				}

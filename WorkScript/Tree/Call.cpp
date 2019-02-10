@@ -17,7 +17,8 @@ GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 	auto outerInstCtx = context->getInstantialContext();
 	//获取函数声明
 	auto paramTypes = this->parameters->getTypes(context->getInstantialContext());
-	Function *func = this->expressionInfo.getAbstractContext()->getFirstFunction(this->functionName, paramTypes);
+ 	Function *func = this->expressionInfo.getAbstractContext()->getFunction(this->getDebugInfo(),FunctionQuery(this->functionName, paramTypes,
+																											   false));
 	if (!func) {
 		this->expressionInfo.getDebugInfo().getReport()->error(UndefinedSymbolError(this->expressionInfo.getDebugInfo(),
 																					L"未找到函数：" +
@@ -29,13 +30,8 @@ GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 	auto builder = context->getIRBuilder();
 	SymbolTable newInstTable;
 	InstantialContext innerInstCtx(this->expressionInfo.getAbstractContext(), this->expressionInfo.getProgram()->getFunctionCache(), &newInstTable);
-	//使用符号表传参
-	for (size_t i = 0; i < paramTypes.size(); ++i)
-	{
-		Type *paramType = paramTypes[i];
-		newInstTable.setSymbol(this->getDebugInfo(), Function::getStdParameterName(i), paramType, LinkageType::DEFAULT);
-	}
-	auto llvmArgs = this->parameters->getLLVMArgs(context, func->getParameterTypes(this->getDebugInfo(), &innerInstCtx)); //这个必须在context设置innerInstCtx之前执行
+
+	auto llvmArgs = this->parameters->getLLVMValues(context, paramTypes); //这个必须在context设置innerInstCtx之前执行
     context->setInstantialContext(&innerInstCtx);
 	llvm::Function *llvmFunc = func->getLLVMFunction(this->getDebugInfo(), context);
 	auto ret = builder->CreateCall(llvmFunc, llvmArgs);
@@ -46,19 +42,14 @@ GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 Type * Call::getType(InstantialContext *context) const
 {
 	auto paramTypes = this->parameters->getTypes(context);
-	Function *func = this->expressionInfo.getAbstractContext()->getFirstFunction(this->functionName, paramTypes);
+	Function *func = this->expressionInfo.getAbstractContext()->getFunction(this->getDebugInfo(),FunctionQuery(this->functionName, paramTypes, false));
 	if (!func) {
 	    auto str = this->toFunctionDeclString(context);
 		this->expressionInfo.getDebugInfo().getReport()->error(UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"未找到函数：" + str), ErrorBehavior::CANCEL_EXPRESSION);
-	}
-	SymbolTable newInstTable;
-	InstantialContext newInstCtx(this->expressionInfo.getAbstractContext(), this->getProgram()->getFunctionCache(), &newInstTable);
-	for (size_t i = 0; i < paramTypes.size(); ++i)
+	}else
 	{
-		Type *paramType = paramTypes[i];
-		newInstTable.setSymbol(this->getDebugInfo(), Function::getStdParameterName(i), paramType, LinkageType::DEFAULT);
+		return func->getReturnType(this->getDebugInfo(), context);
 	}
-	return func->getReturnType(this->getDebugInfo(), &newInstCtx);
 }
 
 std::wstring Call::toString() const
@@ -87,7 +78,7 @@ std::wstring Call::toFunctionDeclString(InstantialContext *context) const
 
 ExpressionType Call::getExpressionType() const
 {
-	return ExpressionType::CALL_EXPRESSION;
+	return ExpressionType::CALL;
 }
 
 Expression * WorkScript::Call::clone() const

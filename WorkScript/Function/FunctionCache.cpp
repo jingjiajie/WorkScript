@@ -4,45 +4,50 @@
 using namespace WorkScript;
 using namespace std;
 
-void FunctionCache::setFunctionTypeCache(const DebugInfo &d, Function *branch, const std::vector<Type*> &paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type * cacheReturnType)
+void FunctionCache::cacheFunctionType(const WorkScript::DebugInfo &d,
+                                      Function *func,
+                                      WorkScript::FunctionType *type) noexcept
 {
-	if (this->functionBranchTypeCache.find(branch) == this->functionBranchTypeCache.end()) {
-		this->functionBranchTypeCache[branch] = decltype(this->functionBranchTypeCache)::mapped_type();
+	if (this->cache.find(func) == this->cache.end())
+	{
+		this->cache[func] = decltype(this->cache)::mapped_type();
 	}
-	vector<ParameterTypesAndReturnType> &caches = this->functionBranchTypeCache[branch];
+	vector<FunctionType*> &items = this->cache[func];
 	bool found = false;
-	for (size_t i = 0; i < caches.size(); ++i) {
-		auto &cur = caches[i];
-		if (cur.matchByParameters(d, paramTypes,isRuntimeVarargs,isStaticVarargs))
+	for (size_t i = 0; i < items.size(); ++i)
+	{
+		if (items[i]->match(d, FunctionTypeQuery(type->getParameterTypes(), type->isConst())))
 		{
-			cur.setReturnType(cacheReturnType);
+			items[i] = type;
 			found = true;
 			break;
 		}
 	}
-	if (!found) {
-		caches.push_back(ParameterTypesAndReturnType(paramTypes, cacheReturnType));
+	if (!found)
+	{
+		items.push_back(type);
 	}
 }
 
-bool FunctionCache::getFunctionTypeCache(const DebugInfo &d, Function *branch, const std::vector<Type*> &paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type **outReturnType)
+bool FunctionCache::getCachedFunctionType(const DebugInfo &d,
+										  Function *func,
+										  const FunctionTypeQuery &query,
+										  FunctionType **outType) const noexcept
 {
-	if (this->functionBranchTypeCache.find(branch) == this->functionBranchTypeCache.end()) {
-		this->functionBranchTypeCache[branch] = decltype(this->functionBranchTypeCache)::mapped_type();
+	const auto &it = this->cache.find(func);
+	if (it == this->cache.end())
+	{
+		return false;
 	}
-	vector<ParameterTypesAndReturnType> &caches = this->functionBranchTypeCache[branch];
-	for (size_t i = 0; i < caches.size(); ++i) {
-		auto cur = caches[i];
-		if (cur.matchByParameters(d, paramTypes, isRuntimeVarargs, isStaticVarargs))
+	const vector<FunctionType *> &caches = it->second;
+	for (size_t i = 0; i < caches.size(); ++i)
+	{
+		FunctionType *cur = caches[i];
+		if (cur->match(d, query))
 		{
-			*outReturnType = cur.getReturnType();
+			*outType = cur;
 			return true;
 		}
 	}
 	return false;
-}
-
-bool FunctionCache::ParameterTypesAndReturnType::matchByParameters(const DebugInfo &d, const std::vector<Type*>& paramTypes, bool isRuntimeVarargs, bool isStaticVarargs)
-{
-	return Function::matchByParameters(d, this->parameterTypes, parameterTypes, isRuntimeVarargs, isStaticVarargs);
 }

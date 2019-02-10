@@ -18,12 +18,9 @@ GenerateResult WorkScript::Variable::generateIR(GenerateContext * context)
 	SymbolInfo *symbolInfo = instantialContext->getSymbolInfo(this->name);
 	if (!symbolInfo) {
 		this->expressionInfo.getDebugInfo().getReport()->error(UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"无法找到符号：" + this->name), ErrorBehavior::CANCEL_EXPRESSION);
-	}
-
-	if (context->isLeftValue()) {
+	}else if (context->isLeftValue()) {
 		return symbolInfo->getLLVMValuePtr(this->getDebugInfo(), context);
-	}
-	else {
+	}else {
 		return symbolInfo->getLLVMValue(this->getDebugInfo(), context);
 	}
 }
@@ -38,7 +35,6 @@ Type * Variable::getType(InstantialContext *context) const
 Expression * WorkScript::Variable::clone() const
 {
 	auto newInstance = new thistype(expressionInfo, name);
-	newInstance->varargs = this->varargs;
 	newInstance->declarable = declarable;
 	return newInstance;
 }
@@ -50,5 +46,16 @@ std::wstring Variable::toString() const
 
 ExpressionType Variable::getExpressionType() const
 {
-	return ExpressionType::VARIABLE_EXPRESSION;
+	return ExpressionType::VARIABLE;
+}
+
+const Value *Variable::getValue(InstantialContext *ctx) const noexcept
+{
+	return const_cast<Variable*>(this)->getValue(ctx);
+}
+
+Value *Variable::getValue(InstantialContext *ctx) noexcept
+{
+	SymbolInfo *info = ctx->getSymbolInfo(this->name);
+	return info->getValue();
 }

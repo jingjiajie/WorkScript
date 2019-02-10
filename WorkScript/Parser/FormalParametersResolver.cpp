@@ -35,15 +35,15 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 
 		switch (curExpr->getExpressionType())
 		{
-		case ExpressionType::VARIABLE_EXPRESSION: {
+		case ExpressionType::VARIABLE: {
 			Variable* varExpr = (Variable*)curExpr;
 			Parameter *param = new Parameter(varExpr->getName(), curType, isDeclaredType);
 			params[i] = param;
 			break;
 		}
-		case ExpressionType::BINARY_COMPARE_EXPRESSION: {
+		case ExpressionType::BINARY_COMPARE: {
 			Expression* left = ((BinaryCompare*)curExpr)->getLeftExpression();
-			if (left->getExpressionType() != ExpressionType::VARIABLE_EXPRESSION) {
+			if (left->getExpressionType() != ExpressionType::VARIABLE) {
 				throw std::move(SyntaxError(curExpr->getDebugInfo(), L"函数参数约束左部必须为变量！"));
 			}
 			Variable *leftVar = (Variable*)left;
@@ -53,10 +53,10 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 			break;
 		}
 		//TODO 默认参数如何处理
-		//case ExpressionType::ASSIGNMENT_EXPRESSION: {
+		//case ExpressionType::ASSIGNMENT: {
 		//	Assignment* assignmentExpr = (Assignment*)curExpr;
 		//	auto leftExpr = assignmentExpr->getLeftExpression();
-		//	if (leftExpr->getExpressionType() != ExpressionType::VARIABLE_EXPRESSION) {
+		//	if (leftExpr->getExpressionType() != ExpressionType::VARIABLE) {
 		//		throw std::move(SyntaxError(curExpr->getDebugInfo(), L"参数默认值左部必须为参数名！"));
 		//	}
 		//	auto leftVar = (Variable*)leftExpr;

@@ -14,12 +14,17 @@ std::wstring WorkScript::StringConstant::toString() const
 	return L"\"" + this->value + L"\"";
 }
 
-Constant * WorkScript::StringConstant::clone() const
+Value * WorkScript::StringConstant::clone() const
 {
 	return new StringConstant(expressionInfo, this->value);
 }
 
-Type * WorkScript::StringConstant::getType() const
+Type * WorkScript::StringConstant::getType(InstantialContext *ctx) const
 {
 	return PointerType::get(IntegerType::get(8),1);
+}
+
+ExpressionType StringConstant::getExpressionType() const
+{
+    return ExpressionType::STRING;
 }

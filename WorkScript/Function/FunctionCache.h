@@ -6,27 +6,16 @@
 namespace WorkScript {
 	class Function;
 	class Type;
+	class FunctionType;
+    class FunctionTypeQuery;
 
 	class FunctionCache {
 	public:
-		void setFunctionTypeCache(const DebugInfo &d, Function *branch, const std::vector<Type*> &paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type *cacheReturnType);
-		bool getFunctionTypeCache(const DebugInfo &d, Function *branch, const std::vector<Type*> &paramTypes, bool isRuntimeVarargs, bool isStaticVarargs, Type **outReturnType);
+		void cacheFunctionType(const DebugInfo &d, Function *func, FunctionType *type) noexcept;
+		bool getCachedFunctionType(const DebugInfo &d, Function *func, const FunctionTypeQuery &query,
+                                   FunctionType **outType) const noexcept;
 	
 	protected:
-		class ParameterTypesAndReturnType
-		{
-		public:
-			inline ParameterTypesAndReturnType(const std::vector<Type*> &paramTypes, Type *returnType)
-				:parameterTypes(paramTypes), returnType(returnType) {}
-			bool matchByParameters(const DebugInfo &d, const std::vector<Type*> &paramTypes, bool isRuntimeVarargs, bool isStaticVarargs);
-			std::vector<Type*> getParameterTypes() { return this->parameterTypes; }
-			Type *getReturnType() { return this->returnType; }
-			void setReturnType(Type *t) { this->returnType = t; }
-		protected:
-			std::vector<Type*> parameterTypes;
-			Type *returnType = nullptr;
-		};
-
-		std::unordered_map<Function*, std::vector<ParameterTypesAndReturnType>> functionBranchTypeCache;
+		std::unordered_map<Function*, std::vector<FunctionType*>> cache;
 	};
 }

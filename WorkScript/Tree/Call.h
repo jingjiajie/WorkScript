@@ -13,11 +13,11 @@ namespace WorkScript {
 		inline Call(const ExpressionInfo &exprInfo, const std::wstring &funcName, MultiValue *params)
 			:Expression(exprInfo), functionName(funcName), parameters(params){ }
 
-		virtual GenerateResult generateIR(GenerateContext *context) override;
-		virtual Type * getType(InstantialContext *context) const override;
-		virtual std::wstring toString() const override;
-		virtual ExpressionType getExpressionType() const override;
-		virtual Expression * clone() const override;
+		GenerateResult generateIR(GenerateContext *context) override;
+		Type * getType(InstantialContext *context) const override;
+		std::wstring toString() const override;
+		ExpressionType getExpressionType() const override;
+		Expression * clone() const override;
 
 		std::wstring toFunctionDeclString(InstantialContext *context) const;
 

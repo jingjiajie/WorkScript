@@ -44,7 +44,7 @@ Expression * WorkScript::BinaryCalculate::clone() const
 
 ExpressionType WorkScript::BinaryCalculate::getExpressionType() const
 {
-	return ExpressionType::BINARY_CALCULATE_EXPRESSION;
+	return ExpressionType::BINARY_CALCULATE;
 }
 
 std::wstring WorkScript::BinaryCalculate::getOperatorString() const

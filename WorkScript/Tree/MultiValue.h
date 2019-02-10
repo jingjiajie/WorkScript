@@ -1,21 +1,25 @@
 #pragma once
-#include "Expression.h"
+#include "Value.h"
 namespace WorkScript {
 	class MultiValue :
-		public Expression
+		public Value
 	{
 	public:
-		virtual ~MultiValue();
+		inline explicit MultiValue(const ExpressionInfo &exprInfo, const std::vector<Expression*> &items) noexcept
+				:Value(exprInfo), items(items)
+		{ }
 
-		virtual Type * getType(InstantialContext *context) const override;
+		~MultiValue() noexcept override;
+
+		Type * getType(InstantialContext *context) const override;
 		std::vector<Type*> getTypes(InstantialContext *context) const;
 
-		virtual std::wstring toString() const override;
-		virtual MultiValue * clone() const override;
-		virtual ExpressionType getExpressionType() const override;
-		virtual GenerateResult generateIR(GenerateContext *context) override;
+		std::wstring toString() const override;
+		MultiValue * clone() const override;
+		ExpressionType getExpressionType() const override;
+		GenerateResult generateIR(GenerateContext *context) override;
 
-		std::vector<llvm::Value*> getLLVMArgs(GenerateContext * context, const std::vector<Type*> &formalParamTypes) const;
+		const std::vector<llvm::Value*> & getLLVMValues(GenerateContext *context, const std::vector<Type *> &expectedTypes);
 
 		//virtual bool equals(Expression *) const override;
 
@@ -24,25 +28,14 @@ namespace WorkScript {
 			return (this->items);
 		}
 
-		inline decltype(auto) getItem(const size_t &index) const
+		inline decltype(auto) getItem(size_t index) const
 		{
 			return this->items[index];
 		}
-
-		inline void setItems(const std::vector<Expression*> &items)
-		{
-			this->items = items;
-			//this->flat();
-		}
-
-		//void flat();
-		inline MultiValue(const ExpressionInfo &exprInfo, const std::vector<Expression*> &items)
-			:Expression(exprInfo)
-		{
-			this->setItems(items);
-		}
 	protected:
 		std::vector<Expression*> items;
+		bool hadLLVMValues = false;
+		std::vector<llvm::Value*> llvmValues;
 	};
 }
 

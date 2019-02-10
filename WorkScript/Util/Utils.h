@@ -5,8 +5,8 @@
 
 class Finalizer final{
 public:
-	Finalizer(void(*f)(void)) :func(f) {}
-	~Finalizer() { this->func(); }
+	explicit Finalizer(void(*f)()) noexcept :func(f) {}
+	~Finalizer() noexcept { this->func(); }
 private:
-	void(*func)(void);
+	void(*func)();
 };

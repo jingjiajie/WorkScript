@@ -1,6 +1,7 @@
 #pragma once
 #include "Type.h"
 #include "Utils.h"
+#include "FunctionQuery.h"
 #include <vector>
 #include <unordered_map>
 
@@ -9,31 +10,33 @@ namespace WorkScript {
 
 	class FunctionType : public Type {
 	public:
-		inline FunctionType(const std::vector<Type*> &paramTypes, Type *returnType, bool isRumtimeVarargs = false, bool isStaticVarargs = false, bool isConst = false, bool isVolatile = false)
-			:Type(isConst,isVolatile),
-			paramTypes(paramTypes),rumtimeVarargs(isRumtimeVarargs),staticVarargs(isStaticVarargs), returnType(returnType){}
+		inline FunctionType(const std::vector<Type*> &paramTypes, Type *returnType, bool isRumtimeVarargs, bool isConst) noexcept
+			:_const(isConst),
+			paramTypes(paramTypes),rumtimeVarargs(isRumtimeVarargs), returnType(returnType){}
 
 
-		virtual TypeClassification getClassification() const override;
-		virtual llvm::Type* getLLVMType(GenerateContext *context) const override;
-		virtual bool equals(const Type *type) const override;
-		virtual std::wstring getName() const override;
-		virtual std::wstring getIdentifierString() const override;
-		static std::wstring getIdentifierString(const std::vector<Type*>& paramTypes, Type * returnType, bool isRuntimeVarargs, bool isStaticVarargs, bool isConst = false, bool isVolatile = false);
-		inline std::vector<Type *> getParameterTypes() const { return this->paramTypes; }
-		inline size_t getParameterCount() const { return this->paramTypes.size(); }
-		inline Type * getReturnType() { return this->returnType; }
-		inline bool isRumtimeVarargs() const { return this->rumtimeVarargs; }
-		inline bool isStaticVarargs() const { return this->staticVarargs; }
+		TypeClassification getClassification() const noexcept override;
+		llvm::Type* getLLVMType(GenerateContext *context) const override;
+		bool equals(const Type *type) const noexcept override;
+		std::wstring getName() const noexcept override;
+		std::wstring getIdentifierString() const noexcept override;
+		static std::wstring getIdentifierString(const std::vector<Type*>& paramTypes, Type * returnType, bool isRuntimeVarargs, bool isConst) noexcept;
+		inline std::vector<Type *> getParameterTypes() const noexcept{ return this->paramTypes; }
+		inline size_t getParameterCount() const noexcept{ return this->paramTypes.size(); }
+		inline Type * getReturnType() noexcept{ return this->returnType; }
+		inline bool isRumtimeVarargs() const noexcept{ return this->rumtimeVarargs; }
+		inline bool isConst() const noexcept{return this->_const;}
+		bool match(const DebugInfo &d, const FunctionTypeQuery &query) noexcept;
+		static bool match(const DebugInfo &d, FunctionType *declType, const FunctionTypeQuery &query) noexcept;
 
-		static FunctionType * get(std::vector<Type*> paramTypes, Type *returnType, bool isRuntimeVarargs = false, bool isStaticVarargs = false, bool isConst = false, bool isVolatile = false);
+		static FunctionType * get(const std::vector<Type*> &paramTypes, Type *returnType, bool isRuntimeVarargs, bool isConst) noexcept;
 	protected:
 		std::vector<Type*> paramTypes;
 		bool rumtimeVarargs = false;
-		bool staticVarargs = false;
+		bool _const = false;
 		Type *returnType = nullptr;
 		static std::unordered_map<std::wstring, FunctionType*> types;
 		static Finalizer staticFinalizer;
-		static void releaseTypes();
+		static void releaseTypes() noexcept;
 	};
 }

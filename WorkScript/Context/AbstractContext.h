@@ -1,30 +1,37 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include "FunctionQuery.h"
 #include "SymbolTable.h"
 
 namespace WorkScript {
 	class FunctionType;
 	class PointerType;
+	class FunctionFragment;
+	class Function;
+	class LinkageType;
 
 	class AbstractContext {
 	public:
-		AbstractContext(const DebugInfo &d, AbstractContext *base, size_t blockID);
-		~AbstractContext();
-		inline size_t getBlockID() const { return this->blockID; }
-		inline SymbolInfo * getSymbolInfo(const std::wstring &name) { return this->abstractSymbolTable.getSymbolInfo(name); }
-		inline SymbolInfo * setSymbol(const DebugInfo &d, const std::wstring &name, Type *type, LinkageType lt) { return this->abstractSymbolTable.setSymbol(d, name, type, lt); }
-		inline SymbolTable * getSymbolTable() { return &this->abstractSymbolTable; }
+		AbstractContext(const DebugInfo &d, AbstractContext *base, size_t blockID) noexcept;
+		AbstractContext(const DebugInfo &d, Program *p) noexcept;
+		~AbstractContext() noexcept;
+		inline size_t getBlockID() const noexcept{ return this->blockID; }
+		inline const SymbolInfo * getSymbolInfo(const std::wstring &name) const noexcept { return this->abstractSymbolTable.getSymbolInfo(name); }
+		inline SymbolInfo * getSymbolInfo(const std::wstring &name) noexcept { return this->abstractSymbolTable.getSymbolInfo(name);}
+		inline SymbolInfo * setSymbol (const DebugInfo &d, const std::wstring &name, Type *type, LinkageType lt) noexcept { return this->abstractSymbolTable.setSymbol(d, name, type, lt); }
+		inline SymbolTable * getSymbolTable() noexcept { return &this->abstractSymbolTable; }
 
-		void addFunction(Function *func);
-		Function* getFirstFunction(const std::wstring &name, std::vector<Type*> paramTypes);
-		std::vector<Function*> getLocalFunctions(const std::wstring &name, std::vector<Type*> paramTypes, bool compromise = false);
-		std::vector<Function*> getLocalFunctions(const std::wstring &name);
-		std::vector<Function*> getFunctions(const std::wstring &name, std::vector<Type*> paramTypes, bool compromise = false);
-		std::vector<Function*> getFunctions(const std::wstring &name);
+		Function *getFunction(const DebugInfo &d, const FunctionQuery &query);
+		std::vector<Function*> getFunctions(const DebugInfo &d, const std::wstring &name);
+        void addFunction(Function *func);
 
-		const DebugInfo &getDebugInfo() const;
-		void setDebugInfo(const DebugInfo &debugInfo);
+		void addFunctionFragment(FunctionFragment *fragment);
+		size_t getFunctionFragmentCount() const{return this->fragments.size();}
+
+		const DebugInfo &getDebugInfo() const noexcept;
+		void setDebugInfo(const DebugInfo &debugInfo) noexcept;
+		inline Program *getProgram() const noexcept{return this->program;}
 		Type * getType(const std::wstring &name, size_t pointerLevel = 0);
 		Type * getLocalType(const std::wstring &name, size_t pointerLevel = 0);
 		void addType(const std::wstring &name, Type *type);
@@ -32,11 +39,16 @@ namespace WorkScript {
 
 	protected:
 		AbstractContext * base;
+		Program *program = nullptr;
 		size_t blockID = 0;
 		std::wstring prefix;
 		SymbolTable abstractSymbolTable;
 		std::unordered_map<std::wstring, std::vector<Function*>> functions;
+		std::unordered_map<std::wstring, std::vector<FunctionFragment*>> fragments;
 		std::unordered_map<std::wstring, Type*> types;
 		DebugInfo debugInfo;
+
+		std::vector<FunctionFragment*> getLocalFunctionFragments(const DebugInfo &d, const FunctionQuery &query) noexcept;
+		std::vector<FunctionFragment*> getFunctionFragments(const DebugInfo &d, const FunctionQuery &query) noexcept;
 	};
 }

@@ -7,7 +7,7 @@
 
 namespace WorkScript {
 	class Program;
-	class FunctionBranch;
+	class FunctionFragment;
 
 	class TreeCreateVisitor :
 		public WorkScriptBaseVisitor

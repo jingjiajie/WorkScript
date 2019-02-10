@@ -7,7 +7,7 @@ using namespace std;
 std::unordered_map<std::wstring, FunctionType*> FunctionType::types;
 Finalizer FunctionType::staticFinalizer(&FunctionType::releaseTypes);
 
-TypeClassification FunctionType::getClassification() const
+TypeClassification FunctionType::getClassification() const noexcept
 {
 	return TypeClassification::FUNCTION;
 }
@@ -24,9 +24,9 @@ llvm::Type * WorkScript::FunctionType::getLLVMType(GenerateContext * context) co
 	return llvmType;
 }
 
-bool WorkScript::FunctionType::equals(const Type * type) const
+bool WorkScript::FunctionType::equals(const Type * type) const noexcept
 {
-	if (!Type::equals(type))return false;
+	if (type->getClassification() != TypeClassification::FUNCTION) return false;
 	const FunctionType *targetFuncType = (const FunctionType*)type;
 	if (!targetFuncType->returnType->equals(this->returnType))return false;
 	if (targetFuncType->paramTypes.size() != this->paramTypes.size())return false;
@@ -38,7 +38,7 @@ bool WorkScript::FunctionType::equals(const Type * type) const
 	return true;
 }
 
-std::wstring WorkScript::FunctionType::getName() const
+std::wstring WorkScript::FunctionType::getName() const noexcept
 {
 	wstringstream ss;
 	if (this->returnType) {
@@ -54,52 +54,71 @@ std::wstring WorkScript::FunctionType::getName() const
 	}
 	ss << L")";
 	if (this->_const) { ss << L" const"; }
-	if (this->_volatile) { ss << L" volatile"; }
 	return ss.str();
 }
 
-std::wstring WorkScript::FunctionType::getIdentifierString() const
+std::wstring WorkScript::FunctionType::getIdentifierString() const noexcept
 {
-	return FunctionType::getIdentifierString(this->paramTypes, this->returnType, this->rumtimeVarargs, this->staticVarargs, this->_const, this->_volatile);
+	return FunctionType::getIdentifierString(this->paramTypes, this->returnType, this->rumtimeVarargs, this->_const);
 }
 
-std::wstring WorkScript::FunctionType::getIdentifierString(const std::vector<Type*>& paramTypes, Type * returnType, bool isRuntimeVarargs, bool isStaticVarargs, bool isConst, bool isVolatile)
+std::wstring WorkScript::FunctionType::getIdentifierString(const std::vector<Type*>& paramTypes, Type * returnType, bool isRuntimeVarargs, bool isConst) noexcept
 {
 	wstringstream ss;
 	ss << L"f";
-	if (returnType) {
+	if (returnType)
+	{
 		ss << L".r@" << returnType->getName();
 	}
 	ss << L".p";
-	for (size_t i = 0; i < paramTypes.size(); ++i) {
+	for (size_t i = 0; i < paramTypes.size(); ++i)
+	{
 		ss << L"@" << (paramTypes[i] ? paramTypes[i]->getName() : L"?");
 	}
-	if (isRuntimeVarargs) {
+	if (isRuntimeVarargs)
+	{
 		ss << L"@...";
 	}
-	if (isStaticVarargs) {
-		ss << L"@...s";
-	}
-	if (isConst) {
+	if (isConst)
+	{
 		ss << L"@.c";
-	}
-	if (isVolatile) {
-		ss << L"@.v";
 	}
 	return ss.str();
 }
 
-FunctionType * WorkScript::FunctionType::get(std::vector<Type*> paramTypes, Type * returnType, bool isRuntimeVarargs, bool isStaticVarargs, bool isConst, bool isVolatile)
+FunctionType * FunctionType::get(const std::vector<Type*> &paramTypes, Type * returnType, bool isRuntimeVarargs, bool isConst) noexcept
 {
-	wstring idStr = FunctionType::getIdentifierString(paramTypes, returnType, isRuntimeVarargs, isStaticVarargs);
+	wstring idStr = FunctionType::getIdentifierString(paramTypes, returnType, isRuntimeVarargs, isConst);
 	auto it = types.find(idStr);
 	if (it != types.end()) return it->second;
-	else return (types[idStr] = new FunctionType(paramTypes, returnType, isRuntimeVarargs, isStaticVarargs, isConst, isVolatile));
+	else return (types[idStr] = new FunctionType(paramTypes, returnType, isRuntimeVarargs, isConst));
 }
 
-void WorkScript::FunctionType::releaseTypes()
+void WorkScript::FunctionType::releaseTypes() noexcept
 {
 	for (auto it : types) {
 		delete it.second;
 	}
+}
+
+bool FunctionType::match(const DebugInfo &d, FunctionType *declType, const FunctionTypeQuery &query) noexcept
+{
+    if(declType->isConst() != query.mustConst()) return false;
+	size_t declParamCount = declType->paramTypes.size();
+	const vector<Type*> &realParamTypes = query.getParameterTypes();
+	//TODO 需要考虑参数默认值
+	if (realParamTypes.size() < declParamCount)return false;
+	if (realParamTypes.size() > declParamCount && !declType->isRumtimeVarargs()) return false;
+	for (size_t i = 0; i < declParamCount; ++i)
+	{
+		Type *formalParamType = declType->paramTypes[i];
+		if (!realParamTypes[i])continue;
+		if (formalParamType && !Type::convertableTo(d, realParamTypes[i], formalParamType)) return false;
+	}
+	return true;
+}
+
+bool FunctionType::match(const DebugInfo &d, const FunctionTypeQuery &query) noexcept
+{
+	return FunctionType::match(d, this, query);
 }

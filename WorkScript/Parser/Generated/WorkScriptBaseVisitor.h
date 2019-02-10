@@ -1,5 +1,5 @@
 
-// Generated from WorkScript.g4 by ANTLR 4.7.2
+// Generated from WorkScript.g4 by ANTLR 4.7.1
 
 #pragma once
 
@@ -156,6 +156,10 @@ public:
   }
 
   virtual antlrcpp::Any visitStaticVarargs(WorkScriptParser::StaticVarargsContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitRuntimeVarargs(WorkScriptParser::RuntimeVarargsContext *ctx) override {
     return visitChildren(ctx);
   }
 

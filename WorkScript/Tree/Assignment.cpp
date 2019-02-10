@@ -35,7 +35,7 @@ GenerateResult WorkScript::Assignment::generateIR(GenerateContext * context)
 
 ExpressionType Assignment::getExpressionType() const
 {
-	return ExpressionType::ASSIGNMENT_EXPRESSION;
+	return ExpressionType::ASSIGNMENT;
 }
 
 Expression * WorkScript::Assignment::clone() const
@@ -45,7 +45,7 @@ Expression * WorkScript::Assignment::clone() const
 
 Type * WorkScript::Assignment::getType(InstantialContext *context) const {
 	auto leftExpr = this->getLeftExpression();
-	if (this->leftExpression->getExpressionType() == ExpressionType::VARIABLE_EXPRESSION) {
+	if (this->leftExpression->getExpressionType() == ExpressionType::VARIABLE) {
 		auto leftVar = (Variable *) leftExpr;
 		SymbolInfo *info = this->syncSymbol(leftVar->getName(), context);
 		return info->getType();
@@ -81,6 +81,7 @@ SymbolInfo * WorkScript::Assignment::syncSymbol(const wstring &name, InstantialC
 		}
 		return oriSymbolInfo;
 	}else {
-		return ctx->getInstanceSymbolTable()->setSymbol(this->getDebugInfo(), name, rightType, LinkageType::DEFAULT);
+		//等号隐式定义变量连接属性为INTERNAL
+		return ctx->getInstanceSymbolTable()->setSymbol(this->getDebugInfo(), name, rightType, LinkageType::INTERNAL);
 	}
 }
