@@ -12,11 +12,11 @@ namespace WorkScript
     class Report
     {
     public:
-        inline explicit Report(size_t maxErrorCount = 20)
+        inline explicit Report(size_t maxErrorCount = 20) noexcept
                 : maxErrorCount(maxErrorCount)
         {}
 
-        inline size_t getErrorCount() const
+        inline size_t getErrorCount() const noexcept
         { return this->errorCount; }
 
 		[[noreturn]] void error(const Error &e, ErrorBehavior behavior);
@@ -24,7 +24,7 @@ namespace WorkScript
 
         void warning(const Warning &w);
 
-        void dump();
+        void dump() noexcept;
 
     private:
         std::vector<ReportItem> items;

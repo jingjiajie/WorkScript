@@ -5,7 +5,7 @@
 using namespace std;
 using namespace WorkScript;
 
-ReportItem::ReportItem(const WorkScript::DebugInfo &d, const std::wstring &wmsg)
+ReportItem::ReportItem(const WorkScript::DebugInfo &d, const std::wstring &wmsg) noexcept
         : debugInfo(d)
 {
     wstringstream ss;

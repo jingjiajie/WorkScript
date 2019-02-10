@@ -13,7 +13,7 @@ namespace WorkScript {
 	class GenerateContext
 	{
 	public:
-		inline GenerateContext(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule, llvm::IRBuilder<> *irBuilder, InstantialContext *instCtx)
+		inline GenerateContext(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule, llvm::IRBuilder<> *irBuilder, InstantialContext *instCtx)noexcept
 		{
 			this->setIRBuilder(irBuilder);
 			this->setLLVMContext(llvmContext);
@@ -21,16 +21,16 @@ namespace WorkScript {
 			this->setInstantialContext(instCtx);
 		}
 
-		inline llvm::LLVMContext * getLLVMContext() const { return this->llvmContext; }
-		inline void setLLVMContext(llvm::LLVMContext *llvmContext) { this->llvmContext = llvmContext; }
-		inline llvm::Module * getLLVMModule() const { return this->llvmModule; }
-		inline void setLLVMModule(llvm::Module *llvmModule) { this->llvmModule = llvmModule; }
-		inline llvm::IRBuilder<> * getIRBuilder() const { return this->irBuilder; }
-		inline void setIRBuilder(llvm::IRBuilder<> *irBuilder) { this->irBuilder = irBuilder; }
-		inline InstantialContext * getInstantialContext() { return this->instantialContext; }
-		inline void setInstantialContext(InstantialContext *ctx) { this->instantialContext = ctx; }
-		inline bool isLeftValue() const { return this->_isLeftValue; }
-		inline void setLeftValue(bool isLVal) { this->_isLeftValue = isLVal; }
+		inline llvm::LLVMContext * getLLVMContext() const noexcept { return this->llvmContext; }
+		inline void setLLVMContext(llvm::LLVMContext *llvmContext) noexcept { this->llvmContext = llvmContext; }
+		inline llvm::Module * getLLVMModule() const noexcept { return this->llvmModule; }
+		inline void setLLVMModule(llvm::Module *llvmModule) noexcept { this->llvmModule = llvmModule; }
+		inline llvm::IRBuilder<> * getIRBuilder() const noexcept { return this->irBuilder; }
+		inline void setIRBuilder(llvm::IRBuilder<> *irBuilder) noexcept { this->irBuilder = irBuilder; }
+		inline InstantialContext * getInstantialContext() noexcept { return this->instantialContext; }
+		inline void setInstantialContext(InstantialContext *ctx) noexcept { this->instantialContext = ctx; }
+		inline bool isLeftValue() const noexcept { return this->_isLeftValue; }
+		inline void setLeftValue(bool isLVal) noexcept { this->_isLeftValue = isLVal; }
 	private:
 		llvm::LLVMContext * llvmContext = nullptr;
 		llvm::Module * llvmModule = nullptr;

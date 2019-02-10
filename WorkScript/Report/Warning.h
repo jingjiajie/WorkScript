@@ -11,5 +11,4 @@ namespace WorkScript
     public:
         using ReportItem::ReportItem;
     };
-
 }

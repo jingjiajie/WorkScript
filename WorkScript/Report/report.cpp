@@ -33,7 +33,7 @@ void Report::error(const Error &e)
 	}
 }
 
-void Report::dump()
+void Report::dump() noexcept
 {
     wstringstream ss;
     size_t itemCount = this->items.size();

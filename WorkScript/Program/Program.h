@@ -17,19 +17,19 @@ namespace WorkScript
 	class Program final
 	{
 	public:
-		Program(const std::string &filePath);
+		Program(const std::string &filePath) noexcept;
 
-		~Program();
+		~Program() noexcept;
 
 		void generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule);
 
-		inline AbstractContext *getGlobalAbstractContext()
+		inline AbstractContext *getGlobalAbstractContext() noexcept
 		{ return &this->globalAbstractContext; }
 
-		inline FunctionCache *getFunctionCache()
+		inline FunctionCache *getFunctionCache() noexcept
 		{ return &this->functionCache; }
 
-		inline Report *getReport()
+		inline Report *getReport() noexcept
 		{ return &this->report; }
 
 	protected:

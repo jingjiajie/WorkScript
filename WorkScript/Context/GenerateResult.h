@@ -10,28 +10,28 @@
 class GenerateResult
 {
 public:
-	inline GenerateResult() {}
+	inline GenerateResult() noexcept {}
 
-	inline GenerateResult(llvm::Value *value, llvm::Value *value1 = nullptr) {
+	inline GenerateResult(llvm::Value *value, llvm::Value *value1 = nullptr) noexcept {
 		this->setValue(value);
 		this->setValue1(value1);
 	}
 
-	inline ~GenerateResult() {}
+	inline ~GenerateResult() noexcept = default;
 
-	inline llvm::Value * getValue()const {
+	inline llvm::Value * getValue()const noexcept {
 		return this->value;
 	}
 
-	inline void setValue(llvm::Value *value) {
+	inline void setValue(llvm::Value *value) noexcept {
 		this->value = value;
 	}
 
-	inline llvm::Value * getValue1()const {
+	inline llvm::Value * getValue1()const noexcept {
 		return this->value1;
 	}
 
-	inline void setValue1(llvm::Value *value1) {
+	inline void setValue1(llvm::Value *value1) noexcept {
 		this->value1 = value1;
 	}
 private:

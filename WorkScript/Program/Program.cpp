@@ -17,13 +17,13 @@
 using namespace std;
 using namespace WorkScript;
 
-Program::Program(const string &filePath)
+Program::Program(const string &filePath) noexcept
 	:globalAbstractContext(DebugInfo(), this)
 {
     this->parseFile(filePath);
 }
 
-Program::~Program() = default;
+Program::~Program() noexcept = default;
 
 void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule)
 {

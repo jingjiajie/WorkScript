@@ -8,16 +8,15 @@
 using namespace std;
 using namespace WorkScript;
 
-static UINT getWinCP(Encoding encoding)
+static UINT getWinCP(Encoding encoding) noexcept
 {
     switch (encoding)
     {
         case Encoding::UTF_8:
             return CP_UTF8;
-        case Encoding::ANSI:
+        default:
             return CP_ACP;
     }
-    throw InternalException(L"未知的编码：" + to_wstring(encoding));
 }
 
 wstring Locales::toWideChar(WorkScript::Encoding fromEncoding, const std::string &str)
