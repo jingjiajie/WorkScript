@@ -54,5 +54,5 @@ void SyntaxErrorListener::syntaxError(Recognizer * recognizer,
 	{
 		ss << L"~";
 	}
-	this->program->getReport()->error(SyntaxError(DebugInfo(Location(fileName, line, charPositionInLine + 1), this->program->getReport()), ss.str().c_str()), ErrorBehavior::CONTINUE);
+	this->program->getReport()->error(SyntaxError(DebugInfo(Location(fileName, line, charPositionInLine + 1), this->program->getReport()), ss.str().c_str()));
 }

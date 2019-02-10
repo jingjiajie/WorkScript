@@ -23,4 +23,5 @@ std::wstring FunctionQuery::toString() const noexcept
     if(this->functionTypeQuery.mustConst()){
         ss << L" const";
     }
+	return ss.str();
 }

@@ -279,10 +279,8 @@ const std::wstring &LinkageType::toString() const noexcept
     {
         case Classification::INTERNAL:
             return internal;
-        case Classification::EXTERNAL:
+        default: //EXTERNAL
             return external;
-        default:
-            throw InternalException(L"未知的链接类型：" + to_wstring((unsigned char)this->classification));
     }
 }
 

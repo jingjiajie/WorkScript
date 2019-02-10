@@ -1,6 +1,7 @@
 #ifdef _WIN32
 #include "Locales.h"
 #include "Report.h"
+#include "Exception.h"
 #include <wchar.h>
 #include <Windows.h>
 

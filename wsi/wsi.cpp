@@ -1,6 +1,7 @@
 #include <stdio.h>
-#include <Locales.h>
+#include <locale.h>
 #include <string.h>
+#include "Locales.h"
 #include "Defines.h"
 #include "WorkScriptEngine.h"
 

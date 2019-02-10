@@ -6,7 +6,7 @@
 namespace WorkScript
 {
     enum class ErrorBehavior{
-        CONTINUE, CANCEL_EXPRESSION, CANCEL_BLOCK
+        CANCEL_EXPRESSION, CANCEL_BLOCK
     };
 
     class Report
@@ -19,7 +19,8 @@ namespace WorkScript
         inline size_t getErrorCount() const
         { return this->errorCount; }
 
-        void error(const Error &e, ErrorBehavior behavior);
+		[[noreturn]] void error(const Error &e, ErrorBehavior behavior);
+		void error(const Error &e);
 
         void warning(const Warning &w);
 

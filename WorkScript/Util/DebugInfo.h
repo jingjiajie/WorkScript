@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+
 namespace WorkScript
 {
 	class Report;

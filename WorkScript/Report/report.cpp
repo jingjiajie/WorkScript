@@ -14,21 +14,23 @@ void Report::warning(const Warning &w)
 
 void Report::error(const Error &e, ErrorBehavior behavior)
 {
-    items.push_back(e);
-    ++errorCount;
-    if (errorCount >= maxErrorCount)
-    {
-        throw CompileTerminatedException(L"错误计数已达到" + to_wstring(this->errorCount) + L"，编译停止");
-    }
-
+	this->error(e);
     switch(behavior) {
-        case ErrorBehavior::CONTINUE:
-            return;
         case ErrorBehavior::CANCEL_EXPRESSION:
             throw ExpressionCanceledException();
         case ErrorBehavior::CANCEL_BLOCK:
             throw BlockCanceledException();
     }
+}
+
+void Report::error(const Error &e)
+{
+	items.push_back(e);
+	++errorCount;
+	if (errorCount >= maxErrorCount)
+	{
+		throw CompileTerminatedException(L"错误计数已达到" + to_wstring(this->errorCount) + L"，编译停止");
+	}
 }
 
 void Report::dump()
