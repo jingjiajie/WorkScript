@@ -13,6 +13,7 @@
 #include "TreeCreateVisitor.h"
 #include "SyntaxErrorListener.h"
 #include "SyntaxErrorStrategy.h"
+#include "Exception.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -31,7 +32,12 @@ void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::M
 	GenerateContext ctx(llvmContext, llvmModule, nullptr, &funcInstCtx);
 	//TODO DebugInfo
 	Function *funcMain = this->globalAbstractContext.getFunction(DebugInfo(), FunctionQuery(L"main", {}, false));
-	funcMain->getLLVMFunction(DebugInfo(), &ctx, {});
+	try {
+		funcMain->getLLVMFunction(DebugInfo(), &ctx, {});
+	}
+	catch (const Exception &) {
+		return;
+	}
 }
 
 void Program::parseFile(const std::string &fileName) 

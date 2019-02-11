@@ -44,9 +44,15 @@ Type * Call::getType(InstantialContext *context) const
 	auto paramTypes = this->parameters->getTypes(context);
 	Function *func = this->expressionInfo.getAbstractContext()->getFunction(this->getDebugInfo(),FunctionQuery(this->functionName, paramTypes, false));
 	if (!func) {
-	    auto str = this->toFunctionDeclString(context);
-		this->expressionInfo.getDebugInfo().getReport()->error(UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"未找到函数：" + str), ErrorBehavior::CANCEL_EXPRESSION);
-	}else
+		if (context->getBlockStatus(BlockStatus::SFINAE)) {
+			throw FunctionFragmentCanceledException();
+		}
+		else {
+			auto str = this->toFunctionDeclString(context);
+			this->expressionInfo.getDebugInfo().getReport()->error(UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"未找到函数：" + str), ErrorBehavior::CANCEL_EXPRESSION);
+		}
+	}
+	else
 	{
 		return func->getReturnType(this->getDebugInfo(), context);
 	}

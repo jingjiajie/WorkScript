@@ -1,9 +1,11 @@
-int printf(char *, ...);                                //澹版槑澶栭儴鍑芥暟
+int printf(char *, ...)                                //声明外部函数
 
-a(x, ...y) = a(y)
+max(x, y > x) = y
+max(x, y)     = x
+max(x, ...y)  = max(x, max(y))
 
 main(){
-  a(1)
+  max(1,3,5,2,4,6)
 }
 
 

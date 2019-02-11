@@ -6,7 +6,7 @@
 namespace WorkScript
 {
     enum class ErrorBehavior{
-        CANCEL_EXPRESSION, CANCEL_BLOCK
+        CANCEL_EXPRESSION, CANCEL_BLOCK, CANCEL_FUNCTION_FRAGMENT, CANCEL_FUNCTION, CANCEL_COMPILATION
     };
 
     class Report

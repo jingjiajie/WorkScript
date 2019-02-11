@@ -9,7 +9,6 @@
 namespace WorkScript
 {
     class FunctionType;
-
     class FunctionFragment;
 
     class ParamTypesAndLLVMFunction

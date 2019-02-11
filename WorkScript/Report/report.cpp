@@ -17,9 +17,15 @@ void Report::error(const Error &e, ErrorBehavior behavior)
 	this->error(e);
     switch(behavior) {
         case ErrorBehavior::CANCEL_EXPRESSION:
-            throw ExpressionCanceledException();
+            throw CancelException(CancelScope::EXPRESSION);
         case ErrorBehavior::CANCEL_BLOCK:
-            throw BlockCanceledException();
+            throw CancelException(CancelScope::BLOCK);
+		case ErrorBehavior::CANCEL_FUNCTION_FRAGMENT:
+			throw CancelException(CancelScope::FUNCTION_FRAGMENT);
+		case ErrorBehavior::CANCEL_FUNCTION:
+			throw CancelException(CancelScope::FUNCTION);
+		case ErrorBehavior::CANCEL_COMPILATION:
+			throw CancelException(CancelScope::COMPILATION);
     }
 }
 

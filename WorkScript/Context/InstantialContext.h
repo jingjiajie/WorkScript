@@ -14,14 +14,26 @@ namespace WorkScript {
 	class AbstractContext;
 	class FunctionTypeQuery;
 
+	typedef unsigned BlockAttributeSetType;
+	enum class BlockAttribute : BlockAttributeSetType {
+		 SFINAE = 0x01
+	};
+
 	class InstantialContext {
 	public:
-		inline InstantialContext(AbstractContext *abstractContext, FunctionCache *cache, SymbolTable *instanceSymbolTable = nullptr) noexcept
+		inline InstantialContext(AbstractContext *abstractContext, FunctionCache *cache, SymbolTable *instanceSymbolTable, unsigned long long blockAttributes = 0x00) noexcept
 			:abstractContext(abstractContext),
 			instanceSymbolTable(instanceSymbolTable),
-			functionCache(cache) {}
+			functionCache(cache),
+			blockAttributes(blockAttributes)
+		{ }
 
-		inline InstantialContext(const InstantialContext &c) noexcept = default;
+		inline InstantialContext(const InstantialContext *base, SymbolTable *instanceSymbolTable) noexcept
+			:abstractContext(base->abstractContext),
+			functionCache(base->functionCache),
+			blockAttributes(base->blockAttributes),
+			instanceSymbolTable(instanceSymbolTable)
+		{ }
 
 		inline void setAbstractContext(AbstractContext *ctx) noexcept { this->abstractContext = ctx; }
 		inline SymbolTable * getInstanceSymbolTable() noexcept { return this->instanceSymbolTable; }
@@ -34,9 +46,19 @@ namespace WorkScript {
 		void cacheFunctionType(const DebugInfo &d, Function *func, FunctionType *type) noexcept;
 		bool getCachedFunctionType(const DebugInfo &d, Function *func, const FunctionTypeQuery &query,
 									 FunctionType **outType) const noexcept;
+		
+		inline void setBlockAttribute(BlockAttribute attr, bool enable) noexcept{
+			BlockAttributeSetType a = (BlockAttributeSetType)attr;
+			this->blockAttributes = enable ? blockAttributes | a : blockAttributes & ~a;
+		}
+
+		inline bool getBlockAttribute(BlockAttribute attr) const noexcept{
+			return this->blockAttributes & (BlockAttributeSetType)attr;
+		}
 	protected:
 		AbstractContext * abstractContext = nullptr;
 		SymbolTable * instanceSymbolTable = nullptr;
 		FunctionCache *functionCache = nullptr;
+		BlockAttributeSetType blockAttributes = 0;
 	};
 }

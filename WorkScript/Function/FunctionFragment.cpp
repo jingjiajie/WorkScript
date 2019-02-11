@@ -1,4 +1,4 @@
-#include <Tree/Variable.h>
+#include "Variable.h"
 #include "FunctionFragment.h"
 #include "InstantialContext.h"
 #include "Parameter.h"
@@ -71,7 +71,12 @@ Type * FunctionFragment::getReturnType(const DebugInfo &d, InstantialContext * c
 	}
 
 	InstantialContext newCtx(&this->context, ctx->getFunctionCache(), &instSymbolTable);
-	return this->implements[implCount - 1]->getType(&newCtx);
+	try {
+		return this->implements[implCount - 1]->getType(&newCtx);
+	}
+	catch (const FunctionFragmentCanceledException &ex) {
+			throw ExpressionCanceledException();
+	}
 }
 
 llvm::BasicBlock * WorkScript::FunctionFragment::generateBlock(GenerateContext * context,
@@ -80,26 +85,12 @@ llvm::BasicBlock * WorkScript::FunctionFragment::generateBlock(GenerateContext *
 		llvm::Function *llvmFunc,
 		llvm::BasicBlock *falseBlock)
 {
-	llvm::Function *curFunc = llvmFunc;
-	llvm::BasicBlock *branch = llvm::BasicBlock::Create(*context->getLLVMContext(), "branch", curFunc);
-	llvm::IRBuilder<> &builder = *context->getIRBuilder();
-	builder.SetInsertPoint(branch);
 	//遍历参数，将函数参数赋值到本Fragment的参数符号
 	auto outerInstCtx = context->getInstantialContext();
 	SymbolTable instSymbolTable(to_wstring(this->getBlockID()));
 	auto itLLVMArg = llvmFunc->arg_begin();
 	size_t realParamCount = paramTypes.size();
 	size_t myParamCount = this->parameters.size();
-	for (size_t i = 0; i < myParamCount; ++i, ++itLLVMArg) {
-		//获取参数的LLVM Argument
-		llvm::Argument *llvmArg = itLLVMArg;
-		//获取当前分支参数的符号信息，加入符号表
-		Parameter *myParam = this->parameters[i];
-		SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), myParam->getName(), paramTypes[i],LinkageType::INTERNAL);
-		//生成llvm赋值，将标准参数赋值到当前分支参数
-		llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), context);
-		builder.CreateStore(llvmArg, myLLVMParamPtr);
-	}
 	//处理变参，将多余的实参组合成MultiValue，放进符号表里。
 	if(myParamCount < realParamCount)
 	{
@@ -138,37 +129,65 @@ llvm::BasicBlock * WorkScript::FunctionFragment::generateBlock(GenerateContext *
 	InstantialContext innerInstCtx(&this->context, context->getInstantialContext()->getFunctionCache(), &instSymbolTable);
     context->setInstantialContext(&innerInstCtx);
 
+	/*开始创建LLVM对象*/
+	llvm::BasicBlock *llvmBlock = llvm::BasicBlock::Create(*context->getLLVMContext(), "branch", llvmFunc);
+	llvm::IRBuilder<> &builder = *context->getIRBuilder();
+	builder.SetInsertPoint(llvmBlock);
+	for (size_t i = 0; i < myParamCount; ++i, ++itLLVMArg) {
+		//获取参数的LLVM Argument
+		llvm::Argument *llvmArg = itLLVMArg;
+		//获取当前分支参数的符号信息，加入符号表
+		Parameter *myParam = this->parameters[i];
+		SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), myParam->getName(), paramTypes[i], LinkageType::INTERNAL);
+		//生成llvm赋值，将标准参数赋值到当前分支参数
+		llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), context);
+		builder.CreateStore(llvmArg, myLLVMParamPtr);
+	}
+
 	size_t condCount = this->constraints.size();
 	size_t codeCount = this->implements.size();
 	llvm::BasicBlock *ret = nullptr;
-	if (condCount > 0) {
-		llvm::BasicBlock *matched = llvm::BasicBlock::Create(*context->getLLVMContext(), "matched", curFunc);
-		for (size_t i = 0; i < this->constraints.size(); ++i)
-		{
-			llvm::Value *res = this->constraints[i]->generateIR(context).getValue();
-			builder.CreateCondBr(res, matched, falseBlock);
-		}
-		builder.SetInsertPoint(matched);
-	}
-	for (size_t i = 0; i < this->implements.size(); ++i)
-	{
-		Expression *curExpr = this->implements[i];
-		try {
-			llvm::Value *res = curExpr->generateIR(context).getValue();
-			if (i == this->implements.size() - 1) {
-				//如果分支返回值类型与函数返回值类型不同，则生成类型转换
-				Type *branchReturnType = curExpr->getType(&innerInstCtx);
-				if (!branchReturnType->equals(returnType)) {
-					res = Type::generateLLVMTypeConvert(curExpr->getDebugInfo(), context, curExpr,
-														returnType).getValue();
+	try {
+		if (condCount > 0) {
+			llvm::BasicBlock *matched = llvm::BasicBlock::Create(*context->getLLVMContext(), "matched", llvmFunc);
+			for (size_t i = 0; i < this->constraints.size(); ++i)
+			{
+				try {
+					llvm::Value *res = this->constraints[i]->generateIR(context).getValue();
+					builder.CreateCondBr(res, matched, falseBlock);
 				}
-				builder.CreateRet(res);
+				catch (const ExpressionCanceledException &) {
+					continue;
+				}
 			}
-		}catch (const ExpressionCanceledException&){
-			continue;
+			builder.SetInsertPoint(matched);
+		}
+		for (size_t i = 0; i < this->implements.size(); ++i)
+		{
+			Expression *curExpr = this->implements[i];
+			try {
+				llvm::Value *res = curExpr->generateIR(context).getValue();
+				if (i == this->implements.size() - 1) {
+					//如果分支返回值类型与函数返回值类型不同，则生成类型转换
+					Type *branchReturnType = curExpr->getType(&innerInstCtx);
+					if (!branchReturnType->equals(returnType)) {
+						res = Type::generateLLVMTypeConvert(curExpr->getDebugInfo(), context, curExpr,
+							returnType).getValue();
+					}
+					builder.CreateRet(res);
+				}
+			}
+			catch (const ExpressionCanceledException&) {
+				continue;
+			}
 		}
 	}
-	ret = branch;
+	catch (const FunctionFragmentCanceledException&) {
+		llvmBlock->removeFromParent();
+		llvmBlock->deleteValue();
+		throw ExpressionCanceledException();
+	}
+	ret = llvmBlock;
     context->setInstantialContext(outerInstCtx);
 	return ret;
 }
