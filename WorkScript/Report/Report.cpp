@@ -27,6 +27,7 @@ void Report::error(const Error &e, ErrorBehavior behavior)
 		case ErrorBehavior::CANCEL_COMPILATION:
 			throw CancelException(CancelScope::COMPILATION);
     }
+    throw InternalException(L"未知错误");
 }
 
 void Report::error(const Error &e)
@@ -35,7 +36,8 @@ void Report::error(const Error &e)
 	++errorCount;
 	if (errorCount >= maxErrorCount)
 	{
-		throw CompileTerminatedException(L"错误计数已达到" + to_wstring(this->errorCount) + L"，编译停止");
+	    items.push_back(Error(e.getDebugInfo(), L"错误计数已达到" + to_wstring(maxErrorCount) + L"，已停止编译"));
+		throw CancelException(CancelScope::COMPILATION);
 	}
 }
 

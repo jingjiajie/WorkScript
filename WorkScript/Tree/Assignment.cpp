@@ -3,6 +3,7 @@
 #include "Utils.h"
 #include "Variable.h"
 #include "Exception.h"
+#include "InstantialContext.h"
 #include <sstream>
 #include <iomanip>
 
@@ -12,7 +13,7 @@ using namespace WorkScript;
 WorkScript::Assignment::Assignment(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression)
 	: BinaryOperator(exprInfo,leftExpression,rightExpression)
 {
-	Variable *leftVar = dynamic_cast<Variable*>(this->leftExpression);
+	auto *leftVar = dynamic_cast<Variable*>(this->leftExpression);
 	if (!leftVar) {
 		this->getDebugInfo().getReport()->error(SyntaxError(this->getDebugInfo(), this->leftExpression->toString() + L"不可以赋值"), ErrorBehavior::CANCEL_EXPRESSION);
 	}

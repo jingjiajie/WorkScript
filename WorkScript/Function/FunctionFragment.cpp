@@ -41,7 +41,8 @@ Type * FunctionFragment::getReturnType(const DebugInfo &d, InstantialContext * c
 {
 	size_t implCount = this->implements.size();
 	if (implCount == 0)return VoidType::get();
-	SymbolTable instSymbolTable(to_wstring(this->context.getBlockID()));
+    InstantialContext innerCtx(ctx, to_wstring(this->context.getBlockID()));
+    auto &instSymbolTable = *innerCtx.getInstanceSymbolTable();
 	for (size_t i = 0; i < this->parameters.size(); ++i)
 	{
 		Type *curParamType = paramTypes[i];
@@ -70,13 +71,14 @@ Type * FunctionFragment::getReturnType(const DebugInfo &d, InstantialContext * c
 		throw InternalException(L"参数个数匹配错误");
 	}
 
-	InstantialContext newCtx(&this->context, ctx->getFunctionCache(), &instSymbolTable);
 	try {
-		return this->implements[implCount - 1]->getType(&newCtx);
+		return this->implements[implCount - 1]->getType(&innerCtx);
 	}
-	catch (const FunctionFragmentCanceledException &ex) {
-			throw ExpressionCanceledException();
-	}
+	catch (const CancelException &ex)
+    {
+        ex.rethrowAbove(CancelScope::FUNCTION_FRAGMENT);
+        throw CancelException(CancelScope::EXPRESSION);
+    }
 }
 
 llvm::BasicBlock * WorkScript::FunctionFragment::generateBlock(GenerateContext * context,
@@ -85,12 +87,29 @@ llvm::BasicBlock * WorkScript::FunctionFragment::generateBlock(GenerateContext *
 		llvm::Function *llvmFunc,
 		llvm::BasicBlock *falseBlock)
 {
-	//遍历参数，将函数参数赋值到本Fragment的参数符号
 	auto outerInstCtx = context->getInstantialContext();
-	SymbolTable instSymbolTable(to_wstring(this->getBlockID()));
-	auto itLLVMArg = llvmFunc->arg_begin();
+    InstantialContext innerInstCtx(outerInstCtx,to_wstring(this->getBlockID()));
+    context->setInstantialContext(&innerInstCtx);
+	SymbolTable &instSymbolTable = *innerInstCtx.getInstanceSymbolTable();
 	size_t realParamCount = paramTypes.size();
 	size_t myParamCount = this->parameters.size();
+
+	/*开始创建LLVM对象*/
+	llvm::BasicBlock *llvmBlock = llvm::BasicBlock::Create(*context->getLLVMContext(), "branch", llvmFunc);
+	llvm::IRBuilder<> &builder = *context->getIRBuilder();
+	builder.SetInsertPoint(llvmBlock);
+	auto itLLVMArg = llvmFunc->arg_begin();
+	for (size_t i = 0; i < myParamCount; ++i, ++itLLVMArg) {
+		//获取参数的LLVM Argument
+		llvm::Argument *llvmArg = itLLVMArg;
+		//获取当前分支参数的符号信息，加入符号表
+		Parameter *myParam = this->parameters[i];
+		SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), myParam->getName(), paramTypes[i], LinkageType::INTERNAL);
+		//生成llvm赋值，将标准参数赋值到当前分支参数
+		llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), context);
+		builder.CreateStore(llvmArg, myLLVMParamPtr);
+	}
+
 	//处理变参，将多余的实参组合成MultiValue，放进符号表里。
 	if(myParamCount < realParamCount)
 	{
@@ -115,7 +134,7 @@ llvm::BasicBlock * WorkScript::FunctionFragment::generateBlock(GenerateContext *
 					ExpressionInfo(this->context.getProgram(), this->getDebugInfo(), &this->context),
 					varargs);
 			SymbolInfo *info = instSymbolTable.setSymbol(this->getDebugInfo(), this->staticVarargsName,
-									  multiValue->getType(context->getInstantialContext()), LinkageType::INTERNAL);
+														 multiValue->getType(&innerInstCtx), LinkageType::INTERNAL);
 			info->setValue(multiValue);
 		}else if(this->_runtimeVarargs)
 		{
@@ -124,24 +143,6 @@ llvm::BasicBlock * WorkScript::FunctionFragment::generateBlock(GenerateContext *
 		}else{
 			throw InternalException(L"参数个数匹配错误");
 		}
-	}
-
-	InstantialContext innerInstCtx(&this->context, context->getInstantialContext()->getFunctionCache(), &instSymbolTable);
-    context->setInstantialContext(&innerInstCtx);
-
-	/*开始创建LLVM对象*/
-	llvm::BasicBlock *llvmBlock = llvm::BasicBlock::Create(*context->getLLVMContext(), "branch", llvmFunc);
-	llvm::IRBuilder<> &builder = *context->getIRBuilder();
-	builder.SetInsertPoint(llvmBlock);
-	for (size_t i = 0; i < myParamCount; ++i, ++itLLVMArg) {
-		//获取参数的LLVM Argument
-		llvm::Argument *llvmArg = itLLVMArg;
-		//获取当前分支参数的符号信息，加入符号表
-		Parameter *myParam = this->parameters[i];
-		SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), myParam->getName(), paramTypes[i], LinkageType::INTERNAL);
-		//生成llvm赋值，将标准参数赋值到当前分支参数
-		llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), context);
-		builder.CreateStore(llvmArg, myLLVMParamPtr);
 	}
 
 	size_t condCount = this->constraints.size();
@@ -156,7 +157,8 @@ llvm::BasicBlock * WorkScript::FunctionFragment::generateBlock(GenerateContext *
 					llvm::Value *res = this->constraints[i]->generateIR(context).getValue();
 					builder.CreateCondBr(res, matched, falseBlock);
 				}
-				catch (const ExpressionCanceledException &) {
+				catch (const CancelException &ex) {
+					ex.rethrowAbove(CancelScope::EXPRESSION);
 					continue;
 				}
 			}
@@ -177,15 +179,17 @@ llvm::BasicBlock * WorkScript::FunctionFragment::generateBlock(GenerateContext *
 					builder.CreateRet(res);
 				}
 			}
-			catch (const ExpressionCanceledException&) {
+			catch (const CancelException &ex) {
+				ex.rethrowAbove(CancelScope::EXPRESSION);
 				continue;
 			}
 		}
 	}
-	catch (const FunctionFragmentCanceledException&) {
+	catch (const CancelException &ex) {
+		ex.rethrowAbove(CancelScope::FUNCTION_FRAGMENT);
 		llvmBlock->removeFromParent();
 		llvmBlock->deleteValue();
-		throw ExpressionCanceledException();
+		throw CancelException(CancelScope::EXPRESSION);
 	}
 	ret = llvmBlock;
     context->setInstantialContext(outerInstCtx);

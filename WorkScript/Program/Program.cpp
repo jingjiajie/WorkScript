@@ -14,6 +14,7 @@
 #include "SyntaxErrorListener.h"
 #include "SyntaxErrorStrategy.h"
 #include "Exception.h"
+#include "InstantialContext.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -35,7 +36,7 @@ void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::M
 	try {
 		funcMain->getLLVMFunction(DebugInfo(), &ctx, {});
 	}
-	catch (const Exception &) {
+	catch (const CancelException &) {
 		return;
 	}
 }

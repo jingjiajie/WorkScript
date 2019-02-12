@@ -22,6 +22,7 @@ namespace WorkScript {
 		const std::vector<llvm::Value*> & getLLVMValues(GenerateContext *context, const std::vector<Type *> &expectedTypes);
 
 		//virtual bool equals(Expression *) const override;
+		bool isNested(InstantialContext *context) const;
 
 		inline decltype(auto) getItems() const
 		{

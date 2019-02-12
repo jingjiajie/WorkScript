@@ -1,4 +1,5 @@
 #include <optional>
+#include "InstantialContext.h"
 #include "TreeCreateVisitor.h"
 #include "ExpressionWrapper.h"
 #include "TypeWrapper.h"
@@ -215,7 +216,7 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionDefine(WorkScriptParser::FunctionD
         }
     }
     //解析参数和限制
-    InstantialContext instCtx(this->abstractContexts.top(), this->program->getFunctionCache(), nullptr);
+    InstantialContext instCtx(this->abstractContexts.top(), this->program->getFunctionCache());
     auto resolveRes = FormalParametersResolver::resolve(
             ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), &instCtx, paramDeclTypes,
             paramDeclExprs, constraintsDecl);

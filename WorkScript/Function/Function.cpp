@@ -44,8 +44,9 @@ llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *c
 	try { //获取返回值类型，如果遇到CanceledException，则不管是不是SFINAE，都抛错
 		myReturnType = this->getReturnType(d, outerInstCtx);
 	}
-	catch (const CanceledException&) {
-		throw ExpressionCanceledException();
+	catch (const CancelException &ex) {
+	    ex.rethrowAbove(CancelScope::FUNCTION);
+		throw CancelException(CancelScope::EXPRESSION);
 	}
     //如果没找到，则新生成一个LLVM Function
     if (!matchedFunc)
@@ -187,19 +188,20 @@ Type *Function::getReturnType(const DebugInfo &d, InstantialContext *instCtx)
 				returnType = Type::getPromotedType(d, curReturnType, returnType);
 			} /*如果在SFINAE模式下，遇到Fragment返回值抛出Cancel异常，则忽略此Fragment，
 			  非SFINAE模式下直接抛ExpressionCanceled*/
-			catch (const CanceledException &) {
-				if (instCtx->getBlockAttribute(BlockAttribute::SFINAE)) {
+			catch (const CancelException &ex) {
+			    ex.rethrowAbove(CancelScope::FUNCTION);
+				if (instCtx->getBlockAttribute(BlockAttributeItem::SFINAE)) {
 					++fragmentCanceledCount;
 					continue;
 				}
 				else {
-					throw ExpressionCanceledException();
+					throw CancelException(CancelScope::EXPRESSION);
 				}
 			}
         }
 		/*如果所有分支都被取消了，则函数被取消（肯定是SFINAE，如果不是SFINAE则当时就抛错了）*/
 		if (fragmentCanceledCount == this->fragments.size()) {
-			throw ExpressionCanceledException();
+            throw CancelException(CancelScope::EXPRESSION);
 		}
     }else{
         returnType = cachedFuncType->getReturnType();
@@ -212,10 +214,11 @@ GenerateResult Function::generateLLVMIR(const DebugInfo &d, GenerateContext *con
 {
 	llvm::Function *llvmFunc = nullptr;
 	try {
-		this->getLLVMFunction(d, context, true);
+		llvmFunc = this->getLLVMFunction(d, context, true);
 	}
-	catch (const CanceledException&) {
-		throw ExpressionCanceledException();
+	catch (const CancelException &ex) {
+	    ex.rethrowAbove(CancelScope::FUNCTION);
+        throw CancelException(CancelScope::EXPRESSION);
 	}
     //如果没有实现，则只生成函数声明，且不进行命名粉碎
     if (!this->fragments.empty())
@@ -228,9 +231,6 @@ GenerateResult Function::generateLLVMIR(const DebugInfo &d, GenerateContext *con
         llvm::BasicBlock *notMatched = llvm::BasicBlock::Create(*context->getLLVMContext(), "not_matched", llvmFunc);
         llvm::IRBuilder<> builder(entry);
         context->setIRBuilder(&builder);
-        //生成参数的LLVM Value
-        SymbolTable instSymbolTable;
-		InstantialContext innerInstCtx(outerInstCtx, &instSymbolTable);
         size_t branchCount = this->fragments.size();
         llvm::BasicBlock *prevBlock = notMatched;
         //遍历分支，为每个分支生成代码
@@ -240,7 +240,8 @@ GenerateResult Function::generateLLVMIR(const DebugInfo &d, GenerateContext *con
             try
             {
                 prevBlock = curBranch->generateBlock(context, paramTypes, returnType, llvmFunc, prevBlock);
-            }catch (const CanceledException&){
+            }catch (const CancelException &ex){
+                ex.rethrowAbove(CancelScope::FUNCTION);
                 continue;
             }
         }

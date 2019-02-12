@@ -20,10 +20,7 @@ SymbolInfo *InstantialContext::getSymbolInfo(const std::wstring &name) noexcept
 {
     SymbolInfo *info = this->abstractContext->getSymbolInfo(name);
     if (info) return info;
-    else if (this->instanceSymbolTable) {
-        return this->instanceSymbolTable->getSymbolInfo(name);
-    }
-    return nullptr;
+    else return this->instanceSymbolTable.getSymbolInfo(name);
 }
 
 

@@ -28,11 +28,7 @@ GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 	}
 	//生成LLVM函数调用
 	auto builder = context->getIRBuilder();
-	SymbolTable newInstTable;
-	InstantialContext innerInstCtx(this->expressionInfo.getAbstractContext(), this->expressionInfo.getProgram()->getFunctionCache(), &newInstTable);
-
 	auto llvmArgs = this->parameters->getLLVMValues(context, paramTypes); //这个必须在context设置innerInstCtx之前执行
-    context->setInstantialContext(&innerInstCtx);
 	llvm::Function *llvmFunc = func->getLLVMFunction(this->getDebugInfo(), context);
 	auto ret = builder->CreateCall(llvmFunc, llvmArgs);
     context->setInstantialContext(outerInstCtx);
@@ -41,11 +37,12 @@ GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 
 Type * Call::getType(InstantialContext *context) const
 {
+    if(this->parameters->isNested(context)) context->setBlockAttribute(BlockAttributeItem::SFINAE, true);
 	auto paramTypes = this->parameters->getTypes(context);
 	Function *func = this->expressionInfo.getAbstractContext()->getFunction(this->getDebugInfo(),FunctionQuery(this->functionName, paramTypes, false));
 	if (!func) {
-		if (context->getBlockStatus(BlockStatus::SFINAE)) {
-			throw FunctionFragmentCanceledException();
+		if (context->getBlockAttribute(BlockAttributeItem::SFINAE)) {
+			throw CancelException(CancelScope::FUNCTION_FRAGMENT);
 		}
 		else {
 			auto str = this->toFunctionDeclString(context);

@@ -34,8 +34,8 @@ void WorkScriptEngine::run(const char * filePath)
 	try
     {
         program.generateLLVMIR(&llvmContext, llvmModule.get());
-    }catch (const CompileTerminatedException &ex){
-
+    }catch (const CancelException &ex){
+        ex.rethrowAbove(CancelScope::COMPILATION);
 	}
 	Report *report = program.getReport();
 	if(report->getErrorCount() > 0){

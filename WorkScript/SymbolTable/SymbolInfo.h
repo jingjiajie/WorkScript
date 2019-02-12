@@ -1,12 +1,12 @@
 #pragma once
 #include <unordered_map>
-#include "GenerateContext.h"
 #include "DebugInfo.h"
 #include "Type.h"
 
 namespace WorkScript
 {
     class Value;
+	class GenerateContext;
 
 	class SymbolInfo
 	{
@@ -16,7 +16,7 @@ namespace WorkScript
 		{ }
 
 		inline SymbolInfo(const DebugInfo &d, const std::wstring &name, Type *type, LinkageType lt, llvm::Value *llvmValue) noexcept
-				: name(name), value(value), type(type), debugInfo(d), linkageType(lt)
+				: name(name), type(type), linkageType(lt), llvmValue(llvmValue), debugInfo(d)
 		{ }
 
 		inline SymbolInfo() noexcept = default;
