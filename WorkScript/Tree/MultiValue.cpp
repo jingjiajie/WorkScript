@@ -134,17 +134,6 @@ const std::vector<llvm::Value*> &MultiValue::getLLVMValues(GenerateContext *cont
 	return this->llvmValues;
 }
 
-bool MultiValue::isNested(InstantialContext *context) const
-{
-	//MultiValue的项不可能直接存在MultiValue，如果是嵌套，一定是有变量求值为MultiValue
-	for(auto item : this->items){
-		if(item->getType(context)->getClassification() == TypeClassification::MULTI_VALUE){
-			return false;
-		}
-	}
-	return true;
-}
-
 //bool MultiValue::equals(Context * const & context, Expression *target) const
 //{
 //	if (!target->getType(context)->equals(context, this->getAbstractType(context))) {

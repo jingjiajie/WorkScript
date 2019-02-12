@@ -42,6 +42,7 @@ Type * FunctionFragment::getReturnType(const DebugInfo &d, InstantialContext * c
 	size_t implCount = this->implements.size();
 	if (implCount == 0)return VoidType::get();
     InstantialContext innerCtx(ctx, to_wstring(this->context.getBlockID()));
+    if(this->_staticVarargs) innerCtx.setBlockAttribute(BlockAttributeItem::SFINAE, true);
     auto &instSymbolTable = *innerCtx.getInstanceSymbolTable();
 	for (size_t i = 0; i < this->parameters.size(); ++i)
 	{
@@ -89,6 +90,7 @@ llvm::BasicBlock * WorkScript::FunctionFragment::generateBlock(GenerateContext *
 {
 	auto outerInstCtx = context->getInstantialContext();
     InstantialContext innerInstCtx(outerInstCtx,to_wstring(this->getBlockID()));
+    if(this->_staticVarargs) innerInstCtx.setBlockAttribute(BlockAttributeItem::SFINAE, true);
     context->setInstantialContext(&innerInstCtx);
 	SymbolTable &instSymbolTable = *innerInstCtx.getInstanceSymbolTable();
 	size_t realParamCount = paramTypes.size();

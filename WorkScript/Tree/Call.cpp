@@ -16,7 +16,7 @@ GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 {
 	auto outerInstCtx = context->getInstantialContext();
 	//获取函数声明
-	auto paramTypes = this->parameters->getTypes(context->getInstantialContext());
+	auto paramTypes = this->parameters->getTypes(outerInstCtx);
  	Function *func = this->expressionInfo.getAbstractContext()->getFunction(this->getDebugInfo(),FunctionQuery(this->functionName, paramTypes,
 																											   false));
 	if (!func) {
@@ -37,7 +37,6 @@ GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 
 Type * Call::getType(InstantialContext *context) const
 {
-    if(this->parameters->isNested(context)) context->setBlockAttribute(BlockAttributeItem::SFINAE, true);
 	auto paramTypes = this->parameters->getTypes(context);
 	Function *func = this->expressionInfo.getAbstractContext()->getFunction(this->getDebugInfo(),FunctionQuery(this->functionName, paramTypes, false));
 	if (!func) {
