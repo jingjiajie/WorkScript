@@ -13,6 +13,7 @@ namespace WorkScript {
 
 		Type * getType(InstantialContext *context) const override;
 		std::vector<Type*> getTypes(InstantialContext *context) const;
+		bool isNested(InstantialContext *context) const;
 
 		std::wstring toString() const override;
 		MultiValue * clone() const override;

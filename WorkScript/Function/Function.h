@@ -40,9 +40,9 @@ namespace WorkScript
         std::wstring getMangledFunctionName(const DebugInfo &d) const noexcept;
 
         llvm::Function *
-        getLLVMFunction(const DebugInfo &d, GenerateContext *context, bool declareOnly = false);
+        getLLVMFunction(const DebugInfo &d, GenerateContext *context,const std::vector<Type*> &paramTypes, bool declareOnly = false);
 
-        Type *getReturnType(const DebugInfo &d, InstantialContext *instCtx);
+        Type *getReturnType(const DebugInfo &d, InstantialContext *instCtx, const std::vector<Type*> &paramTypes);
 
         inline FunctionType *getType() noexcept
         { return this->type; }
@@ -93,6 +93,6 @@ namespace WorkScript
         std::vector<FunctionFragment *> fragments;
 
         GenerateResult
-        generateLLVMIR(const DebugInfo &d, GenerateContext *context);
+        generateLLVMIR(const DebugInfo &d, GenerateContext *context, const std::vector<Type*> &paramTypes);
     };
 }

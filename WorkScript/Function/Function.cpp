@@ -31,18 +31,18 @@ std::wstring Function::getMangledFunctionName(const DebugInfo &d) const noexcept
     return ss.str();
 }
 
-llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *context, bool declareOnly)
+llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *context, const std::vector<Type*> &paramTypes, bool declareOnly)
 {
     InstantialContext *outerInstCtx = context->getInstantialContext();
     llvm::Function *matchedFunc = nullptr;
     for (size_t i = 0; i < this->llvmFunctions.size(); ++i)
     {
-        if (this->llvmFunctions[i].match(this->type->getParameterTypes())) matchedFunc = this->llvmFunctions[i].getLLVMFunction();
+        if (this->llvmFunctions[i].match(paramTypes)) matchedFunc = this->llvmFunctions[i].getLLVMFunction();
     }
 
 	Type *myReturnType = nullptr;
 	try { //获取返回值类型，如果遇到CanceledException，则不管是不是SFINAE，都抛错
-		myReturnType = this->getReturnType(d, outerInstCtx);
+		myReturnType = this->getReturnType(d, outerInstCtx, paramTypes);
 	}
 	catch (const CancelException &ex) {
 	    ex.rethrowAbove(CancelScope::FUNCTION);
@@ -53,10 +53,10 @@ llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *c
     {
         //生成函数类型
         vector<llvm::Type *> llvmParamTypes;
-        llvmParamTypes.reserve(this->getParameterCount() + 1);
-        for (size_t i = 0; i < this->getParameterCount(); ++i)
+        llvmParamTypes.reserve(paramTypes.size() + 1);
+        for (size_t i = 0; i < paramTypes.size(); ++i)
         {
-            Type *paramType = this->type->getParameterTypes()[i];
+            Type *paramType = paramTypes[i];
             llvmParamTypes.push_back(paramType->getLLVMType(context));
         }
         llvm::FunctionType *funcType = llvm::FunctionType::get(myReturnType->getLLVMType(context), llvmParamTypes,
@@ -94,9 +94,9 @@ llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *c
             itArg->setName(Locales::fromWideChar(Encoding::ANSI, L"@" + to_wstring(i)));
             ++itArg;
         }
-        this->llvmFunctions.emplace_back(this->type->getParameterTypes(), func);
+        this->llvmFunctions.emplace_back(paramTypes, func);
         matchedFunc = func;
-        if(!declareOnly) this->generateLLVMIR(d, context);
+        if(!declareOnly) this->generateLLVMIR(d, context, paramTypes);
     }
     return matchedFunc;
 }
@@ -161,7 +161,7 @@ bool WorkScript::ParamTypesAndLLVMFunction::match(std::vector<Type *> paramTypes
     return true;
 }
 
-Type *Function::getReturnType(const DebugInfo &d, InstantialContext *instCtx)
+Type *Function::getReturnType(const DebugInfo &d, InstantialContext *instCtx,const std::vector<Type*> &paramTypes)
 {
     /*	推导返回值：
     *	如果声明了返回值类型，则以声明为准
@@ -183,14 +183,14 @@ Type *Function::getReturnType(const DebugInfo &d, InstantialContext *instCtx)
         for (size_t i = 0; i < this->fragments.size(); ++i)
         {
 			try {
-				Type *curReturnType = this->fragments[i]->getReturnType(d, instCtx, this->type->getParameterTypes());
+				Type *curReturnType = this->fragments[i]->getReturnType(d, instCtx, paramTypes);
 				if (!curReturnType) continue;
 				returnType = Type::getPromotedType(d, curReturnType, returnType);
 			} /*如果在SFINAE模式下，遇到Fragment返回值抛出Cancel异常，则忽略此Fragment，
 			  非SFINAE模式下直接抛ExpressionCanceled*/
 			catch (const CancelException &ex) {
 			    ex.rethrowAbove(CancelScope::FUNCTION);
-				if (instCtx->getBlockAttribute(BlockAttributeItem::SFINAE)) {
+				if (this->fragments[i]->isStaticVarargs()) {
 					++fragmentCanceledCount;
 					continue;
 				}
@@ -205,16 +205,19 @@ Type *Function::getReturnType(const DebugInfo &d, InstantialContext *instCtx)
 		}
     }else{
         returnType = cachedFuncType->getReturnType();
+        if(!returnType){ //如果returnType为nullptr，说明应该是之前推导抛错
+            throw CancelException(CancelScope::EXPRESSION);
+        }
     }
     instCtx->cacheFunctionType(d, this,FunctionType::get(this->type->getParameterTypes(), returnType, this->type->isRumtimeVarargs(), this->type->isConst()));
 	return returnType;
 }
 
-GenerateResult Function::generateLLVMIR(const DebugInfo &d, GenerateContext *context)
+GenerateResult Function::generateLLVMIR(const DebugInfo &d, GenerateContext *context, const std::vector<Type*> &paramTypes)
 {
 	llvm::Function *llvmFunc = nullptr;
 	try {
-		llvmFunc = this->getLLVMFunction(d, context, true);
+		llvmFunc = this->getLLVMFunction(d, context, paramTypes, true);
 	}
 	catch (const CancelException &ex) {
 	    ex.rethrowAbove(CancelScope::FUNCTION);
@@ -223,8 +226,7 @@ GenerateResult Function::generateLLVMIR(const DebugInfo &d, GenerateContext *con
     //如果没有实现，则只生成函数声明，且不进行命名粉碎
     if (!this->fragments.empty())
     {
-		Type *returnType = this->getReturnType(d, context->getInstantialContext());
-        const auto &paramTypes = this->type->getParameterTypes();
+		Type *returnType = this->getReturnType(d, context->getInstantialContext(), paramTypes);
         InstantialContext *outerInstCtx = context->getInstantialContext();
         llvm::IRBuilder<> *prevBuilder = context->getIRBuilder();
         llvm::BasicBlock *entry = llvm::BasicBlock::Create(*context->getLLVMContext(), "entry", llvmFunc);
@@ -249,7 +251,7 @@ GenerateResult Function::generateLLVMIR(const DebugInfo &d, GenerateContext *con
         builder.CreateBr(prevBlock);
         //如果全部匹配失败，则返回未定义值
         builder.SetInsertPoint(notMatched);
-        Type *myReturnType = this->getReturnType(d, outerInstCtx);
+        Type *myReturnType = this->getReturnType(d, outerInstCtx, paramTypes);
         builder.CreateRet(llvm::UndefValue::get(myReturnType->getLLVMType(context)));
         context->setIRBuilder(prevBuilder);
     }

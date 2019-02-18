@@ -29,7 +29,7 @@ GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 	//生成LLVM函数调用
 	auto builder = context->getIRBuilder();
 	auto llvmArgs = this->parameters->getLLVMValues(context, paramTypes); //这个必须在context设置innerInstCtx之前执行
-	llvm::Function *llvmFunc = func->getLLVMFunction(this->getDebugInfo(), context);
+	llvm::Function *llvmFunc = func->getLLVMFunction(this->getDebugInfo(), context, paramTypes);
 	auto ret = builder->CreateCall(llvmFunc, llvmArgs);
     context->setInstantialContext(outerInstCtx);
 	return ret;
@@ -37,20 +37,40 @@ GenerateResult WorkScript::Call::generateIR(GenerateContext * context)
 
 Type * Call::getType(InstantialContext *context) const
 {
-	auto paramTypes = this->parameters->getTypes(context);
-	Function *func = this->expressionInfo.getAbstractContext()->getFunction(this->getDebugInfo(),FunctionQuery(this->functionName, paramTypes, false));
-	if (!func) {
-		if (context->getBlockAttribute(BlockAttributeItem::SFINAE)) {
-			throw CancelException(CancelScope::FUNCTION_FRAGMENT);
-		}
-		else {
-			auto str = this->toFunctionDeclString(context);
-			this->expressionInfo.getDebugInfo().getReport()->error(UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"未找到函数：" + str), ErrorBehavior::CANCEL_EXPRESSION);
-		}
-	}
-	else
+    auto paramTypes = this->parameters->getTypes(context);
+    Function *func = this->expressionInfo.getAbstractContext()->getFunction(this->getDebugInfo(),
+                                                                            FunctionQuery(this->functionName,
+                                                                                          paramTypes, false));
+    bool isParamNested = this->parameters->isNested(context);
+    if (!func)
+    {
+        if (isParamNested)
+        {
+            throw CancelException(CancelScope::FUNCTION_FRAGMENT, true);
+        } else
+        {
+            auto str = this->toFunctionDeclString(context);
+            this->expressionInfo.getDebugInfo().getReport()->error(
+                    UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"未找到函数：" + str),
+                    ErrorBehavior::CANCEL_EXPRESSION);
+        }
+    }
+    try
 	{
-		return func->getReturnType(this->getDebugInfo(), context);
+		Type *returnType = func->getReturnType(this->getDebugInfo(), context, paramTypes);
+		return returnType;
+	}
+	catch(const CancelException &ex)
+	{
+		ex.rethrowAbove(CancelScope::EXPRESSION);
+		if (!isParamNested)
+		{
+			auto str = this->toFunctionDeclString(context);
+			this->getDebugInfo().getReport()->error(TypeMismatchedError(this->getDebugInfo(), L"无法推导" + str + L"的返回值类型"),
+													ErrorBehavior::CANCEL_EXPRESSION);
+		}else{
+			throw;
+		}
 	}
 }
 

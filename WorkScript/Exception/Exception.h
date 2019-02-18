@@ -31,11 +31,11 @@ namespace WorkScript
 		
 	class CancelException : public Exception{
 	public:
-		explicit inline CancelException(CancelScope scope) noexcept
-			:cancelScope(scope) {}
+		explicit inline CancelException(CancelScope scope, bool isSFINAE = false) noexcept
+			:cancelScope(scope), _SFINAE(isSFINAE){}
 
 		inline CancelException(const CancelException &e) noexcept
-			:Exception(), cancelScope(e.cancelScope)
+			:Exception(), cancelScope(e.cancelScope), _SFINAE(e._SFINAE)
 		{ }
 
 		inline void rethrowAbove(CancelScope scope) const{
@@ -45,8 +45,12 @@ namespace WorkScript
 		inline CancelScope getCancelScope() const noexcept{
 			return this->cancelScope;
 		}
+
+		inline void setSFINAE(bool s){this->_SFINAE = s;}
+		inline bool isSFINAE() const{return this->_SFINAE;}
 	private:
 		CancelScope cancelScope;
+		bool _SFINAE = false;
 	};
 
 	WS_EXCEPTION_COMMON_DECL(InternalException)

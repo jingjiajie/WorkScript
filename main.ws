@@ -1,11 +1,10 @@
-int printf(char *, ...)
+int printf(char *,...)
 
-//max(x, y > x) = y
-//max(x, y)     = x
+max(x, y > x) = y
+max(x, y)     = x
 max(x, ...y)  = max(x, max(y))
 
 main(){
-  max(1,2)
+  printf("%d", max(3,5,1))
 }
-
 

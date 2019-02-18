@@ -37,8 +37,9 @@ namespace WorkScript {
 		inline const std::vector<Parameter*> & getParameters() const noexcept{ return this->parameters; }
 		inline size_t getBlockID() const noexcept{ return this->context.getBlockID(); }
 		inline AbstractContext * getContext() noexcept{ return &this->context; }
-		inline const LinkageType & getLinkageType() const{return this->linkageType;}
-		inline bool isConst() const{return this->_const;}
+		inline const LinkageType & getLinkageType() const noexcept{return this->linkageType;}
+		inline bool isConst() const noexcept{return this->_const;}
+		inline bool isStaticVarargs() const noexcept{return this->_staticVarargs;}
 	private:
 	    std::wstring name;
 		std::vector<Parameter*> parameters;
