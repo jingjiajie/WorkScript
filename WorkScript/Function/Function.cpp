@@ -20,11 +20,11 @@ Function::Function(
 
 }
 
-std::wstring Function::getMangledFunctionName(const DebugInfo &d) const noexcept
+std::wstring Function::getMangledFunctionName(const DebugInfo &d, const std::vector<Type*> &paramTypes) const noexcept
 {
     wstringstream ss;
     ss << this->getName();
-    for (auto paramType : this->type->getParameterTypes())
+    for (auto paramType : paramTypes)
     {
         ss << L"@" << paramType->getName();
     }
@@ -65,7 +65,7 @@ llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *c
         wstring funcName;
         if (this->baseContext->getFunctions(d, this->name).size() > 1)
         {
-            funcName = this->getMangledFunctionName(d);
+            funcName = this->getMangledFunctionName(d, paramTypes);
         } else
         {
             funcName = this->name;

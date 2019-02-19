@@ -130,6 +130,7 @@ const std::vector<llvm::Value*> &MultiValue::getLLVMValues(GenerateContext *cont
 				++curTotalLLVMValues;
 			}
 		}
+		this->hadLLVMValues = true;
 	}
 	return this->llvmValues;
 }
