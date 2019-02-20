@@ -43,9 +43,9 @@ void WorkScriptEngine::run(const char * filePath)
 		report->dump();
 		return;
 	}
-	printf("IR dump:\n");
-	llvmModule->print(llvm::outs(),nullptr);
-	printf("\n\n");
+//	printf("IR dump:\n");
+//	llvmModule->print(llvm::outs(),nullptr);
+//	printf("\n\n");
 	string errorStr;
 
 	llvm::EngineBuilder b(std::move(llvmModule));

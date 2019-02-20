@@ -8,6 +8,7 @@
 #include "Function.h"
 #include "InstantialContext.h"
 #include "Exception.h"
+#include "Locales.h"
 
 using namespace WorkScript;
 using namespace std;

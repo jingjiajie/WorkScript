@@ -84,55 +84,53 @@ GenerateResult WorkScript::MultiValue::generateIR(GenerateContext * context)
 	throw InternalException(L"请调用getLLVMArgs()");
 }
 
-const std::vector<llvm::Value*> &MultiValue::getLLVMValues(GenerateContext *context, const vector<Type *> &expectedTypes)
+std::vector<llvm::Value*> MultiValue::getLLVMValues(GenerateContext *context, const vector<Type *> &expectedTypes)
 {
-	if(!this->hadLLVMValues){
-		size_t expectedTypeCount = expectedTypes.size();
- 		llvmValues.reserve(this->items.size());
-		size_t curTotalLLVMValues = 0;
-		for (Expression *item : this->items)
-		{
-			if(curTotalLLVMValues > expectedTypeCount){
-				throw InternalException(L"期待类型数量"+to_wstring(expectedTypeCount)+L" 少于实际类型数量");
-			}
-			Type *curItemType = item->getType(context->getInstantialContext());
-			if (!curItemType)
-			{
-				this->expressionInfo.getDebugInfo().getReport()->error(
-						UninferableTypeError(this->expressionInfo.getDebugInfo(), L"无法推导参数类型！"),
-						ErrorBehavior::CANCEL_EXPRESSION);
-			}else if(curItemType->getClassification() == TypeClassification::MULTI_VALUE){ //如果子项为MultiValue，则单独处理
-				MultiValue *multiValueItem = nullptr;
-				if(item->getExpressionType() == ExpressionType::MULTI_VALUE){
-				    multiValueItem = (MultiValue*)item;
-				}else if(item->getExpressionType() == ExpressionType::VARIABLE){
-				    auto variable = (Variable*)item;
-				    multiValueItem = (MultiValue*)variable->getValue(context->getInstantialContext());
-				}else{
-				    throw InternalException(L"未知的表达式生成了MultiValue类型的值");
-				}
-				const auto &itemLLVMValues = multiValueItem->getLLVMValues(context,vector<Type*>(expectedTypes.begin()+llvmValues.size(),expectedTypes.end()));
-				llvmValues.insert(llvmValues.end(),itemLLVMValues.begin(), itemLLVMValues.end());
-				curTotalLLVMValues+=itemLLVMValues.size();
-			}
-			else if (curItemType->equals(expectedTypes[curTotalLLVMValues]))
-			{
-				llvm::Value *curLLVMParam = item->generateIR(context).getValue();
-				llvmValues.push_back(curLLVMParam);
-				++curTotalLLVMValues;
-			} else
-			{
-				llvm::Value *convertedLLVMParam = Type::generateLLVMTypeConvert(this->getDebugInfo(),
-																				context,
-																				item,
-																				expectedTypes[curTotalLLVMValues]).getValue();
-				llvmValues.push_back(convertedLLVMParam);
-				++curTotalLLVMValues;
-			}
+	std::vector<llvm::Value*> llvmValues;
+	size_t expectedTypeCount = expectedTypes.size();
+	llvmValues.reserve(this->items.size());
+	size_t curTotalLLVMValues = 0;
+	for (Expression *item : this->items)
+	{
+		if(curTotalLLVMValues > expectedTypeCount){
+			throw InternalException(L"期待类型数量"+to_wstring(expectedTypeCount)+L" 少于实际类型数量");
 		}
-		this->hadLLVMValues = true;
+		Type *curItemType = item->getType(context->getInstantialContext());
+		if (!curItemType)
+		{
+			this->expressionInfo.getDebugInfo().getReport()->error(
+					UninferableTypeError(this->expressionInfo.getDebugInfo(), L"无法推导参数类型！"),
+					ErrorBehavior::CANCEL_EXPRESSION);
+		}else if(curItemType->getClassification() == TypeClassification::MULTI_VALUE){ //如果子项为MultiValue，则单独处理
+			MultiValue *multiValueItem = nullptr;
+			if(item->getExpressionType() == ExpressionType::MULTI_VALUE){
+				multiValueItem = (MultiValue*)item;
+			}else if(item->getExpressionType() == ExpressionType::VARIABLE){
+				auto variable = (Variable*)item;
+				multiValueItem = (MultiValue*)variable->getValue(context->getInstantialContext());
+			}else{
+				throw InternalException(L"未知的表达式生成了MultiValue类型的值");
+			}
+			const auto &itemLLVMValues = multiValueItem->getLLVMValues(context,vector<Type*>(expectedTypes.begin()+llvmValues.size(),expectedTypes.end()));
+			llvmValues.insert(llvmValues.end(),itemLLVMValues.begin(), itemLLVMValues.end());
+			curTotalLLVMValues+=itemLLVMValues.size();
+		}
+		else if (curItemType->equals(expectedTypes[curTotalLLVMValues]))
+		{
+			llvm::Value *curLLVMParam = item->generateIR(context).getValue();
+			llvmValues.push_back(curLLVMParam);
+			++curTotalLLVMValues;
+		} else
+		{
+			llvm::Value *convertedLLVMParam = Type::generateLLVMTypeConvert(this->getDebugInfo(),
+																			context,
+																			item,
+																			expectedTypes[curTotalLLVMValues]).getValue();
+			llvmValues.push_back(convertedLLVMParam);
+			++curTotalLLVMValues;
+		}
 	}
-	return this->llvmValues;
+	return llvmValues;
 }
 
 bool MultiValue::isNested(WorkScript::InstantialContext *context) const

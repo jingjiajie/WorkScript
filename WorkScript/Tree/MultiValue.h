@@ -20,7 +20,7 @@ namespace WorkScript {
 		ExpressionType getExpressionType() const override;
 		GenerateResult generateIR(GenerateContext *context) override;
 
-		const std::vector<llvm::Value*> & getLLVMValues(GenerateContext *context, const std::vector<Type *> &expectedTypes);
+		std::vector<llvm::Value*> getLLVMValues(GenerateContext *context, const std::vector<Type *> &expectedTypes);
 
 		//virtual bool equals(Expression *) const override;
 
@@ -35,8 +35,6 @@ namespace WorkScript {
 		}
 	protected:
 		std::vector<Expression*> items;
-		bool hadLLVMValues = false;
-		std::vector<llvm::Value*> llvmValues;
 	};
 }
 
