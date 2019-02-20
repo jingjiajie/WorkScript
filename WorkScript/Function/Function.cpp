@@ -106,51 +106,6 @@ bool WorkScript::Function::match(const DebugInfo &d, const FunctionQuery &query)
     if(query.getName() != this->name)return false;
     return FunctionType::match(d, this->type, query.getFunctionTypeQuery());
 }
-//
-//inline std::vector<Type *> Function::getParameterTypes(const DebugInfo &d, InstantialContext *context, const FunctionTypeQuery &query) const
-//{
-//    auto declParamTypes = this->type->getParameterTypes();
-//    if (!context)return declParamTypes;
-//    vector<Type *> realParamTypes;
-//    size_t paramCount = this->getParameterCount();
-//    realParamTypes.reserve(paramCount);
-//    for (size_t i = 0; i < paramCount; ++i)
-//    {
-//        wstring curParamName = Function::getStdParameterName(i);
-//        SymbolInfo *info = context->getSymbolInfo(curParamName);
-//        if (!info)
-//        {
-//            if (i == 0)
-//            {
-//                realParamTypes = declParamTypes;
-//                break;
-//            } else
-//            {
-//                d.getReport()->error(TypeMismatchedError(d, L"参数不匹配！"), ErrorBehavior::CANCEL_EXPRESSION);
-//            }
-//        } else
-//        {
-//            realParamTypes.push_back(info->getType());
-//        }
-//    }
-//
-//    std::vector<Type *> result;
-//    result.reserve(paramCount);
-//    for (size_t i = 0; i < paramCount; ++i)
-//    {
-//        if (declParamTypes[i] == nullptr)
-//        {
-//            result.push_back(realParamTypes[i]);
-//        } else if (realParamTypes[i]->convertableTo(d, declParamTypes[i]))
-//        {
-//            result.push_back(declParamTypes[i]);
-//        } else
-//        {
-//            d.getReport()->error(TypeMismatchedError(d, L"参数类型不匹配！"), ErrorBehavior::CANCEL_EXPRESSION);
-//        }
-//    }
-//    return result;
-//}
 
 bool WorkScript::ParamTypesAndLLVMFunction::match(std::vector<Type *> paramTypes) noexcept
 {
@@ -175,9 +130,10 @@ Type *Function::getReturnType(const DebugInfo &d, InstantialContext *instCtx,con
     }
     FunctionType *cachedFuncType = nullptr;
     Type *returnType = nullptr;
-    if (!instCtx->getCachedFunctionType(d, this, FunctionTypeQuery(this->type->getParameterTypes(),this->type->isConst()), &cachedFuncType))
+    FunctionType *queryType = FunctionType::get(paramTypes, nullptr, this->type->isRumtimeVarargs(), this->type->isConst());
+    if (!instCtx->getCachedFunctionType(d, this, FunctionTypeQuery(paramTypes,this->type->isConst()), &cachedFuncType))
     {
-        instCtx->cacheFunctionType(d, this, this->type);
+        instCtx->cacheFunctionType(d, this, queryType);
 		size_t fragmentCanceledCount = 0;
         //推导每个Fragment的返回值，取最高类型
         for (size_t i = 0; i < this->fragments.size(); ++i)
@@ -195,21 +151,22 @@ Type *Function::getReturnType(const DebugInfo &d, InstantialContext *instCtx,con
 					continue;
 				}
 				else {
-					throw CancelException(CancelScope::EXPRESSION);
+					CancelException ex(CancelScope::EXPRESSION);
+                    instCtx->getFunctionCache()->cacheFunctionType(d, this, queryType, ex);
+                    throw ex;
 				}
 			}
         }
 		/*如果所有分支都被取消了，则函数被取消（肯定是SFINAE，如果不是SFINAE则当时就抛错了）*/
 		if (fragmentCanceledCount == this->fragments.size()) {
-            throw CancelException(CancelScope::EXPRESSION);
+            CancelException ex(CancelScope::EXPRESSION);
+		    instCtx->getFunctionCache()->cacheFunctionType(d, this, queryType, ex);
+            throw ex;
 		}
     }else{
         returnType = cachedFuncType->getReturnType();
-        if(!returnType){ //如果returnType为nullptr，说明应该是之前推导抛错
-            throw CancelException(CancelScope::EXPRESSION);
-        }
     }
-    instCtx->cacheFunctionType(d, this,FunctionType::get(this->type->getParameterTypes(), returnType, this->type->isRumtimeVarargs(), this->type->isConst()));
+    instCtx->cacheFunctionType(d, this,FunctionType::get(paramTypes, returnType, this->type->isRumtimeVarargs(), this->type->isConst()));
 	return returnType;
 }
 

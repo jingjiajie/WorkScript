@@ -34,7 +34,7 @@ void InstantialContext::cacheFunctionType(const WorkScript::DebugInfo &d,
 bool InstantialContext::getCachedFunctionType(const WorkScript::DebugInfo &d,
                                                 Function *func,
 												const WorkScript::FunctionTypeQuery &query,
-												WorkScript::FunctionType **outType) const noexcept
+												WorkScript::FunctionType **outType) const
 {
 	return this->functionCache->getCachedFunctionType(d, func, query, outType);
 }

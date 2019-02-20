@@ -43,7 +43,7 @@ namespace WorkScript {
 
 		void cacheFunctionType(const DebugInfo &d, Function *func, FunctionType *type) noexcept;
 		bool getCachedFunctionType(const DebugInfo &d, Function *func, const FunctionTypeQuery &query,
-									 FunctionType **outType) const noexcept;
+									 FunctionType **outType) const;
 		
 		inline void setBlockAttribute(BlockAttributeItem item, bool enable) noexcept{
 			auto i = (BlockAttribute)item;

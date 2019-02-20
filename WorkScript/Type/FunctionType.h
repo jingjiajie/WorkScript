@@ -26,8 +26,8 @@ namespace WorkScript {
 		inline Type * getReturnType() noexcept{ return this->returnType; }
 		inline bool isRumtimeVarargs() const noexcept{ return this->rumtimeVarargs; }
 		inline bool isConst() const noexcept{return this->_const;}
-		bool match(const DebugInfo &d, const FunctionTypeQuery &query) noexcept;
-		static bool match(const DebugInfo &d, FunctionType *declType, const FunctionTypeQuery &query) noexcept;
+		bool match(const DebugInfo &d, const FunctionTypeQuery &query)const noexcept;
+		static bool match(const DebugInfo &d,const FunctionType *declType, const FunctionTypeQuery &query)noexcept;
 
 		static FunctionType * get(const std::vector<Type*> &paramTypes, Type *returnType, bool isRuntimeVarargs, bool isConst) noexcept;
 	protected:

@@ -101,7 +101,7 @@ void WorkScript::FunctionType::releaseTypes() noexcept
 	}
 }
 
-bool FunctionType::match(const DebugInfo &d, FunctionType *declType, const FunctionTypeQuery &query) noexcept
+bool FunctionType::match(const DebugInfo &d,const FunctionType *declType, const FunctionTypeQuery &query) noexcept
 {
     if(declType->isConst() != query.mustConst()) return false;
 	size_t declParamCount = declType->paramTypes.size();
@@ -118,7 +118,7 @@ bool FunctionType::match(const DebugInfo &d, FunctionType *declType, const Funct
 	return true;
 }
 
-bool FunctionType::match(const DebugInfo &d, const FunctionTypeQuery &query) noexcept
+bool FunctionType::match(const DebugInfo &d, const FunctionTypeQuery &query)const noexcept
 {
 	return FunctionType::match(d, this, query);
 }
