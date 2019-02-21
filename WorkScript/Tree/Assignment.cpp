@@ -22,8 +22,8 @@ WorkScript::Assignment::Assignment(const ExpressionInfo &exprInfo,Expression *le
 GenerateResult WorkScript::Assignment::generateIR(GenerateContext * context)
 {
 	auto irBuilder = context->getIRBuilder();
-	Type *leftType = this->getType(context->getInstantialContext());
-	Type *rightType = this->rightExpression->getType(context->getInstantialContext());
+	Type *leftType = this->getType(context);
+	Type *rightType = this->rightExpression->getType(context);
 	Type *promotedType = Type::getPromotedType(this->expressionInfo.getDebugInfo(), leftType, rightType);
 	context->setLeftValue(false);
 	llvm::Value *val = Type::generateLLVMTypeConvert(this->expressionInfo.getDebugInfo(), context, this->rightExpression, promotedType).getValue();

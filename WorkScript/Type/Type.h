@@ -1,12 +1,12 @@
 #pragma once
 #include "TypeClassification.h"
-#include "GenerateResult.h"
-#include "GenerateContext.h"
 #include "DebugInfo.h"
+#include "GenerateResult.h"
 
 namespace WorkScript {
 	class Expression;
 	class Program;
+	class GenerateContext;
 
 	class LinkageType
 	{

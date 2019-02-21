@@ -33,7 +33,7 @@ std::wstring Function::getMangledFunctionName(const DebugInfo &d, const std::vec
 
 llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *context, const std::vector<Type*> &paramTypes, bool declareOnly)
 {
-    InstantialContext *outerInstCtx = context->getInstantialContext();
+    InstantialContext *outerInstCtx = context;
     llvm::Function *matchedFunc = nullptr;
     for (size_t i = 0; i < this->llvmFunctions.size(); ++i)
     {
@@ -111,8 +111,7 @@ bool ParamTypesAndLLVMFunction::match(const std::vector<Type *> &paramTypes) noe
 {
 	size_t expectedParamCount = paramTypes.size();
 	size_t myParamCount = this->parameterTypes.size();
-	if(expectedParamCount < myParamCount) return false;
-	if(expectedParamCount > myParamCount && !this->_runtimeVarargs) return false;
+	if(expectedParamCount != myParamCount) return false;
     for (size_t i = 0; i < myParamCount; ++i)
     {
         if (!this->parameterTypes[i]->equals(paramTypes[i]))return false;
@@ -187,8 +186,8 @@ GenerateResult Function::generateLLVMIR(const DebugInfo &d, GenerateContext *con
     //如果没有实现，则只生成函数声明，且不进行命名粉碎
     if (!this->fragments.empty())
     {
-		Type *returnType = this->getReturnType(d, context->getInstantialContext(), paramTypes);
-        InstantialContext *outerInstCtx = context->getInstantialContext();
+		Type *returnType = this->getReturnType(d, context, paramTypes);
+        InstantialContext *outerInstCtx = context;
         llvm::IRBuilder<> *prevBuilder = context->getIRBuilder();
         llvm::BasicBlock *entry = llvm::BasicBlock::Create(*context->getLLVMContext(), "entry", llvmFunc);
         llvm::BasicBlock *notMatched = llvm::BasicBlock::Create(*context->getLLVMContext(), "not_matched", llvmFunc);

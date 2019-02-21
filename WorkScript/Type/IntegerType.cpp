@@ -3,6 +3,7 @@
 #include "Report.h"
 #include "Exception.h"
 #include "DebugInfo.h"
+#include "GenerateContext.h"
 
 using namespace std;
 using namespace WorkScript;

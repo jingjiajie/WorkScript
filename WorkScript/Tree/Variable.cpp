@@ -14,7 +14,7 @@ Variable::Variable(const ExpressionInfo &exprInfo, const std::wstring & name)
 
 GenerateResult WorkScript::Variable::generateIR(GenerateContext * context)
 {
-	auto instantialContext = context->getInstantialContext();
+	auto instantialContext = context;
 	SymbolInfo *symbolInfo = instantialContext->getSymbolInfo(this->name);
 	if (!symbolInfo) {
 		this->expressionInfo.getDebugInfo().getReport()->error(UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"无法找到符号：" + this->name), ErrorBehavior::CANCEL_EXPRESSION);

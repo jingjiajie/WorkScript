@@ -52,7 +52,7 @@ namespace WorkScript {
 		std::vector<Expression*> implements;
 		AbstractContext context;
 
-		void generateConstraints(GenerateContext *context, llvm::Function *llvmFunc, llvm::BasicBlock *falseBlock);
-		void generateImplements(GenerateContext *context, InstantialContext *innerInstCtx, Type *returnType);
+		void generateConstraints(GenerateContext *context, llvm::Function *llvmFunc, llvm::BasicBlock *falseBlock, llvm::BasicBlock **outMatchedBlock);
+		void generateImplements(GenerateContext *context, llvm::BasicBlock *block, Type *returnType);
 	};
 }

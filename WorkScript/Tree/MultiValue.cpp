@@ -95,7 +95,7 @@ std::vector<llvm::Value*> MultiValue::getLLVMValues(GenerateContext *context, co
 		if(curTotalLLVMValues > expectedTypeCount){
 			throw InternalException(L"期待类型数量"+to_wstring(expectedTypeCount)+L" 少于实际类型数量");
 		}
-		Type *curItemType = item->getType(context->getInstantialContext());
+		Type *curItemType = item->getType(context);
 		if (!curItemType)
 		{
 			this->expressionInfo.getDebugInfo().getReport()->error(
@@ -107,7 +107,7 @@ std::vector<llvm::Value*> MultiValue::getLLVMValues(GenerateContext *context, co
 				multiValueItem = (MultiValue*)item;
 			}else if(item->getExpressionType() == ExpressionType::VARIABLE){
 				auto variable = (Variable*)item;
-				multiValueItem = (MultiValue*)variable->getValue(context->getInstantialContext());
+				multiValueItem = (MultiValue*)variable->getValue(context);
 			}else{
 				throw InternalException(L"未知的表达式生成了MultiValue类型的值");
 			}

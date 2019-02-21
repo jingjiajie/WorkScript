@@ -290,14 +290,9 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDecl(WorkScriptPars
 	}
 	bool isRuntimeVarargs = ctx->stdFormalParameter()->runtimeVarargs() != nullptr;
 	//TODO FunctionQuery的isConst参数未处理
-	Function *func = outerAbstractContext->getFunction(getDebugInfo(this,ctx),FunctionQuery(funcName, paramTypes, false));
-	if (!func)
-	{
-		//TODO 函数的const修饰符
-		FunctionType *funcType = FunctionType::get(paramTypes, returnType, isRuntimeVarargs, false);
-		func = new Function(outerAbstractContext, funcName, funcType, linkageType);
-		outerAbstractContext->addFunction(func);
-	}
+	FunctionFragment *fragment = new FunctionFragment(getDebugInfo(this, ctx), outerAbstractContext, funcName, params,
+													  false, isRuntimeVarargs, nullopt, linkageType, {}, {});
+	outerAbstractContext->addFunctionFragment(fragment);
 	return nullptr;
 }
 

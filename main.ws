@@ -18,7 +18,7 @@ int printf(char *,...)
 main(){
   // print("fib(20) = ", fib(20))
   //print("max : ", max(1,3,5,7,9,2,4,6,8,0))
-  printf("%s", "a")
+  //printf("%s", "a")
   printf("%d", 1)
-  printf("%d", 2.0)
+  // printf("%d", max(1,3,5,7,9,2,4,6,8,0))
 }

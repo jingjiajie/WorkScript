@@ -14,13 +14,12 @@ using namespace WorkScript;
 using namespace std;
 
 GenerateResult Call::generateIR(GenerateContext * context) {
-	auto outerInstCtx = context->getInstantialContext();
 	//获取函数声明
-	auto paramTypes = this->parameters->getTypes(outerInstCtx);
+	auto paramTypes = this->parameters->getTypes(context);
 	Function *func = this->expressionInfo.getAbstractContext()->getFunction(
 			this->getDebugInfo(),
 			FunctionQuery(this->functionName, paramTypes, false));
-	bool isParamNested = this->parameters->isNested(context->getInstantialContext());
+	bool isParamNested = this->parameters->isNested(context);
 	if (!func) {
 		if (isParamNested) {
 			throw CancelException(CancelScope::FUNCTION_FRAGMENT, true);
@@ -28,18 +27,16 @@ GenerateResult Call::generateIR(GenerateContext * context) {
 			this->expressionInfo.getDebugInfo().getReport()->error(
 					UndefinedSymbolError(this->expressionInfo.getDebugInfo(),
 							L"未找到函数："
-									+ this->toFunctionDeclString(outerInstCtx)),
+									+ this->toFunctionDeclString(context)),
 					ErrorBehavior::CANCEL_EXPRESSION);
 		}
 	}
 	//生成LLVM函数调用
 	auto builder = context->getIRBuilder();
-	auto llvmArgs = this->parameters->getLLVMValues(context, paramTypes); //这个必须在context设置innerInstCtx之前执行
+	auto llvmArgs = this->parameters->getLLVMValues(context, paramTypes);
 	llvm::Function *llvmFunc = func->getLLVMFunction(this->getDebugInfo(),
 			context, paramTypes);
-	auto ret = builder->CreateCall(llvmFunc, llvmArgs);
-	context->setInstantialContext(outerInstCtx);
-	return ret;
+	return builder->CreateCall(llvmFunc, llvmArgs);
 }
 
 Type * Call::getType(InstantialContext *context) const {

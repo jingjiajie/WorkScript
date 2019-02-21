@@ -11,8 +11,8 @@ GenerateResult WorkScript::BinaryCompare::generateIR(GenerateContext * context)
 {
 	auto leftExpr = this->getLeftExpression();
 	auto rightExpr = this->getRightExpression();
-	Type *leftType = leftExpr->getType(context->getInstantialContext());
-	Type *rightType = rightExpr->getType(context->getInstantialContext());
+	Type *leftType = leftExpr->getType(context);
+	Type *rightType = rightExpr->getType(context);
 	Type *promotedType = Type::getPromotedType(this->getDebugInfo(), leftType, rightType);
 	GenerateResult res = Type::generateLLVMTypeConvert(this->getDebugInfo(), context, leftExpr, rightExpr, promotedType);
 	switch (promotedType->getClassification())

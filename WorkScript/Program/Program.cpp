@@ -29,8 +29,7 @@ Program::~Program() noexcept = default;
 
 void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule)
 {
-	InstantialContext funcInstCtx(&this->globalAbstractContext, &this->functionCache);
-	GenerateContext ctx(llvmContext, llvmModule, nullptr, &funcInstCtx);
+	GenerateContext ctx(llvmContext, llvmModule, nullptr, &this->globalAbstractContext, &this->functionCache);
 	//TODO DebugInfo
 	Function *funcMain = this->globalAbstractContext.getFunction(DebugInfo(), FunctionQuery(L"main", {}, false));
 	try {
