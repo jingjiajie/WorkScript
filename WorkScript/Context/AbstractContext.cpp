@@ -104,6 +104,7 @@ void AbstractContext::addFunctionFragment(FunctionFragment *fragment)
 Function *AbstractContext::getFunction(const DebugInfo &d, const FunctionQuery &query)
 {
 	//如果相应的函数已经存在，则直接返回函数
+
 	auto itFunc = this->functions.find(query.getName());
 	if (itFunc != this->functions.end())
 	{

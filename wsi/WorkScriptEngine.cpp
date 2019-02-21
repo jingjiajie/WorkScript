@@ -43,9 +43,9 @@ void WorkScriptEngine::run(const char * filePath)
 		report->dump();
 		return;
 	}
-//	printf("IR dump:\n");
-//	llvmModule->print(llvm::outs(),nullptr);
-//	printf("\n\n");
+	printf("IR dump:\n");
+	llvmModule->print(llvm::outs(),nullptr);
+	printf("\n\n");
 	string errorStr;
 
 	llvm::EngineBuilder b(std::move(llvmModule));
@@ -61,7 +61,9 @@ void WorkScriptEngine::run(const char * filePath)
 	printf("开始JIT执行：\n");
 	typedef int(*TFMAIN)();
 	TFMAIN fmain = (TFMAIN)e->getPointerToNamedFunction("main");
+	//double startTime = clock();
 	auto ret = fmain();
+	//double endTime = clock();
 	printf("\n执行完毕，返回值：%d\n", ret);
 }
 

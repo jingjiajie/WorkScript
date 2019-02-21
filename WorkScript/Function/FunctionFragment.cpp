@@ -82,120 +82,101 @@ Type * FunctionFragment::getReturnType(const DebugInfo &d, InstantialContext * c
     }
 }
 
-llvm::BasicBlock * WorkScript::FunctionFragment::generateBlock(GenerateContext * context,
+llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * context,
 		const std::vector<Type*> &paramTypes,
 		Type *returnType,
 		llvm::Function *llvmFunc,
 		llvm::BasicBlock *falseBlock)
 {
-	auto outerInstCtx = context->getInstantialContext();
-    InstantialContext innerInstCtx(outerInstCtx,to_wstring(this->getBlockID()));
-    if(this->_staticVarargs) innerInstCtx.setBlockAttribute(BlockAttributeItem::SFINAE, true);
+    auto outerInstCtx = context->getInstantialContext();
+    InstantialContext innerInstCtx(outerInstCtx, to_wstring(this->getBlockID()));
+    if (this->_staticVarargs) innerInstCtx.setBlockAttribute(BlockAttributeItem::SFINAE, true);
     context->setInstantialContext(&innerInstCtx);
-	SymbolTable &instSymbolTable = *innerInstCtx.getInstanceSymbolTable();
-	size_t realParamCount = paramTypes.size();
-	size_t myParamCount = this->parameters.size();
+    SymbolTable &instSymbolTable = *innerInstCtx.getInstanceSymbolTable();
+    size_t realParamCount = paramTypes.size();
+    size_t myParamCount = this->parameters.size();
 
-	/*开始创建LLVM对象*/
-	llvm::BasicBlock *llvmBlock = llvm::BasicBlock::Create(*context->getLLVMContext(), "branch", llvmFunc);
-	llvm::IRBuilder<> &builder = *context->getIRBuilder();
-	builder.SetInsertPoint(llvmBlock);
-	auto itLLVMArg = llvmFunc->arg_begin();
-	for (size_t i = 0; i < myParamCount; ++i, ++itLLVMArg) {
-		//获取参数的LLVM Argument
-		llvm::Argument *llvmArg = itLLVMArg;
-		//获取当前分支参数的符号信息，加入符号表
-		Parameter *myParam = this->parameters[i];
-		SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), myParam->getName(), paramTypes[i], LinkageType::INTERNAL);
-		//生成llvm赋值，将标准参数赋值到当前分支参数
-		llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), context);
-		builder.CreateStore(llvmArg, myLLVMParamPtr);
-	}
+    /*开始创建LLVM对象*/
+    llvm::BasicBlock *llvmBlock = llvm::BasicBlock::Create(*context->getLLVMContext(), "branch", llvmFunc);
+    llvm::IRBuilder<> &builder = *context->getIRBuilder();
+    builder.SetInsertPoint(llvmBlock);
+    auto itLLVMArg = llvmFunc->arg_begin();
+    for (size_t i = 0; i < myParamCount; ++i, ++itLLVMArg)
+    {
+        //获取参数的LLVM Argument
+        llvm::Argument *llvmArg = itLLVMArg;
+        //获取当前分支参数的符号信息，加入符号表
+        Parameter *myParam = this->parameters[i];
+        SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), myParam->getName(), paramTypes[i],
+                                                            LinkageType::INTERNAL);
+        //生成llvm赋值，将标准参数赋值到当前分支参数
+        llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), context);
+        builder.CreateStore(llvmArg, myLLVMParamPtr);
+    }
 
-	//处理变参，将多余的实参组合成MultiValue，放进符号表里。
-	if(myParamCount < realParamCount)
-	{
-		if(this->_staticVarargs)
-		{
-			//将变参的参数放进符号表里，使用Variable进行引用
-			vector<Expression*> varargs;
-			size_t i = 0;
-			while (itLLVMArg != llvmFunc->arg_end())
-			{
-				llvm::Argument *llvmArg = itLLVMArg++;
-				wstring curArgName = Locales::toWideChar(Encoding::ANSI, llvmArg->getName());
-				SymbolInfo *info = instSymbolTable.setSymbol(this->getDebugInfo(), curArgName, paramTypes[myParamCount+i], LinkageType::INTERNAL);
-				info->setLLVMValue(llvmArg);
-				auto *cur = new Variable(
-						ExpressionInfo(this->context.getProgram(), this->getDebugInfo(), &this->context), curArgName);
-				varargs.push_back(cur);
-				++i;
-			}
+    if (this->_runtimeVarargs)
+    {
+        else if (this->_runtimeVarargs)
+        {
+            if (realParamCount < myParamCount)
+            {
+                throw InternalException(L"参数个数匹配错误");
+            }
+            this->context.getProgram()->getReport()->error(UnimplementedError(this->getDebugInfo(), L"运行时变参尚未实现"),
+                                                           ErrorBehavior::CANCEL_EXPRESSION);
+        }
+    } else
+    { //不是动态变参
+        if (this->_staticVarargs)    //如果是静态变参，将多余的实参组合成MultiValue，放进符号表里。
+        {
+            if (realParamCount < myParamCount)
+            {
+                throw InternalException(L"参数个数匹配错误");
+            }
+            //将变参的参数放进符号表里，使用Variable进行引用
+            vector<Expression *> varargs;
+            size_t i = 0;
+            while (itLLVMArg != llvmFunc->arg_end())
+            {
+                llvm::Argument *llvmArg = itLLVMArg++;
+                wstring curArgName = Locales::toWideChar(Encoding::ANSI, llvmArg->getName());
+                SymbolInfo *info = instSymbolTable.setSymbol(this->getDebugInfo(), curArgName,
+                                                             paramTypes[myParamCount + i],
+                                                             LinkageType::INTERNAL);
+                info->setLLVMValue(llvmArg);
+                auto *cur = new Variable(
+                        ExpressionInfo(this->context.getProgram(), this->getDebugInfo(), &this->context), curArgName);
+                varargs.push_back(cur);
+                ++i;
+            }
 
-			auto *multiValue = new MultiValue(
-					ExpressionInfo(this->context.getProgram(), this->getDebugInfo(), &this->context),
-					varargs);
-			SymbolInfo *info = instSymbolTable.setSymbol(this->getDebugInfo(), this->staticVarargsName,
-														 multiValue->getType(&innerInstCtx), LinkageType::INTERNAL);
-			info->setValue(multiValue);
-		}else if(this->_runtimeVarargs)
-		{
-			this->context.getProgram()->getReport()->error(UnimplementedError(this->getDebugInfo(), L"运行时变参尚未实现"),
-														   ErrorBehavior::CANCEL_EXPRESSION);
-		}else{
-			throw InternalException(L"参数个数匹配错误");
-		}
-	}
+            auto *multiValue = new MultiValue(
+                    ExpressionInfo(this->context.getProgram(), this->getDebugInfo(), &this->context),
+                    varargs);
+            SymbolInfo *info = instSymbolTable.setSymbol(this->getDebugInfo(), this->staticVarargsName,
+                                                         multiValue->getType(&innerInstCtx), LinkageType::INTERNAL);
+            info->setValue(multiValue);
+        }
 
-	size_t condCount = this->constraints.size();
-	size_t codeCount = this->implements.size();
-	llvm::BasicBlock *ret = nullptr;
-	try {
-		if (condCount > 0) {
-			llvm::BasicBlock *matched = llvm::BasicBlock::Create(*context->getLLVMContext(), "matched", llvmFunc);
-			for (size_t i = 0; i < this->constraints.size(); ++i)
-			{
-				try {
-					llvm::Value *res = this->constraints[i]->generateIR(context).getValue();
-					builder.CreateCondBr(res, matched, falseBlock);
-				}
-				catch (const CancelException &ex) {
-					ex.rethrowAbove(CancelScope::EXPRESSION);
-					continue;
-				}
-			}
-			builder.SetInsertPoint(matched);
-		}
-		for (size_t i = 0; i < this->implements.size(); ++i)
-		{
-			Expression *curExpr = this->implements[i];
-			try {
-				llvm::Value *res = curExpr->generateIR(context).getValue();
-				if (i == this->implements.size() - 1) {
-					//如果分支返回值类型与函数返回值类型不同，则生成类型转换
-					Type *branchReturnType = curExpr->getType(&innerInstCtx);
-					if (!branchReturnType->equals(returnType)) {
-						res = Type::generateLLVMTypeConvert(curExpr->getDebugInfo(), context, curExpr,
-							returnType).getValue();
-					}
-					builder.CreateRet(res);
-				}
-			}
-			catch (const CancelException &ex) {
-				ex.rethrowAbove(CancelScope::EXPRESSION);
-				continue;
-			}
-		}
-	}
-	catch (const CancelException &ex) {
-		ex.rethrowAbove(CancelScope::FUNCTION_FRAGMENT);
-		llvmBlock->removeFromParent();
-		llvmBlock->deleteValue();
-		throw CancelException(CancelScope::EXPRESSION);
-	}
-	ret = llvmBlock;
-    context->setInstantialContext(outerInstCtx);
-	return ret;
+
+
+        llvm::BasicBlock *ret = nullptr;
+        try
+        {
+            this->generateConstraints(builder, llvmFunc, falseBlock);
+            this->generateImplements(builder, &innerInstCtx, returnType);
+        }
+        catch (const CancelException &ex)
+        {
+            ex.rethrowAbove(CancelScope::FUNCTION_FRAGMENT);
+            llvmBlock->removeFromParent();
+            llvmBlock->deleteValue();
+            throw CancelException(CancelScope::EXPRESSION);
+        }
+        ret = llvmBlock;
+        context->setInstantialContext(outerInstCtx);
+        return ret;
+    }
 }
 
 bool FunctionFragment::match(const DebugInfo &d, const FunctionQuery &query) noexcept
@@ -214,4 +195,56 @@ bool FunctionFragment::match(const DebugInfo &d, const FunctionQuery &query) noe
 		return true;
 	}
 	return false;
+}
+
+void FunctionFragment::generateConstraints(GenerateContext *context, llvm::Function *llvmFunc, llvm::BasicBlock *falseBlock)
+{
+    size_t condCount = this->constraints.size();
+    if (condCount > 0)
+    {
+        llvm::BasicBlock *matched = llvm::BasicBlock::Create(*context->getLLVMContext(), "matched", llvmFunc);
+        for (size_t i = 0; i < this->constraints.size(); ++i)
+        {
+            try
+            {
+                llvm::Value *res = this->constraints[i]->generateIR(context).getValue();
+                builder.CreateCondBr(res, matched, falseBlock);
+            }
+            catch (const CancelException &ex)
+            {
+                ex.rethrowAbove(CancelScope::EXPRESSION);
+                continue;
+            }
+        }
+        builder.SetInsertPoint(matched);
+    }
+}
+
+void FunctionFragment::generateImplements(GenerateContext *context, Type *returnType)
+{
+    size_t codeCount = this->implements.size();
+    for (size_t i = 0; i < this->implements.size(); ++i)
+    {
+        Expression *curExpr = this->implements[i];
+        try
+        {
+            llvm::Value *res = curExpr->generateIR(context).getValue();
+            if (i == this->implements.size() - 1)
+            {
+                //如果分支返回值类型与函数返回值类型不同，则生成类型转换
+                Type *branchReturnType = curExpr->getType(&innerInstCtx);
+                if (!branchReturnType->equals(returnType))
+                {
+                    res = Type::generateLLVMTypeConvert(curExpr->getDebugInfo(), context, curExpr,
+                                                        returnType).getValue();
+                }
+                builder.CreateRet(res);
+            }
+        }
+        catch (const CancelException &ex)
+        {
+            ex.rethrowAbove(CancelScope::EXPRESSION);
+            continue;
+        }
+    }
 }

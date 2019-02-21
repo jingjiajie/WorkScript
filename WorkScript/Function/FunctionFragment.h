@@ -51,5 +51,8 @@ namespace WorkScript {
 		std::vector<Expression*> constraints;
 		std::vector<Expression*> implements;
 		AbstractContext context;
+
+		void generateConstraints(GenerateContext *context, llvm::Function *llvmFunc, llvm::BasicBlock *falseBlock);
+		void generateImplements(GenerateContext *context, InstantialContext *innerInstCtx, Type *returnType);
 	};
 }

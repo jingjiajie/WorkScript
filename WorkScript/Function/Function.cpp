@@ -54,7 +54,7 @@ llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *c
         //生成函数类型
         vector<llvm::Type *> llvmParamTypes;
         llvmParamTypes.reserve(paramTypes.size() + 1);
-        for (size_t i = 0; i < paramTypes.size(); ++i)
+        for (size_t i = 0; i < this->type->getParameterCount(); ++i)
         {
             Type *paramType = paramTypes[i];
             llvmParamTypes.push_back(paramType->getLLVMType(context));
@@ -94,7 +94,7 @@ llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *c
             itArg->setName(Locales::fromWideChar(Encoding::ANSI, L"@" + to_wstring(i)));
             ++itArg;
         }
-        this->llvmFunctions.emplace_back(paramTypes, func);
+        this->llvmFunctions.push_back(ParamTypesAndLLVMFunction(paramTypes, func));
         matchedFunc = func;
         if(!declareOnly) this->generateLLVMIR(d, context, paramTypes);
     }
@@ -107,9 +107,13 @@ bool WorkScript::Function::match(const DebugInfo &d, const FunctionQuery &query)
     return FunctionType::match(d, this->type, query.getFunctionTypeQuery());
 }
 
-bool WorkScript::ParamTypesAndLLVMFunction::match(std::vector<Type *> paramTypes) noexcept
+bool ParamTypesAndLLVMFunction::match(const std::vector<Type *> &paramTypes) noexcept
 {
-    for (size_t i = 0; i < this->parameterTypes.size(); ++i)
+	size_t expectedParamCount = paramTypes.size();
+	size_t myParamCount = this->parameterTypes.size();
+	if(expectedParamCount < myParamCount) return false;
+	if(expectedParamCount > myParamCount && !this->_runtimeVarargs) return false;
+    for (size_t i = 0; i < myParamCount; ++i)
     {
         if (!this->parameterTypes[i]->equals(paramTypes[i]))return false;
     }

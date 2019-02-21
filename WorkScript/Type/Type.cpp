@@ -150,17 +150,27 @@ bool WorkScript::Type::convertableTo(const DebugInfo &d, Type * src, Type * targ
 				default:
 					return false;
 			}
+			break;
 		}
 		case TypeClassification::VOID:
 			return target->getClassification() == TypeClassification::VOID;
 		case TypeClassification::POINTER:
 		{
 			PointerType *srcPtr = (PointerType*)src;
-			PointerType *targetPtr = (PointerType*)target;
-			if(srcPtr->getLevel() != targetPtr->getLevel()) return false;
-			if(targetPtr->getTargetType()->getClassification() == TypeClassification::VOID) return true; //任何类型都可以转换为void*
-			if(srcPtr->getTargetType()->getClassification() == TypeClassification::VOID) return true; //void*可以转换为任何类型
-			return Type::convertableTo(d, srcPtr->getTargetType(),targetPtr->getTargetType());
+			switch (target->getClassification())
+			{
+				case TypeClassification::POINTER:
+				{
+					PointerType *targetPtr = (PointerType*)target;
+					if(srcPtr->getLevel() != targetPtr->getLevel()) return false;
+					if(targetPtr->getTargetType()->getClassification() == TypeClassification::VOID) return true; //任何类型都可以转换为void*
+					if(srcPtr->getTargetType()->getClassification() == TypeClassification::VOID) return true; //void*可以转换为任何类型
+					return Type::convertableTo(d, srcPtr->getTargetType(),targetPtr->getTargetType());
+				}
+				default:
+					return false;
+			}
+			break;
 		}
 		default:
 			return false;

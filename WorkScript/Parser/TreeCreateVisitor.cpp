@@ -520,8 +520,12 @@ antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
 
 	if (typeName.empty())
 	{
-		type = nullptr;
-	} else if (typeName == L"int")
+		if(isShort || isLong || isUnsigned){
+			typeName = L"int";
+		}
+	}
+
+	if (typeName == L"int")
 	{
 		unsigned char len = 32;
 		if (isShort) len = 16;

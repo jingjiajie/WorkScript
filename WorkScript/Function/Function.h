@@ -18,7 +18,7 @@ namespace WorkScript
                 : parameterTypes(paramTypes), llvmFunction(func)
         {}
 
-        bool match(std::vector<Type *> paramTypes) noexcept;
+        bool match(const std::vector<Type *> &paramTypes) noexcept;
 
         inline llvm::Function *getLLVMFunction() noexcept
         { return this->llvmFunction; }
