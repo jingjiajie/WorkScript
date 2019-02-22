@@ -12,12 +12,12 @@ using namespace WorkScript;
 using namespace std;
 
 WorkScript::AbstractContext::AbstractContext(const DebugInfo &d, AbstractContext * base, size_t blockID) noexcept
-	:base(base), program(base->program), blockID(blockID), prefix(base?base->prefix + L"." + to_wstring(blockID):L""), abstractSymbolTable(prefix), debugInfo(d)
+	:base(base), program(base->program), blockID(blockID), blockPrefix(base?base->blockPrefix + L"." + to_wstring(blockID):L""), abstractSymbolTable(blockPrefix), debugInfo(d)
 {
 }
 
 AbstractContext::AbstractContext(const DebugInfo &d, Program *p) noexcept
-: base(nullptr), program(p), blockID(0), prefix(L"")
+: base(nullptr), program(p), blockID(0), blockPrefix(L"")
 {
 }
 
@@ -181,4 +181,15 @@ std::vector<Function *> AbstractContext::getFunctions(const DebugInfo &d, const 
 		funcs.insert(funcs.end(), baseFuncs.begin(), baseFuncs.end());
 	}
 	return funcs;
+}
+
+std::vector<FunctionFragment*> AbstractContext::getLocalFunctionFragments(const DebugInfo &d, const std::wstring &name) noexcept
+{
+	vector<FunctionFragment *> fragments;
+	const auto &itLocalFragment = this->fragments.find(name);
+	if (itLocalFragment != this->fragments.end())
+	{
+		fragments = itLocalFragment->second;
+	}
+	return fragments;
 }

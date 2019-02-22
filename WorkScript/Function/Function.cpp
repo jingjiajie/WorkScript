@@ -20,9 +20,10 @@ Function::Function(
 
 }
 
-std::wstring Function::getMangledFunctionName(const DebugInfo &d, const std::vector<Type*> &paramTypes) const noexcept
+std::wstring Function::getMangledFunctionName(const DebugInfo &d, AbstractContext *ctx, const std::vector<Type*> &paramTypes) const noexcept
 {
     wstringstream ss;
+    ss << ctx->getBlockPrefix();
     ss << this->getName();
     for (auto paramType : paramTypes)
     {
@@ -51,24 +52,20 @@ llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *c
     //如果没找到，则新生成一个LLVM Function
     if (!matchedFunc)
     {
-        //生成函数类型
-        vector<llvm::Type *> llvmParamTypes;
-        llvmParamTypes.reserve(paramTypes.size() + 1);
-        for (size_t i = 0; i < this->type->getParameterCount(); ++i)
-        {
-            Type *paramType = paramTypes[i];
-            llvmParamTypes.push_back(paramType->getLLVMType(context));
-        }
-        llvm::FunctionType *funcType = llvm::FunctionType::get(myReturnType->getLLVMType(context), llvmParamTypes,
-                                                               this->type->isRumtimeVarargs());
-        //创建函数声明
+        /*创建函数声明，
+         * 如果在当前AbstractContext中仅有唯一一个名称相符的Fragment，
+         * 并且mayBeNative，生成本地函数：不进行命名粉碎，但要加上BlockPrefix前缀（globalAbstractContext的前缀为空）
+         */
+        auto sameNameFragmentsInBlock = this->baseContext->getLocalFunctionFragments(d, this->name);
+        bool isNative = sameNameFragmentsInBlock.size() == 1 && sameNameFragmentsInBlock[0]->mayBeNative();
+        FunctionFragment *nativeFragment = nullptr;
         wstring funcName;
-        if (this->baseContext->getFunctions(d, this->name).size() > 1)
+        if(isNative){
+            nativeFragment = sameNameFragmentsInBlock[0];
+            funcName = this->baseContext->getBlockPrefix() + this->name;
+        }else
         {
-            funcName = this->getMangledFunctionName(d, paramTypes);
-        } else
-        {
-            funcName = this->name;
+            funcName = this->getMangledFunctionName(d, this->baseContext, paramTypes);
         }
         llvm::Function::LinkageTypes linkageType;
         switch(this->linkageType.getClassification()){
@@ -80,23 +77,60 @@ llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *c
                 break;
         }
 
-        llvm::Function *func =
-                llvm::Function::Create(funcType,
-                                       linkageType,
-                                       Locales::fromWideChar(Encoding::ANSI, funcName),
-                                       context->getLLVMModule()
-                );
-        //添加函数参数名
-        //参数名为@0,@1...
-        auto itArg = func->arg_begin();
-        for (size_t i = 0; i < llvmParamTypes.size(); ++i)
+        llvm::Type *llvmReturnType = myReturnType->getLLVMType(context);
+        llvm::Function *func = nullptr;
+        //创建函数
+        if(isNative)
         {
-            itArg->setName(Locales::fromWideChar(Encoding::ANSI, L"@" + to_wstring(i)));
-            ++itArg;
+            //生成函数类型
+            vector<llvm::Type *> llvmParamTypes;
+            llvmParamTypes.reserve(paramTypes.size() + 1);
+            for (size_t i = 0; i < nativeFragment->getParameterCount(); ++i)
+            {
+                Type *paramType = paramTypes[i];
+                llvmParamTypes.push_back(paramType->getLLVMType(context));
+            }
+            llvm::FunctionType *funcType = llvm::FunctionType::get(llvmReturnType, llvmParamTypes,
+                                                                   nativeFragment->isRuntimeVarargs());
+            func = llvm::Function::Create(funcType,
+                                   linkageType,
+                                   Locales::fromWideChar(Encoding::ANSI, funcName),
+                                   context->getLLVMModule()
+            );
+            //参数名为声明的形参名
+            auto itArg = func->arg_begin();
+            for (size_t i = 0; i < nativeFragment->getParameterCount(); ++i)
+            {
+                itArg->setName(Locales::fromWideChar(Encoding::ANSI, nativeFragment->getParameter(i)->getName()));
+                ++itArg;
+            }
+        }else{
+            //生成函数类型
+            vector<llvm::Type *> llvmParamTypes;
+            llvmParamTypes.reserve(paramTypes.size() + 1);
+            for (size_t i = 0; i < this->type->getParameterCount(); ++i)
+            {
+                Type *paramType = paramTypes[i];
+                llvmParamTypes.push_back(paramType->getLLVMType(context));
+            }
+            llvm::FunctionType *funcType = llvm::FunctionType::get(llvmReturnType, llvmParamTypes,
+                                                                   this->type->isRumtimeVarargs());
+            func = llvm::Function::Create(funcType,
+                                          linkageType,
+                                          Locales::fromWideChar(Encoding::ANSI, funcName),
+                                          context->getLLVMModule()
+            );
+            //参数名为@0,@1...
+            auto itArg = func->arg_begin();
+            for (size_t i = 0; i < llvmParamTypes.size(); ++i)
+            {
+                itArg->setName(Locales::fromWideChar(Encoding::ANSI, L"@" + to_wstring(i)));
+                ++itArg;
+            }
         }
         this->llvmFunctions.push_back(ParamTypesAndLLVMFunction(paramTypes, func));
         matchedFunc = func;
-        if(!declareOnly) this->generateLLVMIR(d, context, paramTypes);
+        if(!declareOnly && !isNative) this->generateLLVMIR(d, context, paramTypes);
     }
     return matchedFunc;
 }
@@ -183,7 +217,7 @@ GenerateResult Function::generateLLVMIR(const DebugInfo &d, GenerateContext *con
 	    ex.rethrowAbove(CancelScope::FUNCTION);
         throw CancelException(CancelScope::EXPRESSION);
 	}
-    //如果没有实现，则只生成函数声明，且不进行命名粉碎
+    //如果没有实现，则只生成函数声明
     if (!this->fragments.empty())
     {
 		Type *returnType = this->getReturnType(d, context, paramTypes);

@@ -241,7 +241,7 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionDefine(WorkScriptParser::FunctionD
 
     //将Fragment加入到外层的AbstractContext中
     //TODO 函数的const修饰符
-    auto fragment = new FunctionFragment(getDebugInfo(this, ctx), outerAbstractContext, funcName, params, false, isRuntimeVarargs, staticVarargsName, linkageType,constraints,impls);
+    auto fragment = new FunctionFragment(getDebugInfo(this, ctx), outerAbstractContext, funcName, params, false, isRuntimeVarargs, staticVarargsName, linkageType,constraints,impls, declReturnType);
     outerAbstractContext->addFunctionFragment(fragment);
 	AbstractContext *innerAbstractCtx = fragment->getContext();
 	this->abstractContexts.push(innerAbstractCtx);
@@ -285,13 +285,13 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDecl(WorkScriptPars
 		Type *paramType = paramItemsCtx[i]->type()->accept(this).as<TypeWrapper>().getType();
 		size_t pointerLevel = paramItemsCtx[i]->STAR().size();
 		if (pointerLevel > 0) paramType = PointerType::get(paramType, pointerLevel);
-		params.push_back(new Parameter(paramName, paramType, true));
+		params.push_back(new Parameter(paramName, paramType));
 		paramTypes.push_back(paramType);
 	}
 	bool isRuntimeVarargs = ctx->stdFormalParameter()->runtimeVarargs() != nullptr;
 	//TODO FunctionQuery的isConst参数未处理
 	FunctionFragment *fragment = new FunctionFragment(getDebugInfo(this, ctx), outerAbstractContext, funcName, params,
-													  false, isRuntimeVarargs, nullopt, linkageType, {}, {});
+													  false, isRuntimeVarargs, nullopt, linkageType, {}, {}, returnType);
 	outerAbstractContext->addFunctionFragment(fragment);
 	return nullptr;
 }

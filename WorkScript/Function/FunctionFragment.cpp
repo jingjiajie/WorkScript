@@ -20,8 +20,9 @@ FunctionFragment::FunctionFragment(const DebugInfo &d,
 		const std::optional<std::wstring> &staticVarargsName,
 		const LinkageType &lt,
 		const std::vector<Expression*>& constraints,
-		const std::vector<Expression*>& implements) noexcept
-	:name(name), context(d, ctx, ctx->getFunctionFragmentCount()),parameters(params),
+		const std::vector<Expression*>& implements,
+		Type *declReturnType) noexcept
+	:name(name), context(d, ctx, ctx->getFunctionFragmentCount()),parameters(params),declReturnType(declReturnType),
 	_staticVarargs(staticVarargsName.has_value()), staticVarargsName(staticVarargsName.value_or(L"")), _runtimeVarargs(isRuntimeVarargs),
 	_const(isConst), linkageType(lt), constraints(constraints), implements(implements)
 {
@@ -39,6 +40,7 @@ WorkScript::FunctionFragment::~FunctionFragment() noexcept
 
 Type * FunctionFragment::getReturnType(const DebugInfo &d, InstantialContext * ctx, const std::vector<Type*> &paramTypes)
 {
+    if(this->declReturnType) return this->declReturnType;
 	size_t implCount = this->implements.size();
 	if (implCount == 0)return VoidType::get();
     InstantialContext innerCtx(ctx, to_wstring(this->context.getBlockID()));
@@ -99,15 +101,13 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * context,
     llvm::BasicBlock *fragmentBlock = llvm::BasicBlock::Create(*context->getLLVMContext(), "branch", llvmFunc);
     llvm::IRBuilder<> &builder = *context->getIRBuilder();
     builder.SetInsertPoint(fragmentBlock);
-    vector<llvm::Value *> llvmArgs;
-    llvmArgs.reserve(paramTypes.size());
 
+    //将具名实参加入符号表
     auto itLLVMArg = llvmFunc->arg_begin();
     for (size_t i = 0; i < myParamCount; ++i, ++itLLVMArg)
     {
         //获取参数的LLVM Argument
         llvm::Argument *llvmArg = itLLVMArg;
-        llvmArgs.push_back(llvmArg);
         //获取当前分支参数的符号信息，加入符号表
         Parameter *myParam = this->parameters[i];
         SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), myParam->getName(), paramTypes[i],
@@ -117,22 +117,40 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * context,
         builder.CreateStore(llvmArg, myLLVMParamPtr);
     }
 
+    /*动态变参的处理：
+     * fragment的constraint部分生成在父级Block里，为fragment的implements单独生成一个stub函数。
+     * 若constraint匹配成功，则生成impl的Block，在block里插入一行call，调用并返回stub函数的结果。
+     * 在生成stub函数之前，将有名字的形参对应的实参加入符号表。然后将所有的implements都生成在stub函数里。
+     * */
     if (this->_runtimeVarargs)
     {
         if (realParamCount < myParamCount)
         {
             throw InternalException(L"参数个数匹配错误");
         }
-        vector<llvm::Type*> llvmParamTypes;
+        //将所有实参都加进llvmArgs，用来生成stub
+        vector < llvm::Value * > llvmArgs;
+        llvmArgs.reserve(paramTypes.size());
+        auto it = llvmFunc->arg_begin();
+        for (size_t i = 0; i < paramTypes.size(); ++i, ++it)
+        {
+            //获取参数的LLVM Argument
+            llvm::Argument *llvmArg = it;
+            llvmArgs.push_back(llvmArg);
+        }
+
+        vector < llvm::Type * > llvmParamTypes;
         llvmParamTypes.reserve(this->parameters.size());
-        for(size_t i=0;i< this->parameters.size();++i)
+        for (size_t i = 0; i < this->parameters.size(); ++i)
         {
             llvmParamTypes.push_back(llvmFunc->getFunctionType()->getParamType(i));
         }
 
         auto llvmReturnType = llvmFunc->getReturnType();
+        //TODO name应该命名粉碎
         llvm::Function *stubFunc = llvm::Function::Create(
-                llvm::FunctionType::get(llvmReturnType, llvmParamTypes, true),llvm::Function::ExternalLinkage);
+                llvm::FunctionType::get(llvmReturnType, llvmParamTypes, true), llvm::Function::ExternalLinkage,
+                Locales::fromWideChar(Encoding::ANSI, this->name), context->getLLVMModule());
         llvm::BasicBlock *stubEntry = nullptr, *implBlock = nullptr;
         try
         {
@@ -171,7 +189,8 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * context,
         builder.CreateRet(stubRet);
         return fragmentBlock;
     } else
-    { //不是动态变参
+    /*======================不是动态变参（静态变参或者无变参的处理）=======================*/
+    {
         if (this->_staticVarargs)    //如果是静态变参，将多余的实参组合成MultiValue，放进符号表里。
         {
             if (realParamCount < myParamCount)
@@ -213,13 +232,13 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * context,
         catch (const CancelException &ex)
         {
             ex.rethrowAbove(CancelScope::FUNCTION_FRAGMENT);
-            fragmentBlock->removeFromParent();
-            fragmentBlock->deleteValue();
-            if (implBlock)
+            if (implBlock != fragmentBlock)
             {
                 implBlock->removeFromParent();
                 implBlock->deleteValue();
             }
+            fragmentBlock->removeFromParent();
+            fragmentBlock->deleteValue();
             throw CancelException(CancelScope::EXPRESSION);
         }
         return fragmentBlock;
@@ -299,4 +318,15 @@ void FunctionFragment::generateImplements(GenerateContext *context, llvm::BasicB
             continue;
         }
     }
+}
+
+bool FunctionFragment::mayBeNative() const noexcept
+{
+    if(!this->declReturnType) return false;
+    if(!this->linkageType.equals(LinkageType::EXTERNAL)) return false;
+    for(size_t i=0; i<this->parameters.size(); ++i)
+    {
+        if(!this->parameters[i]->getType()) return false;
+    }
+    return true;
 }

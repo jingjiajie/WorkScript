@@ -19,11 +19,13 @@ namespace WorkScript {
 		        const std::optional<std::wstring> &staticVarargsName,
 		        const LinkageType &lt,
 		        const std::vector<Expression*> &constraints,
-		        const std::vector<Expression*> &implements) noexcept;
+		        const std::vector<Expression*> &implements,
+		        Type *declReturnType = nullptr) noexcept;
 
 		~FunctionFragment() noexcept;
 
 		bool match(const DebugInfo &d, const FunctionQuery &query) noexcept;
+		bool mayBeNative() const noexcept;
 		Type *getReturnType(const DebugInfo &d, InstantialContext *instCtx, const std::vector<Type*> &paramTypes);
 		llvm::BasicBlock * generateBlock(GenerateContext *context,
 										 const std::vector<Type*> &paramTypes,
@@ -35,14 +37,17 @@ namespace WorkScript {
 		inline const DebugInfo & getDebugInfo() const noexcept{ return this->context.getDebugInfo(); };
 		inline Parameter * getParameter(size_t index) noexcept{ return this->parameters[index]; }
 		inline const std::vector<Parameter*> & getParameters() const noexcept{ return this->parameters; }
+		inline size_t getParameterCount() const noexcept{ return this->parameters.size();}
 		inline size_t getBlockID() const noexcept{ return this->context.getBlockID(); }
 		inline AbstractContext * getContext() noexcept{ return &this->context; }
 		inline const LinkageType & getLinkageType() const noexcept{return this->linkageType;}
 		inline bool isConst() const noexcept{return this->_const;}
-		inline bool isStaticVarargs() const noexcept{return this->_staticVarargs;}
+		inline bool isStaticVarargs() const noexcept {return this->_staticVarargs;}
+		inline bool isRuntimeVarargs() const noexcept{ return this->_runtimeVarargs;}
 	private:
 	    std::wstring name;
 		std::vector<Parameter*> parameters;
+		Type *declReturnType = nullptr;
 		bool _staticVarargs = false;
 		std::wstring staticVarargsName;
 		bool _runtimeVarargs = false;

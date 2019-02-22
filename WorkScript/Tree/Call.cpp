@@ -33,6 +33,7 @@ GenerateResult Call::generateIR(GenerateContext * context) {
 	}
 	//生成LLVM函数调用
 	auto builder = context->getIRBuilder();
+	//TODO 根据函数的形参类型需要转换实参类型，而不是完全按实参类型调用
 	auto llvmArgs = this->parameters->getLLVMValues(context, paramTypes);
 	llvm::Function *llvmFunc = func->getLLVMFunction(this->getDebugInfo(),
 			context, paramTypes);

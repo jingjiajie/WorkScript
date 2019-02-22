@@ -16,12 +16,11 @@ Type * WorkScript::Parameter::getType(InstantialContext *ctx)
 
 Parameter::~Parameter()
 {
-	if (this->defaultValue)
-		delete this->defaultValue;
+	delete this->defaultValue;
 }
 
-void Parameter::setDefaultValue(WorkScript::Value *value)
+void Parameter::setDefaultValue(WorkScript::Value *value) noexcept
 {
-	if (this->defaultValue)delete this->defaultValue;
+	delete this->defaultValue;
 	this->defaultValue = value;
 }

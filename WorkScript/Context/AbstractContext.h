@@ -17,6 +17,7 @@ namespace WorkScript {
 		AbstractContext(const DebugInfo &d, Program *p) noexcept;
 		~AbstractContext() noexcept;
 		inline size_t getBlockID() const noexcept{ return this->blockID; }
+		inline const std::wstring &getBlockPrefix() const noexcept {return this->blockPrefix;}
 		inline const SymbolInfo * getSymbolInfo(const std::wstring &name) const noexcept { return this->abstractSymbolTable.getSymbolInfo(name); }
 		inline SymbolInfo * getSymbolInfo(const std::wstring &name) noexcept { return this->abstractSymbolTable.getSymbolInfo(name);}
 		inline SymbolInfo * setSymbol (const DebugInfo &d, const std::wstring &name, Type *type, LinkageType lt) noexcept { return this->abstractSymbolTable.setSymbol(d, name, type, lt); }
@@ -27,6 +28,9 @@ namespace WorkScript {
         void addFunction(Function *func);
 
 		void addFunctionFragment(FunctionFragment *fragment);
+		std::vector<FunctionFragment*> getLocalFunctionFragments(const DebugInfo &d, const FunctionQuery &query) noexcept;
+		std::vector<FunctionFragment*> getLocalFunctionFragments(const DebugInfo &d, const std::wstring &name) noexcept;
+		std::vector<FunctionFragment*> getFunctionFragments(const DebugInfo &d, const FunctionQuery &query) noexcept;
 		size_t getFunctionFragmentCount() const{return this->fragments.size();}
 
 		const DebugInfo &getDebugInfo() const noexcept;
@@ -41,14 +45,11 @@ namespace WorkScript {
 		AbstractContext * base;
 		Program *program = nullptr;
 		size_t blockID = 0;
-		std::wstring prefix;
+		std::wstring blockPrefix;
 		SymbolTable abstractSymbolTable;
 		std::unordered_map<std::wstring, std::vector<Function*>> functions;
 		std::unordered_map<std::wstring, std::vector<FunctionFragment*>> fragments;
 		std::unordered_map<std::wstring, Type*> types;
 		DebugInfo debugInfo;
-
-		std::vector<FunctionFragment*> getLocalFunctionFragments(const DebugInfo &d, const FunctionQuery &query) noexcept;
-		std::vector<FunctionFragment*> getFunctionFragments(const DebugInfo &d, const FunctionQuery &query) noexcept;
 	};
 }
