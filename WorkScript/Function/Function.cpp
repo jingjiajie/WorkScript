@@ -20,11 +20,15 @@ Function::Function(
 
 }
 
-std::wstring Function::getMangledFunctionName(const DebugInfo &d, AbstractContext *ctx, const std::vector<Type*> &paramTypes) const noexcept
+std::wstring Function::getMangledFunctionName(const DebugInfo &d, const std::vector<Type*> &paramTypes) const noexcept
+{
+    return Function::getMangledFunctionName(d, this->baseContext ,this->getName(), paramTypes);
+}
+
+std::wstring Function::getMangledFunctionName(const DebugInfo &d, AbstractContext *ctx, const wstring &name, const vector<Type *> &paramTypes) noexcept
 {
     wstringstream ss;
-    ss << ctx->getBlockPrefix();
-    ss << this->getName();
+    ss << ctx->getBlockPrefix() << name;
     for (auto paramType : paramTypes)
     {
         ss << L"@" << paramType->getName();
@@ -41,34 +45,24 @@ llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *c
         if (this->llvmFunctions[i].match(paramTypes)) matchedFunc = this->llvmFunctions[i].getLLVMFunction();
     }
 
-	Type *myReturnType = nullptr;
-	try { //获取返回值类型，如果遇到CanceledException，则不管是不是SFINAE，都抛错
-		myReturnType = this->getReturnType(d, outerInstCtx, paramTypes);
-	}
-	catch (const CancelException &ex) {
-	    ex.rethrowAbove(CancelScope::FUNCTION);
-		throw CancelException(CancelScope::EXPRESSION);
-	}
+    Type *myReturnType = nullptr;
+    try
+    { //获取返回值类型，如果遇到CanceledException，则不管是不是SFINAE，都抛错
+        myReturnType = this->getReturnType(d, outerInstCtx, paramTypes);
+    }
+    catch (const CancelException &ex)
+    {
+        ex.rethrowAbove(CancelScope::FUNCTION);
+        throw CancelException(CancelScope::EXPRESSION);
+    }
     //如果没找到，则新生成一个LLVM Function
     if (!matchedFunc)
     {
-        /*创建函数声明，
-         * 如果在当前AbstractContext中仅有唯一一个名称相符的Fragment，
-         * 并且mayBeNative，生成本地函数：不进行命名粉碎，但要加上BlockPrefix前缀（globalAbstractContext的前缀为空）
-         */
-        auto sameNameFragmentsInBlock = this->baseContext->getLocalFunctionFragments(d, this->name);
-        bool isNative = sameNameFragmentsInBlock.size() == 1 && sameNameFragmentsInBlock[0]->mayBeNative();
-        FunctionFragment *nativeFragment = nullptr;
         wstring funcName;
-        if(isNative){
-            nativeFragment = sameNameFragmentsInBlock[0];
-            funcName = this->baseContext->getBlockPrefix() + this->name;
-        }else
-        {
-            funcName = this->getMangledFunctionName(d, this->baseContext, paramTypes);
-        }
+        funcName = this->getMangledFunctionName(d, paramTypes);
         llvm::Function::LinkageTypes linkageType;
-        switch(this->linkageType.getClassification()){
+        switch (this->linkageType.getClassification())
+        {
             case LinkageType::Classification::EXTERNAL:
                 linkageType = llvm::Function::LinkageTypes::ExternalLinkage;
                 break;
@@ -80,57 +74,31 @@ llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *c
         llvm::Type *llvmReturnType = myReturnType->getLLVMType(context);
         llvm::Function *func = nullptr;
         //创建函数
-        if(isNative)
+        //生成函数类型
+        vector<llvm::Type *> llvmParamTypes;
+        llvmParamTypes.reserve(paramTypes.size() + 1);
+        for (size_t i = 0; i < paramTypes.size(); ++i)
         {
-            //生成函数类型
-            vector<llvm::Type *> llvmParamTypes;
-            llvmParamTypes.reserve(paramTypes.size() + 1);
-            for (size_t i = 0; i < nativeFragment->getParameterCount(); ++i)
-            {
-                Type *paramType = paramTypes[i];
-                llvmParamTypes.push_back(paramType->getLLVMType(context));
-            }
-            llvm::FunctionType *funcType = llvm::FunctionType::get(llvmReturnType, llvmParamTypes,
-                                                                   nativeFragment->isRuntimeVarargs());
-            func = llvm::Function::Create(funcType,
-                                   linkageType,
-                                   Locales::fromWideChar(Encoding::ANSI, funcName),
-                                   context->getLLVMModule()
-            );
-            //参数名为声明的形参名
-            auto itArg = func->arg_begin();
-            for (size_t i = 0; i < nativeFragment->getParameterCount(); ++i)
-            {
-                itArg->setName(Locales::fromWideChar(Encoding::ANSI, nativeFragment->getParameter(i)->getName()));
-                ++itArg;
-            }
-        }else{
-            //生成函数类型
-            vector<llvm::Type *> llvmParamTypes;
-            llvmParamTypes.reserve(paramTypes.size() + 1);
-            for (size_t i = 0; i < this->type->getParameterCount(); ++i)
-            {
-                Type *paramType = paramTypes[i];
-                llvmParamTypes.push_back(paramType->getLLVMType(context));
-            }
-            llvm::FunctionType *funcType = llvm::FunctionType::get(llvmReturnType, llvmParamTypes,
-                                                                   this->type->isRumtimeVarargs());
-            func = llvm::Function::Create(funcType,
-                                          linkageType,
-                                          Locales::fromWideChar(Encoding::ANSI, funcName),
-                                          context->getLLVMModule()
-            );
-            //参数名为@0,@1...
-            auto itArg = func->arg_begin();
-            for (size_t i = 0; i < llvmParamTypes.size(); ++i)
-            {
-                itArg->setName(Locales::fromWideChar(Encoding::ANSI, L"@" + to_wstring(i)));
-                ++itArg;
-            }
+            Type *paramType = paramTypes[i];
+            llvmParamTypes.push_back(paramType->getLLVMType(context));
+        }
+        llvm::FunctionType *funcType = llvm::FunctionType::get(llvmReturnType, llvmParamTypes,
+                                                               this->type->isRumtimeVarargs());
+        func = llvm::Function::Create(funcType,
+                                      linkageType,
+                                      Locales::fromWideChar(Encoding::ANSI, funcName),
+                                      context->getLLVMModule()
+        );
+        //参数名为@0,@1...
+        auto itArg = func->arg_begin();
+        for (size_t i = 0; i < llvmParamTypes.size(); ++i)
+        {
+            itArg->setName(Locales::fromWideChar(Encoding::ANSI, L"@" + to_wstring(i)));
+            ++itArg;
         }
         this->llvmFunctions.push_back(ParamTypesAndLLVMFunction(paramTypes, func));
         matchedFunc = func;
-        if(!declareOnly && !isNative) this->generateLLVMIR(d, context, paramTypes);
+        if (!declareOnly) this->generateLLVMIR(d, context, paramTypes);
     }
     return matchedFunc;
 }
@@ -168,7 +136,8 @@ Type *Function::getReturnType(const DebugInfo &d, InstantialContext *instCtx,con
     FunctionType *cachedFuncType = nullptr;
     Type *returnType = nullptr;
     FunctionType *queryType = FunctionType::get(paramTypes, nullptr, this->type->isRumtimeVarargs(), this->type->isConst());
-    if (!instCtx->getCachedFunctionType(d, this, FunctionTypeQuery(paramTypes,this->type->isConst()), &cachedFuncType))
+    if (!instCtx->getCachedFunctionType(d, this, FunctionTypeQuery(paramTypes,this->type->isConst(), this->type->isRumtimeVarargs(),
+                                                                   true), &cachedFuncType))
     {
         instCtx->cacheFunctionType(d, this, queryType);
 		size_t fragmentCanceledCount = 0;

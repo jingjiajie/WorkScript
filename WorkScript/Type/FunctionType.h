@@ -17,7 +17,6 @@ namespace WorkScript {
 
 		TypeClassification getClassification() const noexcept override;
 		llvm::Type* getLLVMType(GenerateContext *context) const override;
-		bool equals(const Type *type) const noexcept override;
 		std::wstring getName() const noexcept override;
 		std::wstring getIdentifierString() const noexcept override;
 		static std::wstring getIdentifierString(const std::vector<Type*>& paramTypes, Type * returnType, bool isRuntimeVarargs, bool isConst) noexcept;
@@ -26,6 +25,7 @@ namespace WorkScript {
 		inline Type * getReturnType() noexcept{ return this->returnType; }
 		inline bool isRumtimeVarargs() const noexcept{ return this->rumtimeVarargs; }
 		inline bool isConst() const noexcept{return this->_const;}
+		bool equals(const Type *type) const noexcept override;
 		bool match(const DebugInfo &d, const FunctionTypeQuery &query)const noexcept;
 		static bool match(const DebugInfo &d,const FunctionType *declType, const FunctionTypeQuery &query)noexcept;
 

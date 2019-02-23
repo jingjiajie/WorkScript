@@ -25,7 +25,7 @@ namespace WorkScript {
 		~FunctionFragment() noexcept;
 
 		bool match(const DebugInfo &d, const FunctionQuery &query) noexcept;
-		bool mayBeNative() const noexcept;
+		bool isNative() noexcept;
 		Type *getReturnType(const DebugInfo &d, InstantialContext *instCtx, const std::vector<Type*> &paramTypes);
 		llvm::BasicBlock * generateBlock(GenerateContext *context,
 										 const std::vector<Type*> &paramTypes,
@@ -57,7 +57,16 @@ namespace WorkScript {
 		std::vector<Expression*> implements;
 		AbstractContext context;
 
+		bool canBeNative() const noexcept;
 		void generateConstraints(GenerateContext *context, llvm::Function *llvmFunc, llvm::BasicBlock *falseBlock, llvm::BasicBlock **outMatchedBlock);
 		void generateImplements(GenerateContext *context, llvm::BasicBlock *block, Type *returnType);
+		llvm::BasicBlock *generateStubBlock(GenerateContext *outerCtx,
+											GenerateContext *innerCtx,
+											const std::vector<Type*> &paramTypes,
+											Type *returnType,
+											llvm::Function *llvmFunc,
+											llvm::BasicBlock *fragmentBlock,
+											llvm::BasicBlock *falseBlock,
+											bool isNative);
 	};
 }

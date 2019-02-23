@@ -16,6 +16,7 @@ namespace WorkScript {
 		AbstractContext(const DebugInfo &d, AbstractContext *base, size_t blockID) noexcept;
 		AbstractContext(const DebugInfo &d, Program *p) noexcept;
 		~AbstractContext() noexcept;
+		inline AbstractContext * getBaseContext() const noexcept{return this->base;}
 		inline size_t getBlockID() const noexcept{ return this->blockID; }
 		inline const std::wstring &getBlockPrefix() const noexcept {return this->blockPrefix;}
 		inline const SymbolInfo * getSymbolInfo(const std::wstring &name) const noexcept { return this->abstractSymbolTable.getSymbolInfo(name); }

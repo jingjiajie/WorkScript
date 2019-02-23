@@ -53,7 +53,7 @@ Type * Call::getType(InstantialContext *context) const {
 			auto str = this->toFunctionDeclString(context);
 			this->expressionInfo.getDebugInfo().getReport()->error(
 					UndefinedSymbolError(this->expressionInfo.getDebugInfo(),
-							L"无法n找到函数：" + str),
+							L"无法找到函数：" + str),
 					ErrorBehavior::CANCEL_EXPRESSION);
 		}
 	}

@@ -20,7 +20,7 @@ std::wstring FunctionQuery::toString() const noexcept
         ss << paramTypes[i]->getName();
     }
     ss << L")";
-    if(this->functionTypeQuery.mustConst()){
+    if(this->functionTypeQuery.isConst()){
         ss << L" const";
     }
 	return ss.str();

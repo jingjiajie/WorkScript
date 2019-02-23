@@ -1,6 +1,5 @@
 #TODO List:
-ANTLR�﷨�����ʱ������ȷ�ָ�
+ANTLR语法错误不能自动恢复
 AbstractContext���ɺ���ʱû���Ǹ��������Ѿ����ڵĺ���
-FunctionFragment��generateLLVMIRʱ�������Conditions����Cancel����ȡ��llvm Block
-FunctionFragment��generateLLVMIRʱ�������Implements����Cancel����ȡ��llvm Block
-InstantialContext直接持有SymbolTable，不要指针
+将FunctionType和FragmentType分开
+FunctionNNFragmet::generateStubBlock的fragmentBlock参数在函数内部delete了，临时设计待修改

@@ -8,15 +8,15 @@ using namespace std;
 void FunctionCache::cacheFunctionType(const WorkScript::DebugInfo &d, WorkScript::Function *func,
 									  WorkScript::FunctionType *type, const WorkScript::CancelException &ex) noexcept
 {
-	if (this->cache.find(func) == this->cache.end())
+	if (this->functionTypeCache.find(func) == this->functionTypeCache.end())
 	{
-		this->cache[func] = decltype(this->cache)::mapped_type();
+		this->functionTypeCache[func] = decltype(this->functionTypeCache)::mapped_type();
 	}
-	vector<FunctionCacheItem> &items = this->cache[func];
+	vector<FunctionTypeCacheItem> &items = this->functionTypeCache[func];
 	bool found = false;
 	for (size_t i = 0; i < items.size(); ++i)
 	{
-		if (items[i].match(d, FunctionTypeQuery(type->getParameterTypes(), type->isConst())))
+		if (items[i].match(d, FunctionTypeQuery(type->getParameterTypes(), type->isConst(), type->isRumtimeVarargs(), true)))
 		{
 			items[i].setFunctionType(type);
 			items[i].setCancelException(ex);
@@ -26,7 +26,7 @@ void FunctionCache::cacheFunctionType(const WorkScript::DebugInfo &d, WorkScript
 	}
 	if (!found)
 	{
-		items.push_back(FunctionCacheItem(type,ex));
+		items.push_back(FunctionTypeCacheItem(type,ex));
 	}
 }
 
@@ -34,15 +34,15 @@ void FunctionCache::cacheFunctionType(const WorkScript::DebugInfo &d,
                                       Function *func,
                                       WorkScript::FunctionType *type) noexcept
 {
-	if (this->cache.find(func) == this->cache.end())
+	if (this->functionTypeCache.find(func) == this->functionTypeCache.end())
 	{
-		this->cache[func] = decltype(this->cache)::mapped_type();
+		this->functionTypeCache[func] = decltype(this->functionTypeCache)::mapped_type();
 	}
-	vector<FunctionCacheItem> &items = this->cache[func];
+	vector<FunctionTypeCacheItem> &items = this->functionTypeCache[func];
 	bool found = false;
 	for (size_t i = 0; i < items.size(); ++i)
 	{
-		if (items[i].match(d, FunctionTypeQuery(type->getParameterTypes(), type->isConst())))
+		if (items[i].match(d, FunctionTypeQuery(type->getParameterTypes(), type->isConst(), type->isRumtimeVarargs(), true)))
 		{
 			items[i].setFunctionType(type);
 			found = true;
@@ -51,7 +51,7 @@ void FunctionCache::cacheFunctionType(const WorkScript::DebugInfo &d,
 	}
 	if (!found)
 	{
-		items.push_back(FunctionCacheItem(type));
+		items.push_back(FunctionTypeCacheItem(type));
 	}
 }
 
@@ -60,12 +60,12 @@ bool FunctionCache::getCachedFunctionType(const DebugInfo &d,
 										  const FunctionTypeQuery &query,
 										  FunctionType **outType) const
 {
-	const auto &it = this->cache.find(func);
-	if (it == this->cache.end())
+	const auto &it = this->functionTypeCache.find(func);
+	if (it == this->functionTypeCache.end())
 	{
 		return false;
 	}
-	const vector<FunctionCacheItem> &caches = it->second;
+	const vector<FunctionTypeCacheItem> &caches = it->second;
 	for (size_t i = 0; i < caches.size(); ++i)
 	{
 		auto &cur = caches[i];
@@ -78,7 +78,63 @@ bool FunctionCache::getCachedFunctionType(const DebugInfo &d,
 	return false;
 }
 
-bool FunctionCacheItem::match(const WorkScript::DebugInfo &d, const WorkScript::FunctionTypeQuery &query) const noexcept
+bool FunctionTypeCacheItem::match(const WorkScript::DebugInfo &d, const WorkScript::FunctionTypeQuery &query) const noexcept
 {
+	if(!query.isStrict()){
+		throw InternalException(L"FunctionTypeCacheItem::match: query必须为strict");
+	}
 	return this->functionType->match(d,query);
+}
+
+bool StubCacheItem::match(const WorkScript::DebugInfo &d, const WorkScript::FunctionTypeQuery &query) const noexcept
+{
+	if(!query.isStrict()){
+		throw InternalException(L"StubCacheItem::match: query必须为strict");
+	}
+	return this->functionType->match(d,query);
+}
+
+void FunctionCache::cacheStub(const WorkScript::DebugInfo &d, WorkScript::FunctionFragment *fragment,
+							  WorkScript::FunctionType *type, llvm::Function *stub) noexcept
+{
+	if (this->stubCache.find(fragment) == this->stubCache.end())
+	{
+		this->stubCache[fragment] = decltype(this->stubCache)::mapped_type();
+	}
+	vector<StubCacheItem> &items = this->stubCache[fragment];
+	bool found = false;
+	for (size_t i = 0; i < items.size(); ++i)
+	{
+		if (items[i].match(d, FunctionTypeQuery(type->getParameterTypes(), type->isConst(), type->isRumtimeVarargs(), true)))
+		{
+			items[i].setStub(stub);
+			found = true;
+			break;
+		}
+	}
+	if (!found)
+	{
+		items.push_back(StubCacheItem(type, stub));
+	}
+}
+
+bool FunctionCache::getCachedStub(const DebugInfo &d, FunctionFragment *fragment,
+								  const FunctionTypeQuery &query, llvm::Function **outStub) const
+{
+	const auto &it = this->stubCache.find(fragment);
+	if (it == this->stubCache.end())
+	{
+		return false;
+	}
+	const vector<StubCacheItem> &caches = it->second;
+	for (size_t i = 0; i < caches.size(); ++i)
+	{
+		auto &cur = caches[i];
+		if (cur.match(d, query))
+		{
+			*outStub = cur.getStub();
+			return true;
+		}
+	}
+	return false;
 }
