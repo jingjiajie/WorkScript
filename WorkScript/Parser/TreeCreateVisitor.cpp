@@ -92,14 +92,14 @@ antlrcpp::Any TreeCreateVisitor::visitNumber(WorkScriptParser::NumberContext *ct
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new FloatConstant(ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), FloatType::get(64), value));
+		return ExpressionWrapper(new FloatConstant(ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), FloatType::get(FloatTypeClassification::DOUBLE), value));
 	}
 	else {
 		long long int value = strtoll(ctx->INTEGER()->getText().c_str(), nullptr, 10);
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), IntegerType::get(32,true), value));
+		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), IntegerType::get(IntegerTypeClassification::INT,true), value));
 	}
 }
 
@@ -126,10 +126,10 @@ antlrcpp::Any TreeCreateVisitor::visitBoolean(WorkScriptParser::BooleanContext *
 {
 	string boolStr = ctx->BOOLEAN()->getText();
 	if (boolStr == "true" || boolStr == "yes" || boolStr == "ok" || boolStr == "good") {
-		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), IntegerType::get(1,false), 1));
+		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), IntegerType::get(IntegerTypeClassification::BOOL,false), 1));
 	}
 	else if (boolStr == "false" || boolStr == "no" || boolStr == "bad") {
-		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), IntegerType::get(1,false), 0));
+		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), IntegerType::get(IntegerTypeClassification::BOOL,false), 0));
 	}
 	else {
 		throw std::move(SyntaxError(getDebugInfo(this, ctx), L"无法识别的布尔值：" + Locales::toWideChar(Encoding::UTF_8, boolStr)));
@@ -216,9 +216,9 @@ antlrcpp::Any TreeCreateVisitor::visitFunctionDefine(WorkScriptParser::FunctionD
         }
     }
     //解析参数和限制
-    InstantialContext instCtx(this->abstractContexts.top(), this->program->getFunctionCache());
+    //InstantialContext instCtx(this->abstractContexts.top(), this->program->getFunctionCache());
     auto resolveRes = FormalParametersResolver::resolve(
-            ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), &instCtx, paramDeclTypes,
+            ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), paramDeclTypes,
             paramDeclExprs, constraintsDecl);
     auto paramTypes = resolveRes.getParameterTypes();
     auto params = resolveRes.getParameters();
@@ -522,19 +522,19 @@ antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
 
 	if (typeName == L"int")
 	{
-		unsigned char len = 32;
-		if (isShort) len = 16;
-		else if (isLong) len = 64;
-		type = IntegerType::get(len, !isUnsigned, isConst, isVolatile);
+		IntegerTypeClassification cls = IntegerTypeClassification::INT;
+		if (isShort) cls = IntegerTypeClassification::SHORT;
+		else if (isLong) cls = IntegerTypeClassification::LONG;
+		type = IntegerType::get(cls, !isUnsigned, isConst, isVolatile);
 	} else if (typeName == L"char")
 	{
-		type = IntegerType::get(8, !isUnsigned, isConst, isVolatile);
+		type = IntegerType::get(IntegerTypeClassification::CHAR, !isUnsigned, isConst, isVolatile);
 	} else if (typeName == L"bool")
 	{
-		type = IntegerType::get(1, !isUnsigned, isConst, isVolatile);
+		type = IntegerType::get(IntegerTypeClassification::BOOL, !isUnsigned, isConst, isVolatile);
 	} else if (typeName == L"float")
 	{
-		type = FloatType::get(32, isConst, isVolatile);
+		type = FloatType::get(FloatTypeClassification::FLOAT, isConst, isVolatile);
 	} else if (typeName == L"void")
 	{
 		type = VoidType::get();

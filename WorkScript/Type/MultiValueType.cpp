@@ -64,24 +64,23 @@ bool MultiValueType::equals(const Type *type) const noexcept
 }
 
 std::wstring
-MultiValueType::getIdentifierString(const std::vector<Type *> &itemTypes) noexcept
+MultiValueType::getMangledName(const std::vector<Type *> &itemTypes) noexcept
 {
     wstringstream ss;
     for(size_t i=0; i<itemTypes.size(); ++i){
-        if(i != 0) ss << L", ";
-        ss << itemTypes[i]->getIdentifierString();
+        ss << itemTypes[i]->getMangledName();
     }
     return ss.str();
 }
 
-std::wstring MultiValueType::getIdentifierString() const noexcept
+std::wstring MultiValueType::getMangledName() const noexcept
 {
-    return MultiValueType::getIdentifierString(this->itemTypes);
+    return MultiValueType::getMangledName(this->itemTypes);
 }
 
 MultiValueType *MultiValueType::get(const std::vector<Type *> &itemTypes) noexcept
 {
-    wstring idStr = MultiValueType::getIdentifierString(itemTypes);
+    wstring idStr = MultiValueType::getMangledName(itemTypes);
     auto it = types.find(idStr);
     if (it != types.end()) return it->second;
     else return (types[idStr] = new MultiValueType(itemTypes));

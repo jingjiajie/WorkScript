@@ -15,6 +15,7 @@
 #include "SyntaxErrorStrategy.h"
 #include "Exception.h"
 #include "InstantialContext.h"
+#include "StringCache.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -29,7 +30,8 @@ Program::~Program() noexcept = default;
 
 void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule)
 {
-	GenerateContext ctx(llvmContext, llvmModule, nullptr, &this->globalAbstractContext, &this->functionCache);
+	StringCache stringCache;
+	GenerateContext ctx(llvmContext, llvmModule, nullptr, &this->globalAbstractContext, &this->functionCache, &stringCache);
 	//TODO DebugInfo
 	Function *funcMain = this->globalAbstractContext.getFunction(DebugInfo(), FunctionQuery(L"main", {}, false));
 	try {

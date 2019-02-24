@@ -12,6 +12,7 @@ namespace WorkScript {
 	class FunctionCache;
 	class AbstractContext;
 	class FunctionTypeQuery;
+	class StringCache;
 
 	typedef unsigned BlockAttribute;
 	enum class BlockAttributeItem : BlockAttribute {
@@ -20,9 +21,10 @@ namespace WorkScript {
 
 	class InstantialContext {
 	public:
-		inline InstantialContext(AbstractContext *abstractContext, FunctionCache *cache,const std::wstring &blockPrefix = L"", BlockAttribute blockAttributes = 0x00) noexcept
+		inline InstantialContext(AbstractContext *abstractContext, FunctionCache *cache, StringCache *stringCache,const std::wstring &blockPrefix = L"", BlockAttribute blockAttributes = 0x00) noexcept
 			:abstractContext(abstractContext),
 			functionCache(cache),
+			stringCache(stringCache),
 			blockAttributes(blockAttributes),
 			instanceSymbolTable(blockPrefix)
 		{ }
@@ -30,6 +32,7 @@ namespace WorkScript {
 		inline InstantialContext(const InstantialContext *base, const std::wstring &blockPrefix = L"") noexcept
 			:abstractContext(base->abstractContext),
 			functionCache(base->functionCache),
+			stringCache(base->stringCache),
 			blockAttributes(base->blockAttributes),
 			instanceSymbolTable(blockPrefix)
 		{ }
@@ -53,10 +56,15 @@ namespace WorkScript {
 		inline bool getBlockAttribute(BlockAttributeItem item) const noexcept{
 			return (bool)(this->blockAttributes & (BlockAttribute)item);
 		}
+
+		inline StringCache * getStringCache() const noexcept{
+		    return this->stringCache;
+		}
 	protected:
 		AbstractContext * abstractContext = nullptr;
 		SymbolTable instanceSymbolTable;
 		FunctionCache *functionCache = nullptr;
+		StringCache *stringCache = nullptr;
 		BlockAttribute blockAttributes = 0;
 	};
 }

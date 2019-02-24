@@ -38,7 +38,7 @@ namespace WorkScript
                  LinkageType lt = LinkageType::EXTERNAL) noexcept;
 
         std::wstring getMangledFunctionName(const DebugInfo &d, const std::vector<Type*> &paramTypes) const noexcept;
-        static std::wstring getMangledFunctionName(const DebugInfo &d, AbstractContext *ctx, const std::wstring &name, const std::vector<Type*> &paramTypes) noexcept;
+        static std::wstring getMangledFunctionName(const DebugInfo &d, const std::wstring &name, const std::vector<Type*> &paramTypes, bool isRuntimeVarargs) noexcept;
         llvm::Function *
         getLLVMFunction(const DebugInfo &d, GenerateContext *context,const std::vector<Type*> &paramTypes, bool declareOnly = false);
 

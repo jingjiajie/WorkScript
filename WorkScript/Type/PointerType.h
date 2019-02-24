@@ -9,7 +9,7 @@ namespace WorkScript {
 	class PointerType : public Type {
 	public:
 		std::wstring getName() const noexcept override;
-		std::wstring getIdentifierString()const noexcept override;
+		std::wstring getMangledName()const noexcept override;
 		TypeClassification getClassification() const noexcept override;
 		llvm::Type* getLLVMType(GenerateContext *context) const override;
 		bool equals(const Type *type) const noexcept override;
@@ -18,7 +18,7 @@ namespace WorkScript {
 		inline Type * getTargetType() const noexcept{ return this->targetType; }
 		inline size_t getLevel() const noexcept{ return this->level; }
 
-		static std::wstring getIdentifierString(Type *targetType, size_t level, bool isConst = false, bool isVolatile = false) noexcept;
+		static std::wstring getMangledName(Type *targetType, size_t level, bool isConst = false, bool isVolatile = false) noexcept;
 		static PointerType * get(Type *targetType, size_t pointerLevel, bool isConst = false, bool isVolatile = false) noexcept;
 	protected:
 		Type * targetType = nullptr;

@@ -19,7 +19,7 @@ Value * WorkScript::FloatConstant::clone() const
 	return new FloatConstant(this->expressionInfo, type, value);
 }
 
-Type * WorkScript::FloatConstant::getType(InstantialContext *ctx) const
+Type * WorkScript::FloatConstant::getType() const noexcept
 {
 	return this->type;
 }

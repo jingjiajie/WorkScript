@@ -4,7 +4,7 @@
 using namespace WorkScript;
 using namespace std;
 
-Type * WorkScript::IntegerConstant::getType(InstantialContext *ctx) const
+Type * WorkScript::IntegerConstant::getType() const noexcept
 {
 	return this->type;
 }

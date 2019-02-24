@@ -2,27 +2,32 @@
 #include "Type.h"
 
 namespace WorkScript {
+    enum class FloatTypeClassification{
+        FLOAT, DOUBLE
+    };
+
 	class FloatType : public Type {
 	public:
 		std::wstring getName()const noexcept override;
-		std::wstring getIdentifierString()const noexcept override;
-		static std::wstring getIdentifierString(unsigned char length, bool isConst, bool isVolatile) noexcept;
+		std::wstring getMangledName()const noexcept override;
+		static std::wstring getMangledName(FloatTypeClassification cls, bool isConst, bool isVolatile) noexcept;
 		TypeClassification getClassification() const noexcept override;
 		llvm::Type* getLLVMType(GenerateContext *context) const override;
 		bool equals(const Type *type) const noexcept override;
 
-		inline unsigned char getLength() const noexcept{ return this->length; }
+		unsigned getLength() const noexcept;
+
 		inline bool isConst() const noexcept{ return this->_const; }
 		inline bool isVolatile() const noexcept{ return this->_volatile; }
 
-		static FloatType * get(unsigned char length = 32, bool isConst = false, bool isVolatile = false) noexcept;
+		static FloatType * get(FloatTypeClassification cls, bool isConst = false, bool isVolatile = false) noexcept;
 	protected:
-		unsigned char length;
+        FloatTypeClassification classification;
 		bool _const = false;
 		bool _volatile = false;
 		static std::unordered_map<std::wstring, FloatType*> types;
         static Finalizer staticFinalizer;
 		static void releaseTypes() noexcept;
-		FloatType(unsigned char length, bool isConst, bool isVolatile) noexcept;
+		FloatType(FloatTypeClassification cls, bool isConst, bool isVolatile) noexcept;
 	};
 }

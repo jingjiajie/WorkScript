@@ -68,7 +68,7 @@ Type * FunctionFragment::getReturnType(const DebugInfo &d, InstantialContext * c
 		instSymbolTable.setSymbol(d, this->staticVarargsName, type, LinkageType::INTERNAL);
 	} else if (this->_runtimeVarargs)
 	{
-		d.getReport()->error(UnimplementedError(d, L"尚未实现运行时变参"), ErrorBehavior::CANCEL_EXPRESSION);
+		/*什么都不用做*/
 	} else if(this->parameters.size() != paramTypes.size())
 	{
 		throw InternalException(L"参数个数匹配错误");
@@ -306,10 +306,9 @@ llvm::BasicBlock* FunctionFragment::generateStubBlock(
         if (isNative)
         {
             stubFuncName = this->context.getBaseContext()->getBlockPrefix() + this->name;
-        } else
-        {
-            stubFuncName = Function::getMangledFunctionName(this->getDebugInfo(), &this->context, this->name,
-                                                            stubParamTypes);
+        } else {
+            stubFuncName = Function::getMangledFunctionName(this->getDebugInfo(), this->name, stubParamTypes,
+                                                            this->_runtimeVarargs) + L"@.stub";
         }
 
         vector<llvm::Type *> llvmParamTypes;
@@ -353,7 +352,7 @@ llvm::BasicBlock* FunctionFragment::generateStubBlock(
     }
 
     auto &builder = *outerCtx->getIRBuilder();
-
+    builder.SetInsertPoint(fragmentBlock);
     llvm::BasicBlock *implBlock = nullptr;
     try
     {

@@ -17,8 +17,8 @@ namespace WorkScript {
 	{
 	public:
 		inline GenerateContext(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule, llvm::IRBuilder<> *irBuilder,
-				AbstractContext *abstractContext, FunctionCache *cache,const std::wstring &blockPrefix = L"", BlockAttribute blockAttributes = 0x00)noexcept
-			:InstantialContext(abstractContext,cache,blockPrefix,blockAttributes),
+				AbstractContext *abstractContext, FunctionCache *cache, StringCache *stringCache,const std::wstring &blockPrefix = L"", BlockAttribute blockAttributes = 0x00)noexcept
+			:InstantialContext(abstractContext,cache, stringCache,blockPrefix,blockAttributes),
 			llvmContext(llvmContext), llvmModule(llvmModule),irBuilder(irBuilder) { }
 
 		inline explicit GenerateContext(const GenerateContext *base, const std::wstring &blockPrefix = L"")noexcept

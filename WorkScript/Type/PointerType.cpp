@@ -1,6 +1,7 @@
 #include "PointerType.h"
 #include "Report.h"
 #include "DebugInfo.h"
+#include <sstream>
 
 using namespace WorkScript;
 using namespace std;
@@ -22,15 +23,9 @@ std::wstring WorkScript::PointerType::getName() const noexcept
 	return name;
 }
 
-std::wstring WorkScript::PointerType::getIdentifierString() const noexcept
+std::wstring WorkScript::PointerType::getMangledName() const noexcept
 {
-	wstring name = this->targetType->getIdentifierString();
-	for (size_t j = 0; j < this->level; ++j) {
-		name += L"*";
-	}
-	if (this->_const) { name += L"@.c"; }
-	if (this->_volatile) { name += L" @.v"; }
-	return name;
+	return PointerType::getMangledName(this->targetType, this->level, this->_const, this->_volatile);
 }
 
 TypeClassification PointerType::getClassification() const noexcept
@@ -54,22 +49,21 @@ bool PointerType::equals(const Type * type) const noexcept
 	return this->level == target->level && this->targetType->equals(target->targetType);
 }
 
-std::wstring WorkScript::PointerType::getIdentifierString(Type * targetType, size_t level, bool isConst, bool isVolatile) noexcept
+std::wstring WorkScript::PointerType::getMangledName(Type * targetType, size_t level, bool isConst, bool isVolatile) noexcept
 {
-	wstring name = targetType->getName();
-	name += L"*" + to_wstring(level);
-	if (isConst) {
-		name += L"@.c";
+	wstringstream name;
+	//TODO 各层指针都可以const
+	if(isConst) name << L"K";
+	for(size_t i=0; i< level; ++i) {
+		name << L"P";
 	}
-	if (isVolatile) {
-		name += L"@.v";
-	}
-	return name;
+	name << targetType->getMangledName();
+	return name.str();
 }
 
 PointerType * WorkScript::PointerType::get(Type * targetType, size_t pointerLevel, bool isConst, bool isVolatile) noexcept
 {
-	wstring idStr = PointerType::getIdentifierString(targetType, pointerLevel, isConst, isVolatile);
+	wstring idStr = PointerType::getMangledName(targetType, pointerLevel, isConst, isVolatile);
 	auto it = types.find(idStr);
 	if (it != types.end()) return it->second;
 	else return (types[idStr] = new PointerType(targetType, pointerLevel, isConst, isVolatile));

@@ -59,38 +59,34 @@ std::wstring WorkScript::FunctionType::getName() const noexcept
 	return ss.str();
 }
 
-std::wstring WorkScript::FunctionType::getIdentifierString() const noexcept
+std::wstring WorkScript::FunctionType::getMangledName() const noexcept
 {
-	return FunctionType::getIdentifierString(this->paramTypes, this->returnType, this->rumtimeVarargs, this->_const);
+	return FunctionType::getMangledName(this->paramTypes, this->returnType, this->rumtimeVarargs, this->_const);
 }
 
-std::wstring WorkScript::FunctionType::getIdentifierString(const std::vector<Type*>& paramTypes, Type * returnType, bool isRuntimeVarargs, bool isConst) noexcept
+std::wstring WorkScript::FunctionType::getMangledName(const std::vector<Type*>& paramTypes, Type * returnType, bool isRuntimeVarargs, bool isConst) noexcept
 {
 	wstringstream ss;
-	ss << L"f";
+	//TODO 未测试，只有参数为函数指针类型才会调用这个getMangledName，否则应该调用Function::getMangledName()
+	ss << L"F";
 	if (returnType)
 	{
-		ss << L".r@" << returnType->getName();
+		ss <<returnType->getMangledName();
 	}
-	ss << L".p";
 	for (size_t i = 0; i < paramTypes.size(); ++i)
 	{
-		ss << L"@" << (paramTypes[i] ? paramTypes[i]->getName() : L"?");
+		ss << paramTypes[i] ? L"?" : paramTypes[i]->getMangledName();
 	}
-	if (isRuntimeVarargs)
-	{
-		ss << L"@...";
-	}
-	if (isConst)
-	{
-		ss << L"@.c";
-	}
+    if(isRuntimeVarargs){
+        ss << L"z";
+    }
+	ss << L"E";
 	return ss.str();
 }
 
 FunctionType * FunctionType::get(const std::vector<Type*> &paramTypes, Type * returnType, bool isRuntimeVarargs, bool isConst) noexcept
 {
-	wstring idStr = FunctionType::getIdentifierString(paramTypes, returnType, isRuntimeVarargs, isConst);
+	wstring idStr = FunctionType::getMangledName(paramTypes, returnType, isRuntimeVarargs, isConst);
 	auto it = types.find(idStr);
 	if (it != types.end()) return it->second;
 	else return (types[idStr] = new FunctionType(paramTypes, returnType, isRuntimeVarargs, isConst));

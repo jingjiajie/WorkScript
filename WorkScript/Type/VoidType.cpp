@@ -11,11 +11,6 @@ std::wstring WorkScript::VoidType::getName() const noexcept
 	return L"void";
 }
 
-std::wstring WorkScript::VoidType::getIdentifierString() const noexcept
-{
-	return L"v";
-}
-
 TypeClassification WorkScript::VoidType::getClassification() const noexcept
 {
 	return TypeClassification::VOID;
@@ -30,4 +25,9 @@ llvm::Type * WorkScript::VoidType::getLLVMType(GenerateContext * context) const
 bool VoidType::equals(const Type *type) const noexcept
 {
     return type->getClassification() == TypeClassification::VOID;
+}
+
+std::wstring VoidType::getMangledName() const noexcept
+{
+	return L"v";
 }

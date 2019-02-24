@@ -36,8 +36,8 @@ namespace WorkScript {
 		virtual ~Type() noexcept = default;
 		virtual std::wstring getName() const noexcept = 0;
 		virtual std::wstring toString() const noexcept;
-		virtual std::wstring getIdentifierString() const noexcept = 0;
 		virtual bool equals(const Type *type) const noexcept = 0;
+		virtual std::wstring getMangledName() const noexcept = 0;
 		virtual llvm::Type* getLLVMType(GenerateContext *context) const = 0;
 
 		static GenerateResult generateLLVMTypeConvert(const DebugInfo &d, GenerateContext *context, Expression *expr, Type *targetType);

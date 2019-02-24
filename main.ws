@@ -1,19 +1,25 @@
 int printf(char *,...)
-printf(long x)  = printf("%lld", x)
-printf(h, ...t)      = {
-  printf(h)
-  printf(t)
+
+print(long x)  = printf("%lld", x)
+print(char *x) = printf(x)
+print(h, ...t)      = {
+  print(h)
+  print(t)
 }
 
+fib(1) = 1
+fib(2) = 1
+fib(x) = fib(x-1) + fib(x-2)
 
-// max(x, y > x) = y
-// max(x, y)     = x
-// max(x, ...y)  = max(x, max(y))
-
-// fib(1) = 1
-// fib(2) = 1
-// fib(x) = fib(x-1) + fib(x-2)
+max(x, y > x) = y
+max(x, y)     = x
+max(x, ...y)  = max(x, max(y))
 
 main(){
-   printf("max : %d", 123)
+   print("max: ", 
+      max(1,3,5,7,9,2,4,6,8,0))
+   print("fib(20): ", fib(20))
 }
+
+// printf("hello", ...) = printf("world")
+// printf("woaini", ...) = printf("nimabi")

@@ -18,8 +18,8 @@ namespace WorkScript {
 		TypeClassification getClassification() const noexcept override;
 		llvm::Type* getLLVMType(GenerateContext *context) const override;
 		std::wstring getName() const noexcept override;
-		std::wstring getIdentifierString() const noexcept override;
-		static std::wstring getIdentifierString(const std::vector<Type*>& paramTypes, Type * returnType, bool isRuntimeVarargs, bool isConst) noexcept;
+		std::wstring getMangledName() const noexcept override;
+		static std::wstring getMangledName(const std::vector<Type*>& paramTypes, Type * returnType, bool isRuntimeVarargs, bool isConst) noexcept;
 		inline std::vector<Type *> getParameterTypes() const noexcept{ return this->paramTypes; }
 		inline size_t getParameterCount() const noexcept{ return this->paramTypes.size(); }
 		inline Type * getReturnType() noexcept{ return this->returnType; }

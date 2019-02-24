@@ -7,7 +7,7 @@ namespace WorkScript {
 		VoidType() noexcept = default;
 
 		std::wstring getName() const noexcept override;
-		std::wstring getIdentifierString()const noexcept override;
+		std::wstring getMangledName()const noexcept override;
 		TypeClassification getClassification() const noexcept override;
 		llvm::Type* getLLVMType(GenerateContext *context) const override;
 		bool equals(const Type *type) const noexcept override;

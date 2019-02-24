@@ -22,16 +22,20 @@ Function::Function(
 
 std::wstring Function::getMangledFunctionName(const DebugInfo &d, const std::vector<Type*> &paramTypes) const noexcept
 {
-    return Function::getMangledFunctionName(d, this->baseContext ,this->getName(), paramTypes);
+    return Function::getMangledFunctionName(d, this->getName(), paramTypes, false);
 }
 
-std::wstring Function::getMangledFunctionName(const DebugInfo &d, AbstractContext *ctx, const wstring &name, const vector<Type *> &paramTypes) noexcept
+std::wstring Function::getMangledFunctionName(const DebugInfo &d, const wstring &name, const vector<Type *> &paramTypes, bool isRuntimeVarargs) noexcept
 {
+    if(name == L"main") return name; //对main不做命名粉碎
     wstringstream ss;
-    ss << ctx->getBlockPrefix() << name;
-    for (auto paramType : paramTypes)
+    ss << L"_Z" << name.size() << name;
+    for (size_t i = 0; i < paramTypes.size(); ++i)
     {
-        ss << L"@" << paramType->getName();
+        ss << paramTypes[i]->getMangledName();
+    }
+    if(isRuntimeVarargs){
+        ss << L"z";
     }
     return ss.str();
 }

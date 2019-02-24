@@ -17,15 +17,17 @@ GenerateResult WorkScript::BinaryCompare::generateIR(GenerateContext * context)
 	GenerateResult res = Type::generateLLVMTypeConvert(this->getDebugInfo(), context, leftExpr, rightExpr, promotedType);
 	switch (promotedType->getClassification())
 	{
-	case TypeClassification::INTEGER: {
-		return this->generateLLVMIRInteger(context, res.getValue(), res.getValue1(), (IntegerType*)promotedType);
-	}
-
-	case TypeClassification::FLOAT: {
-		return this->generateLLVMIRFloat(context, res.getValue(), res.getValue1(), (FloatType*)promotedType);
-	}
-	default:
-		goto UNSUPPORTED;
+		case TypeClassification::POINTER:
+		case TypeClassification::INTEGER:
+		{
+			return this->generateLLVMIRInteger(context, res.getValue(), res.getValue1(), (IntegerType *) promotedType);
+		}
+		case TypeClassification::FLOAT:
+		{
+			return this->generateLLVMIRFloat(context, res.getValue(), res.getValue1(), (FloatType *) promotedType);
+		}
+		default:
+			goto UNSUPPORTED;
 	}
 
 UNSUPPORTED:
@@ -34,7 +36,7 @@ UNSUPPORTED:
 
 IntegerType * WorkScript::BinaryCompare::getType(InstantialContext *context) const
 {
-	return IntegerType::get(1);
+	return IntegerType::get(IntegerTypeClassification::BOOL);
 }
 
 Expression * WorkScript::BinaryCompare::clone() const

@@ -5,13 +5,13 @@
 #include "BinaryCompare.h"
 #include "Report.h"
 #include "Assignment.h"
+#include "Constant.h"
 
 using namespace std;
 using namespace WorkScript;
 
 FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 	const ExpressionInfo &exprInfo,
-	InstantialContext *ctx, 
 	std::vector<Type*> paramDeclTypes,
 	std::vector<Expression*> declParams, 
 	std::vector<Expression*> additionalConstraints)
@@ -60,6 +60,20 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 		//}
 		default: {
 			wstring tmpVarName = L"@_" + to_wstring(i);
+			//如果是常量，则直接获取常量的类型作为函数的参数约束
+			//TODO ARRAY怎么处理
+			if(!curType)
+			{
+				switch (curExpr->getExpressionType())
+				{
+					case ExpressionType::INTEGER:
+					case ExpressionType::FLOAT:
+					case ExpressionType::STRING:
+					{
+						curType = ((Constant *) curExpr)->getType();
+					}
+				}
+			}
 			Parameter *param = new Parameter(tmpVarName, curType);
 			params[i] = param;
 			Variable *var = new Variable(exprInfo, tmpVarName);
