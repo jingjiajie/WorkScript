@@ -7,18 +7,18 @@ namespace WorkScript{
 
     class FunctionTypeQuery{
     public:
-        FunctionTypeQuery(const std::vector<Type*> &parameterTypes, bool isConst, bool isRuntimeVarargs, bool strict = false)
-        : parameterTypes(parameterTypes), _const(isConst), _runtimeVarargs(isRuntimeVarargs), _strict(strict) { }
+        FunctionTypeQuery(const std::vector<Type*> &parameterTypes, bool isConst, bool isRuntimeVarargs)
+        : parameterTypes(parameterTypes), _const(isConst), _runtimeVarargs(isRuntimeVarargs) { }
 
         inline const std::vector<Type*> &getParameterTypes() const noexcept{return this->parameterTypes;}
-        inline bool isStrict() const noexcept{return this->_strict;}
+        //inline bool isStrict() const noexcept{return this->_strict;}
         inline bool isConst() const noexcept{return this->_const;}
         inline bool isRuntimeVarargs() const noexcept{return this->_runtimeVarargs;}
     private:
         std::vector<Type *> parameterTypes;
         bool _const = false;
         bool _runtimeVarargs = false;
-        bool _strict = false;
+        //bool _strict = false;
     };
 
     class FunctionQuery {
@@ -31,7 +31,7 @@ namespace WorkScript{
         inline const std::wstring &getName() const noexcept{return this->name;}
         inline const std::vector<Type*> &getParameterTypes() const noexcept{return this->functionTypeQuery.getParameterTypes();}
         inline bool isConst() const noexcept{return this->functionTypeQuery.isConst();}
-        inline bool isStrict() const noexcept{ return this->functionTypeQuery.isStrict();}
+        //inline bool isStrict() const noexcept{ return this->functionTypeQuery.isStrict();}
         inline const FunctionTypeQuery& getFunctionTypeQuery() const noexcept{return this->functionTypeQuery;}
     private:
         std::wstring name;

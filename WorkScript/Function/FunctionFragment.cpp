@@ -75,6 +75,10 @@ Type * FunctionFragment::getReturnType(const DebugInfo &d, InstantialContext * c
 	}
 
 	try {
+	    //TODO 推导返回值类型没必要把每条语句都推导一次, 应该记录下来各个变量的声明语句，在推导返回值类型需要变量时，直接推导声明语句即可
+	    for(size_t i=0; i<implCount-1; ++i) {
+            this->implements[i]->getType(&innerCtx);
+        }
 		return this->implements[implCount - 1]->getType(&innerCtx);
 	}
 	catch (const CancelException &ex)
@@ -103,17 +107,24 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * outerCtx,
 
     //将具名实参加入符号表
     auto itLLVMArg = llvmFunc->arg_begin();
-    for (size_t i = 0; i < myParamCount; ++i, ++itLLVMArg)
+    for (size_t i = 0; i < myParamCount; ++i)
     {
-        //获取参数的LLVM Argument
-        llvm::Argument *llvmArg = itLLVMArg;
-        //获取当前分支参数的符号信息，加入符号表
         Parameter *myParam = this->parameters[i];
-        SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), myParam->getName(), paramTypes[i],
-                                                            LinkageType::INTERNAL);
-        //生成llvm赋值，将标准参数赋值到当前分支参数
-        llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), &innerCtx);
-        builder.CreateStore(llvmArg, myLLVMParamPtr);
+        if(i >= realParamCount) {
+            Type *defaultValueType = myParam->getType();
+            if(!defaultValueType) defaultValueType = myParam->getDefaultValue()->getType(&innerCtx);
+            SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), myParam->getName(), defaultValueType,
+                                                                LinkageType::INTERNAL);
+        }else {
+            //获取参数的LLVM Argument
+            llvm::Argument *llvmArg = itLLVMArg;
+            SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), myParam->getName(), paramTypes[i],
+                                                                LinkageType::INTERNAL);
+            //生成llvm赋值，将标准参数赋值到当前分支参数
+            llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), &innerCtx);
+            builder.CreateStore(llvmArg, myLLVMParamPtr);
+            ++itLLVMArg;
+        }
     }
 
     /*动态变参的处理：
@@ -188,20 +199,21 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * outerCtx,
 
 bool FunctionFragment::match(const DebugInfo &d, const FunctionQuery &query) noexcept
 {
-	vector<Type *> declParamTypes;
-	declParamTypes.reserve(this->parameters.size());
-	for (Parameter *param : this->parameters)
-	{
-		declParamTypes.push_back(param->getType());
-	}
-	FunctionType *myDeclType = FunctionType::get(declParamTypes, nullptr, this->_runtimeVarargs, this->_const);
-	if(FunctionType::match(d, myDeclType, query.getFunctionTypeQuery()))
-	{
-		return true;
-	}else if(this->_staticVarargs && declParamTypes.size() < query.getParameterTypes().size()){
-		return true;
-	}
-	return false;
+    const vector<Type *> &realParamTypes = query.getParameterTypes();
+    size_t declParamCount = this->parameters.size();
+    size_t realParamCount = realParamTypes.size();
+    if (!this->_const && query.isConst()) return false;
+    if (realParamTypes.size() > declParamCount && !this->_runtimeVarargs && !this->_staticVarargs) return false;
+    for (size_t i = 0; i < declParamCount; ++i) {
+        Type *declParamType = this->parameters[i]->getType();
+        if(i >= realParamCount) {
+            if(this->parameters[i]->getDefaultValue()) continue;
+            else return false;
+        }
+        if (!realParamTypes[i]) return false;
+        if (declParamType && !Type::convertableTo(d, realParamTypes[i], declParamType)) return false;
+    }
+    return true;
 }
 
 void FunctionFragment::generateConstraints(GenerateContext *context, llvm::Function *llvmFunc, llvm::BasicBlock *falseBlock, llvm::BasicBlock **outMatchedBlock)

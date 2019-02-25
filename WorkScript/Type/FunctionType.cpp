@@ -101,35 +101,34 @@ void WorkScript::FunctionType::releaseTypes() noexcept
 
 bool FunctionType::match(const DebugInfo &d,const FunctionType *declType, const FunctionTypeQuery &query) noexcept
 {
-	const vector<Type*> &realParamTypes = query.getParameterTypes();
+	const vector<Type *> &realParamTypes = query.getParameterTypes();
 	size_t declParamCount = declType->paramTypes.size();
-	bool isStrict = query.isStrict();
-	if(isStrict){
-		if(declType->isConst() != query.isConst()) return false;
-		//TODO 需要考虑参数默认值
-		if (realParamTypes.size() != declParamCount)return false;
-		if(query.isRuntimeVarargs() != declType->isRumtimeVarargs()) return false;
-		for (size_t i = 0; i < declParamCount; ++i)
-		{
-			Type *formalParamType = declType->paramTypes[i];
-			if (!realParamTypes[i] && !formalParamType) continue;
-			if (!realParamTypes[i] || !formalParamType) return false;
-			if (!formalParamType->equals(realParamTypes[i])) return false;
-		}
-		return true;
-	}else{
-		if(!declType->isConst() && query.isConst()) return false;
-		//TODO 需要考虑参数默认值
-		if (realParamTypes.size() < declParamCount)return false;
-		if (realParamTypes.size() > declParamCount && !declType->isRumtimeVarargs()) return false;
-		for (size_t i = 0; i < declParamCount; ++i)
-		{
-			Type *formalParamType = declType->paramTypes[i];
-			if (!realParamTypes[i])continue;
-			if (formalParamType && !Type::convertableTo(d, realParamTypes[i], formalParamType)) return false;
-		}
-		return true;
+//	bool isStrict = query.isStrict();
+//	if(isStrict){
+//		if(declType->isConst() != query.isConst()) return false;
+//		//TODO 需要考虑参数默认值
+//		if (realParamTypes.size() != declParamCount)return false;
+//		if(query.isRuntimeVarargs() != declType->isRumtimeVarargs()) return false;
+//		for (size_t i = 0; i < declParamCount; ++i)
+//		{
+//			Type *formalParamType = declType->paramTypes[i];
+//			if (!realParamTypes[i] && !formalParamType) continue;
+//			if (!realParamTypes[i] || !formalParamType) return false;
+//			if (!formalParamType->equals(realParamTypes[i])) return false;
+//		}
+//		return true;
+//	}else{
+	if (!declType->isConst() && query.isConst()) return false;
+	//TODO 需要考虑参数默认值
+	if (realParamTypes.size() < declParamCount)return false;
+	if (realParamTypes.size() > declParamCount && !declType->isRumtimeVarargs()) return false;
+	for (size_t i = 0; i < declParamCount; ++i) {
+		Type *formalParamType = declType->paramTypes[i];
+		if (!realParamTypes[i])continue;
+		if (formalParamType && !Type::convertableTo(d, realParamTypes[i], formalParamType)) return false;
 	}
+	return true;
+//	}
 }
 
 bool FunctionType::match(const DebugInfo &d, const FunctionTypeQuery &query)const noexcept

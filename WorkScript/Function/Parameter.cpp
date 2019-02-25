@@ -5,21 +5,17 @@
 using namespace std;
 using namespace WorkScript;
 
-Type * WorkScript::Parameter::getType(InstantialContext *ctx)
+Type * WorkScript::Parameter::getType()
 {
-	if (this->type)return this->type;
-	if (!ctx)return nullptr;
-	SymbolInfo *info = ctx->getSymbolInfo(this->name);
-	if (!info)return nullptr;
-	return info->getType();
+	return this->type;
 }
 
-Parameter::~Parameter()
+Parameter::~Parameter() noexcept
 {
 	delete this->defaultValue;
 }
 
-void Parameter::setDefaultValue(WorkScript::Value *value) noexcept
+void Parameter::setDefaultValue(Expression *value) noexcept
 {
 	delete this->defaultValue;
 	this->defaultValue = value;

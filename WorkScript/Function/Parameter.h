@@ -12,23 +12,22 @@ namespace WorkScript
 	public:
 		inline Parameter() noexcept = default;
 
-		inline Parameter(const std::wstring &name, Type *type = nullptr) noexcept{
-			this->setName(name);
-			this->setType(type);
-		}
+		inline Parameter(const std::wstring &name, Type *type = nullptr, Expression *defaultValue = nullptr) noexcept
+			: name(name), type(type), defaultValue(defaultValue)
+		{ }
 
 		~Parameter() noexcept;
 
 		inline const std::wstring & getName()const noexcept{ return this->name; }
 		inline void setName(const std::wstring &name) noexcept{ this->name = name; }
-		inline Value * getDefaultValue() const noexcept{ return this->defaultValue; }
-		void setDefaultValue(Value *value) noexcept;
+		inline Expression * getDefaultValue() const noexcept{ return this->defaultValue; }
+		void setDefaultValue(Expression *value) noexcept;
 
-		Type * getType(InstantialContext *ctx = nullptr);
+		Type * getType();
 		inline void setType(Type *type) { this->type = type; }
 	private:
 		std::wstring name;
 		Type *type = nullptr;
-		Value *defaultValue = nullptr;
+		Expression *defaultValue = nullptr;
 	};
 }
