@@ -28,7 +28,7 @@ namespace WorkScript {
 		bool isNative() noexcept;
 		Type *getReturnType(const DebugInfo &d, InstantialContext *instCtx, const std::vector<Type*> &paramTypes);
 		llvm::BasicBlock * generateBlock(GenerateContext *context,
-										 const std::vector<Type*> &paramTypes,
+										 const std::vector<Type*> &realParamTypes,
 										 Type *returnType,
 										 llvm::Function *llvmFunc,
 										 llvm::BasicBlock *falseBlock);
@@ -61,8 +61,7 @@ namespace WorkScript {
 		void generateConstraints(GenerateContext *context, llvm::Function *llvmFunc, llvm::BasicBlock *falseBlock, llvm::BasicBlock **outMatchedBlock);
 		void generateImplements(GenerateContext *context, llvm::BasicBlock *block, Type *returnType);
 		void generateDefaultValueAssignment(GenerateContext *context, const std::vector<Parameter*> &generateParams, llvm::BasicBlock *block);
-		llvm::BasicBlock *generateStubBlock(GenerateContext *outerCtx,
-											GenerateContext *innerCtx,
+		llvm::BasicBlock *generateStubBlock(GenerateContext *innerCtx,
 											const std::vector<Type*> &paramTypes,
 											Type *returnType,
 											llvm::Function *llvmFunc,
