@@ -20,7 +20,7 @@ namespace WorkScript {
 		inline explicit FunctionTypeCacheItem(FunctionType *t, const CancelException &ex) noexcept
 			: functionType(t), cancelException(new CancelException(ex)){}
 		inline ~FunctionTypeCacheItem(){ delete this->cancelException; }
-		bool match(const DebugInfo &d, const FunctionTypeQuery &query) const noexcept;
+		bool matchExact(const DebugInfo &d, const FunctionTypeQuery &query) const noexcept;
 		inline FunctionType *getFunctionType() const{
 			if(this->cancelException) throw *this->cancelException;
 			else return this->functionType;
@@ -48,7 +48,7 @@ namespace WorkScript {
 				: functionType(t), stub(stub)
 		{};
 
-		bool match(const DebugInfo &d, const FunctionTypeQuery &query) const noexcept;
+		bool matchExact(const DebugInfo &d, const FunctionTypeQuery &query) const noexcept;
 
 		inline void setStub(llvm::Function *stub) noexcept
 		{ this->stub = stub; }

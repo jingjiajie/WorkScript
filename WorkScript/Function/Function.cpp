@@ -30,9 +30,14 @@ std::wstring Function::getMangledFunctionName(const DebugInfo &d, const wstring 
     if(name == L"main") return name; //对main不做命名粉碎
     wstringstream ss;
     ss << L"_Z" << name.size() << name;
-    for (size_t i = 0; i < paramTypes.size(); ++i)
+    if(paramTypes.empty()){
+        ss << VoidType::get()->getMangledName();
+    }else
     {
-        ss << paramTypes[i]->getMangledName();
+        for (size_t i = 0; i < paramTypes.size(); ++i)
+        {
+            ss << paramTypes[i]->getMangledName();
+        }
     }
     if(isRuntimeVarargs){
         ss << L"z";
@@ -110,7 +115,7 @@ llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *c
 bool WorkScript::Function::match(const DebugInfo &d, const FunctionQuery &query) noexcept
 {
     if(query.getName() != this->name)return false;
-    return FunctionType::match(d, this->type, query.getFunctionTypeQuery());
+    return FunctionType::matchCall(d, this->type, query.getFunctionTypeQuery());
 }
 
 bool ParamTypesAndLLVMFunction::match(const std::vector<Type *> &paramTypes) noexcept
@@ -140,8 +145,7 @@ Type *Function::getReturnType(const DebugInfo &d, InstantialContext *instCtx,con
     FunctionType *cachedFuncType = nullptr;
     Type *returnType = nullptr;
     FunctionType *queryType = FunctionType::get(paramTypes, nullptr, this->type->isRumtimeVarargs(), this->type->isConst());
-    if (!instCtx->getCachedFunctionType(d, this, FunctionTypeQuery(paramTypes,this->type->isConst(), this->type->isRumtimeVarargs(),
-                                                                   true), &cachedFuncType))
+    if (!instCtx->getCachedFunctionType(d, this, FunctionTypeQuery(paramTypes,this->type->isConst(), this->type->isRumtimeVarargs()), &cachedFuncType))
     {
         instCtx->cacheFunctionType(d, this, queryType);
 		size_t fragmentCanceledCount = 0;

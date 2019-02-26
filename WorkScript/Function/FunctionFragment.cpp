@@ -311,8 +311,7 @@ llvm::BasicBlock* FunctionFragment::generateStubBlock(
     vector<Type*> stubParamTypes(paramTypes.begin(), paramTypes.begin()+stubParamCount);
     llvm::Function *stubFunc = nullptr;
     FunctionCache *functionCache = outerCtx->getFunctionCache();
-    if(!functionCache->getCachedStub(this->getDebugInfo(),this,
-                    FunctionTypeQuery(stubParamTypes,false,this->isRuntimeVarargs(),true), &stubFunc))
+    if(!functionCache->getCachedStub(this->getDebugInfo(),this,FunctionTypeQuery(stubParamTypes,false,this->isRuntimeVarargs()), &stubFunc))
     {
         wstring stubFuncName;
         if (isNative)

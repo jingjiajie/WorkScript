@@ -1,4 +1,5 @@
 #pragma once
+#include "NonCopyable.h"
 #include "Defines.h"
 #include "Report.h"
 #include "GenerateContext.h"
@@ -12,7 +13,7 @@ namespace WorkScript {
 	class Type;
 	class InstantialContext;
 
-	class Expression
+	class Expression : public NonCopyable
 	{
 	public:
 		inline explicit Expression(const ExpressionInfo &exprInfo) noexcept :expressionInfo(exprInfo) {}

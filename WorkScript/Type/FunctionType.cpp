@@ -1,5 +1,6 @@
 #include <sstream>
 #include "FunctionType.h"
+#include "VoidType.h"
 
 using namespace WorkScript;
 using namespace std;
@@ -73,9 +74,14 @@ std::wstring WorkScript::FunctionType::getMangledName(const std::vector<Type*>& 
 	{
 		ss <<returnType->getMangledName();
 	}
-	for (size_t i = 0; i < paramTypes.size(); ++i)
+	if(paramTypes.empty()){
+		ss << VoidType::get()->getMangledName();
+	}else
 	{
-		ss << paramTypes[i] ? L"?" : paramTypes[i]->getMangledName();
+		for (size_t i = 0; i < paramTypes.size(); ++i)
+		{
+			ss << paramTypes[i] ? L"?" : paramTypes[i]->getMangledName();
+		}
 	}
     if(isRuntimeVarargs){
         ss << L"z";
@@ -99,27 +105,28 @@ void WorkScript::FunctionType::releaseTypes() noexcept
 	}
 }
 
-bool FunctionType::match(const DebugInfo &d,const FunctionType *declType, const FunctionTypeQuery &query) noexcept
+bool FunctionType::matchExact(const DebugInfo &d,const FunctionType *declType, const FunctionTypeQuery &query) noexcept
 {
 	const vector<Type *> &realParamTypes = query.getParameterTypes();
 	size_t declParamCount = declType->paramTypes.size();
-//	bool isStrict = query.isStrict();
-//	if(isStrict){
-//		if(declType->isConst() != query.isConst()) return false;
-//		//TODO 需要考虑参数默认值
-//		if (realParamTypes.size() != declParamCount)return false;
-//		if(query.isRuntimeVarargs() != declType->isRumtimeVarargs()) return false;
-//		for (size_t i = 0; i < declParamCount; ++i)
-//		{
-//			Type *formalParamType = declType->paramTypes[i];
-//			if (!realParamTypes[i] && !formalParamType) continue;
-//			if (!realParamTypes[i] || !formalParamType) return false;
-//			if (!formalParamType->equals(realParamTypes[i])) return false;
-//		}
-//		return true;
-//	}else{
+	if (declType->isConst() != query.isConst()) return false;
+	if (realParamTypes.size() != declParamCount)return false;
+	if (query.isRuntimeVarargs() != declType->isRumtimeVarargs()) return false;
+	for (size_t i = 0; i < declParamCount; ++i)
+	{
+		Type *formalParamType = declType->paramTypes[i];
+		if (!realParamTypes[i] && !formalParamType) continue;
+		if (!realParamTypes[i] || !formalParamType) return false;
+		if (!formalParamType->equals(realParamTypes[i])) return false;
+	}
+	return true;
+}
+
+bool FunctionType::matchCall(const DebugInfo &d,const FunctionType *declType, const FunctionTypeQuery &query) noexcept
+{
+	const vector<Type *> &realParamTypes = query.getParameterTypes();
+	size_t declParamCount = declType->paramTypes.size();
 	if (!declType->isConst() && query.isConst()) return false;
-	//TODO 需要考虑参数默认值
 	if (realParamTypes.size() < declParamCount)return false;
 	if (realParamTypes.size() > declParamCount && !declType->isRumtimeVarargs()) return false;
 	for (size_t i = 0; i < declParamCount; ++i) {
@@ -128,10 +135,14 @@ bool FunctionType::match(const DebugInfo &d,const FunctionType *declType, const 
 		if (formalParamType && !Type::convertableTo(d, realParamTypes[i], formalParamType)) return false;
 	}
 	return true;
-//	}
 }
 
-bool FunctionType::match(const DebugInfo &d, const FunctionTypeQuery &query)const noexcept
+bool FunctionType::matchCall(const DebugInfo &d, const FunctionTypeQuery &query)const noexcept
 {
-	return FunctionType::match(d, this, query);
+	return FunctionType::matchCall(d, this, query);
+}
+
+bool FunctionType::matchExact(const DebugInfo &d, const FunctionTypeQuery &query)const noexcept
+{
+	return FunctionType::matchExact(d, this, query);
 }

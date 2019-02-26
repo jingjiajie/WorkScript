@@ -16,7 +16,7 @@ void FunctionCache::cacheFunctionType(const WorkScript::DebugInfo &d, WorkScript
 	bool found = false;
 	for (size_t i = 0; i < items.size(); ++i)
 	{
-		if (items[i].match(d, FunctionTypeQuery(type->getParameterTypes(), type->isConst(), type->isRumtimeVarargs(), true)))
+		if (items[i].matchExact(d, FunctionTypeQuery(type->getParameterTypes(), type->isConst(), type->isRumtimeVarargs())))
 		{
 			items[i].setFunctionType(type);
 			items[i].setCancelException(ex);
@@ -42,7 +42,7 @@ void FunctionCache::cacheFunctionType(const WorkScript::DebugInfo &d,
 	bool found = false;
 	for (size_t i = 0; i < items.size(); ++i)
 	{
-		if (items[i].match(d, FunctionTypeQuery(type->getParameterTypes(), type->isConst(), type->isRumtimeVarargs(), true)))
+		if (items[i].matchExact(d, FunctionTypeQuery(type->getParameterTypes(), type->isConst(), type->isRumtimeVarargs())))
 		{
 			items[i].setFunctionType(type);
 			found = true;
@@ -69,7 +69,7 @@ bool FunctionCache::getCachedFunctionType(const DebugInfo &d,
 	for (size_t i = 0; i < caches.size(); ++i)
 	{
 		auto &cur = caches[i];
-		if (cur.match(d, query))
+		if (cur.matchExact(d, query))
 		{
 			*outType = cur.getFunctionType();
 			return true;
@@ -78,20 +78,14 @@ bool FunctionCache::getCachedFunctionType(const DebugInfo &d,
 	return false;
 }
 
-bool FunctionTypeCacheItem::match(const WorkScript::DebugInfo &d, const WorkScript::FunctionTypeQuery &query) const noexcept
+bool FunctionTypeCacheItem::matchExact(const WorkScript::DebugInfo &d, const WorkScript::FunctionTypeQuery &query) const noexcept
 {
-	if(!query.isStrict()){
-		throw InternalException(L"FunctionTypeCacheItem::match: query必须为strict");
-	}
-	return this->functionType->match(d,query);
+	return this->functionType->matchExact(d,query);
 }
 
-bool StubCacheItem::match(const WorkScript::DebugInfo &d, const WorkScript::FunctionTypeQuery &query) const noexcept
+bool StubCacheItem::matchExact(const WorkScript::DebugInfo &d, const WorkScript::FunctionTypeQuery &query) const noexcept
 {
-	if(!query.isStrict()){
-		throw InternalException(L"StubCacheItem::match: query必须为strict");
-	}
-	return this->functionType->match(d,query);
+	return this->functionType->matchExact(d,query);
 }
 
 void FunctionCache::cacheStub(const WorkScript::DebugInfo &d, WorkScript::FunctionFragment *fragment,
@@ -105,7 +99,7 @@ void FunctionCache::cacheStub(const WorkScript::DebugInfo &d, WorkScript::Functi
 	bool found = false;
 	for (size_t i = 0; i < items.size(); ++i)
 	{
-		if (items[i].match(d, FunctionTypeQuery(type->getParameterTypes(), type->isConst(), type->isRumtimeVarargs(), true)))
+		if (items[i].matchExact(d, FunctionTypeQuery(type->getParameterTypes(), type->isConst(), type->isRumtimeVarargs())))
 		{
 			items[i].setStub(stub);
 			found = true;
@@ -130,7 +124,7 @@ bool FunctionCache::getCachedStub(const DebugInfo &d, FunctionFragment *fragment
 	for (size_t i = 0; i < caches.size(); ++i)
 	{
 		auto &cur = caches[i];
-		if (cur.match(d, query))
+		if (cur.matchExact(d, query))
 		{
 			*outStub = cur.getStub();
 			return true;
