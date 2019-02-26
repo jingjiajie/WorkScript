@@ -1,11 +1,10 @@
-main(){
-   printf("hello")
-   print("max: ", 
-      max(1,3,5,7,9,2,4,6,8,0))
-   print("fib(20): ", fib(20))
+f(x := 123, ...) = print(x)
+
+main()
+{
+   f()
 }
 
-printf("hello", ...) = printf("world\n")
 int printf(char *,...)
 
 
@@ -18,10 +17,10 @@ print_item(h, ...t)      = {
 
 print(...x) = print_item(x, "\n")
 
-fib(1) = 1
-fib(2) = 1
-fib(x) = fib(x-1) + fib(x-2)
+// fib(1) = 1
+// fib(2) = 1
+// fib(x) = fib(x-1) + fib(x-2)
 
-max(x, y > x) = y
-max(x, y)     = x
-max(x, ...y)  = max(x, max(y))
+// max(x, y > x) = y
+// max(x, y)     = x
+// max(x, ...y)  = max(x, max(y))
