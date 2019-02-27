@@ -3,6 +3,7 @@
 #include <memory>
 #include "DebugInfo.h"
 #include "SymbolTable.h"
+#include "AbstractContext.h"
 
 namespace WorkScript {
 	class Type;
@@ -10,7 +11,6 @@ namespace WorkScript {
 	class FunctionFragment;
 	class FunctionType;
 	class FunctionCache;
-	class AbstractContext;
 	class FunctionTypeQuery;
 	class StringCache;
 
@@ -21,20 +21,20 @@ namespace WorkScript {
 
 	class InstantialContext {
 	public:
-		inline InstantialContext(AbstractContext *abstractContext, FunctionCache *cache, StringCache *stringCache,const std::wstring &blockPrefix = L"", BlockAttribute blockAttributes = 0x00) noexcept
+		inline InstantialContext(AbstractContext *abstractContext, FunctionCache *cache, StringCache *stringCache, BlockAttribute blockAttributes = 0x00) noexcept
 			:abstractContext(abstractContext),
 			functionCache(cache),
 			stringCache(stringCache),
 			blockAttributes(blockAttributes),
-			instanceSymbolTable(blockPrefix)
+			instanceSymbolTable(abstractContext->getBlockPrefix())
 		{ }
 
-		inline InstantialContext(const InstantialContext *base, const std::wstring &blockPrefix = L"") noexcept
-			:abstractContext(base->abstractContext),
+		inline InstantialContext(AbstractContext *abstractContext, const InstantialContext *base) noexcept
+			:abstractContext(abstractContext),
 			functionCache(base->functionCache),
 			stringCache(base->stringCache),
 			blockAttributes(base->blockAttributes),
-			instanceSymbolTable(blockPrefix)
+			instanceSymbolTable(abstractContext->getBlockPrefix())
 		{ }
 
 		inline void setAbstractContext(AbstractContext *ctx) noexcept { this->abstractContext = ctx; }

@@ -1,5 +1,7 @@
 #include "SymbolTable.h"
 #include "Value.h"
+#include "GeneralSymbolInfo.h"
+#include "ReferenceSymbolInfo.h"
 
 using namespace WorkScript;
 using namespace std;
@@ -13,10 +15,23 @@ SymbolInfo * WorkScript::SymbolTable::getSymbolInfo(const std::wstring & name) n
 {
     auto it = this->symbols.find(name);
     if (it == this->symbols.end())return nullptr;
-    else return &it->second;
+    else return it->second;
 }
 
-SymbolInfo * WorkScript::SymbolTable::setSymbol(const DebugInfo &d, const std::wstring & name, Type * type, const LinkageType &lt, Value *value) noexcept
+
+
+SymbolInfo * SymbolTable::setSymbol(const DebugInfo &d, const std::wstring & name, Type * type, const LinkageType &lt, Value *value) noexcept
 {
-	return &(this->symbols[name] = SymbolInfo(d, this->prefix + name, type, lt, value));
+    auto &info = this->symbols[name];
+    delete info;
+    info = new GeneralSymbolInfo(d, this->prefix + name, type, lt, value);
+	return info;
+}
+
+SymbolInfo *SymbolTable::setSymbol(const DebugInfo &d, const wstring &name, SymbolInfo *refSymbolInfo)
+{
+    auto &info = this->symbols[name];
+    delete info;
+    info = new ReferenceSymbolInfo(d, this->prefix + name, refSymbolInfo);
+    return info;
 }

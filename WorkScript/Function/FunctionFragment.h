@@ -60,11 +60,12 @@ namespace WorkScript {
 		bool canBeNative() const noexcept;
 		void generateConstraints(GenerateContext *context, llvm::Function *llvmFunc, llvm::BasicBlock *falseBlock, llvm::BasicBlock **outMatchedBlock);
 		void generateImplements(GenerateContext *context, llvm::BasicBlock *block, Type *returnType);
-		void generateDefaultValueAssignment(GenerateContext *context, const std::vector<Parameter*> &generateParams, llvm::BasicBlock *block);
-		llvm::BasicBlock *generateStubBlock(GenerateContext *innerCtx,
+		llvm::BasicBlock *generateStubBlock(GenerateContext *outerCtx,
+											GenerateContext *innerCtx,
 											const std::vector<Type*> &paramTypes,
 											Type *returnType,
 											llvm::Function *llvmFunc,
+											const std::vector<llvm::Value*> &llvmArgs,
 											llvm::BasicBlock *fragmentBlock,
 											llvm::BasicBlock *falseBlock,
 											bool isNative);

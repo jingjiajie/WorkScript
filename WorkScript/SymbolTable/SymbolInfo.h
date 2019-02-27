@@ -1,71 +1,60 @@
 #pragma once
-#include <unordered_map>
-#include "DebugInfo.h"
 #include "Type.h"
+#include "DebugInfo.h"
 
 namespace WorkScript
 {
     class Value;
-	class GenerateContext;
+    class GenerateContext;
 
-	class SymbolInfo
-	{
-	public:
-		inline SymbolInfo(const DebugInfo &d, const std::wstring &name, Type *type, LinkageType lt, Value *value = nullptr) noexcept
-				: name(name), value(value), type(type), debugInfo(d), linkageType(lt)
-		{ }
+    class SymbolInfo
+    {
+    public:
+        inline SymbolInfo(const DebugInfo &d, const std::wstring &name) noexcept
+                : debugInfo(d), name(name)
+        {}
 
-		inline SymbolInfo(const DebugInfo &d, const std::wstring &name, Type *type, LinkageType lt, llvm::Value *llvmValue) noexcept
-				: name(name), type(type), linkageType(lt), llvmValue(llvmValue), debugInfo(d)
-		{ }
+        virtual ~SymbolInfo() noexcept = default;
 
-		inline SymbolInfo() noexcept = default;
+        virtual Type *getType() const = 0;
 
-		~SymbolInfo() noexcept;
+        virtual LinkageType getLinkageType() const = 0;
 
-		inline void setLLVMValue(llvm::Value *llvmVal)
-		{ this->llvmValue = llvmVal; }
+        virtual Value *getValue() noexcept = 0;
 
-		inline void setLLVMValuePtr(llvm::Value *llvmValPtr)
-		{ this->llvmValuePtr = llvmValPtr; }
+        virtual void setValue(Value *value) noexcept = 0;
 
-		llvm::Value *getLLVMValue(const DebugInfo &d, GenerateContext *context);
+        virtual llvm::Value *getLLVMValue(const DebugInfo &d, GenerateContext *context) = 0;
 
-		llvm::Value *getLLVMValuePtr(const DebugInfo &d, GenerateContext *context);
+        virtual llvm::Value *getLLVMValuePtr(const DebugInfo &d, GenerateContext *context) = 0;
 
-		inline const Value *getValue() const noexcept
-		{ return this->value; }
+        virtual void setLLVMValue(llvm::Value *llvmVal) noexcept = 0;
 
-		inline Value *getValue() noexcept
-		{ return this->value; }
+        virtual void setLLVMValuePtr(llvm::Value *llvmValPtr) noexcept = 0;
 
-		void setValue(Value *value) noexcept;
+        virtual void setLinkageType(const LinkageType &lt) noexcept = 0;
 
-		const DebugInfo &getDebugInfo() const noexcept;
 
-		void setDebugInfo(const DebugInfo &debugInfo) noexcept;
+        inline std::wstring getName() const noexcept
+        { return this->name; }
 
-		inline Type *getType() const
-		{ return this->type; }
+        const DebugInfo &getDebugInfo() const noexcept
+        {
+            return this->debugInfo;
+        }
 
-		inline std::wstring getName() const
-		{ return this->name; }
+        void setDebugInfo(const DebugInfo &debugInfo) noexcept
+        {
+            this->debugInfo = debugInfo;
+        }
 
-		inline LinkageType getLinkageType() const
-		{ return this->linkageType; }
+        virtual const Value *getValue() const noexcept
+        {
+            return const_cast<SymbolInfo *>(this)->getValue();
+        }
 
-		inline void setLinkageType(LinkageType lt)
-		{ this->linkageType = lt; }
-
-		void promoteType(Type *type);
-
-	private:
-		std::wstring name;
-		Value *value = nullptr;
-		Type *type = nullptr;
-		LinkageType linkageType = LinkageType::INTERNAL;
-		llvm::Value *llvmValue = nullptr;
-		llvm::Value *llvmValuePtr = nullptr;
-		DebugInfo debugInfo;
-	};
+    protected:
+        DebugInfo debugInfo;
+        std::wstring name;
+    };
 }

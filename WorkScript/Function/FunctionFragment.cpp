@@ -44,7 +44,7 @@ Type * FunctionFragment::getReturnType(const DebugInfo &d, InstantialContext * c
 	size_t implCount = this->implements.size();
 	if (implCount == 0)return VoidType::get();
 	size_t realParamCount = paramTypes.size();
-    InstantialContext innerCtx(ctx, to_wstring(this->context.getBlockID()));
+    InstantialContext innerCtx(&this->context, ctx);
     if(this->_staticVarargs) innerCtx.setBlockAttribute(BlockAttributeItem::SFINAE, true);
     auto &instSymbolTable = *innerCtx.getInstanceSymbolTable();
 	for (size_t i = 0; i < this->parameters.size(); ++i)
@@ -97,7 +97,7 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * outerCtx,
 		llvm::Function *llvmFunc,
 		llvm::BasicBlock *falseBlock)
 {
-    GenerateContext innerCtx(outerCtx, to_wstring(this->getBlockID()));
+    GenerateContext innerCtx(&this->context ,outerCtx);
     if (this->_staticVarargs) innerCtx.setBlockAttribute(BlockAttributeItem::SFINAE, true);
     SymbolTable &instSymbolTable = *innerCtx.getInstanceSymbolTable();
     size_t realParamCount = realParamTypes.size();
@@ -109,23 +109,26 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * outerCtx,
     builder.SetInsertPoint(fragmentBlock);
 
     //将具名实参加入符号表
+    vector<llvm::Value*> llvmArgs;
+    llvmArgs.reserve(myParamCount > realParamCount ? myParamCount : realParamCount);
     auto itLLVMArg = llvmFunc->arg_begin();
     for (size_t i = 0; i < (myParamCount < realParamCount ? myParamCount : realParamCount); ++i) {
         Parameter *curDeclParam = this->parameters[i];
         //获取参数的LLVM Argument
         llvm::Argument *llvmArg = itLLVMArg;
+        llvmArgs.push_back(llvmArg);
         SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), curDeclParam->getName(),
                                                             realParamTypes[i],
                                                             LinkageType::INTERNAL);
-        //生成llvm赋值，将标准参数赋值到当前分支参数
-        llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), &innerCtx);
-        builder.CreateStore(llvmArg, myLLVMParamPtr);
+        myParamInfo->setLLVMValue(llvmArg);
+//        //生成llvm赋值，将标准参数赋值到当前分支参数
+//        llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), &innerCtx);
+//        builder.CreateStore(llvmArg, myLLVMParamPtr);
         ++itLLVMArg;
     }
 
     //记录需要生成默认参数值的参数, 并生成默认值的赋值
     vector<Type *> finalParamTypes = realParamTypes;
-    std::vector<Parameter *> generateDefaultValueParams;
     if (realParamCount < myParamCount) {
         /*如果实参少于形参，肯定形参有默认值，要不之前不会匹配过来。为默认值生成赋值*/
         for (size_t i = realParamCount; i < myParamCount; ++i) {
@@ -134,12 +137,12 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * outerCtx,
             if (!defaultValueType) defaultValueType = curDeclParam->getDefaultValue()->getType(&innerCtx);
             SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), curDeclParam->getName(),
                                                                 defaultValueType, LinkageType::INTERNAL);
-            generateDefaultValueParams.push_back(curDeclParam);
             finalParamTypes.push_back(defaultValueType);
+            llvm::Value *llvmPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), &innerCtx);
+            llvm::Value *llvmVal = curDeclParam->getDefaultValue()->generateIR(&innerCtx).getValue();
+            builder.CreateStore(llvmVal, llvmPtr);
+            llvmArgs.push_back(llvmVal);
         }
-    }
-    if (!generateDefaultValueParams.empty()) {
-        this->generateDefaultValueAssignment(&innerCtx, generateDefaultValueParams, fragmentBlock);
     }
 
     /*动态变参的处理：
@@ -149,7 +152,7 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * outerCtx,
      * */
     bool isNative = this->isNative();
     if (this->_runtimeVarargs || isNative) {
-        return this->generateStubBlock(&innerCtx, finalParamTypes, returnType, llvmFunc, fragmentBlock,
+        return this->generateStubBlock(outerCtx, &innerCtx, finalParamTypes, returnType, llvmFunc, llvmArgs, fragmentBlock,
                                        falseBlock, isNative);
         /*======================不是动态变参（静态变参或者无变参的处理）=======================*/
     } else if (this->_staticVarargs)    //如果是静态变参，将多余的实参组合成MultiValue，放进符号表里。
@@ -298,14 +301,19 @@ bool FunctionFragment::isNative() noexcept
 }
 
 llvm::BasicBlock* FunctionFragment::generateStubBlock(
+        GenerateContext *outerCtx,
         GenerateContext *innerCtx,
         const std::vector<Type*> &paramTypes,
         Type *returnType,
         llvm::Function *llvmFunc,
+        const std::vector<llvm::Value*> &llvmArgs,
         llvm::BasicBlock *fragmentBlock,
         llvm::BasicBlock *falseBlock,
         bool isNative)
 {
+    if(this->_staticVarargs){
+        throw InternalException(L"FunctionFragment::generateStubBlock 不接受静态变参！");
+    }
     size_t stubParamCount = this->_runtimeVarargs ? this->parameters.size() : paramTypes.size();
     vector<Type*> stubParamTypes(paramTypes.begin(), paramTypes.begin()+stubParamCount);
     llvm::Function *stubFunc = nullptr;
@@ -333,13 +341,24 @@ llvm::BasicBlock* FunctionFragment::generateStubBlock(
         stubFunc = llvm::Function::Create(llvm::FunctionType::get(llvmReturnType, llvmParamTypes, this->_runtimeVarargs),
                                       llvm::Function::ExternalLinkage,
                                       Locales::fromWideChar(Encoding::ANSI, stubFuncName), innerCtx->getLLVMModule());
+        size_t myParamCount = this->parameters.size();
+        GenerateContext stubCtx(&this->context, outerCtx);
+        auto stubSymbolTable = stubCtx.getInstanceSymbolTable();;
+        auto itLLVMArg = stubFunc->arg_begin();
+        for(size_t i=0; i < stubParamCount; ++i){
+            wstring paramName = this->parameters[i]->getName();
+            itLLVMArg->setName(Locales::fromWideChar(Encoding::ANSI, paramName));
+            auto info = stubSymbolTable->setSymbol(this->getDebugInfo(), paramName, paramTypes[i], LinkageType::INTERNAL);
+            info->setLLVMValue(itLLVMArg);
+            ++itLLVMArg;
+        }
         llvm::BasicBlock *stubEntry = nullptr;
         try
         {
             if (!this->implements.empty())
             {
                 stubEntry = llvm::BasicBlock::Create(*innerCtx->getLLVMContext(), "entry", stubFunc);
-                this->generateImplements(innerCtx, stubEntry, returnType);
+                this->generateImplements(&stubCtx, stubEntry, returnType);
             }
             functionCache->cacheStub(this->getDebugInfo(), this,
                                      FunctionType::get(stubParamTypes, returnType, this->isRuntimeVarargs(),
@@ -380,37 +399,7 @@ llvm::BasicBlock* FunctionFragment::generateStubBlock(
     if (!implBlock) implBlock = fragmentBlock;
     builder.SetInsertPoint(implBlock);
 
-    //将所有实参都加进llvmArgs，用来生成stub
-    vector<llvm::Value *> llvmArgs;
-    llvmArgs.reserve(paramTypes.size());
-    for (auto it = llvmFunc->arg_begin(); it != llvmFunc->arg_end(); ++it)
-    {
-        //获取参数的LLVM Argument
-        llvm::Argument *llvmArg = it;
-        llvmArgs.push_back(llvmArg);
-    }
-    for(size_t i = llvmFunc->arg_size(); i<paramTypes.size(); ++i){
-        
-    }
-
     llvm::Value *stubRet = builder.CreateCall(stubFunc, llvmArgs);
     builder.CreateRet(stubRet);
     return fragmentBlock;
-}
-
-void FunctionFragment::generateDefaultValueAssignment(WorkScript::GenerateContext *context,
-                                                      const std::vector<WorkScript::Parameter *> &generateParams,
-                                                      llvm::BasicBlock *block)
-{
-    auto &builder = *context->getIRBuilder();
-    builder.SetInsertPoint(block);
-    for (size_t i = 0; i < generateParams.size(); ++i)
-    {
-        Parameter *curParam = generateParams[i];
-        std::wstring curParamName = curParam->getName();
-        SymbolInfo *info = context->getSymbolInfo(curParamName);
-        llvm::Value *llvmPtr = info->getLLVMValuePtr(this->getDebugInfo(), context);
-        llvm::Value *val = curParam->getDefaultValue()->generateIR(context).getValue();
-        builder.CreateStore(val, llvmPtr);
-    }
 }

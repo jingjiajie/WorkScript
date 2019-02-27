@@ -17,12 +17,12 @@ namespace WorkScript {
 	{
 	public:
 		inline GenerateContext(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule, llvm::IRBuilder<> *irBuilder,
-				AbstractContext *abstractContext, FunctionCache *cache, StringCache *stringCache,const std::wstring &blockPrefix = L"", BlockAttribute blockAttributes = 0x00)noexcept
-			:InstantialContext(abstractContext,cache, stringCache,blockPrefix,blockAttributes),
+				AbstractContext *abstractContext, FunctionCache *cache, StringCache *stringCache, BlockAttribute blockAttributes = 0x00)noexcept
+			:InstantialContext(abstractContext, cache, stringCache,blockAttributes),
 			llvmContext(llvmContext), llvmModule(llvmModule),irBuilder(irBuilder) { }
 
-		inline explicit GenerateContext(const GenerateContext *base, const std::wstring &blockPrefix = L"")noexcept
-			:InstantialContext((const InstantialContext*)base, blockPrefix),
+		inline explicit GenerateContext(AbstractContext *abstractContext, const GenerateContext *base) noexcept
+			:InstantialContext(abstractContext, (const InstantialContext*)base),
 			 llvmContext(base->llvmContext), llvmModule(base->llvmModule),irBuilder(base->irBuilder){ }
 
 		inline llvm::LLVMContext * getLLVMContext() const noexcept { return this->llvmContext; }
