@@ -343,7 +343,7 @@ llvm::BasicBlock* FunctionFragment::generateStubBlock(
                                       Locales::fromWideChar(Encoding::ANSI, stubFuncName), innerCtx->getLLVMModule());
         size_t myParamCount = this->parameters.size();
         GenerateContext stubCtx(&this->context, outerCtx);
-        auto stubSymbolTable = stubCtx.getInstanceSymbolTable();;
+        auto stubSymbolTable = stubCtx.getInstanceSymbolTable();
         auto itLLVMArg = stubFunc->arg_begin();
         for(size_t i=0; i < stubParamCount; ++i){
             wstring paramName = this->parameters[i]->getName();

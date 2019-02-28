@@ -109,5 +109,7 @@ unsigned FloatType::getLength() const noexcept
 			return 64;
 //		case FloatTypeClassification::LONG_DOUBLE:
 //			return 80;
+	    default:
+            return 0;
 	}
 }
