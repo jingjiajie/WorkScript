@@ -18,7 +18,7 @@ void printUsages()
 
 void printVersion()
 {
-	printf("WorkScript解释器 alpha 3版本 2019-1-16\n荆佳颉 932166095@qq.com\n");
+	printf("WorkScript解释器 alpha 4版本 2019-3-6\n荆佳颉 932166095@qq.com\n");
 }
 
 int main(int argc, const char* argv[]) {

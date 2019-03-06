@@ -173,7 +173,7 @@ Type *Function::getReturnType(const DebugInfo &d, InstantialContext *instCtx,con
         }
 		/*如果所有分支都被取消了，则函数被取消（肯定是SFINAE，如果不是SFINAE则当时就抛错了）*/
 		if (fragmentCanceledCount == this->fragments.size()) {
-            CancelException ex(CancelScope::EXPRESSION);
+            CancelException ex(CancelScope::FUNCTION_FRAGMENT);
 		    instCtx->getFunctionCache()->cacheFunctionType(d, this, queryType, ex);
             throw ex;
 		}
@@ -223,7 +223,12 @@ GenerateResult Function::generateLLVMIR(const DebugInfo &d, GenerateContext *con
         //如果全部匹配失败，则返回未定义值
         builder.SetInsertPoint(notMatched);
         Type *myReturnType = this->getReturnType(d, outerInstCtx, paramTypes);
-        builder.CreateRet(llvm::UndefValue::get(myReturnType->getLLVMType(context)));
+		if (myReturnType->getClassification() == TypeClassification::VOID) {
+			builder.CreateRetVoid();
+		}
+		else {
+			builder.CreateRet(llvm::UndefValue::get(myReturnType->getLLVMType(context)));
+		}
         context->setIRBuilder(prevBuilder);
     }
     llvm::verifyFunction(*llvmFunc);

@@ -258,14 +258,19 @@ void FunctionFragment::generateImplements(GenerateContext *context, llvm::BasicB
             llvm::Value *res = curExpr->generateIR(context).getValue();
             if (i == codeCount - 1)
             {
-                //如果分支返回值类型与函数返回值类型不同，则生成类型转换
-                Type *branchReturnType = curExpr->getType(context);
-                if (!branchReturnType->equals(returnType))
-                {
-                    res = Type::generateLLVMTypeConvert(curExpr->getDebugInfo(), context, curExpr,
-                                                        returnType).getValue();
-                }
-                builder.CreateRet(res);
+				if (returnType->getClassification() == TypeClassification::VOID) {
+					builder.CreateRetVoid();
+				}
+				else {
+					//如果分支返回值类型与函数返回值类型不同，则生成类型转换
+					Type *branchReturnType = curExpr->getType(context);
+					if (!branchReturnType->equals(returnType))
+					{
+						res = Type::generateLLVMTypeConvert(curExpr->getDebugInfo(), context, curExpr,
+							returnType).getValue();
+					}
+					builder.CreateRet(res);
+				}
             }
         }
         catch (const CancelException &ex)
@@ -400,6 +405,11 @@ llvm::BasicBlock* FunctionFragment::generateStubBlock(
     builder.SetInsertPoint(implBlock);
 
     llvm::Value *stubRet = builder.CreateCall(stubFunc, llvmArgs);
-    builder.CreateRet(stubRet);
+	if (returnType->getClassification() == TypeClassification::VOID) {
+		builder.CreateRetVoid();
+	}
+	else {
+		builder.CreateRet(stubRet);
+	}
     return fragmentBlock;
 }

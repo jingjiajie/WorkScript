@@ -1,6 +1,7 @@
 #include "PointerType.h"
 #include "Report.h"
 #include "DebugInfo.h"
+#include "IntegerType.h"
 #include <sstream>
 
 using namespace WorkScript;
@@ -35,7 +36,12 @@ TypeClassification PointerType::getClassification() const noexcept
 
 llvm::Type * PointerType::getLLVMType(GenerateContext * ctx) const
 {
-	llvm::Type *llvmType = this->targetType->getLLVMType(ctx);
+	Type *targetType = this->targetType;
+	//LLVM不支持void*，需要生成为i8*
+	if (targetType->getClassification() == TypeClassification::VOID) {
+		targetType = IntegerType::get(IntegerTypeClassification::CHAR, false);
+	}
+	llvm::Type *llvmType = targetType->getLLVMType(ctx);
 	for (unsigned i = 0; i < this->level; ++i) {
 		llvmType = llvm::PointerType::get(llvmType, 0U);
 	}
