@@ -320,7 +320,18 @@ llvm::BasicBlock* FunctionFragment::generateStubBlock(
         throw InternalException(L"FunctionFragment::generateStubBlock 不接受静态变参！");
     }
     size_t stubParamCount = this->_runtimeVarargs ? this->parameters.size() : paramTypes.size();
-    vector<Type*> stubParamTypes(paramTypes.begin(), paramTypes.begin()+stubParamCount);
+    size_t myParamCount = this->parameters.size();
+    //vector<Type*> stubParamTypes(paramTypes.begin(), paramTypes.begin()+stubParamCount);
+    //计算stub的参数类型，如果本函数有明确声明类型的参数，则取声明的类型。否则取实参的类型
+    vector<Type*> stubParamTypes;
+    stubParamTypes.reserve(stubParamCount);
+    for(size_t i=0; i < stubParamCount; ++i){
+        if(i < myParamCount && this->parameters[i]->getType()){
+            stubParamTypes.push_back(this->parameters[i]->getType());
+        }else{
+            stubParamTypes.push_back(paramTypes[i]);
+        }
+    }
     llvm::Function *stubFunc = nullptr;
     FunctionCache *functionCache = innerCtx->getFunctionCache();
     if(!functionCache->getCachedStub(this->getDebugInfo(),this,FunctionTypeQuery(stubParamTypes,false,this->isRuntimeVarargs()), &stubFunc))
