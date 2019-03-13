@@ -597,6 +597,11 @@ static int compileModule(const char *argv[], LLVMContext &llvmContext) {
 int WorkScriptCompiler::compile(int argc, const char* argv[])
 {
   InitLLVM X(argc, argv);
+FileType.setValue(llvm::TargetMachine::CodeGenFileType::CGFT_ObjectFile);
+  if(InputFilename.empty()){
+    fprintf(stderr, "%ls", L"请输入文件名\n");
+    return 0;
+  }
 
   // Enable debug stream buffering.
   EnableDebugBuffering = true;
