@@ -23,9 +23,9 @@ endif ()
 
 
 include(${WorkScript_SOURCE_DIR}/include_directories.cmake)
-include_directories(${wsi_SOURCE_DIR})
+include_directories(${wsc_SOURCE_DIR})
 
-aux_source_directory(./ wsi_src)
+aux_source_directory(./ wsc_src)
 
-add_executable(wsi ${wsi_src})
-target_link_libraries(wsi WorkScript)
+add_executable(wsc ${wsc_src})
+target_link_libraries(wsc WorkScript)
