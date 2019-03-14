@@ -8,8 +8,8 @@
 using namespace std;
 using namespace WorkScript;
 
-int main(int argc, const char* argv[]) {
+int main(int argc, const char **argv) {
 	setlocale(LC_CTYPE,"");
-	WorkScriptCompiler compiler;
-	compiler.compile(argc, argv);
+	WorkScriptCompiler compiler(argc, argv);
+	compiler.run();
 }

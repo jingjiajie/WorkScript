@@ -1,6 +1,8 @@
 #pragma once
 #include <wchar.h>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/Support/ToolOutputFile.h>
+#include <llvm/ADT/Triple.h>
 
 namespace WorkScript {
 	class Program;
@@ -8,9 +10,15 @@ namespace WorkScript {
 	class WorkScriptCompiler
 	{
 	public:
-		int compile(int argc, const char* argv[]);
+		WorkScriptCompiler(int argc, const char **argv);
+		void run();
 
-//		void run(const char *fileName);
+	private:
+		int argc = 0;
+		const char **argv;
+
+		int compile(std::vector<std::string> &outObjFilePaths);
+		void link(const std::vector<std::string> &objFilePaths);
 	};
 
 }

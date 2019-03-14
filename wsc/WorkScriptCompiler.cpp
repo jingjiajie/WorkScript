@@ -1,4 +1,5 @@
 #include "WorkScriptCompiler.h"
+#include "Options.h"
 #include <Program.h>
 #include <Expression.h>
 #include <Report.h>
@@ -8,7 +9,6 @@
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/ADT/Triple.h>
 #include <llvm/Analysis/TargetLibraryInfo.h>
-#include <llvm/CodeGen/CommandFlags.inc>
 #include <llvm/CodeGen/LinkAllAsmWriterComponents.h>
 #include <llvm/CodeGen/LinkAllCodegenComponents.h>
 #include <llvm/CodeGen/MIRParser/MIRParser.h>
@@ -28,7 +28,6 @@
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/MC/SubtargetFeature.h>
 #include <llvm/Pass.h>
-#include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/FormattedStream.h>
@@ -47,223 +46,25 @@
 
 using namespace std;
 using namespace WorkScript;
+using namespace llvm;
 
-//
-//void WorkScriptCompiler::run(const char * filePath)
-//{
-//	llvm::InitializeNativeTarget();
-//	llvm::InitializeNativeTargetAsmParser();
-//	llvm::InitializeNativeTargetAsmPrinter();
-//	llvm::InitializeNativeTargetDisassembler();
-//	Program program(filePath);
-//	llvm::LLVMContext llvmContext;
-//	auto llvmModule = unique_ptr<llvm::Module>(new llvm::Module("main", llvmContext));
-//	try
-//    {
-//        program.generateLLVMIR(&llvmContext, llvmModule.get());
-//    }catch (const CancelException &ex){
-//        ex.rethrowAbove(CancelScope::COMPILATION);
-//	}
-//	Report *report = program.getReport();
-//	if(report->getErrorCount() > 0){
-//		report->dump();
-//		return;
-//	}
-////	printf("IR dump:\n");
-////	llvmModule->print(llvm::outs(),nullptr);
-////	printf("\n\n");
-//	string errorStr;
-//
-//	llvm::EngineBuilder b(std::move(llvmModule));
-//
-//	//llvm::RTDyldMemoryManager* RTDyldMM = NULL;
-//	b.setEngineKind(llvm::EngineKind::JIT)
-//		.setErrorStr(&errorStr);
-//	//.setVerifyModules(true)
-//	//.setMCJITMemoryManager(std::unique_ptr<llvm::RTDyldMemoryManager>(RTDyldMM))
-//	//.setOptLevel(llvm::CodeGenOpt::Default)
-//	auto e = b.create();
-//	e->finalizeObject();
-////	printf("开始JIT执行：\n");
-//	typedef int(*TFMAIN)();
-//	TFMAIN fmain = (TFMAIN)e->getPointerToNamedFunction("main");
-//	//double startTime = clock();
-//	auto ret = fmain();
-//	//double endTime = clock();
-////	printf("\n执行完毕，返回值：%d\n", ret);
-//}
+WorkScriptCompiler::WorkScriptCompiler(int argc, const char **argv)
+  :argc(argc), argv(argv)
+{
 
-
-static cl::opt<std::string>
-        InputFilename(cl::Positional, cl::desc("<input bitcode>"), cl::init("-"));
-
-static cl::opt<std::string>
-        InputLanguage("x", cl::desc("Input language ('ir' or 'mir')"));
-
-static cl::opt<std::string>
-        OutputFilename("o", cl::desc("Output filename"), cl::value_desc("filename"));
-
-static cl::opt<std::string>
-        SplitDwarfOutputFile("split-dwarf-output",
-                             cl::desc(".dwo output filename"),
-                             cl::value_desc("filename"));
-
-static cl::opt<unsigned>
-        TimeCompilations("time-compilations", cl::Hidden, cl::init(1u),
-                         cl::value_desc("N"),
-                         cl::desc("Repeat compilation N times for timing"));
-
-static cl::opt<bool>
-        NoIntegratedAssembler("no-integrated-as", cl::Hidden,
-                              cl::desc("Disable integrated assembler"));
-
-static cl::opt<bool>
-        PreserveComments("preserve-as-comments", cl::Hidden,
-                         cl::desc("Preserve Comments in outputted assembly"),
-                         cl::init(true));
-
-// Determine optimization level.
-static cl::opt<char>
-        OptLevel("O",
-                 cl::desc("Optimization level. [-O0, -O1, -O2, or -O3] "
-                          "(default = '-O2')"),
-                 cl::Prefix,
-                 cl::ZeroOrMore,
-                 cl::init(' '));
-
-static cl::opt<std::string>
-        TargetTriple("mtriple", cl::desc("Override target triple for module"));
-
-static cl::opt<std::string> SplitDwarfFile(
-        "split-dwarf-file",
-        cl::desc(
-                "Specify the name of the .dwo file to encode in the DWARF output"));
-
-static cl::opt<bool> NoVerify("disable-verify", cl::Hidden,
-                              cl::desc("Do not verify input module"));
-
-static cl::opt<bool> DisableSimplifyLibCalls("disable-simplify-libcalls",
-                                             cl::desc("Disable simplify-libcalls"));
-
-static cl::opt<bool> ShowMCEncoding("show-mc-encoding", cl::Hidden,
-                                    cl::desc("Show encoding in .s output"));
-
-static cl::opt<bool> EnableDwarfDirectory(
-        "enable-dwarf-directory", cl::Hidden,
-        cl::desc("Use .file directives with an explicit directory."));
-
-static cl::opt<bool> AsmVerbose("asm-verbose",
-                                cl::desc("Add comments to directives."),
-                                cl::init(true));
-
-static cl::opt<bool>
-        CompileTwice("compile-twice", cl::Hidden,
-                     cl::desc("Run everything twice, re-using the same pass "
-                              "manager and verify the result is the same."),
-                     cl::init(false));
-
-static cl::opt<bool> DiscardValueNames(
-        "discard-value-names",
-        cl::desc("Discard names from Value (other than GlobalValue)."),
-        cl::init(false), cl::Hidden);
-
-static cl::list<std::string> IncludeDirs("I", cl::desc("include search path"));
-
-static cl::opt<bool> PassRemarksWithHotness(
-        "pass-remarks-with-hotness",
-        cl::desc("With PGO, include profile count in optimization remarks"),
-        cl::Hidden);
-
-static cl::opt<unsigned> PassRemarksHotnessThreshold(
-        "pass-remarks-hotness-threshold",
-        cl::desc("Minimum profile count required for an optimization remark to be output"),
-        cl::Hidden);
-
-static cl::opt<std::string>
-        RemarksFilename("pass-remarks-output",
-                        cl::desc("YAML output filename for pass remarks"),
-                        cl::value_desc("filename"));
-
-namespace {
-    static ManagedStatic<std::vector<std::string>> RunPassNames;
-
-    struct RunPassOption {
-        void operator=(const std::string &Val) const {
-          if (Val.empty())
-            return;
-          SmallVector<StringRef, 8> PassNames;
-          StringRef(Val).split(PassNames, ',', -1, false);
-          for (auto PassName : PassNames)
-            RunPassNames->push_back(PassName);
-        }
-    };
 }
 
-static RunPassOption RunPassOpt;
+void WorkScriptCompiler::run()
+{
+  this->compile();
+  this->link();
+}
 
-static cl::opt<RunPassOption, true, cl::parser<std::string>> RunPass(
-        "run-pass",
-        cl::desc("Run compiler only for specified passes (comma separated list)"),
-        cl::value_desc("pass-name"), cl::ZeroOrMore, cl::location(RunPassOpt));
-
-
-static std::unique_ptr<ToolOutputFile> GetOutputStream(const char *TargetName,
-                                                       Triple::OSType OS,
-                                                       const char *ProgName) {
-  // If we don't yet have an output filename, make one.
-  if (OutputFilename.empty()) {
-    if (InputFilename == "-")
-      OutputFilename = "-";
-    else {
-      // If InputFilename ends in .bc or .ll, remove it.
-      StringRef IFN = InputFilename;
-      if (IFN.endswith(".bc") || IFN.endswith(".ll"))
-        OutputFilename = IFN.drop_back(3);
-      else if (IFN.endswith(".mir"))
-        OutputFilename = IFN.drop_back(4);
-      else
-        OutputFilename = IFN;
-
-      switch (FileType) {
-        case TargetMachine::CGFT_AssemblyFile:
-          if (TargetName[0] == 'c') {
-            if (TargetName[1] == 0)
-              OutputFilename += ".cbe.c";
-            else if (TargetName[1] == 'p' && TargetName[2] == 'p')
-              OutputFilename += ".cpp";
-            else
-              OutputFilename += ".s";
-          } else
-            OutputFilename += ".s";
-              break;
-        case TargetMachine::CGFT_ObjectFile:
-          if (OS == Triple::Win32)
-            OutputFilename += ".obj";
-          else
-            OutputFilename += ".o";
-              break;
-        case TargetMachine::CGFT_Null:
-          OutputFilename += ".null";
-              break;
-      }
-    }
-  }
-
-  // Decide if we need "binary" output.
-  bool Binary = false;
-  switch (FileType) {
-    case TargetMachine::CGFT_AssemblyFile:
-      break;
-    case TargetMachine::CGFT_ObjectFile:
-    case TargetMachine::CGFT_Null:
-      Binary = true;
-          break;
-  }
-
-  // Open the file.
+static std::unique_ptr<ToolOutputFile> GetOutputStream(const string &filePath, bool isBinary)
+{
   std::error_code EC;
   sys::fs::OpenFlags OpenFlags = sys::fs::F_None;
-  if (!Binary)
+  if (!isBinary)
     OpenFlags |= sys::fs::F_Text;
   auto FDOut = llvm::make_unique<ToolOutputFile>(OutputFilename, EC, OpenFlags);
   if (EC) {
@@ -409,13 +210,13 @@ static int compileModule(const char *argv[], LLVMContext &llvmContext) {
   }
 
   TargetOptions Options = InitTargetOptionsFromCodeGenFlags();
-//  Options.DisableIntegratedAS = NoIntegratedAssembler;
-//  Options.MCOptions.ShowMCEncoding = ShowMCEncoding;
-//  Options.MCOptions.MCUseDwarfDirectory = EnableDwarfDirectory;
-//  Options.MCOptions.AsmVerbose = AsmVerbose;
-//  Options.MCOptions.PreserveAsmComments = PreserveComments;
-//  Options.MCOptions.IASSearchPaths = IncludeDirs;
-//  Options.MCOptions.SplitDwarfFile = SplitDwarfFile;
+  Options.DisableIntegratedAS = NoIntegratedAssembler;
+  Options.MCOptions.ShowMCEncoding = ShowMCEncoding;
+  Options.MCOptions.MCUseDwarfDirectory = EnableDwarfDirectory;
+  Options.MCOptions.AsmVerbose = AsmVerbose;
+  Options.MCOptions.PreserveAsmComments = PreserveComments;
+  Options.MCOptions.IASSearchPaths = IncludeDirs;
+  Options.MCOptions.SplitDwarfFile = SplitDwarfFile;
 
   std::unique_ptr<TargetMachine> Target(TheTarget->createTargetMachine(
           TheTriple.getTriple(), CPUStr, FeaturesStr, Options, getRelocModel(),
@@ -594,10 +395,9 @@ static int compileModule(const char *argv[], LLVMContext &llvmContext) {
   return 0;
 }
 
-int WorkScriptCompiler::compile(int argc, const char* argv[])
+int WorkScriptCompiler::compile(std::vector<std::string> &outObjFilePaths)
 {
   InitLLVM X(argc, argv);
-FileType.setValue(llvm::TargetMachine::CodeGenFileType::CGFT_ObjectFile);
   if(InputFilename.empty()){
     fprintf(stderr, "%ls", L"请输入文件名\n");
     return 0;
@@ -636,7 +436,7 @@ FileType.setValue(llvm::TargetMachine::CodeGenFileType::CGFT_ObjectFile);
   // Register the target printer for --version.
   cl::AddExtraVersionPrinter(TargetRegistry::printRegisteredTargetsForVersion);
 
-  cl::ParseCommandLineOptions(argc, argv, "llvm system compiler\n");
+  cl::ParseCommandLineOptions(argc, argv, "WorkScript Compiler\n");
 
   Context.setDiscardValueNames(DiscardValueNames);
 
@@ -663,13 +463,6 @@ FileType.setValue(llvm::TargetMachine::CodeGenFileType::CGFT_ObjectFile);
     }
     Context.setDiagnosticsOutputFile(
             llvm::make_unique<yaml::Output>(YamlFile->os()));
-  }
-
-  if (InputLanguage != "" && InputLanguage != "ir" &&
-      InputLanguage != "mir") {
-    WithColor::error(errs(), argv[0])
-            << "input language must be '', 'IR' or 'MIR'\n";
-    return 1;
   }
 
   // Compile the module TimeCompilations times to give better compile time
