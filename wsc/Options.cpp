@@ -15,6 +15,12 @@
 
 using namespace llvm;
 
+cl::opt<bool>
+        SaveTemps("save-temps", cl::desc("Do not delete intermediate files."),cl::init(false));
+
+cl::opt<std::string>
+        InputFilename(llvm::cl::Positional,cl::desc("<input bitcode>"));
+
 cl::opt<std::string>
         MArch("march",
              cl::desc("Architecture to generate code for (see --version)"));
@@ -250,20 +256,12 @@ cl::opt<bool> EnableStackSizeSection(
        cl::desc("Emit a section containing stack size metadata"),cl::init(false));
 
 cl::opt<std::string>
-        InputFilename(llvm::cl::Positional,cl::desc("<input bitcode>"),cl::init("-"));
-
-cl::opt<std::string>
         OutputFilename("o",cl::desc("Output filename"),cl::value_desc("filename"));
 
 cl::opt<std::string>
         SplitDwarfOutputFile("split-dwarf-output",
                             cl::desc(".dwo output filename"),
                             cl::value_desc("filename"));
-
-cl::opt<unsigned>
-        TimeCompilations("time-compilations",cl::Hidden,cl::init(1u),
-                        cl::value_desc("N"),
-                        cl::desc("Repeat compilation N times for timing"));
 
 cl::opt<bool>
         NoIntegratedAssembler("no-integrated-as",cl::Hidden,
@@ -307,12 +305,6 @@ cl::opt<bool> EnableDwarfDirectory(
 cl::opt<bool> AsmVerbose("asm-verbose",
                                cl::desc("Add comments to directives."),
                                cl::init(true));
-
-cl::opt<bool>
-        CompileTwice("compile-twice",cl::Hidden,
-                    cl::desc("Run everything twice, re-using the same pass "
-                              "manager and verify the result is the same."),
-                    cl::init(false));
 
 cl::opt<bool> DiscardValueNames(
         "discard-value-names",

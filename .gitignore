@@ -1,4 +1,6 @@
 *.swp
+*.o
+*.out
 .vs/
 .idea/
 cmake-build*/

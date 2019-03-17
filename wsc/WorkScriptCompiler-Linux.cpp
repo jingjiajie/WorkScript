@@ -8,8 +8,6 @@
 using namespace std;
 using namespace WorkScript;
 
-#define MAXLINE 1024
-
 
 void WorkScriptCompiler::link(const std::vector<std::string> &objFilePaths)
 {
@@ -25,18 +23,23 @@ void WorkScriptCompiler::link(const std::vector<std::string> &objFilePaths)
 
     fp = popen(command.str().c_str(), "r");
     if (nullptr == fp) {
-        fprintf(stderr, "%ls", L"无法执行ld，请检查环境配置\n");
+        fprintf(stderr, "%ls\n", L"无法执行ld，请检查环境配置");
         exit(1);
     }
 
     rc = pclose(fp);
     if (-1 == rc) {
-        perror("关闭文件指针失败");
+        fprintf(stderr, "%ls\n", L"ld关闭失败");
         exit(1);
-    } else {
-        printf("命令【%s】子进程结束状态【%d】命令返回值【%d】\r\n", command, rc, WEXITSTATUS(rc));
+    } else if(WEXITSTATUS(rc) != 0){
+        fprintf(stderr, "%ls%u\n", L"ld返回错误状态：", WEXITSTATUS(rc));
     }
 
+    if(!SaveTemps) {
+        for (const auto &file : objFilePaths) {
+            remove(file.c_str());
+        }
+    }
 }
 
 #endif

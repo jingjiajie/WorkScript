@@ -14,6 +14,8 @@
 #include <llvm/Target/TargetOptions.h>
 #include <string>
 
+extern llvm::cl::opt<bool> SaveTemps;
+
 extern llvm::cl::opt<std::string> MArch;
 
 extern llvm::cl::opt<std::string> MCPU;
@@ -90,8 +92,6 @@ extern llvm::cl::opt<std::string> OutputFilename;
 
 extern llvm::cl::opt<std::string> SplitDwarfOutputFile;
 
-extern llvm::cl::opt<unsigned> TimeCompilations;
-
 extern llvm::cl::opt<bool> NoIntegratedAssembler;
 
 extern llvm::cl::opt<bool> PreserveComments;
@@ -111,8 +111,6 @@ extern llvm::cl::opt<bool> ShowMCEncoding;
 extern llvm::cl::opt<bool> EnableDwarfDirectory;
 
 extern llvm::cl::opt<bool> AsmVerbose;
-
-extern llvm::cl::opt<bool> CompileTwice;
 
 extern llvm::cl::opt<bool> DiscardValueNames;
 
