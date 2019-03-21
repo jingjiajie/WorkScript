@@ -21,7 +21,7 @@ namespace WorkScript
     class CmdArg{
     public:
         virtual void generate(cmdline::parser *parser) const noexcept = 0;
-        virtual void extract(cmdline::parser *parser) const noexcept = 0;
+        virtual void extract(cmdline::parser *parser) noexcept = 0;
         virtual std::any getValue() const noexcept = 0;
 
         std::wstring getName() const noexcept{
@@ -45,7 +45,7 @@ namespace WorkScript
                             name(name), shortName(shortName), description(desc),
                             need(need) { }
 
-    private:
+    protected:
         std::vector<CmdArgGroup> groups;
         std::wstring name;
         char shortName;
@@ -54,30 +54,24 @@ namespace WorkScript
     };
 
     template<typename T>
-    class CmdArg : public CmdArg{
+    class CmdArgSub : public CmdArg{
     public:
-        CmdArg(
+        CmdArgSub(
                 const std::vector<CmdArgGroup> &groups,
                 const std::wstring &name,
                 char shortName,
                 const std::wstring &desc,
                 bool need,
-                T defaultValue): CmdArgs(groups, name, shortName, desc, need), defaultValue(defaultValue) { }
+                T defaultValue): CmdArg(groups, name, shortName, desc, need), defaultValue(defaultValue) { }
 
-        void generate(cmdline::parser *parser)const noexcept override
+        void generate(cmdline::parser *parser) const noexcept override
         {
-            parser->add(Locales::fromWideChar(Encoding::ANSI, this->name), this->shortName,
+            parser->add<T>(Locales::fromWideChar(Encoding::ANSI, this->name), this->shortName,
                         Locales::fromWideChar(Encoding::ANSI, this->description), this->need, this->defaultValue);
         }
 
-        typename std::enable_if<!std::is_same<T, bool>::value, void>::type
-        extract(cmdline::parser *parser)const noexcept override{
+        void extract(cmdline::parser *parser) noexcept override{
             this->value = parser->get<T>(Locales::fromWideChar(Encoding::ANSI, this->name));
-        }
-
-        typename std::enable_if<std::is_same<T, bool>::value, void>::type
-        extract(cmdline::parser *parser)const noexcept override{
-            this->value = parser->exist(Locales::fromWideChar(Encoding::ANSI, this->name));
         }
 
         std::any getValue() const noexcept override{return this->value;}
@@ -98,35 +92,68 @@ namespace WorkScript
             }
         }
 
-        void addCmdArg(std::shared_ptr<CmdArg> arg){
-            if(this->args.find(arg->getName()) != this->args.end()){
-                throw InternalException(L"参数" + arg->getName() + "重复！");
+        void addStrArg(const std::vector<CmdArgGroup> &groups,
+                       const std::wstring &name,
+                       char shortName,
+                       const std::wstring &desc,
+                       bool need,
+                       const wchar_t *defaultValue){
+            if(this->args.find(name) != this->args.end()){
+                throw InternalException(L"参数" + name + L"重复！");
             }
+            std::shared_ptr<CmdArg> arg (new CmdArgSub<std::string>(groups, name, shortName, desc, need, Locales::fromWideChar(Encoding::ANSI,defaultValue)));
             this->args[arg->getName()] = arg;
         }
 
-        void parse(int argc, char **argv)
+        void addBoolArg(const std::vector<CmdArgGroup> &groups,
+                       const std::wstring &name,
+                       char shortName,
+                       const std::wstring &desc,
+                       bool need,
+                       bool defaultValue){
+            if(this->args.find(name) != this->args.end()){
+                throw InternalException(L"参数" + name + L"重复！");
+            }
+            std::shared_ptr<CmdArg> arg (new CmdArgSub<bool>(groups, name, shortName, desc, need, defaultValue));
+            this->args[arg->getName()] = arg;
+        }
+
+        void addIntArg(const std::vector<CmdArgGroup> &groups,
+                       const std::wstring &name,
+                       char shortName,
+                       const std::wstring &desc,
+                       bool need,
+                       int defaultValue){
+            if(this->args.find(name) != this->args.end()){
+                throw InternalException(L"参数" + name + L"重复！");
+            }
+            std::shared_ptr<CmdArg> arg (new CmdArgSub<int>(groups, name, shortName, desc, need, defaultValue));
+            this->args[arg->getName()] = arg;
+        }
+
+        void parse(int argc, const char **argv)
         {
             cmdline::parser p;
             for(auto &item : this->args){
-                item.second->generate(p);
+                item.second->generate(&p);
             }
-            p.parse_check(argc, argv);
+            p.parse_check(argc, (char**)argv);
             for(auto &item : this->args){
-                item.second->extract(p);
+                item.second->extract(&p);
             }
         }
 
-        std::shared_ptr<CmdArg> get(const std::wstring &name) noexcept{
+        template<typename T>
+        T get(const std::wstring &name) noexcept{
             auto it = this->args.find(name);
             if(it != this->args.end()){
-                return it->second;
+                return std::any_cast<T>(it->second->getValue());
             }else{
-                return nullptr;
+                return T();
             }
         }
 
-        CmdArgs getByGroup(CmdArgGroup group)
+        CmdArgs getGroup(CmdArgGroup group)
         {
             std::vector<std::shared_ptr<CmdArg>> result;
             for(auto item : this->args){

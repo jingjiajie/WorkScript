@@ -4,20 +4,21 @@
 #include "Locales.h"
 #include "Defines.h"
 #include "WorkScriptCompiler.h"
-#include "cmdline.h"
-
-
-using namespace llvm;
+#include "CmdArg.h"
 
 using namespace std;
 using namespace WorkScript;
 
-static void initLLVM(int argc, const char **argv);
-static void initArgs(int argc, const char **argv);
+static void initArgs(CmdArgs *cmdArgs){
+	cmdArgs->addStrArg({CmdArgGroup::LLC}, L"hello", 'h', L"hehe", false, L"777");
+}
 
 int main(int argc, const char **argv) {
 	setlocale(LC_CTYPE,"");
-
-	WorkScriptCompiler compiler;
-	compiler.run();
+	CmdArgs args;
+	initArgs(&args);
+	args.parse(argc, argv);
+	printf("%s\n",args.get<string>(L"hello").c_str());
+//	WorkScriptCompiler compiler;
+//	compiler.run();
 }

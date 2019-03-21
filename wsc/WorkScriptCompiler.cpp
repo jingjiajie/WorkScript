@@ -45,7 +45,7 @@ using namespace WorkScript;
 using namespace llvm;
 
 
-int WorkScriptCompiler::compile()
+CompileResult WorkScriptCompiler::compile(const CmdArgs &args)
 {
     LLVMContext llvmContext;
 
@@ -59,7 +59,7 @@ int WorkScriptCompiler::compile()
     Report *report = program.getReport();
     if (report->getErrorCount() > 0) {
         report->dump();
-        return 1;
+        return CompileResult::ERROR;
     }
-    return 0;
+    return CompileResult::OK;
 }

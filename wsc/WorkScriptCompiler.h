@@ -1,5 +1,6 @@
 #pragma once
 #include <wchar.h>
+#include "CmdArg.h"
 
 namespace WorkScript {
 	class Program;
@@ -11,6 +12,6 @@ namespace WorkScript {
 	class WorkScriptCompiler
 	{
 	public:
-		CompileResult compile();
+		CompileResult compile(const CmdArgs &args);
 	};
 }
