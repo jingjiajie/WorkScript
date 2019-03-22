@@ -3,8 +3,6 @@
 #include <wchar.h>
 #include <stdlib.h>
 #include "Locales.h"
-#include "Report.h"
-
 
 using namespace std;
 using namespace WorkScript;

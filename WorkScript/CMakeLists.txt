@@ -13,6 +13,8 @@ else()
     set(CMAKE_EXE_LINKER_FLAGS "")
 endif()
 
+include_directories(${utils_SOURCE_DIR})
+
 #LLVM依赖相关
 find_package(LLVM REQUIRED CONFIG)
 include_directories(${LLVM_INCLUDE_DIR})
@@ -85,5 +87,6 @@ aux_source_directory(Tree/ WorkScript_src)
 
 add_library(WorkScript STATIC ${WorkScript_src})
 
+target_link_libraries(WorkScript utils)
 target_link_libraries(WorkScript antlr4_static)
 target_link_libraries(WorkScript ${llvm_libs})

@@ -1,4 +1,4 @@
-project(wsi)
+project(wsc)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -24,8 +24,10 @@ endif ()
 
 include(${WorkScript_SOURCE_DIR}/include_directories.cmake)
 include_directories(${wsc_SOURCE_DIR})
+include_directories(${utils_SOURCE_DIR})
 
 aux_source_directory(./ wsc_src)
 
 add_executable(wsc ${wsc_src})
+target_link_libraries(wsc utils)
 target_link_libraries(wsc WorkScript)

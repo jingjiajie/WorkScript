@@ -10,7 +10,7 @@ using namespace std;
 using namespace WorkScript;
 
 static void initArgs(CmdArgs *cmdArgs){
-	cmdArgs->addStrArg({CmdArgGroup::LLC}, L"hello", 'h', L"hehe", false, L"777");
+	cmdArgs->addStrArg({CmdArgGroup::LLC}, L"o", '\0', L"target", false, L"");
 }
 
 int main(int argc, const char **argv) {
