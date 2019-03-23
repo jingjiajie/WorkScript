@@ -8,7 +8,6 @@
 #include <any>
 #include <memory>
 
-#include "cmdline.h"
 #include "Locales.h"
 
 namespace WorkScript
@@ -17,98 +16,96 @@ namespace WorkScript
         WSC, LLC, LD
     };
 
-    class CmdArg{
-    public:
-        virtual void generate(cmdline::parser *parser) const noexcept = 0;
-        virtual void extract(cmdline::parser *parser) noexcept = 0;
-        virtual std::any getValue() const noexcept = 0;
-
-        std::wstring getName() const noexcept{
-            return this->name;
-        }
-
-        bool belongsTo(CmdArgGroup group)const noexcept{
-            for(size_t i=0; i<this->groups.size();++i){
-                if(groups[i] == group) return true;
-            }
-            return false;
-        }
-
-    protected:
-        CmdArg(
-                const std::vector<CmdArgGroup> &groups,
-                const std::wstring &name,
-                const std::wstring &desc,
-                bool need): groups(groups),
-                            name(name), description(desc),
-                            need(need) { }
-
-    protected:
-        std::vector<CmdArgGroup> groups;
-        std::wstring name;
-        std::wstring description;
-        bool need = false;
+    enum class CmdArgType{
+        LONG, BOOL, WSTRING, LIST
     };
 
-    template<typename T>
-    class CmdArgSub : public CmdArg{
-    public:
-        CmdArgSub(
-                const std::vector<CmdArgGroup> &groups,
-                const std::wstring &name,
-                const std::wstring &desc,
-                bool need,
-                T defaultValue): CmdArg(groups, name, desc, need), defaultValue(defaultValue) { }
+    struct CmdArg{
+        CmdArg(CmdArgType type,
+        const std::vector<CmdArgGroup> &groups,
+        const std::wstring &name,
+        unsigned char dashs,
+        char shortName,
+        const std::wstring &description,
+        bool need,
+        const std::any &defaultValue) noexcept;
 
-        void generate(cmdline::parser *parser) const noexcept override
-        {
-            parser->add<T>(Locales::fromWideChar(Encoding::ANSI, this->name), 'l',
-                        Locales::fromWideChar(Encoding::ANSI, this->description), this->need, this->defaultValue);
-        }
+        CmdArg(CmdArgType type,
+               const std::vector<CmdArgGroup> &groups,
+               const std::wstring &name,
+               unsigned char dashs,
+               char shortName,
+               const std::wstring &description,
+               bool need)noexcept;
+        std::wstring getNameStr() const noexcept;
+        void accept(const std::wstring &value);
 
-        void extract(cmdline::parser *parser) noexcept override{
-            this->value = parser->get<T>(Locales::fromWideChar(Encoding::ANSI, this->name));
-        }
-
-        std::any getValue() const noexcept override{return this->value;}
-
-    private:
-        T defaultValue;
-        T value;
+        CmdArgType type;
+        std::vector<CmdArgGroup> groups;
+        std::wstring name;
+        unsigned char dashs;
+        char shortName;
+        std::wstring description;
+        bool need;
+        std::any defaultValue;
+        std::any value;
     };
 
     class CmdArgs
     {
     public:
-        CmdArgs() = default;
+        CmdArgs();
 
-        explicit CmdArgs(const std::vector<std::shared_ptr<CmdArg>> &args);
+        explicit CmdArgs(const std::vector<CmdArg> &args);
 
         void addStrArg(const std::vector<CmdArgGroup> &groups,
                        const std::wstring &name,
+                       unsigned char dashs,
+                       char shortName,
                        const std::wstring &desc,
                        bool need,
-                       const wchar_t *defaultValue);
+                       const std::optional<const wchar_t *> &defaultValue = std::nullopt);
 
         void addBoolArg(const std::vector<CmdArgGroup> &groups,
                        const std::wstring &name,
+                        unsigned char dashs,
+                        char shortName,
                        const std::wstring &desc,
                        bool need,
-                       bool defaultValue);
+                       const std::optional<bool> &defaultValue = std::nullopt);
 
-        void addIntArg(const std::vector<CmdArgGroup> &groups,
+        void addLongArg(const std::vector<CmdArgGroup> &groups,
                        const std::wstring &name,
+                       unsigned char dashs,
+                       char shortName,
                        const std::wstring &desc,
                        bool need,
-                       int defaultValue);
+                       const std::optional<long> &defaultValue = std::nullopt);
+
+        void addListArg(const std::vector<CmdArgGroup> &groups,
+                       const std::wstring &name,
+                       unsigned char dashs,
+                       char shortName,
+                       const std::wstring &desc,
+                       bool need);
 
         void parse(int argc, const char **argv);
 
         template<typename T>
         T get(const std::wstring &name) noexcept{
-            auto it = this->args.find(name);
-            if(it != this->args.end()){
-                return std::any_cast<T>(it->second->getValue());
+            auto it = this->argIndexByName.find(name);
+            if(it != this->argIndexByName.end() && this->args[it->second].value.has_value()){
+                return std::any_cast<T>(this->args[it->second].value);
+            }else{
+                return T();
+            }
+        }
+
+        template<typename T>
+        T get(char shortName) noexcept{
+            CmdArg *arg = &this->args[this->argIndexByShortName[shortName]];
+            if(arg && arg->value.has_value()){
+                return std::any_cast<T>(arg->value);
             }else{
                 return T();
             }
@@ -116,8 +113,15 @@ namespace WorkScript
 
         CmdArgs getGroup(CmdArgGroup group);
         std::wstring toString();
+        const std::vector<std::wstring>& getRestArgs() const noexcept;
     private:
-        std::unordered_map<std::wstring,std::shared_ptr<CmdArg>> args;
+        std::vector<CmdArg> args;
+        std::unordered_map<std::wstring,size_t> argIndexByName;
+        size_t argIndexByShortName[256];
+        std::vector<std::wstring> restArgs;
+
+        void addArg(const CmdArg &arg);
+        void makeIndex(CmdArg *arg, size_t index);
     };
 
 }

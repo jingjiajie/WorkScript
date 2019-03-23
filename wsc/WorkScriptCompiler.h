@@ -1,17 +1,18 @@
 #pragma once
-#include <wchar.h>
+#include <vector>
+#include <string>
 #include "CmdArg.h"
 
 namespace WorkScript {
 	class Program;
 
 	enum class CompileResult{
-	    OK, ERROR
+	    OK = 0, ERROR = 1
 	};
 
 	class WorkScriptCompiler
 	{
 	public:
-		CompileResult compile(const CmdArgs &args);
+		CompileResult compile(const std::vector<std::wstring> &files);
 	};
 }

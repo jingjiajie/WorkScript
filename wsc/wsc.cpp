@@ -9,16 +9,12 @@
 using namespace std;
 using namespace WorkScript;
 
-static void initArgs(CmdArgs *cmdArgs){
-	cmdArgs->addStrArg({CmdArgGroup::LLC}, L"o", '\0', L"target", false, L"");
-}
-
 int main(int argc, const char **argv) {
 	setlocale(LC_CTYPE,"");
 	CmdArgs args;
-	initArgs(&args);
 	args.parse(argc, argv);
-	printf("%s\n",args.get<string>(L"hello").c_str());
-//	WorkScriptCompiler compiler;
-//	compiler.run();
+	auto fileNames = args.getRestArgs();
+	WorkScriptCompiler compiler;
+	CompileResult ret = compiler.compile(fileNames);
+	return (int)ret;
 }

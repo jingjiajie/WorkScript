@@ -1,83 +1,306 @@
 #include "CmdArg.h"
+#include "string.h"
 #include <sstream>
 
 using namespace std;
 using namespace WorkScript;
 
-CmdArgs::CmdArgs(const std::vector<std::shared_ptr<WorkScript::CmdArg>> &args)
+CmdArg::CmdArg(WorkScript::CmdArgType type,const std::vector<WorkScript::CmdArgGroup> &groups,const std::wstring &name,
+               unsigned char dashs, char shortName,const std::wstring &description, bool need) noexcept
+    :type(type), groups(groups), name(name), dashs(dashs), shortName(shortName), description(description), need(need)
 {
-    for (auto &arg : args)
-    {
-        this->args[arg->getName()] = arg;
+
+}
+
+CmdArg::CmdArg(WorkScript::CmdArgType type,const std::vector<WorkScript::CmdArgGroup> &groups,const std::wstring &name,
+               unsigned char dashs, char shortName,const std::wstring &description, bool need, const std::any &defaultValue) noexcept
+    : CmdArg(type,groups,name,dashs,shortName,description,need)
+{
+    this->defaultValue = defaultValue;
+}
+
+void CmdArg::accept(const std::wstring &value)
+{
+    switch(this->type){
+        case CmdArgType::BOOL:{
+            this->value = true;
+            break;
+        }
+        case CmdArgType::WSTRING:{
+            this->value = value;
+            break;
+        }
+        case CmdArgType::LONG:{
+            for(size_t i=0; i<value.size(); ++i){
+                if(value[i] < L'0' || value[i] > '9'){
+                    fprintf(stderr, "%ls", (L"参数" + this->getNameStr() + L"必须为数字，接收到的值：" + value).c_str());
+                    exit(1);
+                }
+            }
+            long longval = 0;
+            wstringstream ss;
+            ss << value;
+            ss >> longval;
+            this->value = longval;
+            break;
+        }
+        case CmdArgType::LIST:{
+            auto &list = any_cast<vector<wstring>&>(this->value);
+            list.push_back(value);
+            break;
+        }
+    }
+}
+
+std::wstring CmdArg::getNameStr() const noexcept
+{
+    wstringstream ss;
+    if(!this->name.empty()){
+        for(size_t i=0; i<this->dashs; ++i){
+            ss << L"-";
+        }
+        ss << this->name;
+    }else{
+        ss << L"-" << (wchar_t)this->shortName;
+    }
+    return ss.str();
+}
+
+CmdArgs::CmdArgs()
+{
+    memset(this->argIndexByShortName, 0, sizeof(this->argIndexByShortName));
+}
+
+CmdArgs::CmdArgs(const std::vector<CmdArg> &args)
+: CmdArgs()
+{
+    this->args = args;
+    for(size_t i=0; i<this->args.size(); ++i){
+        this->makeIndex(&this->args[i], i);
     }
 }
 
 CmdArgs CmdArgs::getGroup(WorkScript::CmdArgGroup group)
 {
-    std::vector<std::shared_ptr<CmdArg>> result;
-    for (auto item : this->args)
+    std::vector<CmdArg> result;
+    for (auto &arg : this->args)
     {
-        if (item.second->belongsTo(group)) result.push_back(item.second);
+        for (size_t i = 0; i < arg.groups.size(); ++i) {
+            if (arg.groups[i] == group) {
+                result.push_back(arg);
+                break;
+            }
+        }
     }
     return CmdArgs(result);
 }
 
-void CmdArgs::parse(int argc, const char **argv)
-{
-    cmdline::parser p;
-    for (auto &item : this->args)
-    {
-        item.second->generate(&p);
-    }
-    p.parse_check(argc, (char **) argv);
-    for (auto &item : this->args)
-    {
-        item.second->extract(&p);
-    }
-}
-
 void CmdArgs::addStrArg(const std::vector<WorkScript::CmdArgGroup> &groups, const std::wstring &name,
-                        const std::wstring &desc, bool need, const wchar_t *defaultValue)
+                        unsigned char dashs,
+                        char shortName,
+                        const std::wstring &desc, bool need,const optional<const wchar_t *> &defaultValue)
 {
-    if (this->args.find(name) != this->args.end())
-    {
-        fprintf(stderr, "%ls", (L"参数" + name + L"重复！").c_str());
-        exit(1);
+    if(defaultValue.has_value()){
+        this->addArg(CmdArg(CmdArgType::WSTRING, groups,name, dashs, shortName, desc, need, wstring(defaultValue.value())));
+    }else{
+        this->addArg(CmdArg(CmdArgType::WSTRING, groups,name, dashs, shortName, desc, need));
     }
-    std::shared_ptr<CmdArg> arg(new CmdArgSub<std::string>(groups, name, desc, need,
-                                                           Locales::fromWideChar(Encoding::ANSI, defaultValue)));
-    this->args[arg->getName()] = arg;
 }
 
 void CmdArgs::addBoolArg(const std::vector<WorkScript::CmdArgGroup> &groups, const std::wstring &name,
-                         const std::wstring &desc, bool need, bool defaultValue)
+                         unsigned char dashs,
+                         char shortName,
+                         const std::wstring &desc, bool need,const optional<bool> &defaultValue)
 {
-    if (this->args.find(name) != this->args.end())
-    {
-        fprintf(stderr, "%ls", (L"参数" + name + L"重复！").c_str());
-        exit(1);
+    if(defaultValue.has_value()){
+        this->addArg(CmdArg(CmdArgType::BOOL, groups,name, dashs, shortName, desc, need, defaultValue.value()));
+    }else{
+        this->addArg(CmdArg(CmdArgType::BOOL, groups,name, dashs, shortName, desc, need));
     }
-    std::shared_ptr<CmdArg> arg(new CmdArgSub<bool>(groups, name, desc, need, defaultValue));
-    this->args[arg->getName()] = arg;
 }
 
-void CmdArgs::addIntArg(const std::vector<WorkScript::CmdArgGroup> &groups, const std::wstring &name,
-                        const std::wstring &desc, bool need, int defaultValue)
+void CmdArgs::addLongArg(const std::vector<WorkScript::CmdArgGroup> &groups, const std::wstring &name,
+                        unsigned char dashs,
+                        char shortName,
+                        const std::wstring &desc, bool need,const optional<long> &defaultValue)
 {
-    if (this->args.find(name) != this->args.end())
+    if(defaultValue.has_value()){
+        this->addArg(CmdArg(CmdArgType::LONG, groups,name, dashs, shortName, desc, need, defaultValue.value()));
+    }else{
+        this->addArg(CmdArg(CmdArgType::LONG, groups, name, dashs, shortName, desc, need));
+    }
+}
+
+void CmdArgs::addListArg(const std::vector<WorkScript::CmdArgGroup> &groups, const std::wstring &name,
+                         unsigned char dashs, char shortName, const std::wstring &desc, bool need)
+{
+    CmdArg arg(CmdArgType::LIST, groups, name, dashs, shortName, desc, need);
+    arg.value = vector<wstring>();
+    this->addArg(arg);
+}
+
+void CmdArgs::addArg(const WorkScript::CmdArg &arg)
+{
+    this->args.push_back(arg);
+    size_t index = this->args.size()-1;
+    auto *pArg = &this->args[index];
+    this->makeIndex(pArg, index);
+}
+
+void CmdArgs::makeIndex(WorkScript::CmdArg *arg, size_t index)
+{
+    if (!arg->name.empty() && this->argIndexByName.find(arg->name) != this->argIndexByName.end())
     {
-        fprintf(stderr, "%ls", (L"参数" + name + L"重复！").c_str());
+        fprintf(stderr, "%ls", (L"参数" + arg->name + L"重复！").c_str());
         exit(1);
     }
-    std::shared_ptr<CmdArg> arg(new CmdArgSub<int>(groups, name, desc, need, defaultValue));
-    this->args[arg->getName()] = arg;
+    if(this->argIndexByShortName[arg->shortName]){
+        fprintf(stderr, "%ls", (L"参数" + Locales::toWideChar(Encoding::ANSI, string("-") + arg->shortName) + L"重复！").c_str());
+        exit(1);
+    }
+    if(!arg->name.empty()){
+        this->argIndexByName[arg->name] = index;
+    }
+    if(arg->shortName){
+        this->argIndexByShortName[arg->shortName] = index;
+    }
 }
 
 std::wstring CmdArgs::toString()
 {
-//    wstringstream ss;
-//    for(auto &item : this->args){
-//        auto &arg = item.second;
-//        ss << arg->getName()
-//    }
+    wstringstream ss;
+    for(auto &arg : this->args){
+        auto pushName = [&arg, &ss]{
+            ss << arg.getNameStr();
+        };
+
+        switch (arg.type){
+            case CmdArgType::BOOL:{
+                pushName();
+                break;
+            }
+            case CmdArgType::LONG:{
+                pushName();
+                ss << std::any_cast<long>(arg.value) << L" ";
+                break;
+            }
+            case CmdArgType::WSTRING:{
+                pushName();
+                ss << std::any_cast<wstring>(arg.value) << L" ";
+                break;
+            }
+            case CmdArgType::LIST:{
+                auto list = any_cast<vector<wstring>>(arg.value);
+                for(auto item : list){
+                    pushName();
+                    ss << item << L" ";
+                }
+            }
+        }
+    }
+    return ss.str();
+}
+
+void CmdArgs::parse(int argc, const char **argv)
+{
+    enum {
+        NORMAL ,NEED_VALUE
+    } status = NORMAL;
+    CmdArg *lastArg = nullptr;
+
+    //循环遍历参数
+    for(int i=1; i< argc; ++i){
+        const char *cur = argv[i];
+        wstring wcur = Locales::toWideChar(Encoding::ANSI, cur);
+        size_t curLen = strlen(cur);
+        //统计破折号数量
+        int dashs = 0;
+        for(size_t j=0; cur[j]; ++j){
+            if(cur[j] == '-'){
+                ++dashs;
+            }else{
+                break;
+            }
+        }
+        const char *name = cur + dashs;
+        wstring wname = Locales::toWideChar(Encoding::ANSI, name);
+        switch(status) {
+            case NORMAL: {
+                //首先匹配参数全名
+                auto it = this->argIndexByName.find(wname);
+                if(it != this->argIndexByName.end()){
+                    CmdArg *arg = &this->args[it->second];
+                    if(arg->type == CmdArgType::BOOL){
+                        arg->value = true;
+                    }else{
+                        lastArg = arg;
+                        status = NEED_VALUE;
+                    }
+                }
+                else if (dashs == 1) { //破折号只有1个，可能是short name
+                    char shortName = name[0];
+                    CmdArg *arg = &this->args[ this->argIndexByShortName[shortName]];
+                    if (arg) {
+                        if (name[1] != '\0') {
+                            arg->accept(Locales::toWideChar(Encoding::ANSI, name + 1));
+                        } else {
+                            lastArg = arg;
+                            status = NEED_VALUE;
+                        }
+                    }
+                }else{ //如果既不是全名，也不是short name，则当做额外值
+                    if(dashs > 0){
+                        fprintf(stderr, "%ls", (L"无法识别的参数：" + wcur).c_str());
+                        exit(1);
+                    }else {
+                        this->restArgs.push_back(wcur);
+                    }
+                }
+                break;
+            }
+            case NEED_VALUE:{
+                if(dashs > 0){
+                    fprintf(stderr, "%ls", (lastArg->getNameStr() + L" 缺少值").c_str());
+                    exit(1);
+                }
+                lastArg->accept(wcur);
+                status = NORMAL;
+                break;
+            }
+        }
+    }
+    //如果循环结束状态不为NORMAL，一定有错误
+    if(status == NEED_VALUE){
+        fprintf(stderr, "%ls", (lastArg->getNameStr() + L" 缺少值").c_str());
+        exit(1);
+    }
+
+    //遍历参数，如果还有没有值的，取默认值。如果没有默认值，则报错
+    for(auto &arg : this->args){
+        if(!arg.need) continue;
+        if(arg.type == CmdArgType::LIST){
+            if(any_cast<vector<wstring>>(arg.value).empty()){
+                if(arg.defaultValue.has_value()){
+                    arg.value = arg.defaultValue;
+                }else{
+                    goto ERR;
+                }
+            }
+        }else if(!arg.value.has_value()){
+            if(arg.defaultValue.has_value()){
+                arg.value = arg.defaultValue;
+            }else{
+                goto ERR;
+            }
+        }
+        continue;
+        ERR:
+        fprintf(stderr, "%ls", (L"必须为参数 "+arg.getNameStr()+L" 指定一个值").c_str());
+        exit(1);
+    }
+}
+
+const std::vector<std::wstring>& CmdArgs::getRestArgs() const noexcept
+{
+    return this->restArgs;
 }

@@ -6,7 +6,8 @@ using namespace std;
 using namespace WorkScript;
 
 static void initArgs(CmdArgs *args){
-    args->addStrArg({CmdArgGroup::LLC}, L"o", L"target", false, L"abc");
+    args->addStrArg({CmdArgGroup::LLC}, L"", 0, 'o', L"target file", true, L"hehe");
+    args->addListArg({CmdArgGroup::LD}, L"", 0, 'l', L"link libraries", false);
 }
 
 int main(int argc,const char **argv){
@@ -14,7 +15,7 @@ int main(int argc,const char **argv){
     initArgs(&args);
     args.parse(argc, argv);
 
-    printf("%s\n", args.get<string>(L"o").c_str());
+
 //    int rc = 0; // 用于接收命令返回值
 //    FILE *fp;
 //
