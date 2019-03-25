@@ -1,5 +1,6 @@
 #include "CmdArg.h"
 #include "string.h"
+#include <assert.h>
 #include <sstream>
 
 using namespace std;
@@ -145,6 +146,33 @@ void CmdArgs::addArg(const WorkScript::CmdArg &arg)
     size_t index = this->args.size()-1;
     auto *pArg = &this->args[index];
     this->makeIndex(pArg, index);
+}
+
+void CmdArgs::setDefaultValue(char shortName, const std::any &value)
+{
+    CmdArg *arg = this->get(shortName);
+    assert(arg && L"arg name not found!");
+    arg->defaultValue = value;
+}
+
+void CmdArgs::setDefaultValue(const std::wstring &name, const std::any &value)
+{
+    CmdArg *arg = this->get(name);
+    assert(arg && L"arg name not found!");
+    arg->defaultValue = value;
+}
+
+CmdArg* CmdArgs::get(char shortName)
+{
+    CmdArg *arg = &this->args[this->argIndexByShortName[shortName]];
+    return arg;
+}
+
+CmdArg* CmdArgs::get(const std::wstring &name)
+{
+    auto it = this->argIndexByName.find(name);
+    if(it == this->argIndexByName.end())return nullptr;
+    else return it.second;
 }
 
 void CmdArgs::makeIndex(WorkScript::CmdArg *arg, size_t index)

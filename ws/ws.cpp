@@ -1,13 +1,30 @@
 #include <stdio.h>
 #include <sstream>
 #include "CmdArg.h"
+#include "LinkInfo.h"
+#include "Locales.h"
+
+#include <llvm/Support/Host.h>
+#include <llvm/ADT/Triple.h>
 
 using namespace std;
 using namespace WorkScript;
 
 static void initArgs(CmdArgs *args){
     args->addStrArg({CmdArgGroup::LLC}, L"", 0, 'o', L"target file", true, L"hehe");
+    args->addStrArg({CmdArgGroup::LD}, L"march", 1, '\0', L"arch", false);
+    args->addStrArg({CmdArgGroup::LD}, L"mtune", 1, '\0', L"tune", false);
     args->addListArg({CmdArgGroup::LD}, L"", 0, 'l', L"link libraries", false);
+    args->addListArg({CmdArgGroup::LD}, L"", 0, 'L', L"link directories", false);
+}
+
+static void initLinkInfo(LinkInfo *info){
+    llvm::Triple defaultTriple(llvm::sys::getDefaultTargetTriple());
+    string arch = defaultTriple.getArchName();
+    string os = defaultTriple.getOSName();
+    string env = defaultTriple.getEnvironmentName();
+
+
 }
 
 int main(int argc,const char **argv){

@@ -19,38 +19,38 @@ include_directories(${utils_SOURCE_DIR})
 find_package(LLVM REQUIRED CONFIG)
 include_directories(${LLVM_INCLUDE_DIR})
 add_definitions(${LLVM_DEFINITIONS})
-#llvm_map_components_to_libnames(llvm_libs support core irreader executionengine interpreter mcjit x86asmparser x86asmprinter x86codegen x86desc x86disassembler x86info x86utils)
-llvm_map_components_to_libnames(llvm_libs
-        aarch64asmparser aarch64asmprinter aarch64codegen aarch64desc aarch64disassembler aarch64info aarch64utils
-        aggressiveinstcombine
-        amdgpuasmparser amdgpuasmprinter amdgpucodegen amdgpudesc amdgpudisassembler amdgpuinfo amdgpuutils
-        analysis
-        armasmparser armasmprinter armcodegen armdesc armdisassembler arminfo armutils asmparser asmprinter
-        binaryformat bitreader bitwriter
-        bpfasmparser bpfasmprinter bpfcodegen bpfdesc bpfdisassembler bpfinfo
-        codegen core coroutines coverage debuginfocodeview debuginfodwarf debuginfomsf debuginfopdb demangle
-
-        dlltooldriver executionengine fuzzmutate globalisel
-        hexagonasmparser hexagoncodegen hexagondesc hexagondisassembler hexagoninfo
-        instcombine instrumentation interpreter ipo irreader
-
-        lanaiasmparser lanaiasmprinter lanaicodegen lanaidesc lanaidisassembler lanaiinfo libdriver lineeditor
-        linker lto mc mcdisassembler mcjit mcparser
-        mipsasmparser mipsasmprinter mipscodegen mipsdesc mipsdisassembler mipsinfo
-        mirparser
-
-        msp430asmprinter msp430codegen msp430desc msp430info
-        native nativecodegen
-        nvptxasmprinter nvptxcodegen nvptxdesc nvptxinfo
-        objcarcopts object objectyaml option orcjit passes
-        powerpcasmparser powerpcasmprinter powerpccodegen powerpcdesc powerpcdisassembler powerpcinfo
-        profiledata runtimedyld scalaropts selectiondag
-        sparcasmparser sparcasmprinter sparccodegen sparcdesc sparcdisassembler sparcinfo
-        support symbolize
-        systemzasmparser systemzasmprinter systemzcodegen systemzdesc systemzdisassembler systemzinfo
-        tablegen target transformutils vectorize windowsmanifest
-        x86asmparser x86asmprinter x86codegen x86desc x86disassembler x86info x86utils
-        xcoreasmprinter xcorecodegen xcoredesc xcoredisassembler xcoreinfo)
+llvm_map_components_to_libnames(llvm_libs support core irreader executionengine interpreter mcjit x86asmparser x86asmprinter x86codegen x86desc x86disassembler x86info x86utils)
+#llvm_map_components_to_libnames(llvm_libs
+#        aarch64asmparser aarch64asmprinter aarch64codegen aarch64desc aarch64disassembler aarch64info aarch64utils
+#        aggressiveinstcombine
+#        amdgpuasmparser amdgpuasmprinter amdgpucodegen amdgpudesc amdgpudisassembler amdgpuinfo amdgpuutils
+#        analysis
+#        armasmparser armasmprinter armcodegen armdesc armdisassembler arminfo armutils asmparser asmprinter
+#        binaryformat bitreader bitwriter
+#        bpfasmparser bpfasmprinter bpfcodegen bpfdesc bpfdisassembler bpfinfo
+#        codegen core coroutines coverage debuginfocodeview debuginfodwarf debuginfomsf debuginfopdb demangle
+#
+#        dlltooldriver executionengine fuzzmutate globalisel
+#        hexagonasmparser hexagoncodegen hexagondesc hexagondisassembler hexagoninfo
+#        instcombine instrumentation interpreter ipo irreader
+#
+#        lanaiasmparser lanaiasmprinter lanaicodegen lanaidesc lanaidisassembler lanaiinfo libdriver lineeditor
+#        linker lto mc mcdisassembler mcjit mcparser
+#        mipsasmparser mipsasmprinter mipscodegen mipsdesc mipsdisassembler mipsinfo
+#        mirparser
+#
+#        msp430asmprinter msp430codegen msp430desc msp430info
+#        native nativecodegen
+#        nvptxasmprinter nvptxcodegen nvptxdesc nvptxinfo
+#        objcarcopts object objectyaml option orcjit passes
+#        powerpcasmparser powerpcasmprinter powerpccodegen powerpcdesc powerpcdisassembler powerpcinfo
+#        profiledata runtimedyld scalaropts selectiondag
+#        sparcasmparser sparcasmprinter sparccodegen sparcdesc sparcdisassembler sparcinfo
+#        support symbolize
+#        systemzasmparser systemzasmprinter systemzcodegen systemzdesc systemzdisassembler systemzinfo
+#        tablegen target transformutils vectorize windowsmanifest
+#        x86asmparser x86asmprinter x86codegen x86desc x86disassembler x86info x86utils
+#        xcoreasmprinter xcorecodegen xcoredesc xcoredisassembler xcoreinfo)
 message("##### ${llvm_libs}")
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4624 /wd4267 /wd4291 /wd4141 /wd4146")

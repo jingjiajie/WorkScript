@@ -90,6 +90,8 @@ namespace WorkScript
                        bool need);
 
         void parse(int argc, const char **argv);
+        void setDefaultValue(const std::wstring &name, const std::any &value);
+        void setDefaultValue(char shortName, const std::any &value);
 
         template<typename T>
         T get(const std::wstring &name) noexcept{
@@ -122,6 +124,8 @@ namespace WorkScript
 
         void addArg(const CmdArg &arg);
         void makeIndex(CmdArg *arg, size_t index);
+        CmdArg *get(const std::wstring &name);
+        CmdArg *get(char shortName);
     };
 
 }

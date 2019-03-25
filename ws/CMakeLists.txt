@@ -13,9 +13,19 @@ else ()
     set(CMAKE_EXE_LINKER_FLAGS "")
 endif ()
 
+#LLVM依赖相关
+find_package(LLVM REQUIRED CONFIG)
+include_directories(${LLVM_INCLUDE_DIR})
+add_definitions(${LLVM_DEFINITIONS})
+llvm_map_components_to_libnames(llvm_libs support core irreader executionengine interpreter mcjit x86asmparser x86asmprinter x86codegen x86desc x86disassembler x86info x86utils)
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4624 /wd4267 /wd4291 /wd4141 /wd4146")
+endif ()
+
 include_directories(${utils_SOURCE_DIR})
 
 aux_source_directory(./ ws_src)
 
 add_executable(ws ${ws_src})
 target_link_libraries(ws utils)
+target_link_libraries(ws ${llvm_libs})
