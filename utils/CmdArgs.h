@@ -12,8 +12,8 @@
 
 namespace WorkScript
 {
-    enum class CmdArgGroup{
-        WSC, LLC, LD
+    enum CmdArgGroup{
+        WS, WSC, LLC, LINKER
     };
 
     enum class CmdArgType{
@@ -58,7 +58,9 @@ namespace WorkScript
 
         explicit CmdArgs(const std::vector<CmdArg> &args);
 
-        void addStrArg(const std::vector<CmdArgGroup> &groups,
+        static void initArgs(CmdArgs *args);
+
+        void setStrArg(const std::vector<CmdArgGroup> &groups,
                        const std::wstring &name,
                        unsigned char dashs,
                        char shortName,
@@ -66,55 +68,67 @@ namespace WorkScript
                        bool need,
                        const std::optional<const wchar_t *> &defaultValue = std::nullopt);
 
-        void addBoolArg(const std::vector<CmdArgGroup> &groups,
-                       const std::wstring &name,
+        void setBoolArg(const std::vector<CmdArgGroup> &groups,
+                        const std::wstring &name,
                         unsigned char dashs,
                         char shortName,
-                       const std::wstring &desc,
-                       bool need,
-                       const std::optional<bool> &defaultValue = std::nullopt);
+                        const std::wstring &desc,
+                        bool need,
+                        const std::optional<bool> &defaultValue = std::nullopt);
 
-        void addLongArg(const std::vector<CmdArgGroup> &groups,
-                       const std::wstring &name,
-                       unsigned char dashs,
-                       char shortName,
-                       const std::wstring &desc,
-                       bool need,
-                       const std::optional<long> &defaultValue = std::nullopt);
+        void setLongArg(const std::vector<CmdArgGroup> &groups,
+                        const std::wstring &name,
+                        unsigned char dashs,
+                        char shortName,
+                        const std::wstring &desc,
+                        bool need,
+                        const std::optional<long> &defaultValue = std::nullopt);
 
-        void addListArg(const std::vector<CmdArgGroup> &groups,
-                       const std::wstring &name,
-                       unsigned char dashs,
-                       char shortName,
-                       const std::wstring &desc,
-                       bool need);
+        void setListArg(const std::vector<CmdArgGroup> &groups,
+                        const std::wstring &name,
+                        unsigned char dashs,
+                        char shortName,
+                        const std::wstring &desc,
+                        bool need);
 
         void parse(int argc, const char **argv);
         void setDefaultValue(const std::wstring &name, const std::any &value);
         void setDefaultValue(char shortName, const std::any &value);
 
         template<typename T>
-        T get(const std::wstring &name) noexcept{
+        T get(const std::wstring &name) const noexcept{
             auto it = this->argIndexByName.find(name);
-            if(it != this->argIndexByName.end() && this->args[it->second].value.has_value()){
-                return std::any_cast<T>(this->args[it->second].value);
+            if(it != this->argIndexByName.end()){
+                if(this->args[it->second].value.has_value()) {
+                    return std::any_cast<T>(this->args[it->second].value);
+                }else if(this->args[it->second].defaultValue.has_value()){
+                    return std::any_cast<T>(this->args[it->second].defaultValue);
+                }else{
+                    return T();
+                }
             }else{
                 return T();
             }
         }
 
         template<typename T>
-        T get(char shortName) noexcept{
-            CmdArg *arg = &this->args[this->argIndexByShortName[shortName]];
+        T get(char shortName) const noexcept{
+            const CmdArg *arg = &this->args[this->argIndexByShortName[shortName]];
             if(arg && arg->value.has_value()){
-                return std::any_cast<T>(arg->value);
+                if(arg->value.has_value()) {
+                    return std::any_cast<T>(arg->value);
+                }else if(arg->defaultValue.has_value()){
+                    return std::any_cast<T>(arg->defaultValue);
+                }else{
+                    return T();
+                }
             }else{
                 return T();
             }
         }
 
-        CmdArgs getGroup(CmdArgGroup group);
-        std::wstring toString();
+        CmdArgs getGroup(CmdArgGroup group) const noexcept;
+        std::wstring toString() const noexcept;
         const std::vector<std::wstring>& getRestArgs() const noexcept;
     private:
         std::vector<CmdArg> args;
@@ -122,7 +136,7 @@ namespace WorkScript
         size_t argIndexByShortName[256];
         std::vector<std::wstring> restArgs;
 
-        void addArg(const CmdArg &arg);
+        void setArg(const CmdArg &arg);
         void makeIndex(CmdArg *arg, size_t index);
         CmdArg *get(const std::wstring &name);
         CmdArg *get(char shortName);

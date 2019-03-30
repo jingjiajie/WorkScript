@@ -1,4 +1,4 @@
-#include "CmdArg.h"
+#include "CmdArgs.h"
 #include "string.h"
 #include <assert.h>
 #include <sstream>
@@ -81,7 +81,7 @@ CmdArgs::CmdArgs(const std::vector<CmdArg> &args)
     }
 }
 
-CmdArgs CmdArgs::getGroup(WorkScript::CmdArgGroup group)
+CmdArgs CmdArgs::getGroup(WorkScript::CmdArgGroup group) const noexcept
 {
     std::vector<CmdArg> result;
     for (auto &arg : this->args)
@@ -96,51 +96,52 @@ CmdArgs CmdArgs::getGroup(WorkScript::CmdArgGroup group)
     return CmdArgs(result);
 }
 
-void CmdArgs::addStrArg(const std::vector<WorkScript::CmdArgGroup> &groups, const std::wstring &name,
+void CmdArgs::setStrArg(const std::vector<WorkScript::CmdArgGroup> &groups, const std::wstring &name,
                         unsigned char dashs,
                         char shortName,
-                        const std::wstring &desc, bool need,const optional<const wchar_t *> &defaultValue)
+                        const std::wstring &desc, bool need, const optional<const wchar_t *> &defaultValue)
 {
     if(defaultValue.has_value()){
-        this->addArg(CmdArg(CmdArgType::WSTRING, groups,name, dashs, shortName, desc, need, wstring(defaultValue.value())));
+        this->setArg(
+                CmdArg(CmdArgType::WSTRING, groups, name, dashs, shortName, desc, need, wstring(defaultValue.value())));
     }else{
-        this->addArg(CmdArg(CmdArgType::WSTRING, groups,name, dashs, shortName, desc, need));
+        this->setArg(CmdArg(CmdArgType::WSTRING, groups, name, dashs, shortName, desc, need));
     }
 }
 
-void CmdArgs::addBoolArg(const std::vector<WorkScript::CmdArgGroup> &groups, const std::wstring &name,
+void CmdArgs::setBoolArg(const std::vector<WorkScript::CmdArgGroup> &groups, const std::wstring &name,
                          unsigned char dashs,
                          char shortName,
-                         const std::wstring &desc, bool need,const optional<bool> &defaultValue)
+                         const std::wstring &desc, bool need, const optional<bool> &defaultValue)
 {
     if(defaultValue.has_value()){
-        this->addArg(CmdArg(CmdArgType::BOOL, groups,name, dashs, shortName, desc, need, defaultValue.value()));
+        this->setArg(CmdArg(CmdArgType::BOOL, groups, name, dashs, shortName, desc, need, defaultValue.value()));
     }else{
-        this->addArg(CmdArg(CmdArgType::BOOL, groups,name, dashs, shortName, desc, need));
+        this->setArg(CmdArg(CmdArgType::BOOL, groups, name, dashs, shortName, desc, need));
     }
 }
 
-void CmdArgs::addLongArg(const std::vector<WorkScript::CmdArgGroup> &groups, const std::wstring &name,
-                        unsigned char dashs,
-                        char shortName,
-                        const std::wstring &desc, bool need,const optional<long> &defaultValue)
+void CmdArgs::setLongArg(const std::vector<WorkScript::CmdArgGroup> &groups, const std::wstring &name,
+                         unsigned char dashs,
+                         char shortName,
+                         const std::wstring &desc, bool need, const optional<long> &defaultValue)
 {
     if(defaultValue.has_value()){
-        this->addArg(CmdArg(CmdArgType::LONG, groups,name, dashs, shortName, desc, need, defaultValue.value()));
+        this->setArg(CmdArg(CmdArgType::LONG, groups, name, dashs, shortName, desc, need, defaultValue.value()));
     }else{
-        this->addArg(CmdArg(CmdArgType::LONG, groups, name, dashs, shortName, desc, need));
+        this->setArg(CmdArg(CmdArgType::LONG, groups, name, dashs, shortName, desc, need));
     }
 }
 
-void CmdArgs::addListArg(const std::vector<WorkScript::CmdArgGroup> &groups, const std::wstring &name,
+void CmdArgs::setListArg(const std::vector<WorkScript::CmdArgGroup> &groups, const std::wstring &name,
                          unsigned char dashs, char shortName, const std::wstring &desc, bool need)
 {
     CmdArg arg(CmdArgType::LIST, groups, name, dashs, shortName, desc, need);
     arg.value = vector<wstring>();
-    this->addArg(arg);
+    this->setArg(arg);
 }
 
-void CmdArgs::addArg(const WorkScript::CmdArg &arg)
+void CmdArgs::setArg(const WorkScript::CmdArg &arg)
 {
     this->args.push_back(arg);
     size_t index = this->args.size()-1;
@@ -172,20 +173,11 @@ CmdArg* CmdArgs::get(const std::wstring &name)
 {
     auto it = this->argIndexByName.find(name);
     if(it == this->argIndexByName.end())return nullptr;
-    else return it.second;
+    else return &this->args[it->second];
 }
 
 void CmdArgs::makeIndex(WorkScript::CmdArg *arg, size_t index)
 {
-    if (!arg->name.empty() && this->argIndexByName.find(arg->name) != this->argIndexByName.end())
-    {
-        fprintf(stderr, "%ls", (L"参数" + arg->name + L"重复！").c_str());
-        exit(1);
-    }
-    if(this->argIndexByShortName[arg->shortName]){
-        fprintf(stderr, "%ls", (L"参数" + Locales::toWideChar(Encoding::ANSI, string("-") + arg->shortName) + L"重复！").c_str());
-        exit(1);
-    }
     if(!arg->name.empty()){
         this->argIndexByName[arg->name] = index;
     }
@@ -194,17 +186,21 @@ void CmdArgs::makeIndex(WorkScript::CmdArg *arg, size_t index)
     }
 }
 
-std::wstring CmdArgs::toString()
+std::wstring CmdArgs::toString() const noexcept
 {
     wstringstream ss;
     for(auto &arg : this->args){
+        if(!arg.value.has_value()) {
+            continue;
+        }
+
         auto pushName = [&arg, &ss]{
-            ss << arg.getNameStr();
+            ss << arg.getNameStr() << L" ";
         };
 
         switch (arg.type){
             case CmdArgType::BOOL:{
-                pushName();
+                if(any_cast<bool>(arg.value)) pushName();
                 break;
             }
             case CmdArgType::LONG:{
@@ -225,6 +221,9 @@ std::wstring CmdArgs::toString()
                 }
             }
         }
+    }
+    for(auto &arg : this->restArgs){
+        ss << arg << L" ";
     }
     return ss.str();
 }
@@ -331,4 +330,19 @@ void CmdArgs::parse(int argc, const char **argv)
 const std::vector<std::wstring>& CmdArgs::getRestArgs() const noexcept
 {
     return this->restArgs;
+}
+
+void CmdArgs::initArgs(WorkScript::CmdArgs *__args)
+{
+#define BOOL_ARG(...) __args->setBoolArg(__VA_ARGS__);
+#define LONG_ARG(...) __args->setLongArg(__VA_ARGS__);
+#define STR_ARG(...)  __args->setStrArg(__VA_ARGS__);
+#define LIST_ARG(...) __args->setListArg(__VA_ARGS__);
+
+#include "CmdArgs.def"
+
+#undef BOOL_ARG
+#undef LONG_ARG
+#undef STR_ARG
+#undef LIST_ARG
 }

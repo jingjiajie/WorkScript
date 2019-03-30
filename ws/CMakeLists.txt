@@ -29,3 +29,8 @@ aux_source_directory(./ ws_src)
 add_executable(ws ${ws_src})
 target_link_libraries(ws utils)
 target_link_libraries(ws ${llvm_libs})
+
+INSTALL(
+        TARGETS ws
+        RUNTIME DESTINATION bin
+)

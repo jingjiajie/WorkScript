@@ -51,7 +51,6 @@ llvm_map_components_to_libnames(llvm_libs support core irreader executionengine 
 #        tablegen target transformutils vectorize windowsmanifest
 #        x86asmparser x86asmprinter x86codegen x86desc x86disassembler x86info x86utils
 #        xcoreasmprinter xcorecodegen xcoredesc xcoredisassembler xcoreinfo)
-message("##### ${llvm_libs}")
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4624 /wd4267 /wd4291 /wd4141 /wd4146")
 endif()

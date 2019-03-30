@@ -31,3 +31,8 @@ aux_source_directory(./ wsc_src)
 add_executable(wsc ${wsc_src})
 target_link_libraries(wsc utils)
 target_link_libraries(wsc WorkScript)
+
+INSTALL(
+        TARGETS wsc
+        RUNTIME DESTINATION bin
+)

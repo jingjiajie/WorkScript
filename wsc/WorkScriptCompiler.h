@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "CmdArg.h"
+#include "CmdArgs.h"
 
 namespace WorkScript {
 	class Program;
@@ -13,6 +13,6 @@ namespace WorkScript {
 	class WorkScriptCompiler
 	{
 	public:
-		CompileResult compile(const std::vector<std::wstring> &files);
+		CompileResult compile(const CmdArgs &args);
 	};
 }

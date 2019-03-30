@@ -1,0 +1,6 @@
+BOOL_ARG({WS}, L"save-temps", 2, '\0', L"保存临时文件", false, false);
+STR_ARG({LLC}, L"march", 1, '\0', L"架构", false);
+STR_ARG({LLC}, L"mtune", 1, '\0', L"tune", false);
+STR_ARG({LINKER}, L"", 0, 'o', L"目标文件", false);
+LIST_ARG({LINKER}, L"", 0, 'l', L"链接库", false);
+LIST_ARG({LINKER}, L"", 0, 'L', L"链接目录", false);

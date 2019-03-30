@@ -12,8 +12,9 @@ using namespace WorkScript;
 using namespace llvm;
 
 
-CompileResult WorkScriptCompiler::compile(const std::vector<std::wstring> &files)
+CompileResult WorkScriptCompiler::compile(const CmdArgs &args)
 {
+    auto files = args.getRestArgs();
     if(files.size() != 1){
         fprintf(stderr, "%ls", L"目前wsc仅支持一个.ws文件输入！");
         return CompileResult::ERROR;
@@ -21,9 +22,9 @@ CompileResult WorkScriptCompiler::compile(const std::vector<std::wstring> &files
     LLVMContext llvmContext;
 
     Program program(Locales::fromWideChar(Encoding::ANSI, files[0]));
-    auto M = unique_ptr<llvm::Module>(new llvm::Module("main", llvmContext));
+    auto llvmModule = unique_ptr<llvm::Module>(new llvm::Module("main", llvmContext));
     try {
-        program.generateLLVMIR(&llvmContext, M.get());
+        program.generateLLVMIR(&llvmContext, llvmModule.get());
     } catch (const CancelException &ex) {
         ex.rethrowAbove(CancelScope::COMPILATION);
     }
@@ -32,5 +33,9 @@ CompileResult WorkScriptCompiler::compile(const std::vector<std::wstring> &files
         report->dump();
         return CompileResult::ERROR;
     }
+    wstring targetFile = args.get<wstring>('o');
+    std::error_code ec;
+    llvm::raw_fd_ostream os(Locales::fromWideChar(Encoding::ANSI, targetFile), ec, llvm::sys::fs::OpenFlags::F_RW);
+    llvmModule->print(os, nullptr);
     return CompileResult::OK;
 }
