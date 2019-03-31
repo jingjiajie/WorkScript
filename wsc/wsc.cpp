@@ -5,6 +5,7 @@
 #include "Defines.h"
 #include "WorkScriptCompiler.h"
 #include "CmdArgs.h"
+#include "Utils.h"
 
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/Host.h>

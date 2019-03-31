@@ -66,7 +66,7 @@ namespace WorkScript
                        char shortName,
                        const std::wstring &desc,
                        bool need,
-                       const std::optional<const wchar_t *> &defaultValue = std::nullopt);
+                       const std::optional<std::wstring> &defaultValue = std::nullopt);
 
         void setBoolArg(const std::vector<CmdArgGroup> &groups,
                         const std::wstring &name,

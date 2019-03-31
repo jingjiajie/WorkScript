@@ -4,7 +4,9 @@
 #include "ExternalCaller.h"
 #include "Locales.h"
 #include "Cleaner.h"
+#include "Utils.h"
 #include <unistd.h>
+#include <dirent.h>
 
 #include <llvm/Support/Host.h>
 #include <llvm/ADT/Triple.h>
@@ -12,20 +14,112 @@
 using namespace std;
 using namespace WorkScript;
 
-static void initLinkCaller(const CmdArgs &args, const vector<wstring> &files, ExternalCaller *caller){
+static void sortStrReverse(std::vector<std::string> &strs)
+{
+    string temp;    //零时交换变量
+    size_t len = strs.size();
+    /*选择排序法*/
+    for (size_t i=0; i<len; ++i)
+        for (size_t j=i+1; j<len; ++j)
+        {
+            if (strcmp(strs[i].c_str(), strs[j].c_str()) < 0)
+            {
+                temp = strs[i];
+                strs[i] = strs[j];
+                strs[j] = temp;
+            }
+        }
+}
+
+static bool isVersionString(std::string str){
+    enum {
+        START, NUM, POINT, FAILURE
+    } state = START;
+    size_t i = 0, len = str.length();
+    while(state != FAILURE && i < len) switch(state){
+            case START:{
+                if(isdigit(str[i])) state = NUM;
+                else state = FAILURE;
+                ++i;
+                break;
+            }
+            case NUM:{
+                if(isdigit(str[i])){ }
+                else if(str[i] == '.') state = POINT;
+                else state = FAILURE;
+                ++i;
+                break;
+            }
+            case POINT:{
+                if(isdigit(str[i])) state = NUM;
+                else state = FAILURE;
+                ++i;
+                break;
+            }
+            default: assert(0 && "unexcepted state");
+        }
+    return state == NUM;
+}
+
+static bool isDirEmpty(const std::string &path)
+{
+    /* 打开要进行匹配的文件目录 */
+    DIR *dir = opendir(path.c_str());
+    assert(dir && "无法打开目录");
+    struct dirent *ent;
+    bool found = false;
+    while (ent = readdir(dir))
+    {
+        if (strcmp(".", ent->d_name) && strcmp("..", ent->d_name))
+        {
+            found = true;
+        }
+    }
+    closedir(dir);
+    return !found;
+}
+
+static std::string findGCCPath(const string &arch, const string &os, const string &env){
+    string triple = arch + "-" + os + "-" + env;
+    string pathPrefix = "/usr/lib/gcc/" + triple + "/";
+    DIR *dir = opendir(pathPrefix.c_str());
+    /*首先找出安装的gcc所有版本*/
+    vector<string> versions;
+    struct dirent *ent;
+    while(ent = readdir(dir)){
+        string version = ent->d_name;
+        string curPath = pathPrefix + version;
+        if(isVersionString(ent->d_name) && !isDirEmpty(curPath)){
+            versions.push_back(version);
+        }
+    }
+    closedir(dir);
+    if(versions.size() == 0){
+        fprintf(stderr, "%ls", L"未找到gcc安装路径\n");
+        exit(1);
+    }
+    /*根据版本号倒序排列，找到最新版本的gcc*/
+    sortStrReverse(versions);
+    return pathPrefix + versions[0];
+}
+
+static void initLinkCaller(const CmdArgs &args, const vector<wstring> &files, ExternalCaller *caller)
+{
     llvm::Triple defaultTriple(llvm::sys::getDefaultTargetTriple());
     string arch = defaultTriple.getArchName();
     string os = defaultTriple.getOSName();
     string env = defaultTriple.getEnvironmentName();
-
     caller->setProgram(L"ld");
 
+    wstring gccPath = Locales::toWideChar(Encoding::ANSI, findGCCPath(arch, os, env));
+    caller->addExtraArgBefore(L"-L" + gccPath);
     caller->addExtraArgBefore(L"--dynamic-linker=/lib64/ld-linux-x86-64.so.2");
     caller->addExtraArgBefore(L"-L/usr/lib/");
     caller->addExtraArgBefore(L"-L/usr/lib/x86_64-linux-gnu/");
     caller->addExtraArgBefore(L"/usr/lib/x86_64-linux-gnu/crt1.o");
     caller->addExtraArgBefore(L"/usr/lib/x86_64-linux-gnu/crti.o");
-    for(const wstring &file : files){
+    for (const wstring &file : files)
+    {
         caller->addExtraArgBefore(file);
     }
     caller->setArgs(args.getGroup(CmdArgGroup::LINKER));
@@ -34,10 +128,9 @@ static void initLinkCaller(const CmdArgs &args, const vector<wstring> &files, Ex
 }
 
 static void initWSCCaller(const CmdArgs &args, const vector<wstring> &files, const std::wstring &targetFile, ExternalCaller *caller){
-    //char *path = getcwd(nullptr, 0);
-    //wstring wscPath = Locales::toWideChar(Encoding::ANSI, path) + L"/wsc";
-    //delete path;
-    caller->setProgram(L"./wsc");
+    wstring path = Utils::getExcutablePath();
+    wstring wscPath = path + L"/wsc";
+    caller->setProgram(wscPath);
     for(auto &file : files){
         caller->addExtraArgBefore(file);
     }

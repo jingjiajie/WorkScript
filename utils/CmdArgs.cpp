@@ -99,11 +99,11 @@ CmdArgs CmdArgs::getGroup(WorkScript::CmdArgGroup group) const noexcept
 void CmdArgs::setStrArg(const std::vector<WorkScript::CmdArgGroup> &groups, const std::wstring &name,
                         unsigned char dashs,
                         char shortName,
-                        const std::wstring &desc, bool need, const optional<const wchar_t *> &defaultValue)
+                        const std::wstring &desc, bool need, const optional<wstring> &defaultValue)
 {
     if(defaultValue.has_value()){
         this->setArg(
-                CmdArg(CmdArgType::WSTRING, groups, name, dashs, shortName, desc, need, wstring(defaultValue.value())));
+                CmdArg(CmdArgType::WSTRING, groups, name, dashs, shortName, desc, need, defaultValue.value()));
     }else{
         this->setArg(CmdArg(CmdArgType::WSTRING, groups, name, dashs, shortName, desc, need));
     }
