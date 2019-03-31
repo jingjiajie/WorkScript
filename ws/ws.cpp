@@ -14,9 +14,23 @@
 using namespace std;
 using namespace WorkScript;
 
+static std::wstring getExcutablePath()
+{
+    char path[512];
+    auto ret = readlink("/proc/self/exe", path, 512);
+    if(ret == -1){
+        fprintf(stderr, "%ls%s", L"获取当前路径失败：", strerror(errno));
+        exit(1);
+    }
+    char *pLastSlash = strrchr(path, '/');
+    if(pLastSlash) *pLastSlash = '\0';
+    wstring wpath = Locales::toWideChar(Encoding::ANSI, path);
+    return wpath;
+}
+
 static void sortStrReverse(std::vector<std::string> &strs)
 {
-    string temp;    //零时交换变量
+    string temp;
     size_t len = strs.size();
     /*选择排序法*/
     for (size_t i=0; i<len; ++i)
@@ -103,32 +117,33 @@ static std::string findGCCPath(const string &arch, const string &os, const strin
     return pathPrefix + versions[0];
 }
 
-static void initLinkCaller(const CmdArgs &args, const vector<wstring> &files, ExternalCaller *caller)
+static void initLinkerCaller(const CmdArgs &args, const vector<wstring> &files, ExternalCaller *caller)
 {
     llvm::Triple defaultTriple(llvm::sys::getDefaultTargetTriple());
     string arch = defaultTriple.getArchName();
     string os = defaultTriple.getOSName();
     string env = defaultTriple.getEnvironmentName();
+    wstring triple = Locales::toWideChar(Encoding::ANSI, arch + "-" + os + "-" + env);
     caller->setProgram(L"ld");
 
     wstring gccPath = Locales::toWideChar(Encoding::ANSI, findGCCPath(arch, os, env));
     caller->addExtraArgBefore(L"-L" + gccPath);
     caller->addExtraArgBefore(L"--dynamic-linker=/lib64/ld-linux-x86-64.so.2");
     caller->addExtraArgBefore(L"-L/usr/lib/");
-    caller->addExtraArgBefore(L"-L/usr/lib/x86_64-linux-gnu/");
-    caller->addExtraArgBefore(L"/usr/lib/x86_64-linux-gnu/crt1.o");
-    caller->addExtraArgBefore(L"/usr/lib/x86_64-linux-gnu/crti.o");
+    caller->addExtraArgBefore(L"-L/usr/lib/" + triple + L"/");
+    caller->addExtraArgBefore(L"/usr/lib/" + triple + L"/crt1.o");
+    caller->addExtraArgBefore(L"/usr/lib/" + triple + L"/crti.o");
     for (const wstring &file : files)
     {
         caller->addExtraArgBefore(file);
     }
     caller->setArgs(args.getGroup(CmdArgGroup::LINKER));
-    caller->addExtraArgAfter(L"/usr/lib/x86_64-linux-gnu/crtn.o");
-    caller->addExtraArgAfter(L"-lc");
+    caller->addExtraArgAfter(L"/usr/lib/" + triple + L"/crtn.o");
+    caller->addExtraArgAfter(L"--push-state --as-needed -lgcc_s --pop-state -lc -lgcc");
 }
 
 static void initWSCCaller(const CmdArgs &args, const vector<wstring> &files, const std::wstring &targetFile, ExternalCaller *caller){
-    wstring path = Utils::getExcutablePath();
+    wstring path = getExcutablePath();
     wstring wscPath = path + L"/wsc";
     caller->setProgram(wscPath);
     for(auto &file : files){
@@ -170,7 +185,7 @@ int main(int argc,const char **argv){
     if(llcCaller.call()) return 0;
 
     ExternalCaller linkerCaller;
-    initLinkCaller(args, {L"a.o"}, &linkerCaller);
+    initLinkerCaller(args, {L"a.o"}, &linkerCaller);
 
     if(linkerCaller.call()) return 0;
 }

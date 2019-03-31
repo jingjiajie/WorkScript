@@ -18,10 +18,4 @@ namespace WorkScript
 	private:
 		void (*func)();
 	};
-
-	class Utils
-	{
-	public:
-		static std::wstring getExcutablePath();
-	};
 }

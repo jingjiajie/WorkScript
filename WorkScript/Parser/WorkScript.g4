@@ -54,17 +54,22 @@ stdFormalParameter:
 stdFormalParameterItem: type STAR* identifier?;
 
 functionDefine:
-	(functionConstraint NEWLINE*)? functionDeclaration NEWLINE* functionImplementation
-	| functionDeclaration NEWLINE* functionConstraint NEWLINE* functionImplementation
-	| functionDeclaration NEWLINE* functionImplementation NEWLINE* functionConstraint;
+	functionDeclaration NEWLINE* functionImplementation;
+//(functionConstraint NEWLINE*)? functionDeclaration NEWLINE* functionImplementation |
+// functionDeclaration NEWLINE* functionConstraint NEWLINE* functionImplementation |
+// functionDeclaration NEWLINE* functionImplementation NEWLINE* functionConstraint;
 
 functionDeclaration:
 	(functionName? | type STAR* functionName) LEFT_PARENTHESE formalParameter RIGHT_PARENTHESE;
 
-type: (typeQualifier | typeSpecifier | storageClassSpecifier)+;
-typeSpecifier: identifier;
-typeQualifier: CONST | VOLATILE;
-storageClassSpecifier: STATIC | EXTERN;
+type: (
+		STATIC
+		| EXTERN
+		| CONST
+		| VOLATILE
+		| identifier
+		| LEFT_BRACKET type RIGHT_BRACKET
+	)+;
 functionName: identifier;
 
 formalParameter:
@@ -75,9 +80,10 @@ formalParameter:
 			)*
 		)? (newlineOrComma (staticVarargs | runtimeVarargs))?
 	)
-	| staticVarargs
+	| staticVarargs NEWLINE*
 	| runtimeVarargs NEWLINE*;
 
+//TODO type和expression应该分别可以省略。当前暂时不允许省略expression
 formalParameterItem: (type STAR*)? expression;
 
 functionImplementation:
