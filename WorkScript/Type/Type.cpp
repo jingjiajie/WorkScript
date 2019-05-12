@@ -1,3 +1,4 @@
+#include <Tree/Constant.h>
 #include "Type.h"
 #include "Expression.h"
 #include "Program.h"
@@ -6,14 +7,13 @@
 #include "FloatType.h"
 #include "VoidType.h"
 #include "Exception.h"
+#include "ReferenceType.h"
 
 using namespace WorkScript;
 using namespace std;
 
 const LinkageType LinkageType::INTERNAL(LinkageType::Classification::INTERNAL);
 const LinkageType LinkageType::EXTERNAL(LinkageType::Classification::EXTERNAL);
-
-
 
 //bool Type::isSubTypeOf(const Type *abstractType) const
 //{
@@ -115,6 +115,21 @@ Type * Type::getPromotedType(const DebugInfo &d, Type * left, Type * right)
                     goto UNSUPPORTED;
             }
         }
+        case TypeClassification::REFERENCE:{
+            auto leftRef = (ReferenceType*)left;
+            switch(right->getClassification()){
+                case TypeClassification::REFERENCE:{
+                    auto rightRef = (ReferenceType*)right;
+                    try {
+                        return ReferenceType::get(
+                                getPromotedType(d, leftRef->getTargetType(), rightRef->getTargetType()));
+                    }catch (const IncompatibleTypeError &){
+                        goto UNSUPPORTED;
+                    }
+                }
+                default: goto UNSUPPORTED;
+            }
+        }
         case TypeClassification::VOID:
             if (right->getClassification() == TypeClassification::VOID)
             {
@@ -131,156 +146,25 @@ Type * Type::getPromotedType(const DebugInfo &d, Type * left, Type * right)
 	d.getReport()->error(IncompatibleTypeError(d, L"不支持的类型转换" + left->getName() + L" 和 " + right->getName()), ErrorBehavior::CANCEL_EXPRESSION);
 }
 
+//GenerateResult Type::generateLLVMTypeConvert(const DebugInfo &d, GenerateContext * context, Expression * left, Expression * right, Type *promotedType)
+//{
+//	auto builder = context->getIRBuilder();
+//	Type *leftType = left->getType(context);
+//	Type *rightType = right->getType(context);
+//	if (promotedType->equals(leftType)) { //类型提升到左部类型
+//		return GenerateResult(left->generateIR(context).getValue(), Type::generateLLVMTypeConvert(d, context, right, promotedType).getValue());
+//	}
+//	else if (promotedType->equals(rightType)) { //类型提升到右部类型
+//		return GenerateResult(Type::generateLLVMTypeConvert(d, context, left, promotedType).getValue(), right->generateIR(context).getValue());
+//	}
+//	else { //两边都需要提升
+//		return GenerateResult(
+//			Type::generateLLVMTypeConvert(d, context, left, promotedType).getValue(),
+//			Type::generateLLVMTypeConvert(d, context, right, promotedType).getValue()
+//		);
+//	}
+//}
 
-bool WorkScript::Type::convertableTo(const DebugInfo &d, Type * src, Type * target)
-{
-	if (src->equals(target))return true;
-	switch (src->getClassification())
-	{
-		case TypeClassification::FLOAT:
-		case TypeClassification::INTEGER:
-		{
-			switch (target->getClassification())
-			{
-				case TypeClassification::FLOAT:
-				case TypeClassification::INTEGER:
-				{
-					return true;
-				}
-				default:
-					return false;
-			}
-			break;
-		}
-		case TypeClassification::VOID:
-			return target->getClassification() == TypeClassification::VOID;
-		case TypeClassification::POINTER:
-		{
-			PointerType *srcPtr = (PointerType*)src;
-			switch (target->getClassification())
-			{
-				case TypeClassification::POINTER:
-				{
-					PointerType *targetPtr = (PointerType*)target;
-					if(srcPtr->getLevel() != targetPtr->getLevel()) return false;
-					if(targetPtr->getTargetType()->getClassification() == TypeClassification::VOID) return true; //任何类型都可以转换为void*
-					if(srcPtr->getTargetType()->getClassification() == TypeClassification::VOID) return true; //void*可以转换为任何类型
-					return Type::convertableTo(d, srcPtr->getTargetType(),targetPtr->getTargetType());
-				}
-				default:
-					return false;
-			}
-			break;
-		}
-		default:
-			return false;
-	}
-}
-
-bool WorkScript::Type::convertableTo(const DebugInfo &d, Type * target)
-{
-	return Type::convertableTo(d, this, target);
-}
-
-GenerateResult Type::generateLLVMTypeConvert(const DebugInfo &d, GenerateContext * context, Expression * left, Expression * right, Type *promotedType)
-{
-	auto builder = context->getIRBuilder();
-	Type *leftType = left->getType(context);
-	Type *rightType = right->getType(context);
-	if (promotedType->equals(leftType)) { //类型提升到左部类型
-		return GenerateResult(left->generateIR(context).getValue(), Type::generateLLVMTypeConvert(d, context, right, promotedType).getValue());
-	}
-	else if (promotedType->equals(rightType)) { //类型提升到右部类型
-		return GenerateResult(Type::generateLLVMTypeConvert(d, context, left, promotedType).getValue(), right->generateIR(context).getValue());
-	}
-	else { //两边都需要提升
-		return GenerateResult(
-			Type::generateLLVMTypeConvert(d, context, left, promotedType).getValue(),
-			Type::generateLLVMTypeConvert(d, context, right, promotedType).getValue()
-		);
-	}
-}
-
-GenerateResult Type::generateLLVMTypeConvert(const DebugInfo &d, GenerateContext * context, Expression * expr, Type * targetType) {
-    Type *srcType = expr->getType(context);
-    llvm::Value *srcValue = expr->generateIR(context).getValue();
-    if (targetType->equals(srcType)) {
-        return GenerateResult(srcValue);
-    }
-    llvm::Type *targetLLVMType = targetType->getLLVMType(context);
-    auto irBuilder = context->getIRBuilder();
-
-    switch (srcType->getClassification()) {
-        case TypeClassification::INTEGER: /*源类型为Integer*/ {
-            IntegerType *srcIntegerType = (IntegerType *) srcType;
-            switch (targetType->getClassification()) {
-                case TypeClassification::INTEGER:/*目标类型为Integer*/ {
-                    IntegerType *targetIntegerType = (IntegerType *) targetType;
-                    //如果长度相同，仅仅有无符号不同，则不用进行转换
-                    if (srcIntegerType->getLength() == targetIntegerType->getLength())return GenerateResult(srcValue);
-                    //否则根据是否有符号进行符号扩展或零位扩展
-                    if (srcIntegerType->isSigned()) {
-                        return irBuilder->CreateSExt(srcValue, targetLLVMType);
-                    } else {
-                        return irBuilder->CreateZExt(srcValue, targetLLVMType);
-                    }
-                }
-                case TypeClassification::FLOAT: /*目标类型为Float*/ {
-                    if (srcIntegerType->isSigned()) return irBuilder->CreateSIToFP(srcValue, targetLLVMType);
-                    else return irBuilder->CreateUIToFP(srcValue, targetLLVMType);
-                }
-                default:
-                    goto UNSUPPORTED;
-            }
-
-        }
-
-        case TypeClassification::FLOAT: /*源类型为Float*/ {
-            FloatType *srcFloatType = (FloatType *) srcValue;
-            switch (targetType->getClassification()) {
-                case TypeClassification::INTEGER: /*目标类型为Integer*/ {
-                    IntegerType *targetIntegerType = (IntegerType *) targetType;
-                    if (targetIntegerType->isSigned()) return irBuilder->CreateFPToSI(srcValue, targetLLVMType);
-                    else return irBuilder->CreateFPToUI(srcValue, targetLLVMType);
-                }
-                case TypeClassification::FLOAT: /*目标类型为Float*/ {
-                    return irBuilder->CreateFPCast(srcValue, targetLLVMType);
-                }
-                default:
-                    goto UNSUPPORTED;
-            }
-
-        }
-
-        case TypeClassification::VOID: {
-            switch (targetType->getClassification()) {
-                case TypeClassification::VOID: {
-                    return srcValue;
-                }
-                default:
-                    goto UNSUPPORTED;
-            }
-        }
-
-        case TypeClassification::POINTER:
-            switch (targetType->getClassification()) {
-                case TypeClassification::POINTER: {
-                    return irBuilder->CreatePointerCast(srcValue, targetLLVMType);
-                }
-                case TypeClassification::INTEGER: {
-                    return irBuilder->CreateBitOrPointerCast(srcValue, targetLLVMType);
-                }
-                default:
-                    goto UNSUPPORTED;
-            }
-        default:
-            goto UNSUPPORTED;
-    }
-
-    UNSUPPORTED:
-    d.getReport()->error(IncompatibleTypeError(d, L"不支持的类型转换：" + srcType->getName() + L" 到 " + targetType->getName()),
-                         ErrorBehavior::CANCEL_EXPRESSION);
-}
 
 const std::wstring &LinkageType::toString() const noexcept
 {

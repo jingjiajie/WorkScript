@@ -89,7 +89,9 @@ llvm::Function *Function::getLLVMFunction(const DebugInfo &d, GenerateContext *c
         for (size_t i = 0; i < paramTypes.size(); ++i)
         {
             Type *paramType = paramTypes[i];
-            llvmParamTypes.push_back(paramType->getLLVMType(context));
+            //按指针传递
+            //TODO 传参使用Strategy模式，后续可能支持多种传参方式
+            llvmParamTypes.push_back(llvm::PointerType::get(paramType->getLLVMType(context), 0U));
         }
         llvm::FunctionType *funcType = llvm::FunctionType::get(llvmReturnType, llvmParamTypes,
                                                                this->type->isRumtimeVarargs());

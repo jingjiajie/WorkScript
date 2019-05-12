@@ -6,7 +6,10 @@ using namespace std;
 
 GenerateResult WorkScript::FloatConstant::generateIR(GenerateContext * context)
 {
-	return (llvm::Value*)llvm::ConstantFP::get(this->type->getLLVMType(context), this->value);
+	auto *myFloatType = (FloatType*)this->type;
+	llvm::Type *llvmFloatType = myFloatType->getLLVMType(context);
+	llvm::Value *llvmVal = llvm::ConstantFP::get(llvmFloatType, this->value);
+	return llvmVal;
 }
 
 std::wstring WorkScript::FloatConstant::toString() const
@@ -19,9 +22,9 @@ Value * WorkScript::FloatConstant::clone() const
 	return new FloatConstant(this->expressionInfo, type, value);
 }
 
-Type * WorkScript::FloatConstant::getType() const noexcept
+DeducedInfo FloatConstant::deduce(InstantialContext *context) const
 {
-	return this->type;
+	return ValueDescriptor(this->type,ValueKind::VALUE);
 }
 
 ExpressionType FloatConstant::getExpressionType() const

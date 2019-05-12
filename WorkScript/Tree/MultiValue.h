@@ -11,16 +11,15 @@ namespace WorkScript {
 
 		~MultiValue() noexcept override;
 
-		Type * getType(InstantialContext *context) const override;
-		std::vector<Type*> getTypes(InstantialContext *context) const;
-		bool isNested(InstantialContext *context) const;
+        DeducedInfo deduce(InstantialContext *context) const override;
+        bool isNested(InstantialContext *context) const;
 
 		std::wstring toString() const override;
 		MultiValue * clone() const override;
 		ExpressionType getExpressionType() const override;
 		GenerateResult generateIR(GenerateContext *context) override;
 
-		std::vector<llvm::Value*> getLLVMValues(GenerateContext *context, const std::vector<Type *> &expectedTypes);
+		std::vector<llvm::Value*> getLLVMValues(GenerateContext *context, const std::vector<ValueDescriptor> &expectedDescs);
 
 		//virtual bool equals(Expression *) const override;
 
@@ -37,4 +36,3 @@ namespace WorkScript {
 		std::vector<Expression*> items;
 	};
 }
-

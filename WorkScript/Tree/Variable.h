@@ -1,17 +1,17 @@
 #pragma once
 #include <string>
-#include "Expression.h"
+#include "Value.h"
 #include "SymbolInfo.h"
 
 namespace WorkScript {
 	class Variable :
-		public Expression
+		public Value
 	{
 	public:
 		Variable(const ExpressionInfo &exprInfo, const std::wstring &name);
 
 		GenerateResult generateIR(GenerateContext *context) override;
-		Type * getType(InstantialContext *context) const override;
+		DeducedInfo deduce(InstantialContext *context) const override;
 		Expression * clone() const override;
 		std::wstring toString() const override;
 		ExpressionType getExpressionType() const override;

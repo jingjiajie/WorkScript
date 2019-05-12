@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-#include "Parameter.h"
+#include "ParameterDecl.h"
 #include "GenerateContext.h"
 #include "GenerateResult.h"
 #include "SymbolTable.h"

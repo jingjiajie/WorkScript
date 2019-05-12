@@ -21,7 +21,7 @@ namespace WorkScript {
 		inline const std::wstring &getBlockPrefix() const noexcept {return this->blockPrefix;}
 		inline const SymbolInfo * getSymbolInfo(const std::wstring &name) const noexcept { return this->abstractSymbolTable.getSymbolInfo(name); }
 		inline SymbolInfo * getSymbolInfo(const std::wstring &name) noexcept { return this->abstractSymbolTable.getSymbolInfo(name);}
-		inline SymbolInfo * setSymbol (const DebugInfo &d, const std::wstring &name, Type *type, LinkageType lt) noexcept { return this->abstractSymbolTable.setSymbol(d, name, type, lt); }
+		inline SymbolInfo * setSymbol (const SymbolInfo &info) noexcept { return this->abstractSymbolTable.setSymbol(info); }
 		inline SymbolTable * getSymbolTable() noexcept { return &this->abstractSymbolTable; }
 
 		Function *getFunction(const DebugInfo &d, const FunctionQuery &query);

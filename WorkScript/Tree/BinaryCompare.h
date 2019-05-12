@@ -14,10 +14,10 @@ namespace WorkScript {
 		inline BinaryCompare(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression,CompareType t)
 			:BinaryOperator(exprInfo,leftExpression,rightExpression),compareType(t) { }
 
-		virtual GenerateResult generateIR(GenerateContext *context) override;
-		virtual IntegerType * getType(InstantialContext *context) const override;
-		virtual Expression * clone() const override;
-		virtual ExpressionType getExpressionType() const override;
+		GenerateResult generateIR(GenerateContext *context) override;
+		DeducedInfo deduce(InstantialContext *context) const override;
+		Expression * clone() const override;
+		ExpressionType getExpressionType() const override;
 
 		//inline Variable * getLeftVariable() const
 		//{

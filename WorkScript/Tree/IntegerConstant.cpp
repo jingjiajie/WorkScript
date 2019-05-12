@@ -4,15 +4,17 @@
 using namespace WorkScript;
 using namespace std;
 
-Type * WorkScript::IntegerConstant::getType() const noexcept
+DeducedInfo IntegerConstant::deduce(WorkScript::InstantialContext *context) const
 {
-	return this->type;
+	return ValueDescriptor(this->type, ValueKind::VALUE);
 }
 
 GenerateResult WorkScript::IntegerConstant::generateIR(GenerateContext * context)
 {
 	auto *myIntType = (IntegerType*)this->type;
-	return (llvm::Value*)llvm::ConstantInt::get(myIntType->getLLVMType(context), llvm::APInt(myIntType->getLength(), this->value));
+	llvm::Type *llvmIntType = myIntType->getLLVMType(context);
+	llvm::Value *llvmVal = llvm::ConstantInt::get(llvmIntType, llvm::APInt(myIntType->getLength(), this->value));
+	return llvmVal;
 }
 
 std::wstring WorkScript::IntegerConstant::toString() const

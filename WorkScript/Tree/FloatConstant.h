@@ -8,7 +8,7 @@ namespace WorkScript {
 			:Constant(info), value(value),type(type) {}
 
 		long double getValue() const { return this->value; }
-		Type * getType() const noexcept override;
+		DeducedInfo deduce(InstantialContext *context) const override;
 		GenerateResult generateIR(GenerateContext *context) override;
 		std::wstring toString() const override;
 		Value * clone() const override;

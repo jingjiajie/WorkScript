@@ -13,21 +13,22 @@ class  WorkScriptParser : public antlr4::Parser {
 public:
   enum {
     ACCESS_LEVEL = 1, INCLUDE = 2, WHEN = 3, CONST = 4, VOLATILE = 5, EXTERN = 6, 
-    STATIC = 7, BOOLEAN = 8, IDENTIFIER = 9, DOUBLE = 10, INTEGER = 11, 
-    STRING = 12, SEMICOLON = 13, POINT = 14, COMMA = 15, LEFT_PARENTHESE = 16, 
-    RIGHT_PARENTHESE = 17, LEFT_BRACE = 18, RIGHT_BRACE = 19, LEFT_BRACKET = 20, 
-    RIGHT_BRACKET = 21, DOUBLE_EQUAL = 22, EQUALS = 23, RIGHT_ARROW = 24, 
-    ASSIGN = 25, COLON = 26, PLUS = 27, MINUS = 28, STAR = 29, SLASH = 30, 
-    PERCENT = 31, HASH = 32, GREATER_THAN = 33, GREATER_THAN_EQUAL = 34, 
-    LESS_THAN = 35, LESS_THAN_EQUAL = 36, SINGLE_LINE_COMMENT = 37, MULTILINE_COMMENT = 38, 
-    APOSTROPHE = 39, NEWLINE = 40, WS = 41
+    STATIC = 7, SHORT = 8, LONG = 9, SIGNED = 10, UNSIGNED = 11, BOOLEAN = 12, 
+    IDENTIFIER = 13, DOUBLE = 14, INTEGER = 15, STRING = 16, SEMICOLON = 17, 
+    POINT = 18, COMMA = 19, LEFT_PARENTHESE = 20, RIGHT_PARENTHESE = 21, 
+    LEFT_BRACE = 22, RIGHT_BRACE = 23, LEFT_BRACKET = 24, RIGHT_BRACKET = 25, 
+    DOUBLE_EQUAL = 26, EQUALS = 27, RIGHT_ARROW = 28, ASSIGN = 29, COLON = 30, 
+    PLUS = 31, MINUS = 32, STAR = 33, SLASH = 34, PERCENT = 35, HASH = 36, 
+    GREATER_THAN = 37, GREATER_THAN_EQUAL = 38, LESS_THAN = 39, LESS_THAN_EQUAL = 40, 
+    SINGLE_LINE_COMMENT = 41, MULTILINE_COMMENT = 42, APOSTROPHE = 43, NEWLINE = 44, 
+    WS = 45
   };
 
   enum {
     RuleProgram = 0, RuleLine = 1, RuleFunction = 2, RuleExpression = 3, 
     RuleCall = 4, RuleMultiValue = 5, RuleStdFunctionDecl = 6, RuleStdFormalParameter = 7, 
     RuleStdFormalParameterItem = 8, RuleFunctionDefine = 9, RuleFunctionDeclaration = 10, 
-    RuleType = 11, RuleTypeSpecifier = 12, RuleTypeQualifier = 13, RuleStorageClassSpecifier = 14, 
+    RuleTypeQualifier = 11, RuleType = 12, RuleReferenceType = 13, RuleTypeName = 14, 
     RuleFunctionName = 15, RuleFormalParameter = 16, RuleFormalParameterItem = 17, 
     RuleFunctionImplementation = 18, RuleFunctionConstraint = 19, RuleBlock = 20, 
     RuleStaticVarargs = 21, RuleRuntimeVarargs = 22, RuleNewlineOrComma = 23, 
@@ -55,10 +56,10 @@ public:
   class StdFormalParameterItemContext;
   class FunctionDefineContext;
   class FunctionDeclarationContext;
-  class TypeContext;
-  class TypeSpecifierContext;
   class TypeQualifierContext;
-  class StorageClassSpecifierContext;
+  class TypeContext;
+  class ReferenceTypeContext;
+  class TypeNameContext;
   class FunctionNameContext;
   class FormalParameterContext;
   class FormalParameterItemContext;
@@ -402,41 +403,18 @@ public:
 
   FunctionDeclarationContext* functionDeclaration();
 
-  class  TypeContext : public antlr4::ParserRuleContext {
-  public:
-    TypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    std::vector<TypeQualifierContext *> typeQualifier();
-    TypeQualifierContext* typeQualifier(size_t i);
-    std::vector<TypeSpecifierContext *> typeSpecifier();
-    TypeSpecifierContext* typeSpecifier(size_t i);
-    std::vector<StorageClassSpecifierContext *> storageClassSpecifier();
-    StorageClassSpecifierContext* storageClassSpecifier(size_t i);
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  TypeContext* type();
-
-  class  TypeSpecifierContext : public antlr4::ParserRuleContext {
-  public:
-    TypeSpecifierContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    IdentifierContext *identifier();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  TypeSpecifierContext* typeSpecifier();
-
   class  TypeQualifierContext : public antlr4::ParserRuleContext {
   public:
     TypeQualifierContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *STATIC();
+    antlr4::tree::TerminalNode *EXTERN();
     antlr4::tree::TerminalNode *CONST();
     antlr4::tree::TerminalNode *VOLATILE();
+    antlr4::tree::TerminalNode *LONG();
+    antlr4::tree::TerminalNode *SHORT();
+    antlr4::tree::TerminalNode *SIGNED();
+    antlr4::tree::TerminalNode *UNSIGNED();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
@@ -444,18 +422,46 @@ public:
 
   TypeQualifierContext* typeQualifier();
 
-  class  StorageClassSpecifierContext : public antlr4::ParserRuleContext {
+  class  TypeContext : public antlr4::ParserRuleContext {
   public:
-    StorageClassSpecifierContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    TypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *STATIC();
-    antlr4::tree::TerminalNode *EXTERN();
+    TypeNameContext *typeName();
+    ReferenceTypeContext *referenceType();
+    std::vector<TypeQualifierContext *> typeQualifier();
+    TypeQualifierContext* typeQualifier(size_t i);
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
   };
 
-  StorageClassSpecifierContext* storageClassSpecifier();
+  TypeContext* type();
+
+  class  ReferenceTypeContext : public antlr4::ParserRuleContext {
+  public:
+    ReferenceTypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *LEFT_BRACKET();
+    TypeContext *type();
+    antlr4::tree::TerminalNode *RIGHT_BRACKET();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ReferenceTypeContext* referenceType();
+
+  class  TypeNameContext : public antlr4::ParserRuleContext {
+  public:
+    TypeNameContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    IdentifierContext *identifier();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  TypeNameContext* typeName();
 
   class  FunctionNameContext : public antlr4::ParserRuleContext {
   public:

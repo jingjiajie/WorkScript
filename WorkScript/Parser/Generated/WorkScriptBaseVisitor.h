@@ -115,19 +115,19 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitType(WorkScriptParser::TypeContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitTypeSpecifier(WorkScriptParser::TypeSpecifierContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual antlrcpp::Any visitTypeQualifier(WorkScriptParser::TypeQualifierContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitStorageClassSpecifier(WorkScriptParser::StorageClassSpecifierContext *ctx) override {
+  virtual antlrcpp::Any visitType(WorkScriptParser::TypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitReferenceType(WorkScriptParser::ReferenceTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitTypeName(WorkScriptParser::TypeNameContext *ctx) override {
     return visitChildren(ctx);
   }
 

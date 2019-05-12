@@ -54,22 +54,31 @@ stdFormalParameter:
 stdFormalParameterItem: type STAR* identifier?;
 
 functionDefine:
-	functionDeclaration NEWLINE* functionImplementation;
-//(functionConstraint NEWLINE*)? functionDeclaration NEWLINE* functionImplementation |
-// functionDeclaration NEWLINE* functionConstraint NEWLINE* functionImplementation |
-// functionDeclaration NEWLINE* functionImplementation NEWLINE* functionConstraint;
+	// functionDeclaration NEWLINE* functionImplementation;
+	(functionConstraint NEWLINE*)? functionDeclaration NEWLINE* functionImplementation
+	| functionDeclaration NEWLINE* functionConstraint NEWLINE* functionImplementation
+	| functionDeclaration NEWLINE* functionImplementation NEWLINE* functionConstraint;
 
 functionDeclaration:
 	(functionName? | type STAR* functionName) LEFT_PARENTHESE formalParameter RIGHT_PARENTHESE;
 
-type: (
-		STATIC
-		| EXTERN
-		| CONST
-		| VOLATILE
-		| identifier
-		| LEFT_BRACKET type RIGHT_BRACKET
-	)+;
+typeQualifier:
+	STATIC
+	| EXTERN
+	| CONST
+	| VOLATILE
+	| LONG
+	| SHORT
+	| SIGNED
+	| UNSIGNED;
+
+type:
+	typeQualifier* (typeName | referenceType) typeQualifier*
+	| typeQualifier+;
+
+referenceType: LEFT_BRACKET type RIGHT_BRACKET;
+typeName: identifier;
+
 functionName: identifier;
 
 formalParameter:
@@ -109,6 +118,11 @@ CONST: 'const';
 VOLATILE: 'volatile';
 EXTERN: 'extern';
 STATIC: 'static';
+
+SHORT: 'short';
+LONG: 'long';
+SIGNED: 'signed';
+UNSIGNED: 'unsigned';
 
 BOOLEAN:
 	'true'

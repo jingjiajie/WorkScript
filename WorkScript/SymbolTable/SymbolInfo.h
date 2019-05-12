@@ -1,5 +1,8 @@
 #pragma once
-#include "Type.h"
+
+#include <Type/Type.h>
+#include <Context/InstantialContext.h>
+#include "DeducedInfo.h"
 #include "DebugInfo.h"
 
 namespace WorkScript
@@ -10,33 +13,30 @@ namespace WorkScript
     class SymbolInfo
     {
     public:
+        SymbolInfo(const SymbolInfo &) = default;
+
         inline SymbolInfo(const DebugInfo &d, const std::wstring &name) noexcept
                 : debugInfo(d), name(name)
         {}
 
         virtual ~SymbolInfo() noexcept = default;
 
-        virtual Type *getType() const = 0;
+        virtual SymbolInfo * clone() const noexcept = 0;
+        virtual DeducedInfo deduce(InstantialContext *) const = 0;
 
-        virtual LinkageType getLinkageType() const = 0;
-
-        virtual Value *getValue() noexcept = 0;
-
-        virtual void setValue(Value *value) noexcept = 0;
-
-        virtual llvm::Value *getLLVMValue(const DebugInfo &d, GenerateContext *context) = 0;
-
-        virtual llvm::Value *getLLVMValuePtr(const DebugInfo &d, GenerateContext *context) = 0;
-
-        virtual void setLLVMValue(llvm::Value *llvmVal) noexcept = 0;
-
-        virtual void setLLVMValuePtr(llvm::Value *llvmValPtr) noexcept = 0;
-
-        virtual void setLinkageType(const LinkageType &lt) noexcept = 0;
-
+//        virtual LinkageType getLinkageType() const = 0;
+//        virtual void setLinkageType(const LinkageType &lt) noexcept = 0;
 
         inline std::wstring getName() const noexcept
         { return this->name; }
+
+//        std::wstring getMangledName() const noexcept{
+//            return this->mangledName;
+//        }
+//
+//        void setMangledName(const std::wstring &name) noexcept{
+//            this->mangledName = name;
+//        }
 
         const DebugInfo &getDebugInfo() const noexcept
         {
@@ -47,12 +47,6 @@ namespace WorkScript
         {
             this->debugInfo = debugInfo;
         }
-
-        virtual const Value *getValue() const noexcept
-        {
-            return const_cast<SymbolInfo *>(this)->getValue();
-        }
-
     protected:
         DebugInfo debugInfo;
         std::wstring name;

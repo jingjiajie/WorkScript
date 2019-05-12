@@ -4,6 +4,9 @@
 
 namespace WorkScript {
 	class Type;
+	class GeneralSymbolInfo;
+	class ReferenceSymbolInfo;
+
 	class SymbolTable
 	{
 	public:
@@ -18,8 +21,7 @@ namespace WorkScript {
 
 		const SymbolInfo * getSymbolInfo(const std::wstring &name) const noexcept;
         SymbolInfo * getSymbolInfo(const std::wstring &name) noexcept;
-		SymbolInfo * setSymbol(const DebugInfo &d, const std::wstring &name, Type *type,const LinkageType &lt, Value *value = nullptr) noexcept;
-        SymbolInfo * setSymbol(const DebugInfo &d, const std::wstring &name, SymbolInfo *refSymbolInfo);
+		SymbolInfo * setSymbol(const SymbolInfo &info) noexcept;
 		inline void clear() noexcept { this->symbols.clear(); }
 	protected:
 		std::unordered_map<std::wstring, SymbolInfo*> symbols;

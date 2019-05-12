@@ -31,12 +31,13 @@ namespace WorkScript {
 		inline void setLLVMModule(llvm::Module *llvmModule) noexcept { this->llvmModule = llvmModule; }
 		inline llvm::IRBuilder<> * getIRBuilder() const noexcept { return this->irBuilder; }
 		inline void setIRBuilder(llvm::IRBuilder<> *irBuilder) noexcept { this->irBuilder = irBuilder; }
-		inline bool isLeftValue() const noexcept { return this->_isLeftValue; }
-		inline void setLeftValue(bool isLVal) noexcept { this->_isLeftValue = isLVal; }
+
+		operator llvm::LLVMContext&(){
+		    return *this->llvmContext;
+		}
 	private:
 		llvm::LLVMContext * llvmContext = nullptr;
 		llvm::Module * llvmModule = nullptr;
 		llvm::IRBuilder<> * irBuilder = nullptr;
-		bool _isLeftValue = false;
 	};
 }

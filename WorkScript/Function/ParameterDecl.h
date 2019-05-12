@@ -7,16 +7,16 @@ namespace WorkScript
 {
 	class Value;
 
-	class Parameter
+	class ParameterDecl
 	{
 	public:
-		inline Parameter() noexcept = default;
+		inline ParameterDecl() noexcept = default;
 
-		inline Parameter(const std::wstring &name, Type *type = nullptr, Expression *defaultValue = nullptr) noexcept
+		inline ParameterDecl(const std::wstring &name, Type *type = nullptr, Expression *defaultValue = nullptr) noexcept
 			: name(name), type(type), defaultValue(defaultValue)
 		{ }
 
-		~Parameter() noexcept;
+		~ParameterDecl() noexcept;
 
 		inline const std::wstring & getName()const noexcept{ return this->name; }
 		inline void setName(const std::wstring &name) noexcept{ this->name = name; }

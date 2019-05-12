@@ -3,3 +3,4 @@ ANTLR语法错误不能自动恢复
 AbstractContext���ɺ���ʱû���Ǹ��������Ѿ����ڵĺ���
 将FunctionType和FragmentType分开
 FunctionNNFragmet::generateStubBlock的fragmentBlock参数在函数内部delete了，临时设计待修改
+ReferenceType的命名粉碎规则要重新设计一下

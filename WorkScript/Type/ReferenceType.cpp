@@ -1,10 +1,8 @@
 #include "ReferenceType.h"
+#include "GenerateContext.h"
 
 using namespace WorkScript;
 using namespace std;
-
-#define REF_LLVM_TYPENAME L"@ref"
-#define REF_LLVM_MANGLED_TYPENAME L"4@ref"
 
 std::unordered_map<std::wstring, ReferenceType*> ReferenceType::types;
 Finalizer ReferenceType::staticFinalizer(&ReferenceType::releaseTypes);
@@ -24,7 +22,7 @@ std::wstring ReferenceType::getMangledName() const noexcept
 std::wstring ReferenceType::getMangledName(Type * targetType) noexcept
 {
 	wstring name = targetType->getMangledName();
-	name += REF_LLVM_MANGLED_TYPENAME;
+	name += L"4@ref";
 	return name;
 }
 
@@ -35,10 +33,13 @@ TypeClassification ReferenceType::getClassification() const noexcept
 
 llvm::Type * ReferenceType::getLLVMType(GenerateContext * context) const
 {
-	llvm::Type *targetLLVMType = this->targetType->getLLVMType(context);
-	llvm::StructType::get
-
-	return type;
+    static llvm::StructType *type = nullptr;
+    if(!type) {
+        llvm::LLVMContext &llvmCtx = *context->getLLVMContext();
+        type = llvm::StructType::create(llvmCtx, {llvm::Type::getInt8PtrTy(llvmCtx),   //目标指针
+                                               llvm::Type::getInt8PtrTy(llvmCtx)}, "@ref"); //局部堆地址
+    }
+    return type;
 }
 
 bool ReferenceType::equals(const Type * type) const noexcept
@@ -51,15 +52,44 @@ bool ReferenceType::equals(const Type * type) const noexcept
 
 ReferenceType * ReferenceType::get(Type * targetType) noexcept
 {
-	wstring idStr = ReferenceType::getIdentifierString(targetType);
+	wstring idStr = ReferenceType::getMangledName(targetType);
 	auto it = types.find(idStr);
 	if (it != types.end())return it->second;
 	return (types[idStr] = new ReferenceType(targetType));
 }
 
-void WorkScript::ArrayType::releaseTypes() noexcept
+void WorkScript::ReferenceType::releaseTypes() noexcept
 {
 	for (auto it : types) {
 		delete it.second;
 	}
+}
+
+llvm::Value* ReferenceType::getTargetPointer(GenerateContext *context, llvm::Value *ref) noexcept
+{
+    auto builder = context->getIRBuilder();
+    return builder->CreateExtractValue(ref, 0, "target");
+}
+
+llvm::Value* ReferenceType::getLocalheapPointer(WorkScript::GenerateContext *context, llvm::Value *ref) noexcept
+{
+    auto builder = context->getIRBuilder();
+    return builder->CreateExtractValue(ref, 1, "localheap");
+}
+
+Type* ReferenceType::getTargetType() noexcept
+{
+    return this->targetType;
+}
+
+void ReferenceType::setTargetPointer(GenerateContext *context, llvm::Value *ref, llvm::Value *target) noexcept
+{
+    auto builder = context->getIRBuilder();
+    builder->CreateInsertValue(ref, target, 0, "target");
+}
+
+void ReferenceType::setLocalheapPointer(GenerateContext *context, llvm::Value *ref, llvm::Value *localheap) noexcept
+{
+    auto builder = context->getIRBuilder();
+    builder->CreateInsertValue(ref, localheap, 1, "localheap");
 }

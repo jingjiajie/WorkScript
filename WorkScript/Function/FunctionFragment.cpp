@@ -1,12 +1,12 @@
 #include "Variable.h"
 #include "FunctionFragment.h"
 #include "InstantialContext.h"
-#include "Parameter.h"
+#include "ParameterDecl.h"
 #include "Locales.h"
 #include "Exception.h"
 #include "Function.h"
-#include "MultiValueType.h"
 #include "MultiValue.h"
+#include "GeneralSymbolInfo.h"
 
 using namespace WorkScript;
 using namespace std;
@@ -14,7 +14,7 @@ using namespace std;
 FunctionFragment::FunctionFragment(const DebugInfo &d,
 		AbstractContext *ctx,
 		const std::wstring &name,
-		const std::vector<Parameter*> &params,
+		const std::vector<ParameterDecl*> &params,
 		bool isConst,
 		bool isRuntimeVarargs,
 		const std::optional<std::wstring> &staticVarargsName,
@@ -47,18 +47,23 @@ Type * FunctionFragment::getReturnType(const DebugInfo &d, InstantialContext * c
     InstantialContext innerCtx(&this->context, ctx);
     if(this->_staticVarargs) innerCtx.setBlockAttribute(BlockAttributeItem::SFINAE, true);
     auto &instSymbolTable = *innerCtx.getInstanceSymbolTable();
-	for (size_t i = 0; i < this->parameters.size(); ++i)
-	{
+	for (size_t i = 0; i < this->parameters.size(); ++i) {
         //获取当前分支参数的符号信息，加入符号表
-        Parameter *myParam = this->parameters[i];
-		Type *curParamType = nullptr;
-		if(i < realParamCount) {
-            curParamType = paramTypes[i];
-        }else{
-		    curParamType = myParam->getDefaultValue()->getType(ctx);
-		}
-		instSymbolTable.setSymbol(d, myParam->getName(), curParamType, LinkageType::INTERNAL);
-	}
+        ParameterDecl *myParam = this->parameters[i];
+        Type *curParamType = nullptr;
+        if (i < realParamCount) {
+            if (myParam->getType()) {
+                curParamType = myParam->getType();
+            } else {
+                curParamType = paramTypes[i];
+            }
+        } else {
+            curParamType = myParam->getDefaultValue()->deduce(ctx);
+        }
+        instSymbolTable.setSymbol(
+                GeneralSymbolInfo(d, myParam->getName(), ValueDescriptor(curParamType, ValueKind::VALUE),
+                                  LinkageType::INTERNAL));
+    }
 	//处理可能的变参情况，注意参数个数相等的情况也要处理变参，此时变参匹配数量为0
 	if (this->_staticVarargs)
 	{
@@ -70,8 +75,12 @@ Type * FunctionFragment::getReturnType(const DebugInfo &d, InstantialContext * c
 		vector<Type *> varargItemTypes;
 		varargItemTypes.insert(varargItemTypes.end(), paramTypes.begin() + (paramTypes.size() - varargLen),
 							   paramTypes.end());
-		MultiValueType *type = MultiValueType::get(varargItemTypes);
-		instSymbolTable.setSymbol(d, this->staticVarargsName, type, LinkageType::INTERNAL);
+		vector<ValueDescriptor> varargItemDescs;
+		varargItemDescs.reserve(varargItemTypes.size());
+		for(size_t i=0; i<varargItemTypes.size(); ++i){
+		    varargItemDescs.push_back(ValueDescriptor(varargItemTypes[i], ValueKind::VARIABLE));
+		}
+		instSymbolTable.setSymbol(GeneralSymbolInfo(d, this->staticVarargsName, varargItemDescs));
 	} else if (this->_runtimeVarargs)
 	{
 		/*什么都不用做*/
@@ -80,9 +89,9 @@ Type * FunctionFragment::getReturnType(const DebugInfo &d, InstantialContext * c
 	try {
 	    //TODO 推导返回值类型没必要把每条语句都推导一次, 应该记录下来各个变量的声明语句，在推导返回值类型需要变量时，直接推导声明语句即可
 	    for(size_t i=0; i<implCount-1; ++i) {
-            this->implements[i]->getType(&innerCtx);
+            this->implements[i]->deduce(&innerCtx);
         }
-		return this->implements[implCount - 1]->getType(&innerCtx);
+		return this->implements[implCount - 1]->deduce(&innerCtx);
 	}
 	catch (const CancelException &ex)
     {
@@ -113,17 +122,20 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * outerCtx,
     llvmArgs.reserve(myParamCount > realParamCount ? myParamCount : realParamCount);
     auto itLLVMArg = llvmFunc->arg_begin();
     for (size_t i = 0; i < (myParamCount < realParamCount ? myParamCount : realParamCount); ++i) {
-        Parameter *curDeclParam = this->parameters[i];
-        //获取参数的LLVM Argument
-        llvm::Argument *llvmArg = itLLVMArg;
-        llvmArgs.push_back(llvmArg);
-        SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), curDeclParam->getName(),
-                                                            realParamTypes[i],
-                                                            LinkageType::INTERNAL);
-        myParamInfo->setLLVMValue(llvmArg);
-//        //生成llvm赋值，将标准参数赋值到当前分支参数
-//        llvm::Value *myLLVMParamPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), &innerCtx);
-//        builder.CreateStore(llvmArg, myLLVMParamPtr);
+        ParameterDecl *curDeclParam = this->parameters[i];
+        //获取参数的LLVM Argument，如果跟本分支的类型不相同，还要做一个类型转换
+        llvm::Value *llvmPtrArg = itLLVMArg;
+        if(this->parameters[i]->getType() && !realParamTypes[i]->equals(this->parameters[i]->getType())){
+            //创建临时变量
+            wstring tmpVarName = L"$"+to_wstring(i);
+            instSymbolTable.setSymbol(GeneralSymbolInfo(this->getDebugInfo(), tmpVarName,
+                    ValueDescriptor(realParamTypes[i], ValueKind::VARIABLE, nullptr, llvmPtrArg),LinkageType::INTERNAL));
+            Variable tmpVar(ExpressionInfo(nullptr, this->getDebugInfo(), &this->context), L"$"+to_wstring(i));
+            llvmPtrArg = ValueDescriptor::generateLLVMConvert(this->getDebugInfo(), &innerCtx, &tmpVar, ValueDescriptor(this->parameters[i]->getType(), ValueKind::VARIABLE));
+        }
+        SymbolInfo *myParamInfo = instSymbolTable.setSymbol(
+                GeneralSymbolInfo(this->getDebugInfo(), curDeclParam->getName(), ValueDescriptor(curDeclParam->getType(), ValueKind::VARIABLE, nullptr, llvmPtrArg), LinkageType::INTERNAL));
+        llvmArgs.push_back(llvmPtrArg);
         ++itLLVMArg;
     }
 
@@ -132,13 +144,14 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * outerCtx,
     if (realParamCount < myParamCount) {
         /*如果实参少于形参，肯定形参有默认值，要不之前不会匹配过来。为默认值生成赋值*/
         for (size_t i = realParamCount; i < myParamCount; ++i) {
-            Parameter *curDeclParam = this->parameters[i];
+            ParameterDecl *curDeclParam = this->parameters[i];
             Type *defaultValueType = curDeclParam->getType();
-            if (!defaultValueType) defaultValueType = curDeclParam->getDefaultValue()->getType(&innerCtx);
-            SymbolInfo *myParamInfo = instSymbolTable.setSymbol(this->getDebugInfo(), curDeclParam->getName(),
-                                                                defaultValueType, LinkageType::INTERNAL);
+            if (!defaultValueType) defaultValueType = curDeclParam->getDefaultValue()->deduce(&innerCtx);
+            SymbolInfo *myParamInfo = instSymbolTable.setSymbol(
+                    GeneralSymbolInfo(this->getDebugInfo(), curDeclParam->getName(),
+                                      ValueDescriptor(defaultValueType, ValueKind::VARIABLE), LinkageType::INTERNAL));
             finalParamTypes.push_back(defaultValueType);
-            llvm::Value *llvmPtr = myParamInfo->getLLVMValuePtr(this->getDebugInfo(), &innerCtx);
+            llvm::Value *llvmPtr = myParamInfo->getValueDescriptors()[0].getLLVMValue(this->getDebugInfo(), &innerCtx);
             llvm::Value *llvmVal = curDeclParam->getDefaultValue()->generateIR(&innerCtx).getValue();
             builder.CreateStore(llvmVal, llvmPtr);
             llvmArgs.push_back(llvmVal);
@@ -163,10 +176,11 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * outerCtx,
         while (itLLVMArg != llvmFunc->arg_end()) {
             llvm::Argument *llvmArg = itLLVMArg++;
             wstring curArgName = Locales::toWideChar(Encoding::ANSI, llvmArg->getName());
-            SymbolInfo *info = instSymbolTable.setSymbol(this->getDebugInfo(), curArgName,
-                                                         finalParamTypes[myParamCount + i],
-                                                         LinkageType::INTERNAL);
-            info->setLLVMValue(llvmArg);
+            SymbolInfo *info = instSymbolTable.setSymbol(
+                    GeneralSymbolInfo(this->getDebugInfo(), curArgName,
+                                      ValueDescriptor(finalParamTypes[myParamCount + i], ValueKind::VARIABLE, nullptr,
+                                                      llvmArg),
+                                      LinkageType::INTERNAL));
             auto *cur = new Variable(
                     ExpressionInfo(this->context.getProgram(), this->getDebugInfo(), &this->context), curArgName);
             varargs.push_back(cur);
@@ -176,9 +190,9 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * outerCtx,
         auto *multiValue = new MultiValue(
                 ExpressionInfo(this->context.getProgram(), this->getDebugInfo(), &this->context),
                 varargs);
-        SymbolInfo *info = instSymbolTable.setSymbol(this->getDebugInfo(), this->staticVarargsName,
-                                                     multiValue->getType(&innerCtx), LinkageType::INTERNAL);
-        info->setValue(multiValue);
+        SymbolInfo *info = instSymbolTable.setSymbol(
+                GeneralSymbolInfo(this->getDebugInfo(), this->staticVarargsName,
+                                  multiValue->deduce(&innerCtx).getValueDescriptors());
     }
 
     llvm::BasicBlock *implBlock = nullptr;
@@ -209,12 +223,14 @@ bool FunctionFragment::match(const DebugInfo &d, const FunctionQuery &query) noe
     if (realParamTypes.size() > declParamCount && !this->_runtimeVarargs && !this->_staticVarargs) return false;
     for (size_t i = 0; i < declParamCount; ++i) {
         Type *declParamType = this->parameters[i]->getType();
-        if(i >= realParamCount) {
-            if(this->parameters[i]->getDefaultValue()) continue;
+        if (i >= realParamCount) {
+            if (this->parameters[i]->getDefaultValue()) continue;
             else return false;
         }
         if (!realParamTypes[i]) return false;
-        if (declParamType && !Type::convertableTo(d, realParamTypes[i], declParamType)) return false;
+        if (declParamType && !ValueDescriptor::convertableTo(d, ValueDescriptor(realParamTypes[i], ValueKind::VALUE),
+                                                             ValueDescriptor(declParamType, ValueKind::VARIABLE)))
+            return false;
     }
     return true;
 }
@@ -263,12 +279,12 @@ void FunctionFragment::generateImplements(GenerateContext *context, llvm::BasicB
 				}
 				else {
 					//如果分支返回值类型与函数返回值类型不同，则生成类型转换
-					Type *branchReturnType = curExpr->getType(context);
-					if (!branchReturnType->equals(returnType))
-					{
-						res = Type::generateLLVMTypeConvert(curExpr->getDebugInfo(), context, curExpr,
-							returnType).getValue();
-					}
+					Type *branchReturnType = curExpr->deduce(context);
+					if (!branchReturnType->equals(returnType)) {
+                        res = ValueDescriptor::generateLLVMConvert(curExpr->getDebugInfo(), context, curExpr,
+                                                                   ValueDescriptor(returnType,
+                                                                                   ValueKind::VALUE)).getValue();
+                    }
 					builder.CreateRet(res);
 				}
             }

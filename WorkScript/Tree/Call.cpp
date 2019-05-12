@@ -15,7 +15,8 @@ using namespace std;
 
 GenerateResult Call::generateIR(GenerateContext * context) {
 	//获取函数声明
-	auto paramTypes = this->parameters->getTypes(context);
+	DeducedInfo paramInfo = this->parameters->deduce(context);
+	auto paramTypes = paramInfo.getTypes();
 	Function *func = this->expressionInfo.getAbstractContext()->getFunction(
 			this->getDebugInfo(),
 			FunctionQuery(this->functionName, paramTypes, false));
@@ -40,8 +41,9 @@ GenerateResult Call::generateIR(GenerateContext * context) {
 	return builder->CreateCall(llvmFunc, llvmArgs);
 }
 
-Type * Call::getType(InstantialContext *context) const {
-	auto paramTypes = this->parameters->getTypes(context);
+DeducedInfo Call::deduce(WorkScript::InstantialContext *context) const
+{
+	auto paramTypes = this->parameters->deduce(context).getTypes();
 	Function *func = this->expressionInfo.getAbstractContext()->getFunction(
 			this->getDebugInfo(),
 			FunctionQuery(this->functionName, paramTypes, false));
@@ -60,7 +62,7 @@ Type * Call::getType(InstantialContext *context) const {
 	try {
 		Type *returnType = func->getReturnType(this->getDebugInfo(), context,
 				paramTypes);
-		return returnType;
+		return ValueDescriptor(returnType, ValueKind::VALUE);
 	} catch (const CancelException &ex) {
 		ex.rethrowAbove(CancelScope::EXPRESSION);
 		if (!isParamNested) {
@@ -84,7 +86,7 @@ std::wstring Call::toString() const {
 std::wstring Call::toFunctionDeclString(InstantialContext *context) const {
 	wstringstream ss;
 	ss << this->functionName;
-	vector<Type*> paramTypes = this->parameters->getTypes(context);
+	vector<Type*> paramTypes = this->parameters->deduce(context).getTypes();
 	size_t paramCount = paramTypes.size();
 	ss << L"(";
 	for (size_t i = 0; i < paramCount; ++i) {
@@ -101,7 +103,7 @@ ExpressionType Call::getExpressionType() const {
 	return ExpressionType::CALL;
 }
 
-Expression * WorkScript::Call::clone() const {
+Expression * Call::clone() const {
 	auto newInstance = new thistype(expressionInfo, functionName, parameters);
 	return newInstance;
 }

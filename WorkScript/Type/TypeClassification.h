@@ -9,7 +9,6 @@ namespace WorkScript {
 		FUNCTION,
 		ARRAY,
 		REFERENCE,
-		MULTI_VALUE,
 		CLASS
 	};
 }

@@ -22,14 +22,9 @@ WorkScript::Assignment::Assignment(const ExpressionInfo &exprInfo,Expression *le
 GenerateResult WorkScript::Assignment::generateIR(GenerateContext * context)
 {
 	auto irBuilder = context->getIRBuilder();
-	Type *leftType = this->getType(context);
-	Type *rightType = this->rightExpression->getType(context);
-	Type *promotedType = Type::getPromotedType(this->expressionInfo.getDebugInfo(), leftType, rightType);
-	context->setLeftValue(false);
-	llvm::Value *val = Type::generateLLVMTypeConvert(this->expressionInfo.getDebugInfo(), context, this->rightExpression, promotedType).getValue();
-	context->setLeftValue(true);
-	llvm::Value *var = this->leftExpression->generateIR(context).getValue();
-	context->setLeftValue(false);
+	ValueDescriptor leftDesc = this->leftExpression->deduce(context);
+	llvm::Value *val = ValueDescriptor::generateLLVMConvert(this->expressionInfo.getDebugInfo(), context, this->rightExpression, ValueDescriptor(leftDesc.getType(), ValueKind::VALUE));
+	llvm::Value *var = ValueDescriptor::generateLLVMConvert(this->expressionInfo.getDebugInfo(), context, this->leftExpression, ValueDescriptor(leftDesc.getType(), ValueKind::VARIABLE));
 	irBuilder->CreateStore(val, var);
 	return val;
 }
@@ -39,20 +34,20 @@ ExpressionType Assignment::getExpressionType() const
 	return ExpressionType::ASSIGNMENT;
 }
 
-Expression * WorkScript::Assignment::clone() const
+Expression * Assignment::clone() const
 {
 	return new thistype(expressionInfo,leftExpression,rightExpression);
 }
 
-Type * WorkScript::Assignment::getType(InstantialContext *context) const {
-	auto leftExpr = this->getLeftExpression();
+DeducedInfo Assignment::deduce(InstantialContext *context) const {
+	auto leftExpr = this->leftExpression;
 	if (this->leftExpression->getExpressionType() == ExpressionType::VARIABLE) {
 		auto leftVar = (Variable *) leftExpr;
 		SymbolInfo *info = this->syncSymbol(leftVar->getName(), context);
-		return info->getType();
+		return info->getValueDescriptors();
 	}else{
-		Type *rightType = this->rightExpression->getType(context);
-		if(rightType) return rightType;
+		ValueDescriptor rightDesc = this->rightExpression->deduce(context);
+		if(rightDesc.getType()) return rightDesc;
 		else {
 			this->getDebugInfo().getReport()->error(
 					UninferableTypeError(this->getDebugInfo(), L"无法推导" + this->leftExpression->toString() + L"的类型"),
@@ -68,21 +63,20 @@ std::wstring WorkScript::Assignment::getOperatorString() const
 
 SymbolInfo * WorkScript::Assignment::syncSymbol(const wstring &name, InstantialContext *ctx) const {
 	SymbolInfo *oriSymbolInfo = ctx->getInstanceSymbolTable()->getSymbolInfo(name);
-	Type *rightType = this->rightExpression->getType(ctx);
+	ValueDescriptor rightDesc = this->rightExpression->deduce(ctx);
 	if(oriSymbolInfo){
-		Type *oriType = oriSymbolInfo->getType();
-		if (oriType && !Type::convertableTo(this->getDebugInfo(), rightType, oriType))
-		{
-			wstringstream ss;
-			ss << L"表达式 ";
-			ss << left << setw(20) << this->toString() << L" ";
-			ss << L"无法将" << rightType->getName() << L"类型的值赋值给" << oriType->getName() << L"类型的变量";
-			this->getDebugInfo().getReport()->error(IncompatibleTypeError(this->getDebugInfo(), ss.str()),
-													ErrorBehavior::CANCEL_EXPRESSION);
-		}
+		auto oriDesc = oriSymbolInfo->getValueDescriptor();
+		if (oriDesc.getType() && !ValueDescriptor::convertableTo(this->getDebugInfo(),rightDesc, oriDesc)) {
+            wstringstream ss;
+            ss << L"表达式 ";
+            ss << left << setw(20) << this->toString() << L" ";
+            ss << L"无法将" << rightDesc.getType()->getName() << L"类型的值赋值给" << oriDesc.getType()->getName() << L"类型的变量";
+            this->getDebugInfo().getReport()->error(IncompatibleTypeError(this->getDebugInfo(), ss.str()),
+                                                    ErrorBehavior::CANCEL_EXPRESSION);
+        }
 		return oriSymbolInfo;
 	}else {
 		//等号隐式定义变量连接属性为INTERNAL
-		return ctx->getInstanceSymbolTable()->setSymbol(this->getDebugInfo(), name, rightType, LinkageType::INTERNAL);
+		return ctx->getInstanceSymbolTable()->setSymbol(this->getDebugInfo(), name, rightDesc, LinkageType::INTERNAL);
 	}
 }

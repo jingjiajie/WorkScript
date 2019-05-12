@@ -14,7 +14,7 @@ namespace WorkScript {
 			:Expression(exprInfo), functionName(funcName), parameters(params){ }
 
 		GenerateResult generateIR(GenerateContext *context) override;
-		Type * getType(InstantialContext *context) const override;
+		DeducedInfo deduce(InstantialContext *context) const override;
 		std::wstring toString() const override;
 		ExpressionType getExpressionType() const override;
 		Expression * clone() const override;

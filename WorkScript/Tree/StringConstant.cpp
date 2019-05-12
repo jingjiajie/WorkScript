@@ -18,7 +18,7 @@ GenerateResult WorkScript::StringConstant::generateIR(GenerateContext * context)
     }
 }
 
-std::wstring WorkScript::StringConstant::toString() const
+std::wstring StringConstant::toString() const
 {
 	return L"\"" + this->value + L"\"";
 }
@@ -28,9 +28,9 @@ Value * WorkScript::StringConstant::clone() const
 	return new StringConstant(expressionInfo, this->value);
 }
 
-Type* StringConstant::getType() const noexcept
+DeducedInfo StringConstant::deduce(WorkScript::InstantialContext *context) const
 {
-	return PointerType::get(IntegerType::get(IntegerTypeClassification::CHAR),1);
+	return ValueDescriptor(PointerType::get(IntegerType::get(IntegerTypeClassification::CHAR),1), ValueKind::VALUE);
 }
 
 ExpressionType StringConstant::getExpressionType() const

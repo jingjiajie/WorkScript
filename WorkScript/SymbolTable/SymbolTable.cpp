@@ -18,20 +18,9 @@ SymbolInfo * WorkScript::SymbolTable::getSymbolInfo(const std::wstring & name) n
     else return it->second;
 }
 
-
-
-SymbolInfo * SymbolTable::setSymbol(const DebugInfo &d, const std::wstring & name, Type * type, const LinkageType &lt, Value *value) noexcept
+SymbolInfo * SymbolTable::setSymbol(const SymbolInfo &info) noexcept
 {
-    auto &info = this->symbols[name];
-    delete info;
-    info = new GeneralSymbolInfo(d, this->prefix + name, type, lt, value);
-	return info;
-}
-
-SymbolInfo *SymbolTable::setSymbol(const DebugInfo &d, const wstring &name, SymbolInfo *refSymbolInfo)
-{
-    auto &info = this->symbols[name];
-    delete info;
-    info = new ReferenceSymbolInfo(d, this->prefix + name, refSymbolInfo);
-    return info;
+    auto &ori = this->symbols[info.getName()];
+    delete ori;
+    return ori = info.clone();
 }

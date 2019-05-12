@@ -11,7 +11,7 @@
 #include "MultiValue.h"
 #include "Report.h"
 #include "Exception.h"
-#include "Parameter.h"
+#include "ParameterDecl.h"
 #include "Function.h"
 #include "FunctionFragment.h"
 #include "Program.h"
@@ -24,6 +24,7 @@
 #include "FloatConstant.h"
 #include "IntegerConstant.h"
 #include "StringConstant.h"
+#include "ReferenceType.h"
 
 #define FORBID_ASSIGN \
 this->assignable = false; 
@@ -273,7 +274,7 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDecl(WorkScriptPars
 
 	/*处理参数声明*/
 	auto paramItemsCtx = ctx->stdFormalParameter()->stdFormalParameterItem();
-	vector<Parameter *> params;
+	vector<ParameterDecl *> params;
 	vector<Type *> paramTypes;
 	for (size_t i = 0; i < paramItemsCtx.size(); ++i)
 	{
@@ -285,7 +286,7 @@ antlrcpp::Any WorkScript::TreeCreateVisitor::visitStdFunctionDecl(WorkScriptPars
 		Type *paramType = paramItemsCtx[i]->type()->accept(this).as<TypeWrapper>().getType();
 		size_t pointerLevel = paramItemsCtx[i]->STAR().size();
 		if (pointerLevel > 0) paramType = PointerType::get(paramType, pointerLevel);
-		params.push_back(new Parameter(paramName, paramType));
+		params.push_back(new ParameterDecl(paramName, paramType));
 		paramTypes.push_back(paramType);
 	}
 	bool isRuntimeVarargs = ctx->stdFormalParameter()->runtimeVarargs() != nullptr;
@@ -475,74 +476,53 @@ TreeCreateVisitor::~TreeCreateVisitor() = default;
 antlrcpp::Any TreeCreateVisitor::visitType(WorkScriptParser::TypeContext *ctx)
 {
 	auto qualifiers = ctx->typeQualifier();
-	auto specifiers = ctx->typeSpecifier();
-	auto storageClassSpecifiers = ctx->storageClassSpecifier();
 	bool isConst = false, isVolatile = false;
 	bool isShort = false, isLong = false, isUnsigned = false;
 	optional<LinkageType> linkageType = nullopt;
 	wstring typeName;
 	Type *type = nullptr;
-	for (auto qualifierCtx : qualifiers)
-	{
-		string qualifier = qualifierCtx->getText();
-		if (qualifier == "const") isConst = true;
-		else if (qualifier == "volatile") isVolatile = true;
-	}
-
-    for (auto storageCtx : storageClassSpecifiers)
-    {
-        string specifier = storageCtx->getText();
-        if (specifier == "static") {
-            linkageType = LinkageType::INTERNAL;
-        }
-        else if (specifier == "extern"){
-            linkageType = LinkageType::EXTERNAL;
-        }
+	for (auto qualifierCtx : qualifiers) {
+        string qualifier = qualifierCtx->getText();
+        if (qualifier == "const") isConst = true;
+        else if (qualifier == "volatile") isVolatile = true;
+        else if (qualifier == "static") linkageType = LinkageType::INTERNAL;
+        else if (qualifier == "extern") linkageType = LinkageType::EXTERNAL;
+        else if (qualifier == "short") isShort = true;
+        else if (qualifier == "long") isLong = true;
+        else if (qualifier == "signed") isUnsigned = false;
+        else if (qualifier == "unsigned") isUnsigned = true;
     }
 
-	for (auto specifierCtx : specifiers)
-	{
-		string specifier = specifierCtx->getText();
-		if (specifier == "short") isShort = true;
-		else if (specifier == "long") isLong = true;
-		else if (specifier == "signed") isUnsigned = false;
-		else if (specifier == "unsigned") isUnsigned = true;
-		else
-		{
-			typeName = Locales::toWideChar(Encoding::UTF_8, specifier);
-		}
-	}
+	//如果是引用类型，则递归处理。否则按类型名搜索类型
+	if(ctx->referenceType()){
+        Type *targetType = ctx->referenceType()->type()->accept(this).as<TypeWrapper>().getType();
+        type = ReferenceType::get(targetType);
+	}else {
+        auto typeNameCtx = ctx->typeName();
+        if (!typeNameCtx) {
+            typeName = L"int";
+        } else {
+            typeName = Locales::toWideChar(Encoding::UTF_8, typeNameCtx->getText());
+        }
 
-	if (typeName.empty())
-	{
-		if(isShort || isLong || isUnsigned){
-			typeName = L"int";
-		}
-	}
-
-	if (typeName == L"int")
-	{
-		IntegerTypeClassification cls = IntegerTypeClassification::INT;
-		if (isShort) cls = IntegerTypeClassification::SHORT;
-		else if (isLong) cls = IntegerTypeClassification::LONG;
-		type = IntegerType::get(cls, !isUnsigned, isConst, isVolatile);
-	} else if (typeName == L"char")
-	{
-		type = IntegerType::get(IntegerTypeClassification::CHAR, !isUnsigned, isConst, isVolatile);
-	} else if (typeName == L"bool")
-	{
-		type = IntegerType::get(IntegerTypeClassification::BOOL, !isUnsigned, isConst, isVolatile);
-	} else if (typeName == L"float")
-	{
-		type = FloatType::get(FloatTypeClassification::FLOAT, isConst, isVolatile);
-	} else if (typeName == L"void")
-	{
-		type = VoidType::get();
-	} else
-	{
-		this->program->getReport()->error(UnimplementedError(getDebugInfo(this, ctx), L"尚未实现自定义类型"), ErrorBehavior::CANCEL_EXPRESSION);
-	}
-
+        if (typeName == L"int") {
+            IntegerTypeClassification cls = IntegerTypeClassification::INT;
+            if (isShort) cls = IntegerTypeClassification::SHORT;
+            else if (isLong) cls = IntegerTypeClassification::LONG;
+            type = IntegerType::get(cls, !isUnsigned, isConst, isVolatile);
+        } else if (typeName == L"char") {
+            type = IntegerType::get(IntegerTypeClassification::CHAR, !isUnsigned, isConst, isVolatile);
+        } else if (typeName == L"bool") {
+            type = IntegerType::get(IntegerTypeClassification::BOOL, !isUnsigned, isConst, isVolatile);
+        } else if (typeName == L"float") {
+            type = FloatType::get(FloatTypeClassification::FLOAT, isConst, isVolatile);
+        } else if (typeName == L"void") {
+            type = VoidType::get();
+        } else {
+            this->program->getReport()->error(UnimplementedError(getDebugInfo(this, ctx), L"尚未实现自定义类型"),
+                                              ErrorBehavior::CANCEL_EXPRESSION);
+        }
+    }
 	return TypeWrapper(type, linkageType);
 }
 

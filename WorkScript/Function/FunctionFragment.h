@@ -5,7 +5,7 @@
 #include "AbstractContext.h"
 
 namespace WorkScript {
-	class Parameter;
+	class ParameterDecl;
 
 	class FunctionFragment
 	{
@@ -13,7 +13,7 @@ namespace WorkScript {
 		FunctionFragment(const DebugInfo &d,
 		        AbstractContext *ctx,
 		        const std::wstring &name,
-		        const std::vector<Parameter*> &params,
+		        const std::vector<ParameterDecl*> &params,
 		        bool isConst,
 		        bool isRuntimeVarargs,
 		        const std::optional<std::wstring> &staticVarargsName,
@@ -35,8 +35,8 @@ namespace WorkScript {
 
         inline const std::wstring &getName() const noexcept{return this->name;}
 		inline const DebugInfo & getDebugInfo() const noexcept{ return this->context.getDebugInfo(); };
-		inline Parameter * getParameter(size_t index) noexcept{ return this->parameters[index]; }
-		inline const std::vector<Parameter*> & getParameters() const noexcept{ return this->parameters; }
+		inline ParameterDecl * getParameter(size_t index) noexcept{ return this->parameters[index]; }
+		inline const std::vector<ParameterDecl*> & getParameters() const noexcept{ return this->parameters; }
 		inline size_t getParameterCount() const noexcept{ return this->parameters.size();}
 		inline size_t getBlockID() const noexcept{ return this->context.getBlockID(); }
 		inline AbstractContext * getContext() noexcept{ return &this->context; }
@@ -46,7 +46,7 @@ namespace WorkScript {
 		inline bool isRuntimeVarargs() const noexcept{ return this->_runtimeVarargs;}
 	private:
 	    std::wstring name;
-		std::vector<Parameter*> parameters;
+		std::vector<ParameterDecl*> parameters;
 		Type *declReturnType = nullptr;
 		bool _staticVarargs = false;
 		std::wstring staticVarargsName;

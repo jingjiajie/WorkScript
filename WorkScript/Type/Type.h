@@ -40,11 +40,7 @@ namespace WorkScript {
 		virtual std::wstring getMangledName() const noexcept = 0;
 		virtual llvm::Type* getLLVMType(GenerateContext *context) const = 0;
 
-		static GenerateResult generateLLVMTypeConvert(const DebugInfo &d, GenerateContext *context, Expression *expr, Type *targetType);
-		static GenerateResult generateLLVMTypeConvert(const DebugInfo &d, GenerateContext *context, Expression *left, Expression *right, Type *promotedType);
 		static Type * getPromotedType(const DebugInfo &d, Type *type1, Type *type2);
-		static bool convertableTo(const DebugInfo &d, Type *src, Type *target);
-		bool convertableTo(const DebugInfo &d, Type *target);
 		virtual TypeClassification getClassification() const noexcept = 0;
 	};
 }

@@ -1,4 +1,6 @@
 #pragma once
+
+#include <Exception/Exception.h>
 #include "SymbolInfo.h"
 
 namespace WorkScript
@@ -6,49 +8,39 @@ namespace WorkScript
     class GeneralSymbolInfo : public SymbolInfo
     {
     public:
-        inline GeneralSymbolInfo(const DebugInfo &d, const std::wstring &name, Type *type,const LinkageType &lt,
-                                 Value *value = nullptr) noexcept
-                : SymbolInfo(d, name), type(type), value(value), linkageType(lt)
+        GeneralSymbolInfo(const GeneralSymbolInfo &ori) = default;
+
+        GeneralSymbolInfo(const DebugInfo &d, const std::wstring &name, const std::vector<ValueDescriptor> &descs) noexcept
+                : SymbolInfo(d, name), valueDescriptors(descs)
         {}
 
-        inline GeneralSymbolInfo(const DebugInfo &d, const std::wstring &name, Type *type,const LinkageType &lt,
-                                 llvm::Value *llvmValue) noexcept
-                : SymbolInfo(d, name), type(type), linkageType(lt), llvmValue(llvmValue)
-        {}
+        GeneralSymbolInfo(const DebugInfo &d, const std::wstring &name, const ValueDescriptor &desc, const LinkageType &lt) noexcept
+                : SymbolInfo(d, name), linkageType(lt)
+        {
+            this->valueDescriptors.push_back(desc);
+        }
 
-        ~GeneralSymbolInfo() override;
+        SymbolInfo * clone() const noexcept override{
+            return new GeneralSymbolInfo(*this);
+        }
 
-        llvm::Value *getLLVMValue(const DebugInfo &d, GenerateContext *context) override;
+//        inline GeneralSymbolInfo(const DebugInfo &d, const std::wstring &name, const ValueDescriptor &desc, const LinkageType &lt,
+//                                 llvm::Value *llvmValue) noexcept
+//                : SymbolInfo(d, name), valueDescriptor(desc), linkageType(lt), llvmValue(llvmValue)
+//        {}
 
-        llvm::Value *getLLVMValuePtr(const DebugInfo &d, GenerateContext *context) override;
+        DeducedInfo deduce(InstantialContext *) const override
+        {
+            return this->valueDescriptors;
+        }
 
-        void setValue(Value *value) noexcept override;
-
-        const Value *getValue() const noexcept override
-        { return this->value; }
-
-        Value *getValue() noexcept override
-        { return this->value; }
-
-        void setLLVMValue(llvm::Value *llvmVal) noexcept override
-        { this->llvmValue = llvmVal; }
-
-        void setLLVMValuePtr(llvm::Value *llvmValPtr) noexcept override
-        { this->llvmValuePtr = llvmValPtr; }
-
-        Type *getType() const override
-        { return this->type; }
-
-        LinkageType getLinkageType() const override
-        { return this->linkageType; }
-
-        void setLinkageType(const LinkageType &lt) noexcept override
-        { this->linkageType = lt; }
+//        LinkageType getLinkageType() const override
+//        { return this->linkageType; }
+//
+//        void setLinkageType(const LinkageType &lt) noexcept override
+//        { this->linkageType = lt; }
     protected:
-        Type *type = nullptr;
-        Value *value = nullptr;
+        std::vector<ValueDescriptor> valueDescriptors;
         LinkageType linkageType = LinkageType::INTERNAL;
-        llvm::Value *llvmValue = nullptr;
-        llvm::Value *llvmValuePtr = nullptr;
     };
 }

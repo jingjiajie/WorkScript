@@ -6,36 +6,35 @@
 #include <llvm/IR/Function.h>
 #include <llvm/Object/ObjectFile.h>
 #include <llvm/Support/TargetSelect.h>
+#include <vector>
 
 class GenerateResult
 {
 public:
-	inline GenerateResult() noexcept {}
+	GenerateResult() noexcept {}
 
-	inline GenerateResult(llvm::Value *value, llvm::Value *value1 = nullptr) noexcept {
-		this->setValue(value);
-		this->setValue1(value1);
+	GenerateResult(llvm::Value *value) noexcept {
+		this->values.push_back(value);
 	}
 
-	inline ~GenerateResult() noexcept = default;
+	GenerateResult(const std::vector<llvm::Value*> &values) noexcept
+		: values(values){ }
 
-	inline llvm::Value * getValue()const noexcept {
-		return this->value;
+	~GenerateResult() noexcept = default;
+
+	llvm::Value * getValue()const noexcept {
+		if(this->values.empty()) return nullptr;
+		else return this->values[0];
 	}
 
-	inline void setValue(llvm::Value *value) noexcept {
-		this->value = value;
+	std::vector<llvm::Value*> & getValues() noexcept{
+		return this->values;
 	}
 
-	inline llvm::Value * getValue1()const noexcept {
-		return this->value1;
-	}
-
-	inline void setValue1(llvm::Value *value1) noexcept {
-		this->value1 = value1;
+	operator llvm::Value*(){
+	    return this->getValue();
 	}
 private:
-	llvm::Value * value;
-	llvm::Value * value1;
+	std::vector<llvm::Value*> values;
 };
 

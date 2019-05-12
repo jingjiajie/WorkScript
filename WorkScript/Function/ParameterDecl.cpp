@@ -1,21 +1,21 @@
-#include "Parameter.h"
+#include "ParameterDecl.h"
 #include "InstantialContext.h"
 #include "Value.h"
 
 using namespace std;
 using namespace WorkScript;
 
-Type * WorkScript::Parameter::getType()
+Type * WorkScript::ParameterDecl::getType()
 {
 	return this->type;
 }
 
-Parameter::~Parameter() noexcept
+ParameterDecl::~ParameterDecl() noexcept
 {
 	delete this->defaultValue;
 }
 
-void Parameter::setDefaultValue(Expression *value) noexcept
+void ParameterDecl::setDefaultValue(Expression *value) noexcept
 {
 	delete this->defaultValue;
 	this->defaultValue = value;

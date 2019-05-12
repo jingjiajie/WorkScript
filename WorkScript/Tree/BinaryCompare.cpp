@@ -11,20 +11,21 @@ GenerateResult WorkScript::BinaryCompare::generateIR(GenerateContext * context)
 {
 	auto leftExpr = this->getLeftExpression();
 	auto rightExpr = this->getRightExpression();
-	Type *leftType = leftExpr->getType(context);
-	Type *rightType = rightExpr->getType(context);
+	Type *leftType = leftExpr->deduce(context);
+	Type *rightType = rightExpr->deduce(context);
 	Type *promotedType = Type::getPromotedType(this->getDebugInfo(), leftType, rightType);
-	GenerateResult res = Type::generateLLVMTypeConvert(this->getDebugInfo(), context, leftExpr, rightExpr, promotedType);
+	llvm::Value *leftVal = ValueDescriptor::generateLLVMConvert(this->getDebugInfo(), context, leftExpr, ValueDescriptor(promotedType, ValueKind::VALUE));
+	llvm::Value *rightVal = ValueDescriptor::generateLLVMConvert(this->getDebugInfo(), context, rightExpr, ValueDescriptor(promotedType, ValueKind::VALUE));
 	switch (promotedType->getClassification())
 	{
 		case TypeClassification::POINTER:
 		case TypeClassification::INTEGER:
 		{
-			return this->generateLLVMIRInteger(context, res.getValue(), res.getValue1(), (IntegerType *) promotedType);
+			return this->generateLLVMIRInteger(context, leftVal, rightVal, (IntegerType *) promotedType);
 		}
 		case TypeClassification::FLOAT:
 		{
-			return this->generateLLVMIRFloat(context, res.getValue(), res.getValue1(), (FloatType *) promotedType);
+			return this->generateLLVMIRFloat(context, leftVal, rightVal, (FloatType *) promotedType);
 		}
 		default:
 			goto UNSUPPORTED;
@@ -34,22 +35,22 @@ UNSUPPORTED:
 	this->expressionInfo.getDebugInfo().getReport()->error(IncompatibleTypeError(this->expressionInfo.getDebugInfo(), L"双目比较运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName()), ErrorBehavior::CANCEL_EXPRESSION);
 }
 
-IntegerType * WorkScript::BinaryCompare::getType(InstantialContext *context) const
+DeducedInfo BinaryCompare::deduce(InstantialContext *context) const
 {
-	return IntegerType::get(IntegerTypeClassification::BOOL);
+	return ValueDescriptor(IntegerType::get(IntegerTypeClassification::BOOL), ValueKind::VALUE);
 }
 
-Expression * WorkScript::BinaryCompare::clone() const
+Expression * BinaryCompare::clone() const
 {
 	return new BinaryCompare(expressionInfo,leftExpression,rightExpression, compareType);
 }
 
-ExpressionType WorkScript::BinaryCompare::getExpressionType() const
+ExpressionType BinaryCompare::getExpressionType() const
 {
 	return ExpressionType::BINARY_COMPARE;
 }
 
-GenerateResult WorkScript::BinaryCompare::generateLLVMIRInteger(GenerateContext * context, llvm::Value * left, llvm::Value * right, IntegerType * promotedType) const
+GenerateResult BinaryCompare::generateLLVMIRInteger(GenerateContext * context, llvm::Value * left, llvm::Value * right, IntegerType * promotedType) const
 {
 	auto irBuilder = context->getIRBuilder();
 	llvm::Value *res;

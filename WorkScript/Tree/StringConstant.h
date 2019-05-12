@@ -11,7 +11,7 @@ namespace WorkScript {
 			:Constant(info), value(value) {}
 
 		std::wstring getValue() const { return this->value; }
-		Type * getType() const noexcept override;
+		DeducedInfo deduce(InstantialContext *context) const override;
 		GenerateResult generateIR(GenerateContext *context) override;
 		std::wstring toString() const override;
 		Value * clone() const override;

@@ -1,6 +1,6 @@
 #include "FormalParametersResolver.h"
 #include "Expression.h"
-#include "Parameter.h"
+#include "ParameterDecl.h"
 #include "Variable.h"
 #include "BinaryCompare.h"
 #include "Report.h"
@@ -18,7 +18,7 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 {
 	auto report = exprInfo.getDebugInfo().getReport();
 	size_t paramCount = declParams.size();
-	vector<Parameter*> params(paramCount, nullptr);
+	vector<ParameterDecl*> params(paramCount, nullptr);
 	vector<Expression*> constraints;
 
 	//处理参数声明，将参数和限制分别放入参数列表和限制列表中
@@ -30,7 +30,7 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 		{
 		case ExpressionType::VARIABLE: {
 			Variable* varExpr = (Variable*)curExpr;
-			Parameter *param = new Parameter(varExpr->getName(), curType);
+			ParameterDecl *param = new ParameterDecl(varExpr->getName(), curType);
 			params[i] = param;
 			break;
 		}
@@ -41,7 +41,7 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
                 continue;
 			}
 			Variable *leftVar = (Variable*)left;
-			Parameter *param = new Parameter(leftVar->getName(), curType);
+			ParameterDecl *param = new ParameterDecl(leftVar->getName(), curType);
 			params[i] = param;
 			constraints.push_back(curExpr);
 			break;
@@ -53,7 +53,7 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 				 report->error(SyntaxError(curExpr->getDebugInfo(), L"参数默认值左部必须为参数名！"));
 			}
 			auto leftVar = (Variable*)leftExpr;
-			auto *param = new Parameter(leftVar->getName(), curType, assignmentExpr->getRightExpression());
+			auto *param = new ParameterDecl(leftVar->getName(), curType, assignmentExpr->getRightExpression());
 			params[i] = param;
 			break;
 		}
@@ -64,9 +64,9 @@ FormalParametersResolver::ResolveResult FormalParametersResolver::resolve(
 			if(!curType)
 			{
 				auto constantExpr = dynamic_cast<Constant*>(curExpr);
-				if(constantExpr)curType = constantExpr->getType();
+				if(constantExpr)curType = constantExpr->deduce(nullptr);
 			}
-			auto *param = new Parameter(tmpVarName, curType);
+			auto *param = new ParameterDecl(tmpVarName, curType);
 			params[i] = param;
 			auto *var = new Variable(exprInfo, tmpVarName);
 			auto *constraint = new BinaryCompare(exprInfo, var, curExpr, BinaryCompare::EQUAL);

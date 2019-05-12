@@ -13,10 +13,10 @@ namespace WorkScript {
 		inline BinaryCalculate(const ExpressionInfo &exprInfo,Expression *leftExpression, Expression *rightExpression,CalculateType calcType)
 			:BinaryOperator(exprInfo,leftExpression,rightExpression), calculateType(calcType)	{	}
 
-		virtual GenerateResult generateIR(GenerateContext *context) override;
-		virtual Type * getType(InstantialContext *context) const override;
-		virtual Expression * clone() const override;
-		virtual ExpressionType getExpressionType() const override;
+		GenerateResult generateIR(GenerateContext *context) override;
+		DeducedInfo deduce(InstantialContext *context) const override;
+		Expression * clone() const override;
+		ExpressionType getExpressionType() const override;
 
 	protected:
 		virtual GenerateResult generateLLVMIRInteger(GenerateContext *context, llvm::Value *left, llvm::Value *right, IntegerType *promotedType) const;

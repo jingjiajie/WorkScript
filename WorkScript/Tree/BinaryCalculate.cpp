@@ -10,19 +10,21 @@ GenerateResult WorkScript::BinaryCalculate::generateIR(GenerateContext * context
 {
 	auto leftExpr = this->getLeftExpression();
 	auto rightExpr = this->getRightExpression();
-	Type *leftType = leftExpr->getType(context);
-	Type *rightType = rightExpr->getType(context);
+	Type *leftType = leftExpr->deduce(context);
+	Type *rightType = rightExpr->deduce(context);
 
 	Type *promotedType = Type::getPromotedType(this->getDebugInfo(), leftType, rightType);
-	GenerateResult res = Type::generateLLVMTypeConvert(this->getDebugInfo(), context, leftExpr, rightExpr, promotedType);
+	llvm::Value *leftVal = ValueDescriptor::generateLLVMConvert(this->getDebugInfo(), context, leftExpr, ValueDescriptor(promotedType, ValueKind::VALUE));
+	llvm::Value *rightVal = ValueDescriptor::generateLLVMConvert(this->getDebugInfo(), context, rightExpr, ValueDescriptor(promotedType, ValueKind::VALUE));
+
 	switch (promotedType->getClassification())
 	{
 	case TypeClassification::INTEGER: {
-		return this->generateLLVMIRInteger(context, res.getValue(), res.getValue1(), (IntegerType*)promotedType);
+		return this->generateLLVMIRInteger(context, leftVal, rightVal, (IntegerType*)promotedType);
 	}
 
 	case TypeClassification::FLOAT: {
-		return this->generateLLVMIRFloat(context, res.getValue(), res.getValue1(), (FloatType*)promotedType);
+		return this->generateLLVMIRFloat(context, leftVal, rightVal, (FloatType*)promotedType);
 	}
 	default:
 		goto UNSUPPORTED;
@@ -32,9 +34,11 @@ UNSUPPORTED:
 	throw InternalException(L"双目运算符不支持类型" + leftType->getName() + L" 和 " + rightType->getName());
 }
 
-Type * WorkScript::BinaryCalculate::getType(InstantialContext *context) const
+DeducedInfo BinaryCalculate::deduce(WorkScript::InstantialContext *context) const
 {
-	return Type::getPromotedType(this->getDebugInfo(), this->leftExpression->getType(context), this->rightExpression->getType(context));
+	Type *leftType = this->leftExpression->deduce(context);
+	Type *rightType = this->rightExpression->deduce(context);
+	return ValueDescriptor(Type::getPromotedType(this->getDebugInfo(), leftType, rightType), ValueKind::VALUE);
 }
 
 Expression * WorkScript::BinaryCalculate::clone() const

@@ -1,6 +1,7 @@
 #include <sstream>
 #include "FunctionType.h"
 #include "VoidType.h"
+#include "ValueDescriptor.h"
 
 using namespace WorkScript;
 using namespace std;
@@ -124,17 +125,20 @@ bool FunctionType::matchExact(const DebugInfo &d,const FunctionType *declType, c
 
 bool FunctionType::matchCall(const DebugInfo &d,const FunctionType *declType, const FunctionTypeQuery &query) noexcept
 {
-	const vector<Type *> &realParamTypes = query.getParameterTypes();
-	size_t declParamCount = declType->paramTypes.size();
-	if (!declType->isConst() && query.isConst()) return false;
-	if (realParamTypes.size() < declParamCount)return false;
-	if (realParamTypes.size() > declParamCount && !declType->isRumtimeVarargs()) return false;
-	for (size_t i = 0; i < declParamCount; ++i) {
-		Type *formalParamType = declType->paramTypes[i];
-		if (!realParamTypes[i])continue;
-		if (formalParamType && !Type::convertableTo(d, realParamTypes[i], formalParamType)) return false;
-	}
-	return true;
+    const vector<Type *> &realParamTypes = query.getParameterTypes();
+    size_t declParamCount = declType->paramTypes.size();
+    if (!declType->isConst() && query.isConst()) return false;
+    if (realParamTypes.size() < declParamCount)return false;
+    if (realParamTypes.size() > declParamCount && !declType->isRumtimeVarargs()) return false;
+    for (size_t i = 0; i < declParamCount; ++i) {
+        Type *formalParamType = declType->paramTypes[i];
+        if (!realParamTypes[i])continue;
+        if (formalParamType &&
+            !ValueDescriptor::convertableTo(d, ValueDescriptor(realParamTypes[i], ValueKind::VARIABLE),
+                                            ValueDescriptor(formalParamType, ValueKind::VARIABLE)))
+            return false;
+    }
+    return true;
 }
 
 bool FunctionType::matchCall(const DebugInfo &d, const FunctionTypeQuery &query)const noexcept
