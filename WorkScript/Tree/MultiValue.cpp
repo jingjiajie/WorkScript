@@ -74,54 +74,25 @@ ExpressionType WorkScript::MultiValue::getExpressionType() const
 
 GenerateResult WorkScript::MultiValue::generateIR(GenerateContext * context)
 {
-	throw InternalException(L"请调用getLLVMArgs()");
-}
-
-std::vector<llvm::Value*> MultiValue::getLLVMValues(GenerateContext *context, const vector<ValueDescriptor> &expectedDescs)
-{
 	std::vector<llvm::Value*> llvmValues;
-	size_t expectedDescCount = expectedDescs.size();
 	llvmValues.reserve(this->items.size());
-	size_t curTotalLLVMValues = 0;
 	for (Expression *item : this->items)
 	{
-		if(curTotalLLVMValues > expectedDescCount){
-			throw InternalException(L"期待类型数量"+to_wstring(expectedDescCount)+L" 少于实际类型数量");
-		}
-		DeducedInfo curInfo = item->deduce(context);
-		ValueDescriptor curDesc = curInfo;
-		Type *curItemType = curDesc.getType();
-		if (!curItemType)
-		{
-			this->expressionInfo.getDebugInfo().getReport()->error(
-					UninferableTypeError(this->expressionInfo.getDebugInfo(), L"无法推导参数类型！"),
-					ErrorBehavior::CANCEL_EXPRESSION);
-		}else if(!curInfo.isSingle()){ //如果子项为MultiValue，则单独处理
-			MultiValue *multiValueItem = nullptr;
-			if(item->getExpressionType() == ExpressionType::MULTI_VALUE){
-				multiValueItem = (MultiValue*)item;
-			}else if(item->getExpressionType() == ExpressionType::VARIABLE){
-				auto variable = (Variable*)item;
-				multiValueItem = (MultiValue*)variable->getValue(context);
-			}else{
-				throw InternalException(L"未知的表达式生成了MultiValue类型的值");
-			}
-			const auto &itemLLVMValues = multiValueItem->getLLVMValues(context, vector<ValueDescriptor>(
-					expectedDescs.begin() + llvmValues.size(), expectedDescs.end()));
-			llvmValues.insert(llvmValues.end(),itemLLVMValues.begin(), itemLLVMValues.end());
-			curTotalLLVMValues+=itemLLVMValues.size();
-		}
-		else if (curDesc.equals(expectedDescs[curTotalLLVMValues]))
-		{
-			llvm::Value *curLLVMParam = item->generateIR(context).getValue();
-			llvmValues.push_back(curLLVMParam);
-			++curTotalLLVMValues;
-		} else {
-			llvm::Value *convertedLLVMParam = ValueDescriptor::generateLLVMConvert(this->getDebugInfo(), context, item,
-																				   expectedDescs[curTotalLLVMValues]).getValue();
-			llvmValues.push_back(convertedLLVMParam);
-			++curTotalLLVMValues;
-		}
+		GenerateResult res = item->generateIR(context);
+		vector<llvm::Value*> vals = res.getValues();
+		llvmValues.insert(llvmValues.end(), vals.begin(), vals.end());
+//		vector<ValueDescriptor> curDescs = curInfo.getValueDescriptors();
+//		for(ValueDescriptor &desc : curDescs){
+//			Type *curItemType = desc.getType();
+//			if (!curItemType)
+//			{
+//				this->expressionInfo.getDebugInfo().getReport()->error(
+//						UninferableTypeError(this->expressionInfo.getDebugInfo(), L"无法推导参数类型！"),
+//						ErrorBehavior::CANCEL_EXPRESSION);
+//			}else {
+//				llvmValues.push_back(desc.getLLVMValue(this->getDebugInfo(), context));
+//			}
+//		}
 	}
 	return llvmValues;
 }
@@ -130,7 +101,7 @@ bool MultiValue::isNested(WorkScript::InstantialContext *context) const
 {
 	//如果是嵌套，只可能是变量被赋值为MultiValue，不可能直接写出来嵌套的MultiValue，在构造的时候就被展平了
 	for(Expression *item : this->items){
-		if(item->deduce(context).getValueDescriptor().getType()->getClassification() == TypeClassification::MULTI_VALUE){
+		if(!item->deduce(context).isSingle()){
 			return true;
 		}
 	}

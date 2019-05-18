@@ -17,6 +17,7 @@ GenerateResult Call::generateIR(GenerateContext * context) {
 	//获取函数声明
 	DeducedInfo paramInfo = this->parameters->deduce(context);
 	auto paramTypes = paramInfo.getTypes();
+	auto paramDescs = paramInfo.getValueDescriptors();
 	Function *func = this->expressionInfo.getAbstractContext()->getFunction(
 			this->getDebugInfo(),
 			FunctionQuery(this->functionName, paramTypes, false));
@@ -34,8 +35,12 @@ GenerateResult Call::generateIR(GenerateContext * context) {
 	}
 	//生成LLVM函数调用
 	auto builder = context->getIRBuilder();
-	//TODO 根据函数的形参类型需要转换实参类型，而不是完全按实参类型调用
-	auto llvmArgs = this->parameters->getLLVMValues(context, paramTypes);
+	vector<ValueDescriptor> varDescs;
+	varDescs.reserve(paramDescs.size());
+	for(ValueDescriptor &paramDesc : paramDescs){
+		varDescs.push_back(ValueDescriptor(paramDesc.getType(), ValueKind::VARIABLE));
+	}
+	vector<llvm::Value*> llvmArgs = ValueDescriptor::generateLLVMConvert(this->getDebugInfo(), context, this->parameters, varDescs).getValues();
 	llvm::Function *llvmFunc = func->getLLVMFunction(this->getDebugInfo(),
 			context, paramTypes);
 	return builder->CreateCall(llvmFunc, llvmArgs);

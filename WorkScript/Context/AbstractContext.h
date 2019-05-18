@@ -3,8 +3,10 @@
 #include <unordered_map>
 #include "FunctionQuery.h"
 #include "SymbolTable.h"
+#include "DebugInfo.h"
 
 namespace WorkScript {
+    class Program;
 	class FunctionType;
 	class PointerType;
 	class FunctionFragment;

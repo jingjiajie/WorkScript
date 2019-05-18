@@ -4,6 +4,7 @@
 #include "Variable.h"
 #include "Exception.h"
 #include "InstantialContext.h"
+#include "GeneralSymbolInfo.h"
 #include <sstream>
 #include <iomanip>
 
@@ -44,7 +45,7 @@ DeducedInfo Assignment::deduce(InstantialContext *context) const {
 	if (this->leftExpression->getExpressionType() == ExpressionType::VARIABLE) {
 		auto leftVar = (Variable *) leftExpr;
 		SymbolInfo *info = this->syncSymbol(leftVar->getName(), context);
-		return info->getValueDescriptors();
+		return info->deduce(context);
 	}else{
 		ValueDescriptor rightDesc = this->rightExpression->deduce(context);
 		if(rightDesc.getType()) return rightDesc;
@@ -65,7 +66,7 @@ SymbolInfo * WorkScript::Assignment::syncSymbol(const wstring &name, InstantialC
 	SymbolInfo *oriSymbolInfo = ctx->getInstanceSymbolTable()->getSymbolInfo(name);
 	ValueDescriptor rightDesc = this->rightExpression->deduce(ctx);
 	if(oriSymbolInfo){
-		auto oriDesc = oriSymbolInfo->getValueDescriptor();
+		ValueDescriptor oriDesc = oriSymbolInfo->deduce(ctx);
 		if (oriDesc.getType() && !ValueDescriptor::convertableTo(this->getDebugInfo(),rightDesc, oriDesc)) {
             wstringstream ss;
             ss << L"表达式 ";
@@ -77,6 +78,7 @@ SymbolInfo * WorkScript::Assignment::syncSymbol(const wstring &name, InstantialC
 		return oriSymbolInfo;
 	}else {
 		//等号隐式定义变量连接属性为INTERNAL
-		return ctx->getInstanceSymbolTable()->setSymbol(this->getDebugInfo(), name, rightDesc, LinkageType::INTERNAL);
+		return ctx->getInstanceSymbolTable()->setSymbol(
+				GeneralSymbolInfo(this->getDebugInfo(), name,ValueDescriptor(rightDesc), LinkageType::INTERNAL));
 	}
 }

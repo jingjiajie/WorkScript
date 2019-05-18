@@ -1,12 +1,12 @@
 #pragma once
 
 #include <Type/Type.h>
-#include <Context/InstantialContext.h>
 #include "DeducedInfo.h"
 #include "DebugInfo.h"
 
 namespace WorkScript
 {
+    class InstantialContext;
     class Value;
     class GenerateContext;
 

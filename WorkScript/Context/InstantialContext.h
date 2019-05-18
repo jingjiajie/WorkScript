@@ -1,11 +1,11 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include "DebugInfo.h"
-#include "SymbolTable.h"
 #include "AbstractContext.h"
+#include "SymbolTable.h"
 
 namespace WorkScript {
+	class DebugInfo;
 	class Type;
 	class Function;
 	class FunctionFragment;

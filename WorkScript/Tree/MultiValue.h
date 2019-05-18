@@ -19,8 +19,6 @@ namespace WorkScript {
 		ExpressionType getExpressionType() const override;
 		GenerateResult generateIR(GenerateContext *context) override;
 
-		std::vector<llvm::Value*> getLLVMValues(GenerateContext *context, const std::vector<ValueDescriptor> &expectedDescs);
-
 		//virtual bool equals(Expression *) const override;
 
 		inline decltype(auto) getItems() const

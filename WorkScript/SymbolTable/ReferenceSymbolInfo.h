@@ -12,8 +12,8 @@ namespace WorkScript
 
         ReferenceSymbolInfo(const ReferenceSymbolInfo &) = default;
 
-        DeducedInfo deduce(InstantialContext *) const override {
-            return this->reference->deduce();
+        DeducedInfo deduce(InstantialContext *context) const override {
+            return this->reference->deduce(context);
         }
 
         SymbolInfo * clone() const noexcept override{

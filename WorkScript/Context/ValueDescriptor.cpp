@@ -103,144 +103,169 @@ llvm::Value * ValueDescriptor::generateLLVMKindConvert(const WorkScript::DebugIn
 
 
 GenerateResult ValueDescriptor::generateLLVMConvert(const DebugInfo &d,
-                                                    GenerateContext *context, Expression *srcVal,const ValueDescriptor &targetDesc)
+                                                    GenerateContext *context, Expression *srcVal,const vector<ValueDescriptor> &targetDescs)
 {
     auto irBuilder = context->getIRBuilder();
     DeducedInfo srcDeducedInfo = srcVal->deduce(context);
-    ValueDescriptor srcDesc = srcDeducedInfo.getValueDescriptor();
-    Type *srcType = srcDesc.getType();
-    ValueKind srcKind = srcDesc.getKind();
-    ValueKind targetKind = targetDesc.getKind();
-    llvm::Value *srcLLVMValue = srcVal->generateIR(context);
-    const Type *targetType = targetDesc.getType();
-    llvm::Type *targetLLVMType = targetType->getLLVMType(context);
+    vector<ValueDescriptor> srcDescs = srcDeducedInfo.getValueDescriptors();
+    vector<llvm::Value*> result;
+    result.reserve(srcDescs.size());
+    for(size_t i=0; i < srcDescs.size(); ++i) {
+        auto &srcDesc = srcDescs[i];
+        auto &targetDesc = targetDescs[i];
+        Type *srcType = srcDesc.getType();
+        ValueKind srcKind = srcDesc.getKind();
+        ValueKind targetKind = targetDesc.getKind();
+        llvm::Value *srcLLVMValue = srcVal->generateIR(context);
+        const Type *targetType = targetDesc.getType();
+        llvm::Type *targetLLVMType = targetType->getLLVMType(context);
 
-    if (targetType->equals(srcType)) {
-        return generateLLVMKindConvert(d, context, srcLLVMValue, srcKind, targetKind);
-    }
+        if (targetType->equals(srcType)) {
+            result.push_back(generateLLVMKindConvert(d, context, srcLLVMValue, srcKind, targetKind));
+            continue;
+        }
 
-    switch (srcType->getClassification()) {
-        case TypeClassification::INTEGER: /*源类型为Integer*/ {
-            IntegerType *srcIntegerType = (IntegerType *) srcType;
-            switch (targetType->getClassification()) {
-                case TypeClassification::INTEGER:/*目标类型为Integer*/ {
-                    IntegerType *targetIntegerType = (IntegerType *) targetType;
-                    //如果长度相同，仅仅有无符号不同，则不用进行转换
-                    if (srcIntegerType->getLength() == targetIntegerType->getLength()){
-                        return GenerateResult(generateLLVMKindConvert(d, context, srcLLVMValue, srcKind, targetKind));
-                    }else{  //否则根据是否有符号进行符号扩展或零位扩展
+        switch (srcType->getClassification()) {
+            case TypeClassification::INTEGER: /*源类型为Integer*/ {
+                IntegerType *srcIntegerType = (IntegerType *) srcType;
+                switch (targetType->getClassification()) {
+                    case TypeClassification::INTEGER:/*目标类型为Integer*/ {
+                        IntegerType *targetIntegerType = (IntegerType *) targetType;
+                        //如果长度相同，仅仅有无符号不同，则不用进行转换
+                        if (srcIntegerType->getLength() == targetIntegerType->getLength()) {
+                            result.push_back(generateLLVMKindConvert(d, context, srcLLVMValue, srcKind, targetKind));
+                            break;
+                        } else {  //否则根据是否有符号进行符号扩展或零位扩展
+                            llvm::Value *srcRightLLVMVal = generateLLVMKindConvert(d, context, srcLLVMValue, srcKind,
+                                                                                   ValueKind::VALUE);
+                            llvm::Value *convertedLLVMVal = nullptr;
+                            if (srcIntegerType->isSigned()) {
+                                convertedLLVMVal = irBuilder->CreateSExt(srcRightLLVMVal, targetLLVMType);
+                            } else {
+                                convertedLLVMVal = irBuilder->CreateZExt(srcRightLLVMVal, targetLLVMType);
+                            }
+                            result.push_back(generateLLVMKindConvert(d, context, convertedLLVMVal, srcKind, targetKind));
+                            break;
+                        }
+                    }
+                    case TypeClassification::FLOAT: /*目标类型为Float*/ {
                         llvm::Value *srcRightLLVMVal = generateLLVMKindConvert(d, context, srcLLVMValue, srcKind,
                                                                                ValueKind::VALUE);
                         llvm::Value *convertedLLVMVal = nullptr;
-                        if(srcIntegerType->isSigned()){
-                            convertedLLVMVal = irBuilder->CreateSExt(srcRightLLVMVal, targetLLVMType);
-                        }else {
-                            convertedLLVMVal = irBuilder->CreateZExt(srcRightLLVMVal, targetLLVMType);
-                        }
-                        return GenerateResult(generateLLVMKindConvert(d, context, convertedLLVMVal, srcKind, targetKind));
+                        if (srcIntegerType->isSigned())
+                            convertedLLVMVal = irBuilder->CreateSIToFP(srcRightLLVMVal, targetLLVMType);
+                        else convertedLLVMVal = irBuilder->CreateUIToFP(srcRightLLVMVal, targetLLVMType);
+                        result.push_back(generateLLVMKindConvert(d, context, convertedLLVMVal, srcKind, targetKind));
+                        break;
                     }
-                }
-                case TypeClassification::FLOAT: /*目标类型为Float*/ {
-                    llvm::Value *srcRightLLVMVal = generateLLVMKindConvert(d, context, srcLLVMValue, srcKind,
-                                                                           ValueKind::VALUE);
-                    llvm::Value *convertedLLVMVal = nullptr;
-                    if (srcIntegerType->isSigned()) convertedLLVMVal = irBuilder->CreateSIToFP(srcRightLLVMVal, targetLLVMType);
-                    else convertedLLVMVal = irBuilder->CreateUIToFP(srcRightLLVMVal, targetLLVMType);
-                    return generateLLVMKindConvert(d, context, convertedLLVMVal, srcKind, targetKind);
-                }
-                case TypeClassification::REFERENCE:{ /*目标类型为引用，判断是否为左值。如果左值，创建引用，右值则先创建左值再创建引用*/
-                    ReferenceType *targetRefType = (ReferenceType*)targetType;
-                    //TODO 原类型是目标类型的子类也可以
-                    if(!targetRefType->getTargetType()->equals(srcType)) goto UNSUPPORTED;
-                    llvm::Value *srcLeftLLVMVal = generateLLVMKindConvert(d, context, srcLLVMValue, srcKind,
-                                                                          ValueKind::VARIABLE);
-                    ReferenceType *refType = ReferenceType::get(srcType);
-                    llvm::Value *llvmRef = irBuilder->CreateAlloca(refType->getLLVMType(context));
-                    ReferenceType::setTargetPointer(context, llvmRef, srcLeftLLVMVal);
-                    //TODO 设置局部堆地址 ReferenceType::setLocalheapPointer(context, llvmRef, )
-                    return llvmRef;
-                }
-                default:
-                    goto UNSUPPORTED;
-            }
-
-        }
-
-        case TypeClassification::FLOAT: /*源类型为Float*/ {
-            FloatType *srcFloatType = (FloatType *) srcType;
-            switch (targetType->getClassification()) {
-                case TypeClassification::INTEGER: /*目标类型为Integer*/ {
-                    IntegerType *targetIntegerType = (IntegerType *) targetType;
-                    llvm::Value *srcRightLLVMVal = generateLLVMKindConvert(d, context, srcLLVMValue, srcKind,
-                                                                           ValueKind::VALUE);
-                    llvm::Value *convertedLLVMVal = nullptr;
-                    if (targetIntegerType->isSigned()) convertedLLVMVal = irBuilder->CreateFPToSI(srcRightLLVMVal, targetLLVMType);
-                    else convertedLLVMVal = irBuilder->CreateFPToUI(srcRightLLVMVal, targetLLVMType);
-                    return generateLLVMKindConvert(d, context, convertedLLVMVal, srcKind, targetKind);;
-                }
-                case TypeClassification::FLOAT: /*目标类型为Float*/ {
-                    llvm::Value *srcRightLLVMVal = generateLLVMKindConvert(d, context, srcLLVMValue, srcKind,
-                                                                           ValueKind::VALUE);
-                    llvm::Value *convertedLLVMVal = irBuilder->CreateFPCast(srcRightLLVMVal, targetLLVMType);
-                    return generateLLVMKindConvert(d, context, convertedLLVMVal, srcKind, targetKind);
-                }
-                default:
-                    goto UNSUPPORTED;
-            }
-        }
-
-        case TypeClassification::VOID: {
-            switch (targetType->getClassification()) {
-                case TypeClassification::VOID: {
-                    return srcLLVMValue;
-                }
-                default:
-                    goto UNSUPPORTED;
-            }
-        }
-
-        case TypeClassification::POINTER: //Pointer类型不存在字面常量
-            switch (targetType->getClassification()) {
-                case TypeClassification::POINTER: {
-                    return irBuilder->CreateBitCast(srcLLVMValue, targetLLVMType);
-                }
-                default:
-                    goto UNSUPPORTED;
-            }
-
-        case TypeClassification::REFERENCE: {
-            auto *srcRefType = (ReferenceType*)srcType;
-            switch(targetType->getClassification()) {
-                //引用转换成指针，如果指针类型和引用类型相同，直接取出裸指针
-                case TypeClassification::POINTER: {
-                    auto *targetPtrType = (PointerType *) targetType;
-                    if (targetPtrType->getTargetType()->equals(srcRefType->getTargetType())) {
-                        return ReferenceType::getTargetPointer(context, srcLLVMValue);
-                    } else {
-                        goto DEFAULT;
+                    case TypeClassification::REFERENCE: { /*目标类型为引用，判断是否为左值。如果左值，创建引用，右值则先创建左值再创建引用*/
+                        ReferenceType *targetRefType = (ReferenceType *) targetType;
+                        //TODO 原类型是目标类型的子类也可以
+                        if (!targetRefType->getTargetType()->equals(srcType)) goto UNSUPPORTED;
+                        llvm::Value *srcLeftLLVMVal = generateLLVMKindConvert(d, context, srcLLVMValue, srcKind,
+                                                                              ValueKind::VARIABLE);
+                        ReferenceType *refType = ReferenceType::get(srcType);
+                        llvm::Value *llvmRef = irBuilder->CreateAlloca(refType->getLLVMType(context));
+                        ReferenceType::setTargetPointer(context, llvmRef, srcLeftLLVMVal);
+                        //TODO 设置局部堆地址 ReferenceType::setLocalheapPointer(context, llvmRef, )
+                        result.push_back(llvmRef);
+                        break;
                     }
+                    default:
+                        goto UNSUPPORTED;
                 }
-                DEFAULT:
-                default: {
-                    //TODO 目标引用目标类型是原引用目标类型的父类也可以
-                    if (!srcRefType->getTargetType()->equals(targetType)) goto UNSUPPORTED;
-                    llvm::Value *srcRightLLVMVal = generateLLVMKindConvert(d, context, srcLLVMValue, srcKind,
-                                                                           ValueKind::VALUE);
-                    llvm::Value *targetLLVMPtr = ReferenceType::getTargetPointer(context, srcRightLLVMVal);
-                    targetLLVMPtr = irBuilder->CreateBitCast(targetLLVMPtr, llvm::PointerType::get(targetLLVMType, 0U));
-                    return generateLLVMKindConvert(d, context, targetLLVMPtr, ValueKind::VARIABLE, targetKind);
-                }
-            }
             break;
-        }
-        default:
-            goto UNSUPPORTED;
-    }
+            }
 
-    UNSUPPORTED:
-    d.getReport()->error(IncompatibleTypeError(d, L"不支持的类型转换：" + srcType->getName() + L" 到 " + targetType->getName()),
-                         ErrorBehavior::CANCEL_EXPRESSION);
+            case TypeClassification::FLOAT: /*源类型为Float*/ {
+                FloatType *srcFloatType = (FloatType *) srcType;
+                switch (targetType->getClassification()) {
+                    case TypeClassification::INTEGER: /*目标类型为Integer*/ {
+                        IntegerType *targetIntegerType = (IntegerType *) targetType;
+                        llvm::Value *srcRightLLVMVal = generateLLVMKindConvert(d, context, srcLLVMValue, srcKind,
+                                                                               ValueKind::VALUE);
+                        llvm::Value *convertedLLVMVal = nullptr;
+                        if (targetIntegerType->isSigned())
+                            convertedLLVMVal = irBuilder->CreateFPToSI(srcRightLLVMVal, targetLLVMType);
+                        else convertedLLVMVal = irBuilder->CreateFPToUI(srcRightLLVMVal, targetLLVMType);
+                        result.push_back(generateLLVMKindConvert(d, context, convertedLLVMVal, srcKind, targetKind));
+                        break;
+                    }
+                    case TypeClassification::FLOAT: /*目标类型为Float*/ {
+                        llvm::Value *srcRightLLVMVal = generateLLVMKindConvert(d, context, srcLLVMValue, srcKind,
+                                                                               ValueKind::VALUE);
+                        llvm::Value *convertedLLVMVal = irBuilder->CreateFPCast(srcRightLLVMVal, targetLLVMType);
+                        result.push_back(generateLLVMKindConvert(d, context, convertedLLVMVal, srcKind, targetKind));
+                        break;
+                    }
+                    default:
+                        goto UNSUPPORTED;
+                }
+                break;
+            }
+
+            case TypeClassification::VOID: {
+                switch (targetType->getClassification()) {
+                    case TypeClassification::VOID: {
+                        result.push_back(srcLLVMValue);
+                        break;
+                    }
+                    default:
+                        goto UNSUPPORTED;
+                }
+                break;
+            }
+
+            case TypeClassification::POINTER: //Pointer类型不存在字面常量
+            {
+                switch (targetType->getClassification()) {
+                    case TypeClassification::POINTER: {
+                        result.push_back(irBuilder->CreateBitCast(srcLLVMValue, targetLLVMType));
+                        break;
+                    }
+                    default:
+                        goto UNSUPPORTED;
+                }
+                break;
+            }
+
+            case TypeClassification::REFERENCE: {
+                auto *srcRefType = (ReferenceType *) srcType;
+                switch (targetType->getClassification()) {
+                    //引用转换成指针，如果指针类型和引用类型相同，直接取出裸指针
+                    case TypeClassification::POINTER: {
+                        auto *targetPtrType = (PointerType *) targetType;
+                        if (targetPtrType->getTargetType()->equals(srcRefType->getTargetType())) {
+                            result.push_back(ReferenceType::getTargetPointer(context, srcLLVMValue));
+                            break;
+                        } else {
+                            goto DEFAULT;
+                        }
+                    }
+                    DEFAULT:
+                    default: {
+                        //TODO 目标引用目标类型是原引用目标类型的父类也可以
+                        if (!srcRefType->getTargetType()->equals(targetType)) goto UNSUPPORTED;
+                        llvm::Value *srcLeftLLVMVal = generateLLVMKindConvert(d, context, srcLLVMValue, srcKind,
+                                                                               ValueKind::VARIABLE);
+                        llvm::Value *targetLLVMPtr = ReferenceType::getTargetPointer(context, srcLeftLLVMVal);
+                        targetLLVMPtr = irBuilder->CreateBitCast(targetLLVMPtr,
+                                                                 llvm::PointerType::get(targetLLVMType, 0U));
+                        result.push_back(generateLLVMKindConvert(d, context, targetLLVMPtr, ValueKind::VARIABLE, targetKind));
+                        break;
+                    }
+                }
+                break;
+            }
+            default:
+                UNSUPPORTED:
+                d.getReport()->error(IncompatibleTypeError(d, L"不支持的类型转换：" + srcType->getName() + L" 到 " + targetType->getName()),
+                                     ErrorBehavior::CANCEL_EXPRESSION);
+        }
+    }
+    return result;
 }
+
 
 bool ValueDescriptor::equals(const ValueDescriptor &target) const noexcept
 {
@@ -257,7 +282,7 @@ llvm::Value* ValueDescriptor::getLLVMValue(const DebugInfo &d, GenerateContext *
     else {
         if(this->kind == ValueKind::VALUE){
             if(!this->value){
-                throw InternalException(L"GeneralSymbolInfo::getLLVMValue() ValueDescriptor的kind为VALUE时，必须指定value");
+                throw InternalException(L"ValueDescriptor::getLLVMValue() ValueDescriptor的kind为VALUE时，必须指定value");
             }
             return this->llvmValue = this->value->generateIR(context);
         }else { //ValueKind::VARIABLE
@@ -265,4 +290,12 @@ llvm::Value* ValueDescriptor::getLLVMValue(const DebugInfo &d, GenerateContext *
             return this->llvmValue = builder->CreateAlloca(this->type->getLLVMType(context), nullptr);
         }
     }
+}
+
+GenerateResult ValueDescriptor::generateLLVMConvert(const WorkScript::DebugInfo &d,
+                                                    WorkScript::GenerateContext *context,
+                                                    WorkScript::Expression *srcVal,
+                                                    const WorkScript::ValueDescriptor &targetDesc)
+{
+    return generateLLVMConvert(d, context, srcVal, vector<ValueDescriptor>{targetDesc});
 }

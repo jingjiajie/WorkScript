@@ -65,16 +65,18 @@ void WorkScript::ReferenceType::releaseTypes() noexcept
 	}
 }
 
-llvm::Value* ReferenceType::getTargetPointer(GenerateContext *context, llvm::Value *ref) noexcept
+llvm::Value* ReferenceType::getTargetPointer(GenerateContext *context, llvm::Value *pRef) noexcept
 {
     auto builder = context->getIRBuilder();
-    return builder->CreateExtractValue(ref, 0, "target");
+    auto elemPtr = builder->CreateStructGEP(pRef, 0 ,"target");
+    return builder->CreateLoad(elemPtr);
 }
 
-llvm::Value* ReferenceType::getLocalheapPointer(WorkScript::GenerateContext *context, llvm::Value *ref) noexcept
+llvm::Value* ReferenceType::getLocalheapPointer(WorkScript::GenerateContext *context, llvm::Value *pRef) noexcept
 {
     auto builder = context->getIRBuilder();
-    return builder->CreateExtractValue(ref, 1, "localheap");
+	auto elemPtr = builder->CreateStructGEP(pRef, 1 ,"localheap");
+    return builder->CreateLoad(elemPtr);
 }
 
 Type* ReferenceType::getTargetType() noexcept
@@ -82,14 +84,18 @@ Type* ReferenceType::getTargetType() noexcept
     return this->targetType;
 }
 
-void ReferenceType::setTargetPointer(GenerateContext *context, llvm::Value *ref, llvm::Value *target) noexcept
+void ReferenceType::setTargetPointer(GenerateContext *context, llvm::Value *pRef, llvm::Value *target) noexcept
 {
     auto builder = context->getIRBuilder();
-    builder->CreateInsertValue(ref, target, 0, "target");
+	auto elemPtr = builder->CreateStructGEP(pRef, 0 ,"target");
+	target = builder->CreateBitCast(target, llvm::PointerType::getInt8PtrTy(*context->getLLVMContext(), 0U));
+    builder->CreateStore(target, elemPtr);
 }
 
-void ReferenceType::setLocalheapPointer(GenerateContext *context, llvm::Value *ref, llvm::Value *localheap) noexcept
+void ReferenceType::setLocalheapPointer(GenerateContext *context, llvm::Value *pRef, llvm::Value *localheap) noexcept
 {
     auto builder = context->getIRBuilder();
-    builder->CreateInsertValue(ref, localheap, 1, "localheap");
+	auto elemPtr = builder->CreateStructGEP(pRef, 1 ,"localheap");
+	localheap = builder->CreateBitCast(localheap, llvm::PointerType::getInt8PtrTy(*context->getLLVMContext(), 0U));
+    builder->CreateStore(localheap, elemPtr);
 }

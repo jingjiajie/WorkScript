@@ -25,6 +25,7 @@ namespace WorkScript
             :type(t), kind(k), value(val), llvmValue(llvmVal){}
 
         static bool convertableTo(const DebugInfo &d, const ValueDescriptor &src, const ValueDescriptor &target);
+        static GenerateResult generateLLVMConvert(const DebugInfo &d, GenerateContext *context, Expression *srcVal, const std::vector<ValueDescriptor> &targetDescs);
         static GenerateResult generateLLVMConvert(const DebugInfo &d, GenerateContext *context, Expression *srcVal, const ValueDescriptor &targetDesc);
 
         bool equals(const ValueDescriptor &target) const noexcept;

@@ -151,9 +151,9 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * outerCtx,
                     GeneralSymbolInfo(this->getDebugInfo(), curDeclParam->getName(),
                                       ValueDescriptor(defaultValueType, ValueKind::VARIABLE), LinkageType::INTERNAL));
             finalParamTypes.push_back(defaultValueType);
-            llvm::Value *llvmPtr = myParamInfo->getValueDescriptors()[0].getLLVMValue(this->getDebugInfo(), &innerCtx);
+            llvm::Value *llvmVar = myParamInfo->deduce(&innerCtx).getValueDescriptor().getLLVMValue(this->getDebugInfo(), &innerCtx);
             llvm::Value *llvmVal = curDeclParam->getDefaultValue()->generateIR(&innerCtx).getValue();
-            builder.CreateStore(llvmVal, llvmPtr);
+            builder.CreateStore(llvmVal, llvmVar);
             llvmArgs.push_back(llvmVal);
         }
     }
@@ -192,7 +192,7 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * outerCtx,
                 varargs);
         SymbolInfo *info = instSymbolTable.setSymbol(
                 GeneralSymbolInfo(this->getDebugInfo(), this->staticVarargsName,
-                                  multiValue->deduce(&innerCtx).getValueDescriptors());
+                                  multiValue->deduce(&innerCtx).getValueDescriptors()));
     }
 
     llvm::BasicBlock *implBlock = nullptr;
@@ -278,15 +278,13 @@ void FunctionFragment::generateImplements(GenerateContext *context, llvm::BasicB
 					builder.CreateRetVoid();
 				}
 				else {
-					//如果分支返回值类型与函数返回值类型不同，则生成类型转换
-					Type *branchReturnType = curExpr->deduce(context);
-					if (!branchReturnType->equals(returnType)) {
-                        res = ValueDescriptor::generateLLVMConvert(curExpr->getDebugInfo(), context, curExpr,
-                                                                   ValueDescriptor(returnType,
-                                                                                   ValueKind::VALUE)).getValue();
-                    }
-					builder.CreateRet(res);
-				}
+                    //如果分支返回值类型与函数返回值类型不同，则生成类型转换
+                    ValueDescriptor branchReturnDesc = curExpr->deduce(context);
+                    res = ValueDescriptor::generateLLVMConvert(curExpr->getDebugInfo(), context, curExpr,
+                                                               ValueDescriptor(returnType,
+                                                                               ValueKind::VALUE)).getValue();
+                    builder.CreateRet(res);
+                }
             }
         }
         catch (const CancelException &ex)
@@ -380,8 +378,7 @@ llvm::BasicBlock* FunctionFragment::generateStubBlock(
         for(size_t i=0; i < stubParamCount; ++i){
             wstring paramName = this->parameters[i]->getName();
             itLLVMArg->setName(Locales::fromWideChar(Encoding::ANSI, paramName));
-            auto info = stubSymbolTable->setSymbol(this->getDebugInfo(), paramName, paramTypes[i], LinkageType::INTERNAL);
-            info->setLLVMValue(itLLVMArg);
+            auto info = stubSymbolTable->setSymbol(GeneralSymbolInfo(this->getDebugInfo(), paramName,ValueDescriptor(paramTypes[i], ValueKind::VARIABLE,nullptr, itLLVMArg), LinkageType::INTERNAL));
             ++itLLVMArg;
         }
         llvm::BasicBlock *stubEntry = nullptr;

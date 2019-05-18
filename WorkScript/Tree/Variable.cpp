@@ -18,7 +18,13 @@ GenerateResult WorkScript::Variable::generateIR(GenerateContext * context)
 	if (!symbolInfo) {
 		this->expressionInfo.getDebugInfo().getReport()->error(UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"无法找到符号：" + this->name), ErrorBehavior::CANCEL_EXPRESSION);
 	}else {
-		return symbolInfo->deduce(context).;
+		vector<ValueDescriptor> descs = symbolInfo->deduce(context).getValueDescriptors();
+		vector<llvm::Value*> llvmVals;
+		llvmVals.reserve(descs.size());
+		for(ValueDescriptor &desc : descs){
+		    llvmVals.push_back(desc.getLLVMValue(this->getDebugInfo(), context));
+		}
+		return llvmVals;
 	}
 }
 
@@ -26,7 +32,7 @@ DeducedInfo Variable::deduce(InstantialContext *context) const
 {
 	SymbolInfo *symbolInfo = context->getSymbolInfo(this->name);
 	if (!symbolInfo)return ValueDescriptor(nullptr, ValueKind::VARIABLE);
-	return symbolInfo->deduce();
+	return symbolInfo->deduce(context);
 }
 
 Expression * WorkScript::Variable::clone() const
@@ -46,13 +52,13 @@ ExpressionType Variable::getExpressionType() const
 	return ExpressionType::VARIABLE;
 }
 
-const Value *Variable::getValue(InstantialContext *ctx) const noexcept
-{
-	return const_cast<Variable*>(this)->getValue(ctx);
-}
-
-Value *Variable::getValue(InstantialContext *ctx) noexcept
-{
-	SymbolInfo *info = ctx->getSymbolInfo(this->name);
-	return info->getValue();
-}
+//const Value *Variable::getValue(InstantialContext *ctx) const noexcept
+//{
+//	return const_cast<Variable*>(this)->getValue(ctx);
+//}
+//
+//Value *Variable::getValue(InstantialContext *ctx) noexcept
+//{
+//	SymbolInfo *info = ctx->getSymbolInfo(this->name);
+//	return info->getValue();
+//}
