@@ -274,23 +274,23 @@ bool ValueDescriptor::equals(const ValueDescriptor &target) const noexcept
     return true;
 }
 
-llvm::Value* ValueDescriptor::getLLVMValue(const DebugInfo &d, GenerateContext *context) noexcept
-{
-    if (this->llvmValue) {
-        return this->llvmValue;
-    }
-    else {
-        if(this->kind == ValueKind::VALUE){
-            if(!this->value){
-                throw InternalException(L"ValueDescriptor::getLLVMValue() ValueDescriptor的kind为VALUE时，必须指定value");
-            }
-            return this->llvmValue = this->value->generateIR(context);
-        }else { //ValueKind::VARIABLE
-            auto builder = context->getIRBuilder();
-            return this->llvmValue = builder->CreateAlloca(this->type->getLLVMType(context), nullptr);
-        }
-    }
-}
+//llvm::Value* ValueDescriptor::getLLVMValue(const DebugInfo &d, GenerateContext *context) noexcept
+//{
+//    if (this->llvmValue) {
+//        return this->llvmValue;
+//    }
+//    else {
+//        if(this->kind == ValueKind::VALUE){
+//            if(!this->value){
+//                throw InternalException(L"ValueDescriptor::getLLVMValue() ValueDescriptor的kind为VALUE时，必须指定value");
+//            }
+//            return this->llvmValue = this->value->generateIR(context);
+//        }else { //ValueKind::VARIABLE
+//            auto builder = context->getIRBuilder();
+//            return this->llvmValue = builder->CreateAlloca(this->type->getLLVMType(context), nullptr);
+//        }
+//    }
+//}
 
 GenerateResult ValueDescriptor::generateLLVMConvert(const WorkScript::DebugInfo &d,
                                                     WorkScript::GenerateContext *context,

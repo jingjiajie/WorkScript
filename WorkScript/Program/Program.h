@@ -17,7 +17,7 @@ namespace WorkScript
 	class Program final
 	{
 	public:
-		Program(const std::string &filePath) noexcept;
+		Program(const std::string &filePath);
 
 		~Program() noexcept;
 

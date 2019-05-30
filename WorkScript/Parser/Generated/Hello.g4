@@ -1,0 +1,4 @@
+grammar Hello;
+
+program: 'hello';
+

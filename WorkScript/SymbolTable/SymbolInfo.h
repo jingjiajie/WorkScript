@@ -3,6 +3,7 @@
 #include <Type/Type.h>
 #include "DeducedInfo.h"
 #include "DebugInfo.h"
+#include "GenerateResult.h"
 
 namespace WorkScript
 {
@@ -15,12 +16,12 @@ namespace WorkScript
     public:
         SymbolInfo(const SymbolInfo &) = default;
 
-        inline SymbolInfo(const DebugInfo &d, const std::wstring &name) noexcept
+        SymbolInfo(const DebugInfo &d, const std::wstring &name) noexcept
                 : debugInfo(d), name(name)
         {}
 
         virtual ~SymbolInfo() noexcept = default;
-
+        virtual GenerateResult generateLLVMIR(GenerateContext *context) noexcept = 0;
         virtual SymbolInfo * clone() const noexcept = 0;
         virtual DeducedInfo deduce(InstantialContext *) const = 0;
 

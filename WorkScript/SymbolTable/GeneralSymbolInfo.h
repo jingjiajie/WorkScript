@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Exception/Exception.h>
+#include <vector>
+#include "Exception.h"
 #include "SymbolInfo.h"
 
 namespace WorkScript
@@ -10,15 +11,18 @@ namespace WorkScript
     public:
         GeneralSymbolInfo(const GeneralSymbolInfo &ori) = default;
 
-        GeneralSymbolInfo(const DebugInfo &d, const std::wstring &name, const std::vector<ValueDescriptor> &descs) noexcept
-                : SymbolInfo(d, name), valueDescriptors(descs)
+        GeneralSymbolInfo(const DebugInfo &d, const std::wstring &name, const std::vector<ValueDescriptor> &descs, const std::vector<llvm::Value*> &llvmVals = {}) noexcept
+                : SymbolInfo(d, name), valueDescriptors(descs), llvmValues(llvmVals)
         {}
 
-        GeneralSymbolInfo(const DebugInfo &d, const std::wstring &name, const ValueDescriptor &desc, const LinkageType &lt) noexcept
+        GeneralSymbolInfo(const DebugInfo &d, const std::wstring &name, const ValueDescriptor &desc, const LinkageType &lt, llvm::Value *llvmVal = nullptr) noexcept
                 : SymbolInfo(d, name), linkageType(lt)
         {
             this->valueDescriptors.push_back(desc);
+            if(llvmVal) this->llvmValues.push_back(llvmVal);
         }
+
+        GenerateResult generateLLVMIR(GenerateContext *context) noexcept override;
 
         SymbolInfo * clone() const noexcept override{
             return new GeneralSymbolInfo(*this);
@@ -39,8 +43,20 @@ namespace WorkScript
 //
 //        void setLinkageType(const LinkageType &lt) noexcept override
 //        { this->linkageType = lt; }
+
+        void setLLVMValues(const std::vector<llvm::Value*> &llvmVals) noexcept
+        {
+            this->llvmValues = llvmVals;
+        }
+
+        void setLLVMValue(llvm::Value *llvmVal) noexcept
+        {
+            this->llvmValues.clear();
+            this->llvmValues.push_back(llvmVal);
+        }
     protected:
         std::vector<ValueDescriptor> valueDescriptors;
         LinkageType linkageType = LinkageType::INTERNAL;
+        std::vector<llvm::Value*> llvmValues;
     };
 }

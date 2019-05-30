@@ -10,15 +10,19 @@
 #include "Program.h"
 #include "ExpressionInfo.h"
 #include "DeducedInfo.h"
+//#include "VisitResult.h"
 
 namespace WorkScript {
 	class InstantialContext;
+	class Visitor;
 
 	class Expression : public NonCopyable
 	{
 	public:
 		inline explicit Expression(const ExpressionInfo &exprInfo) noexcept :expressionInfo(exprInfo) {}
 		virtual ~Expression() noexcept = default;
+
+//		virtual VisitResult visit(Visitor *) const = 0;
 		//生成LLVM字节码的接口函数
 		virtual GenerateResult generateIR(GenerateContext *context) = 0;
 		//需要实现的接口函数

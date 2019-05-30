@@ -16,6 +16,10 @@ namespace WorkScript
             return this->reference->deduce(context);
         }
 
+        GenerateResult generateLLVMIR(GenerateContext *context) noexcept override{
+            return this->reference->generateLLVMIR(context);
+        }
+
         SymbolInfo * clone() const noexcept override{
             return new ReferenceSymbolInfo(*this);
         }

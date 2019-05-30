@@ -21,15 +21,14 @@ namespace WorkScript
     public:
         ValueDescriptor() = default;
 
-        explicit ValueDescriptor(Type *t, ValueKind k, Value *val = nullptr, llvm::Value *llvmVal = nullptr)
-            :type(t), kind(k), value(val), llvmValue(llvmVal){}
+        explicit ValueDescriptor(Type *t, ValueKind k)
+            :type(t), kind(k){}
 
         static bool convertableTo(const DebugInfo &d, const ValueDescriptor &src, const ValueDescriptor &target);
         static GenerateResult generateLLVMConvert(const DebugInfo &d, GenerateContext *context, Expression *srcVal, const std::vector<ValueDescriptor> &targetDescs);
         static GenerateResult generateLLVMConvert(const DebugInfo &d, GenerateContext *context, Expression *srcVal, const ValueDescriptor &targetDesc);
 
         bool equals(const ValueDescriptor &target) const noexcept;
-        llvm::Value * getLLVMValue(const DebugInfo &d, GenerateContext *context) noexcept;
 
         ValueKind getKind() const noexcept{
             return this->kind;
@@ -48,9 +47,7 @@ namespace WorkScript
         }
     protected:
         Type *type = nullptr;
-        Value *value = nullptr;
         ValueKind kind = ValueKind::VARIABLE;
-        llvm::Value *llvmValue = nullptr;
 
         static llvm::Value * generateLLVMKindConvert(const DebugInfo &d, GenerateContext *context,
                                                      llvm::Value *srcLLVMVal, ValueKind srcKind,

@@ -24,7 +24,7 @@ Value * WorkScript::FloatConstant::clone() const
 
 DeducedInfo FloatConstant::deduce(InstantialContext *context) const
 {
-	return ValueDescriptor(this->type,ValueKind::VALUE);
+	return ValueDescriptor(this->type, ValueKind::VALUE);
 }
 
 ExpressionType FloatConstant::getExpressionType() const

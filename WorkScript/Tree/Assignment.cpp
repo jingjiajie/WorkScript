@@ -23,11 +23,30 @@ WorkScript::Assignment::Assignment(const ExpressionInfo &exprInfo,Expression *le
 GenerateResult WorkScript::Assignment::generateIR(GenerateContext * context)
 {
 	auto irBuilder = context->getIRBuilder();
+	if (this->leftExpression->getExpressionType() == ExpressionType::VARIABLE) {
+		auto leftVar = (Variable *) this->leftExpression;
+		SymbolInfo *info = this->syncSymbol(leftVar->getName(), context);
+	}
 	ValueDescriptor leftDesc = this->leftExpression->deduce(context);
-	llvm::Value *val = ValueDescriptor::generateLLVMConvert(this->expressionInfo.getDebugInfo(), context, this->rightExpression, ValueDescriptor(leftDesc.getType(), ValueKind::VALUE));
+	ValueDescriptor rightDesc = this->rightExpression->deduce(context);
+	llvm::Value *rawVal = ValueDescriptor::generateLLVMConvert(this->expressionInfo.getDebugInfo(), context, this->rightExpression, ValueDescriptor(rightDesc.getType(), ValueKind::VALUE));
+	//创建临时变量
+	wstring tmpVarName = L"$";
+	SymbolInfo *info = context->getInstanceSymbolTable()->setSymbol(GeneralSymbolInfo(this->getDebugInfo(), tmpVarName,
+																   ValueDescriptor(rightDesc.getType(), ValueKind::VALUE),LinkageType::INTERNAL));
+	((GeneralSymbolInfo*)info)->setLLVMValue(rawVal);
+	Variable tmpVar(ExpressionInfo(nullptr, this->getDebugInfo(), this->expressionInfo.getAbstractContext()), L"$");
+
+	llvm::Value *convertedVal = nullptr;
+	if(leftDesc.getType()) {
+		convertedVal = ValueDescriptor::generateLLVMConvert(this->expressionInfo.getDebugInfo(), context, &tmpVar,
+											 ValueDescriptor(leftDesc.getType(), ValueKind::VALUE));
+	}else{
+		convertedVal = rawVal;
+	}
 	llvm::Value *var = ValueDescriptor::generateLLVMConvert(this->expressionInfo.getDebugInfo(), context, this->leftExpression, ValueDescriptor(leftDesc.getType(), ValueKind::VARIABLE));
-	irBuilder->CreateStore(val, var);
-	return val;
+	irBuilder->CreateStore(convertedVal, var);
+	return rawVal;
 }
 
 ExpressionType Assignment::getExpressionType() const
@@ -40,20 +59,19 @@ Expression * Assignment::clone() const
 	return new thistype(expressionInfo,leftExpression,rightExpression);
 }
 
-DeducedInfo Assignment::deduce(InstantialContext *context) const {
+DeducedInfo Assignment::deduce(InstantialContext *context) const
+{
 	auto leftExpr = this->leftExpression;
 	if (this->leftExpression->getExpressionType() == ExpressionType::VARIABLE) {
 		auto leftVar = (Variable *) leftExpr;
 		SymbolInfo *info = this->syncSymbol(leftVar->getName(), context);
-		return info->deduce(context);
-	}else{
-		ValueDescriptor rightDesc = this->rightExpression->deduce(context);
-		if(rightDesc.getType()) return rightDesc;
-		else {
-			this->getDebugInfo().getReport()->error(
-					UninferableTypeError(this->getDebugInfo(), L"无法推导" + this->leftExpression->toString() + L"的类型"),
-					ErrorBehavior::CANCEL_EXPRESSION);
-		}
+	}
+	ValueDescriptor rightDesc = this->rightExpression->deduce(context);
+	if (rightDesc.getType()) return rightDesc;
+	else {
+		this->getDebugInfo().getReport()->error(
+				UninferableTypeError(this->getDebugInfo(), L"无法推导" + this->leftExpression->toString() + L"的类型"),
+				ErrorBehavior::CANCEL_EXPRESSION);
 	}
 }
 
@@ -79,6 +97,6 @@ SymbolInfo * WorkScript::Assignment::syncSymbol(const wstring &name, InstantialC
 	}else {
 		//等号隐式定义变量连接属性为INTERNAL
 		return ctx->getInstanceSymbolTable()->setSymbol(
-				GeneralSymbolInfo(this->getDebugInfo(), name,ValueDescriptor(rightDesc), LinkageType::INTERNAL));
+				GeneralSymbolInfo(this->getDebugInfo(), name,ValueDescriptor(rightDesc.getType(), ValueKind::VARIABLE), LinkageType::INTERNAL));
 	}
 }

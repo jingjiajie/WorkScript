@@ -20,7 +20,7 @@
 using namespace std;
 using namespace WorkScript;
 
-Program::Program(const string &filePath) noexcept
+Program::Program(const string &filePath)
 	:globalAbstractContext(DebugInfo(), this)
 {
     this->parseFile(filePath);
@@ -42,7 +42,7 @@ void WorkScript::Program::generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::M
 	}
 }
 
-void Program::parseFile(const std::string &fileName) 
+void Program::parseFile(const std::string &fileName)
 {
 	FILE *file = fopen(fileName.c_str(), "r");
 	if (file == nullptr)
@@ -80,6 +80,11 @@ void Program::parseFile(const std::string &fileName)
 
 		//遍历语法树，生成Program
 		TreeCreateVisitor visitor(this, Locales::toWideChar(Encoding::ANSI, fileName));
-		visitor.visit(tree);
+		try {
+			visitor.visit(tree);
+		}catch (const CancelException &ex){
+			ex.rethrowAbove(CancelScope::COMPILATION);
+			return;
+		}
 	}
 }

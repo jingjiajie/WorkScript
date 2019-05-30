@@ -23,7 +23,7 @@ std::wstring ExternalCaller::makeCmd()
 int ExternalCaller::call()
 {
     string cmd = Locales::fromWideChar(Encoding::ANSI, this->makeCmd());
-    printf("%s\n", cmd.c_str());
+    //printf("%s\n", cmd.c_str());
     int rc = 0; // 用于接收命令返回值
     FILE *fp;
 

@@ -100,7 +100,7 @@ antlrcpp::Any TreeCreateVisitor::visitNumber(WorkScriptParser::NumberContext *ct
 		if (ctx->MINUS()) {
 			value = -value;
 		}
-		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), IntegerType::get(IntegerTypeClassification::INT,true), value));
+		return ExpressionWrapper(new IntegerConstant(ExpressionInfo(program, getDebugInfo(this, ctx), this->abstractContexts.top()), IntegerType::get(IntegerTypeClassification::LONG,true), value));
 	}
 }
 

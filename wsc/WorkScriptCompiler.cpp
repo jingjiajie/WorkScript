@@ -21,21 +21,26 @@ CompileResult WorkScriptCompiler::compile(const CmdArgs &args)
     }
     LLVMContext llvmContext;
 
-    Program program(Locales::fromWideChar(Encoding::ANSI, files[0]));
-    auto llvmModule = unique_ptr<llvm::Module>(new llvm::Module("main", llvmContext));
     try {
+        Program program(Locales::fromWideChar(Encoding::ANSI, files[0]));
+        Report *report = program.getReport();
+        if (report->getErrorCount() > 0) {
+            report->dump();
+            return CompileResult::ERROR;
+        }
+        auto llvmModule = unique_ptr<llvm::Module>(new llvm::Module("main", llvmContext));
         program.generateLLVMIR(&llvmContext, llvmModule.get());
+        if (report->getErrorCount() > 0) {
+            report->dump();
+            return CompileResult::ERROR;
+        }
+        wstring targetFile = args.get<wstring>('o');
+        std::error_code ec;
+        llvm::raw_fd_ostream os(Locales::fromWideChar(Encoding::ANSI, targetFile), ec, llvm::sys::fs::OpenFlags::F_RW);
+        llvmModule->print(os, nullptr);
+        return CompileResult::OK;
     } catch (const CancelException &ex) {
         ex.rethrowAbove(CancelScope::COMPILATION);
-    }
-    Report *report = program.getReport();
-    if (report->getErrorCount() > 0) {
-        report->dump();
         return CompileResult::ERROR;
     }
-    wstring targetFile = args.get<wstring>('o');
-    std::error_code ec;
-    llvm::raw_fd_ostream os(Locales::fromWideChar(Encoding::ANSI, targetFile), ec, llvm::sys::fs::OpenFlags::F_RW);
-    llvmModule->print(os, nullptr);
-    return CompileResult::OK;
 }

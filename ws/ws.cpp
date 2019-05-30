@@ -186,6 +186,5 @@ int main(int argc,const char **argv){
 
     ExternalCaller linkerCaller;
     initLinkerCaller(args, {L"a.o"}, &linkerCaller);
-
     if(linkerCaller.call()) return 0;
 }

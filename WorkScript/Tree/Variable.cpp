@@ -18,13 +18,14 @@ GenerateResult WorkScript::Variable::generateIR(GenerateContext * context)
 	if (!symbolInfo) {
 		this->expressionInfo.getDebugInfo().getReport()->error(UndefinedSymbolError(this->expressionInfo.getDebugInfo(), L"无法找到符号：" + this->name), ErrorBehavior::CANCEL_EXPRESSION);
 	}else {
-		vector<ValueDescriptor> descs = symbolInfo->deduce(context).getValueDescriptors();
-		vector<llvm::Value*> llvmVals;
-		llvmVals.reserve(descs.size());
-		for(ValueDescriptor &desc : descs){
-		    llvmVals.push_back(desc.getLLVMValue(this->getDebugInfo(), context));
-		}
-		return llvmVals;
+		return symbolInfo->generateLLVMIR(context);
+//		vector<ValueDescriptor> descs = symbolInfo->deduce(context).getValueDescriptors();
+//		vector<llvm::Value*> llvmVals;
+//		llvmVals.reserve(descs.size());
+//		for(ValueDescriptor &desc : descs){
+//		    llvmVals.push_back(desc.getLLVMValue(this->getDebugInfo(), context));
+//		}
+//		return llvmVals;
 	}
 }
 

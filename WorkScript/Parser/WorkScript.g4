@@ -22,7 +22,7 @@ expression:
 	| MINUS expression									# Negative
 	| PLUS expression									# Positive
 	| expression ASSIGN expression						# Assignment
-	| expression EQUALS expression						# AssignmentOrEquals
+	|<assoc=right> expression EQUALS expression						# AssignmentOrEquals
 	| expression (
 		DOUBLE_EQUAL
 		| GREATER_THAN
