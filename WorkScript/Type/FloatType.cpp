@@ -1,6 +1,6 @@
 #include "Type.h"
 #include "Function.h"
-#include "Program.h"
+#include "Module.h"
 #include "Utils.h"
 #include "FloatType.h"
 #include "Exception.h"

@@ -3,18 +3,18 @@
 
 namespace WorkScript {
 	class AbstractContext;
-	class Program;
+	class Module;
 
 	class ExpressionInfo {
 	public:
-		ExpressionInfo(Program *p, const DebugInfo &d, AbstractContext *abstractContext)
-			:abstractContext(abstractContext), program(p), debugInfo(d) {}
-		inline Program * getProgram() const { return this->program; }
+		ExpressionInfo(Module *p, const DebugInfo &d, AbstractContext *abstractContext)
+			:abstractContext(abstractContext), module(p), debugInfo(d) {}
+		inline Module * getModule() const { return this->module; }
 		inline const DebugInfo & getDebugInfo() const { return this->debugInfo; }
 		inline AbstractContext * getAbstractContext()const { return this->abstractContext; }
 	protected:
 		AbstractContext * abstractContext = nullptr;
-		Program * program;
+		Module * module;
 		DebugInfo debugInfo;
 	};
 }

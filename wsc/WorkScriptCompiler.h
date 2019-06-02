@@ -4,7 +4,7 @@
 #include "CmdArgs.h"
 
 namespace WorkScript {
-	class Program;
+	class Module;
 
 	enum class CompileResult{
 	    OK = 0, ERROR = 1

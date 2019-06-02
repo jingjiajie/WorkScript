@@ -63,8 +63,8 @@ namespace WorkScript
             this->linkageType = lt;
         }
 
-        inline Program *getProgram() const noexcept
-        { return this->program; }
+        inline Module *getModule() const noexcept
+        { return this->module; }
 
         inline size_t getParameterCount() const noexcept
         { return this->type->getParameterCount(); }
@@ -85,7 +85,7 @@ namespace WorkScript
 
     protected:
         std::wstring name;
-        Program *program = nullptr;
+        Module *module = nullptr;
         std::vector<ParamTypesAndLLVMFunction> llvmFunctions;
         FunctionType *type;
         LinkageType linkageType;

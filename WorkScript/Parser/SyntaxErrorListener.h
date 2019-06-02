@@ -5,13 +5,13 @@ using namespace antlr4;
 
 namespace WorkScript
 {
-	class Program;
+	class Module;
 	class SyntaxErrorListener
 			: public BaseErrorListener
 	{
 	public:
-		inline explicit SyntaxErrorListener(Program *p, const std::wstring fileName)
-		:program(p),fileName(fileName){}
+		inline explicit SyntaxErrorListener(Module *p, const std::wstring fileName)
+		:module(p),fileName(fileName){}
 
 		~SyntaxErrorListener() = default;
 
@@ -19,7 +19,7 @@ namespace WorkScript
 								 const std::string &msg, std::exception_ptr e) override;
 
 	private:
-		Program *program = nullptr;
+		Module *module = nullptr;
 		std::wstring fileName;
 	};
 }

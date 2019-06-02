@@ -4,7 +4,7 @@
 #include "Utils.h"
 
 namespace WorkScript {
-	class Program;
+	class Module;
 
 	enum class IntegerTypeClassification{
 	    BOOL, CHAR, SHORT, INT, LONG, LONG_LONG

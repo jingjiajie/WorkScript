@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 namespace WorkScript {
-	class Program;
+	class Module;
 
 	class PointerType : public Type {
 	public:

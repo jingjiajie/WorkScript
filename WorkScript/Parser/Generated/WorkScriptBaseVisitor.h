@@ -15,7 +15,7 @@
 class  WorkScriptBaseVisitor : public WorkScriptVisitor {
 public:
 
-  virtual antlrcpp::Any visitProgram(WorkScriptParser::ProgramContext *ctx) override {
+  virtual antlrcpp::Any visitModule(WorkScriptParser::ModuleContext *ctx) override {
     return visitChildren(ctx);
   }
 

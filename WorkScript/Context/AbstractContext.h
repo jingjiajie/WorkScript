@@ -6,7 +6,7 @@
 #include "DebugInfo.h"
 
 namespace WorkScript {
-    class Program;
+    class Module;
 	class FunctionType;
 	class PointerType;
 	class FunctionFragment;
@@ -16,7 +16,7 @@ namespace WorkScript {
 	class AbstractContext {
 	public:
 		AbstractContext(const DebugInfo &d, AbstractContext *base, size_t blockID) noexcept;
-		AbstractContext(const DebugInfo &d, Program *p) noexcept;
+		AbstractContext(const DebugInfo &d, Module *p) noexcept;
 		~AbstractContext() noexcept;
 		inline AbstractContext * getBaseContext() const noexcept{return this->base;}
 		inline size_t getBlockID() const noexcept{ return this->blockID; }
@@ -38,7 +38,7 @@ namespace WorkScript {
 
 		const DebugInfo &getDebugInfo() const noexcept;
 		void setDebugInfo(const DebugInfo &debugInfo) noexcept;
-		inline Program *getProgram() const noexcept{return this->program;}
+		inline Module *getModule() const noexcept{return this->module;}
 		Type * getType(const std::wstring &name, size_t pointerLevel = 0);
 		Type * getLocalType(const std::wstring &name, size_t pointerLevel = 0);
 		void addType(const std::wstring &name, Type *type);
@@ -46,7 +46,7 @@ namespace WorkScript {
 
 	protected:
 		AbstractContext * base;
-		Program *program = nullptr;
+		Module *module = nullptr;
 		size_t blockID = 0;
 		std::wstring blockPrefix;
 		SymbolTable abstractSymbolTable;

@@ -7,12 +7,13 @@
 #include "GenerateResult.h"
 #include "ExpressionType.h"
 #include "DebugInfo.h"
-#include "Program.h"
+#include "Module.h"
 #include "ExpressionInfo.h"
 #include "DeducedInfo.h"
 //#include "VisitResult.h"
 
-namespace WorkScript {
+namespace WorkScript{
+
 	class InstantialContext;
 	class Visitor;
 
@@ -31,7 +32,7 @@ namespace WorkScript {
 		virtual std::wstring toString() const = 0;
 		virtual Expression * clone() const = 0;
 
-		inline Program * getProgram() const noexcept{ return this->expressionInfo.getProgram(); }
+		inline Module * getModule() const noexcept{ return this->expressionInfo.getModule(); }
 		inline const DebugInfo & getDebugInfo() const noexcept{return this->expressionInfo.getDebugInfo();}
 	protected:
 		ExpressionInfo expressionInfo;

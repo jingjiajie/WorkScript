@@ -1,5 +1,5 @@
 #include "IntegerType.h"
-#include "Program.h"
+#include "Module.h"
 #include "Report.h"
 #include "Exception.h"
 #include "DebugInfo.h"

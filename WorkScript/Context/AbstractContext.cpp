@@ -12,12 +12,12 @@ using namespace WorkScript;
 using namespace std;
 
 WorkScript::AbstractContext::AbstractContext(const DebugInfo &d, AbstractContext * base, size_t blockID) noexcept
-	:base(base), program(base->program), blockID(blockID), blockPrefix(base?base->blockPrefix + L"." + to_wstring(blockID):L""), abstractSymbolTable(blockPrefix), debugInfo(d)
+	:base(base), module(base->module), blockID(blockID), blockPrefix(base?base->blockPrefix + L"." + to_wstring(blockID):L""), abstractSymbolTable(blockPrefix), debugInfo(d)
 {
 }
 
-AbstractContext::AbstractContext(const DebugInfo &d, Program *p) noexcept
-: base(nullptr), program(p), blockID(0), blockPrefix(L"")
+AbstractContext::AbstractContext(const DebugInfo &d, Module *p) noexcept
+: base(nullptr), module(p), blockID(0), blockPrefix(L"")
 {
 }
 

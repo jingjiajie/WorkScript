@@ -19,7 +19,7 @@ public:
   /**
    * Visit parse trees produced by WorkScriptParser.
    */
-    virtual antlrcpp::Any visitProgram(WorkScriptParser::ProgramContext *context) = 0;
+    virtual antlrcpp::Any visitModule(WorkScriptParser::ModuleContext *context) = 0;
 
     virtual antlrcpp::Any visitLine(WorkScriptParser::LineContext *context) = 0;
 

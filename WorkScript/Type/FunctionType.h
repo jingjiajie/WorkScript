@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 namespace WorkScript {
-	class Program;
+	class Module;
 
 	class FunctionType : public Type {
 	public:

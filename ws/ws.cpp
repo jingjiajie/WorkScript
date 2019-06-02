@@ -124,7 +124,7 @@ static void initLinkerCaller(const CmdArgs &args, const vector<wstring> &files, 
     string os = defaultTriple.getOSName();
     string env = defaultTriple.getEnvironmentName();
     wstring triple = Locales::toWideChar(Encoding::ANSI, arch + "-" + os + "-" + env);
-    caller->setProgram(L"ld");
+    caller->setModule(L"ld");
 
     wstring gccPath = Locales::toWideChar(Encoding::ANSI, findGCCPath(arch, os, env));
     caller->addExtraArgBefore(L"-L" + gccPath);
@@ -145,7 +145,7 @@ static void initLinkerCaller(const CmdArgs &args, const vector<wstring> &files, 
 static void initWSCCaller(const CmdArgs &args, const vector<wstring> &files, const std::wstring &targetFile, ExternalCaller *caller){
     wstring path = getExcutablePath();
     wstring wscPath = path + L"/wsc";
-    caller->setProgram(wscPath);
+    caller->setModule(wscPath);
     for(auto &file : files){
         caller->addExtraArgBefore(file);
     }
@@ -154,7 +154,7 @@ static void initWSCCaller(const CmdArgs &args, const vector<wstring> &files, con
 }
 
 static void initLLCCaller(const CmdArgs &args, const wstring &file, const std::wstring &targetFile, ExternalCaller *caller){
-    caller->setProgram(L"llc");
+    caller->setModule(L"llc");
     caller->addExtraArgBefore(file);
     caller->addExtraArgAfter(L"-o " + targetFile);
     caller->addExtraArgAfter(L"-filetype obj");

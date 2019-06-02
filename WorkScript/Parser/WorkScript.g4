@@ -1,6 +1,6 @@
 grammar WorkScript;
 
-program: line* EOF;
+module: line* EOF;
 
 line: (SEMICOLON* (function | expression) SEMICOLON*)+ NEWLINE?
 	| SEMICOLON+ NEWLINE?

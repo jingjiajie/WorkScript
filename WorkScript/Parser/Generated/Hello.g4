@@ -1,4 +1,4 @@
 grammar Hello;
 
-program: 'hello';
+module: 'hello';
 

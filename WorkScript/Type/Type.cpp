@@ -1,7 +1,7 @@
 #include <Tree/Constant.h>
 #include "Type.h"
 #include "Expression.h"
-#include "Program.h"
+#include "Module.h"
 #include "Function.h"
 #include "IntegerType.h"
 #include "FloatType.h"
@@ -34,7 +34,7 @@ const LinkageType LinkageType::EXTERNAL(LinkageType::Classification::EXTERNAL);
 //
 //void WorkScript::Type::addMemberFunction(Function * func)
 //{
-//	this->getProgram()->addFunction(func);
+//	this->getModule()->addFunction(func);
 //	this->memberFunctions[func->getName()] = func;
 //}
 

@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include "Constant.h"
-#include "Program.h"
+#include "Module.h"
 #include "Type.h"
 
 namespace WorkScript {

@@ -1,5 +1,5 @@
 #include "WorkScriptCompiler.h"
-#include <Program.h>
+#include <Module.h>
 #include <Expression.h>
 #include <Report.h>
 #include <Exception.h>
@@ -22,14 +22,17 @@ CompileResult WorkScriptCompiler::compile(const CmdArgs &args)
     LLVMContext llvmContext;
 
     try {
-        Program program(Locales::fromWideChar(Encoding::ANSI, files[0]));
-        Report *report = program.getReport();
+        Module module;
+        if(!module.load(Locales::fromWideChar(Encoding::ANSI, files[0]))){
+            return CompileResult::ERROR;
+        }
+        Report *report = module.getReport();
         if (report->getErrorCount() > 0) {
             report->dump();
             return CompileResult::ERROR;
         }
         auto llvmModule = unique_ptr<llvm::Module>(new llvm::Module("main", llvmContext));
-        program.generateLLVMIR(&llvmContext, llvmModule.get());
+        module.generateLLVMIR(&llvmContext, llvmModule.get());
         if (report->getErrorCount() > 0) {
             report->dump();
             return CompileResult::ERROR;

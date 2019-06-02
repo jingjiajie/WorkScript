@@ -182,13 +182,13 @@ llvm::BasicBlock * FunctionFragment::generateBlock(GenerateContext * outerCtx,
                                       ValueDescriptor(finalParamTypes[myParamCount + i], ValueKind::VARIABLE),
                                       LinkageType::INTERNAL, llvmArg));
             auto *cur = new Variable(
-                    ExpressionInfo(this->context.getProgram(), this->getDebugInfo(), &this->context), curArgName);
+                    ExpressionInfo(this->context.getModule(), this->getDebugInfo(), &this->context), curArgName);
             varargs.push_back(cur);
             ++i;
         }
 
         auto *multiValue = new MultiValue(
-                ExpressionInfo(this->context.getProgram(), this->getDebugInfo(), &this->context),
+                ExpressionInfo(this->context.getModule(), this->getDebugInfo(), &this->context),
                 varargs);
         SymbolInfo *info = instSymbolTable.setSymbol(
                 GeneralSymbolInfo(this->getDebugInfo(), this->staticVarargsName,

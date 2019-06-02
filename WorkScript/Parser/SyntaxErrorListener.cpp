@@ -8,7 +8,7 @@
 #include "IntStream.h"
 #include "Locales.h"
 #include "DebugInfo.h"
-#include "Program.h"
+#include "Module.h"
 
 using namespace std;
 using namespace WorkScript;
@@ -54,5 +54,5 @@ void SyntaxErrorListener::syntaxError(Recognizer * recognizer,
 	{
 		ss << L"~";
 	}
-	this->program->getReport()->error(SyntaxError(DebugInfo(Location(fileName, line, charPositionInLine + 1), this->program->getReport()), ss.str().c_str()));
+	this->module->getReport()->error(SyntaxError(DebugInfo(Location(fileName, line, charPositionInLine + 1), this->module->getReport()), ss.str().c_str()));
 }

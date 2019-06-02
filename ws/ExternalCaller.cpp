@@ -9,7 +9,7 @@ using namespace WorkScript;
 std::wstring ExternalCaller::makeCmd()
 {
     wstringstream cmd;
-    cmd << this->program << L" ";
+    cmd << this->module << L" ";
     for(wstring &arg : this->extraArgsBefore){
         cmd << arg << " ";
     }
@@ -29,16 +29,16 @@ int ExternalCaller::call()
 
     fp = popen(cmd.c_str(), "r");
     if (nullptr == fp) {
-        fprintf(stderr, "%ls\n", (L"无法执行" + this->program + L"，请检查环境配置").c_str());
+        fprintf(stderr, "%ls\n", (L"无法执行" + this->module + L"，请检查环境配置").c_str());
         exit(1);
     }
 
     rc = pclose(fp);
     if (-1 == rc) {
-        fprintf(stderr, "%ls\n", (this->program + L"关闭失败").c_str());
+        fprintf(stderr, "%ls\n", (this->module + L"关闭失败").c_str());
         exit(1);
     } else if(WEXITSTATUS(rc) != 0){
-        fprintf(stderr, "%ls%u\n", (this->program + L"返回错误状态：").c_str(), WEXITSTATUS(rc));
+        fprintf(stderr, "%ls%u\n", (this->module + L"返回错误状态：").c_str(), WEXITSTATUS(rc));
     }
     return WEXITSTATUS(rc);
 }

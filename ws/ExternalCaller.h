@@ -9,8 +9,8 @@ namespace WorkScript
     class ExternalCaller
     {
     public:
-        void setProgram(const std::wstring &program){
-            this->program = program;
+        void setModule(const std::wstring &module){
+            this->module = module;
         }
 
         void addExtraArgBefore(const std::wstring &arg) noexcept{
@@ -31,7 +31,7 @@ namespace WorkScript
 
         int call();
     private:
-        std::wstring program;
+        std::wstring module;
         std::vector<std::wstring> extraArgsBefore;
         std::vector<std::wstring> extraArgsAfter;
         CmdArgs args;

@@ -31,39 +31,39 @@ dfa::Vocabulary& WorkScriptParser::getVocabulary() const {
 }
 
 
-//----------------- ProgramContext ------------------------------------------------------------------
+//----------------- ModuleContext ------------------------------------------------------------------
 
-WorkScriptParser::ProgramContext::ProgramContext(ParserRuleContext *parent, size_t invokingState)
+WorkScriptParser::ModuleContext::ModuleContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* WorkScriptParser::ProgramContext::EOF() {
+tree::TerminalNode* WorkScriptParser::ModuleContext::EOF() {
   return getToken(WorkScriptParser::EOF, 0);
 }
 
-std::vector<WorkScriptParser::LineContext *> WorkScriptParser::ProgramContext::line() {
+std::vector<WorkScriptParser::LineContext *> WorkScriptParser::ModuleContext::line() {
   return getRuleContexts<WorkScriptParser::LineContext>();
 }
 
-WorkScriptParser::LineContext* WorkScriptParser::ProgramContext::line(size_t i) {
+WorkScriptParser::LineContext* WorkScriptParser::ModuleContext::line(size_t i) {
   return getRuleContext<WorkScriptParser::LineContext>(i);
 }
 
 
-size_t WorkScriptParser::ProgramContext::getRuleIndex() const {
-  return WorkScriptParser::RuleProgram;
+size_t WorkScriptParser::ModuleContext::getRuleIndex() const {
+  return WorkScriptParser::RuleModule;
 }
 
-antlrcpp::Any WorkScriptParser::ProgramContext::accept(tree::ParseTreeVisitor *visitor) {
+antlrcpp::Any WorkScriptParser::ModuleContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<WorkScriptVisitor*>(visitor))
-    return parserVisitor->visitProgram(this);
+    return parserVisitor->visitModule(this);
   else
     return visitor->visitChildren(this);
 }
 
-WorkScriptParser::ProgramContext* WorkScriptParser::program() {
-  ProgramContext *_localctx = _tracker.createInstance<ProgramContext>(_ctx, getState());
-  enterRule(_localctx, 0, WorkScriptParser::RuleProgram);
+WorkScriptParser::ModuleContext* WorkScriptParser::module() {
+  ModuleContext *_localctx = _tracker.createInstance<ModuleContext>(_ctx, getState());
+  enterRule(_localctx, 0, WorkScriptParser::RuleModule);
   size_t _la = 0;
 
   auto onExit = finally([=] {
@@ -2968,7 +2968,7 @@ atn::ATN WorkScriptParser::_atn;
 std::vector<uint16_t> WorkScriptParser::_serializedATN;
 
 std::vector<std::string> WorkScriptParser::_ruleNames = {
-  "program", "line", "function", "expression", "call", "multiValue", "stdFunctionDecl", 
+  "module", "line", "function", "expression", "call", "multiValue", "stdFunctionDecl",
   "stdFormalParameter", "stdFormalParameterItem", "functionDefine", "functionDeclaration", 
   "typeQualifier", "type", "referenceType", "typeName", "functionName", 
   "formalParameter", "formalParameterItem", "functionImplementation", "functionConstraint", 

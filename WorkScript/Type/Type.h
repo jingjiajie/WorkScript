@@ -5,7 +5,7 @@
 
 namespace WorkScript {
 	class Expression;
-	class Program;
+	class Module;
 	class GenerateContext;
 
 	class LinkageType

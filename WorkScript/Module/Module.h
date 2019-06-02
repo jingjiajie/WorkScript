@@ -14,29 +14,24 @@ namespace WorkScript
 {
 	class Function;
 
-	class Program final
+	class Module final
 	{
 	public:
-		Program(const std::string &filePath);
-
-		~Program() noexcept;
-
-		void generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule);
+		Module()
+		 :globalAbstractContext(DebugInfo(),this)
+		{ }
+		bool load(const std::string &fileName);
 
 		inline AbstractContext *getGlobalAbstractContext() noexcept
 		{ return &this->globalAbstractContext; }
 
-		inline FunctionCache *getFunctionCache() noexcept
-		{ return &this->functionCache; }
-
 		inline Report *getReport() noexcept
 		{ return &this->report; }
 
+		void generateLLVMIR(llvm::LLVMContext *llvmContext, llvm::Module *llvmModule);
 	protected:
-		AbstractContext globalAbstractContext;
 		FunctionCache functionCache;
+		AbstractContext globalAbstractContext;
 		Report report;
-
-		void parseFile(const std::string &fileName);
 	};
 }

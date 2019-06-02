@@ -1,5 +1,0 @@
-namespace WorkScript{
-    class VisitResult{
-
-    };
-}

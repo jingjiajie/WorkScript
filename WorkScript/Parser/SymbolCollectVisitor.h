@@ -2,15 +2,15 @@
 //#include "Generated/WorkScriptBaseVisitor.h"
 //
 //namespace WorkScript {
-//	class Program;
+//	class Module;
 //	class FunctionBranch;
 //
 //	class SymbolCollectVisitor : public WorkScriptBaseVisitor {
 //	public:
-//		SymbolCollectVisitor(Program *program);
+//		SymbolCollectVisitor(Module *module);
 //		antlrcpp::Any visitVariableExpression(WorkScriptParser::VariableExpressionContext*) override;
 //		antlrcpp::Any visitFunctionExpression(WorkScriptParser::FunctionExpressionContext*) override;
 //	protected:
-//		Program * program = nullptr;
+//		Module * module = nullptr;
 //	}
 //}

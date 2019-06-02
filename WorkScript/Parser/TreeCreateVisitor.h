@@ -6,7 +6,7 @@
 #include "Variable.h"
 
 namespace WorkScript {
-	class Program;
+	class Module;
 	class FunctionFragment;
 
 	class TreeCreateVisitor :
@@ -22,7 +22,7 @@ namespace WorkScript {
 		antlrcpp::Any visitFunctionDefine(WorkScriptParser::FunctionDefineContext*) override;
 		antlrcpp::Any visitStdFunctionDecl(WorkScriptParser::StdFunctionDeclContext*) override;
 		antlrcpp::Any visitCall(WorkScriptParser::CallContext*) override;
-		antlrcpp::Any visitProgram(WorkScriptParser::ProgramContext*) override;
+		antlrcpp::Any visitModule(WorkScriptParser::ModuleContext*) override;
 		antlrcpp::Any visitAssignmentOrEquals(WorkScriptParser::AssignmentOrEqualsContext*)override;
 		antlrcpp::Any visitAssignment(WorkScriptParser::AssignmentContext*)override;
 		antlrcpp::Any visitMultiValue(WorkScriptParser::MultiValueContext*) override;
@@ -36,13 +36,13 @@ namespace WorkScript {
 		antlrcpp::Any visitPositive(WorkScriptParser::PositiveContext*)override;
 		antlrcpp::Any visitType(WorkScriptParser::TypeContext*) override;
 		//antlrcpp::Any visitAccessLevel(WorkScriptParser::AccessLevelContext*)override;
-		TreeCreateVisitor(Program* program, const std::wstring &fileName);
+		TreeCreateVisitor(Module* module, const std::wstring &fileName);
 		virtual ~TreeCreateVisitor();
 
-		inline Program *getProgram() const {return this->program;}
+		inline Module *getModule() const {return this->module;}
 		inline const std::wstring &getFileName() const {return this->fileName;}
 	private:
-		Program * program = nullptr;
+		Module * module = nullptr;
 		bool assignable = true;
 		bool declarable = false;
 		size_t curDepth = 0;
